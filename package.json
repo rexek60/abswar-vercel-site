@@ -1,5 +1,5 @@
 {
-  "name": "abswar-final-ui-pixel",
+  "name": "abswar-no-assets-final-ui",
   "version": "1.0.0",
   "scripts": {
     "start": "vite --host 0.0.0.0",
