@@ -1,1 +1,1 @@
-{"name":"abswar-ui-v5-tactical-war-table","version":"5.0.0","scripts":{"start":"vite --host 0.0.0.0","dev":"vite --host 0.0.0.0","build":"vite build"},"dependencies":{"vite":"^5.4.11"}}
+{"name":"abswar-ui-v6-premium-final","version":"6.0.0","scripts":{"start":"vite --host 0.0.0.0","dev":"vite --host 0.0.0.0","build":"vite build"},"dependencies":{"vite":"^5.4.11"}}
