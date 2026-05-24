@@ -1,87 +1,234 @@
 <!doctype html>
-<html lang="tr">
+<html>
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=1440, initial-scale=1">
-<title>ABSWAR UI V3</title>
+<title>ABSWAR FINAL</title>
 <style>
-:root{
-  --bg:#020408;--panel:#070f19;--red:#ff263d;--red2:#ff6070;--cyan:#00d9ff;--blue:#1d8cff;--green:#00ff8a;--yellow:#ffd15a;--text:#edfaff;--muted:#7e98aa;--line:rgba(0,217,255,.20)
+body{
+margin:0;
+background:#03060d;
+color:white;
+font-family:Arial;
+overflow:hidden;
+background:
+radial-gradient(circle at center,rgba(255,0,60,.18),transparent 35%),
+radial-gradient(circle at top right,rgba(0,180,255,.12),transparent 30%),
+linear-gradient(#02040a,#08111d);
 }
-*{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;background:#020408;color:var(--text);font-family:Arial,Helvetica,sans-serif;overflow:hidden}
-body{background:radial-gradient(circle at 52% 42%,rgba(255,38,61,.18),transparent 35%),radial-gradient(circle at 76% 23%,rgba(0,217,255,.12),transparent 28%),radial-gradient(circle at 22% 70%,rgba(255,38,61,.09),transparent 25%),linear-gradient(180deg,#020408,#07101a 48%,#020408)}
-body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.12;background-image:linear-gradient(rgba(0,217,255,.18) 1px,transparent 1px),linear-gradient(90deg,rgba(0,217,255,.18) 1px,transparent 1px);background-size:38px 38px}
-body:after{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(to bottom,rgba(255,255,255,.035) 0 1px,transparent 1px 4px);mix-blend-mode:screen;opacity:.25}
-.app{position:relative;z-index:1;height:100vh;display:grid;grid-template-rows:62px 1fr 40px}
-.topbar{height:62px;display:grid;grid-template-columns:210px 1fr 390px;align-items:center;padding:0 18px;background:rgba(3,8,15,.92);border-bottom:1px solid rgba(255,38,61,.42);box-shadow:0 0 35px rgba(255,38,61,.17);backdrop-filter:blur(12px)}
-.logo{font-size:30px;font-weight:1000;letter-spacing:1px;color:var(--red);text-shadow:0 0 18px rgba(255,38,61,.7)}
-.logo small{display:block;font-size:9px;color:#8aa0ad;letter-spacing:5px;margin-top:-4px}
-.nav{display:flex;justify-content:center;gap:7px}.nav button,.btn{background:linear-gradient(180deg,rgba(12,22,33,.95),rgba(4,9,15,.98));border:1px solid rgba(0,217,255,.20);color:#dff5ff;border-radius:7px;padding:9px 12px;font-size:11px;font-weight:1000;text-transform:uppercase;cursor:pointer}.nav button.active,.nav button:hover,.btn:hover{border-color:var(--red);color:white;box-shadow:0 0 16px rgba(255,38,61,.32)}
-.topright{display:flex;align-items:center;justify-content:flex-end;gap:9px}.eth{padding:8px 12px;color:var(--yellow);font-size:12px;font-weight:1000;border-left:1px solid rgba(0,217,255,.16);border-right:1px solid rgba(0,217,255,.16)}.docs{width:32px;height:32px;border-radius:50%;color:var(--cyan);border:1px solid var(--cyan);background:#07121d;font-weight:1000}.wallet{border-color:rgba(255,38,61,.68);color:#ffdbe0;background:#2b070e}
-.main{height:calc(100vh - 102px);min-height:0;display:grid;grid-template-columns:245px minmax(620px,1fr) 325px;gap:10px;padding:10px}.col{display:flex;flex-direction:column;min-height:0;gap:10px}
-.panel{position:relative;overflow:hidden;background:linear-gradient(180deg,rgba(9,17,28,.97),rgba(3,8,14,.985));border:1px solid var(--line);border-radius:10px;box-shadow:0 0 28px rgba(0,217,255,.08), inset 0 0 36px rgba(255,38,61,.025)}
-.panel:before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--red),transparent)}.panel:after{content:"";position:absolute;right:-35px;top:-35px;width:80px;height:80px;border:1px solid rgba(255,38,61,.12);transform:rotate(45deg)}
-.head{height:40px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-bottom:1px solid rgba(0,217,255,.12);font-size:12px;font-weight:1000;letter-spacing:.7px;text-transform:uppercase;color:#d8f5ff}.head span{color:var(--red);text-shadow:0 0 10px rgba(255,38,61,.75)}.body{padding:12px;min-height:0}
-.profile{height:132px}.avatarrow{display:flex;align-items:center;gap:12px}.avatar{width:58px;height:58px;border-radius:13px;border:1px solid rgba(255,38,61,.42);background:radial-gradient(circle at 50% 38%,#30445c,#05080c 62%);display:grid;place-items:center;font-size:34px;box-shadow:0 0 22px rgba(255,38,61,.20)}.name{font-size:15px;line-height:1.15;font-weight:1000}.level{color:var(--red2);font-size:12px;font-weight:1000;margin-top:5px}.xp{height:6px;background:#03070c;border-radius:99px;margin-top:8px;overflow:hidden}.xp div{height:100%;width:62%;background:linear-gradient(90deg,var(--red),var(--red2));box-shadow:0 0 10px var(--red)}
-.menu{flex:1;min-height:0}.menuBtn{width:100%;display:flex;align-items:center;gap:10px;padding:12px;margin-bottom:8px;border-radius:8px;border:1px solid rgba(0,217,255,.12);background:rgba(0,0,0,.25);color:#cde9f3;text-align:left;cursor:pointer}.menuBtn.active,.menuBtn:hover{border-color:rgba(255,38,61,.58);background:linear-gradient(90deg,rgba(255,38,61,.36),rgba(255,38,61,.04));box-shadow:0 0 18px rgba(255,38,61,.12)}.menuBtn i{font-style:normal;color:var(--red2);font-size:18px}.menuBtn b{display:block;font-size:13px}.menuBtn small{display:block;color:var(--muted);margin-top:2px}
-.launch{height:88px}.launch button{width:100%;height:54px;font-size:16px;background:linear-gradient(90deg,#35070d,#160407);border-color:rgba(255,38,61,.72);color:#ffb8c0;box-shadow:0 0 20px rgba(255,38,61,.27)}
-.walletPanel{height:145px}.walletBig{display:flex;align-items:center;gap:12px;font-size:26px;font-weight:1000}.diamond{color:#28a6ff;filter:drop-shadow(0 0 10px #28a6ff);font-size:36px}.usd{color:var(--muted);font-size:12px;margin-top:5px}
-.mapPanel{flex:1;min-height:0}.map{position:relative;height:calc(100% - 52px);min-height:460px;margin:10px;border-radius:10px;border:1px solid rgba(0,217,255,.18);overflow:hidden;background:radial-gradient(circle at 48% 48%,rgba(0,255,138,.11),transparent 24%),radial-gradient(circle at 30% 44%,rgba(255,38,61,.22),transparent 27%),radial-gradient(circle at 70% 44%,rgba(0,183,255,.18),transparent 30%),#01060c}
-.map:before{content:"";position:absolute;inset:-20%;background:conic-gradient(from 0deg,transparent 0 270deg,rgba(0,217,255,.12),rgba(255,38,61,.28),transparent 332deg);animation:sweep 9s linear infinite}@keyframes sweep{to{transform:rotate(360deg)}}
-.map:after{content:"";position:absolute;inset:0;background:radial-gradient(circle at center,transparent 0 36%,rgba(0,0,0,.18) 70%);pointer-events:none}
-.world-svg{position:absolute;inset:4%;z-index:2;filter:drop-shadow(0 0 14px rgba(0,217,255,.2))}
-.world-svg path{fill:rgba(255,255,255,.035);stroke-width:1.4;stroke-linejoin:round;vector-effect:non-scaling-stroke}
-.redzone{stroke:#ff263d;filter:drop-shadow(0 0 10px #ff263d)}.greenzone{stroke:#00ff8a;filter:drop-shadow(0 0 10px #00ff8a)}.bluezone{stroke:#00b7ff;filter:drop-shadow(0 0 10px #00b7ff)}
-.ring{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border:1px solid rgba(255,38,61,.14);border-radius:50%;z-index:1}.r1{width:88%;height:72%}.r2{width:64%;height:50%}.r3{width:38%;height:30%}.r4{width:20%;height:16%}
-.node{position:absolute;z-index:5;transform:translate(-50%,-50%);text-align:center;cursor:pointer}.node .flag{font-size:22px;filter:drop-shadow(0 0 9px var(--red))}.node .label{background:rgba(0,0,0,.62);border:1px solid rgba(255,38,61,.38);border-radius:7px;padding:2px 6px;font-size:10px;font-weight:1000;white-space:nowrap}.node:hover{filter:brightness(1.4)}
-.route{position:absolute;height:2px;background:linear-gradient(90deg,transparent,var(--red),#fff,transparent);box-shadow:0 0 18px var(--red);opacity:0;transform-origin:left;animation:flow 2.5s infinite;z-index:4}@keyframes flow{0%{opacity:0;clip-path:inset(0 100% 0 0)}20%{opacity:1}55%{clip-path:inset(0 0 0 0)}100%{opacity:0;clip-path:inset(0 0 0 100%)}}
-.pulse{position:absolute;width:28px;height:28px;border:1px solid var(--red);border-radius:50%;z-index:4;animation:radar 2.2s infinite;box-shadow:0 0 14px var(--red)}@keyframes radar{from{transform:translate(-50%,-50%) scale(.2);opacity:1}to{transform:translate(-50%,-50%) scale(2.7);opacity:0}}
-.radar-sweep{position:absolute;right:34px;top:34px;width:110px;height:110px;border-radius:50%;border:1px solid rgba(0,255,138,.35);z-index:8;background:radial-gradient(circle,rgba(0,255,138,.10),transparent 60%);overflow:hidden}.radar-sweep:before{content:"";position:absolute;inset:0;background:conic-gradient(from 0deg,rgba(0,255,138,.55),transparent 70deg,transparent 360deg);animation:sweep 2.8s linear infinite}
-.legend{position:absolute;left:15px;bottom:15px;z-index:8;width:170px;background:rgba(0,0,0,.50);border:1px solid rgba(0,217,255,.16);border-radius:8px;padding:10px;color:#bfe;font-size:11px}.legend p{margin:7px 0}.liveBox{position:absolute;right:15px;bottom:15px;width:220px;z-index:8;background:rgba(0,0,0,.52);border:1px solid rgba(0,217,255,.16);border-radius:8px;padding:10px}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:0 10px 10px}.stat{background:rgba(0,0,0,.34);border:1px solid rgba(0,217,255,.14);border-radius:8px;padding:10px}.stat b{display:block;font-size:20px}.stat small{color:var(--muted);font-size:11px}
-.bottom{height:250px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}.list{display:flex;flex-direction:column;gap:8px;overflow:auto;max-height:100%}.item,.pack,.row{background:rgba(0,0,0,.34);border:1px solid rgba(0,217,255,.13);border-radius:8px;padding:9px;color:#dff;font-size:12px}.overview{height:182px}.market{height:214px}.leader{flex:1;min-height:0}.docsPanel{height:158px}.feed{height:208px}.input{width:100%;padding:8px;border:1px solid rgba(0,217,255,.22);background:#030914;color:white;border-radius:7px;margin-bottom:8px}
-.footer{display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:rgba(3,8,15,.92);border-top:1px solid rgba(255,38,61,.30);font-size:12px;color:#9db2bd}.green{color:var(--green);font-weight:1000;text-shadow:0 0 10px var(--green)}.announce{color:var(--yellow)}.join{background:linear-gradient(90deg,#2a060b,#5a1119);border:1px solid rgba(255,38,61,.68);color:white;border-radius:8px;padding:8px 22px;font-weight:1000}
+.scan{
+position:fixed;
+inset:0;
+background:repeating-linear-gradient(to bottom,rgba(255,255,255,.03) 0 1px,transparent 1px 4px);
+pointer-events:none;
+}
+.top{
+height:70px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:0 30px;
+border-bottom:1px solid rgba(255,0,70,.4);
+background:rgba(0,0,0,.4);
+backdrop-filter:blur(10px);
+}
+.logo{
+font-size:42px;
+font-weight:900;
+color:#ff334d;
+text-shadow:0 0 20px #ff334d;
+}
+.nav{
+display:flex;
+gap:16px;
+}
+.nav div{
+padding:10px 14px;
+border:1px solid rgba(0,200,255,.2);
+border-radius:8px;
+font-size:12px;
+font-weight:bold;
+}
+.wrap{
+display:grid;
+grid-template-columns:260px 1fr 320px;
+gap:12px;
+padding:12px;
+height:calc(100vh - 94px);
+}
+.panel{
+background:rgba(5,12,22,.92);
+border:1px solid rgba(0,200,255,.18);
+border-radius:12px;
+box-shadow:0 0 20px rgba(0,200,255,.08);
+position:relative;
+overflow:hidden;
+}
+.panel:before{
+content:"";
+position:absolute;
+left:0;
+right:0;
+top:0;
+height:1px;
+background:linear-gradient(90deg,transparent,#ff334d,transparent);
+}
+.left,.right{
+display:flex;
+flex-direction:column;
+gap:12px;
+}
+.profile{
+padding:20px;
+}
+.profile h2{
+margin:0;
+color:#ff5570;
+}
+.map{
+position:relative;
+height:100%;
+overflow:hidden;
+}
+.world{
+position:absolute;
+inset:0;
+background:
+radial-gradient(circle at 25% 40%,rgba(255,0,70,.28),transparent 15%),
+radial-gradient(circle at 70% 35%,rgba(0,140,255,.22),transparent 18%),
+radial-gradient(circle at 55% 55%,rgba(0,255,120,.15),transparent 14%);
+}
+.ring{
+position:absolute;
+border:1px solid rgba(255,255,255,.12);
+border-radius:50%;
+left:50%;
+top:50%;
+transform:translate(-50%,-50%);
+}
+.r1{width:90%;height:70%}
+.r2{width:60%;height:45%}
+.r3{width:35%;height:25%}
+.node{
+position:absolute;
+padding:6px 10px;
+background:rgba(0,0,0,.55);
+border:1px solid rgba(255,0,70,.45);
+border-radius:8px;
+font-size:12px;
+font-weight:bold;
+box-shadow:0 0 12px rgba(255,0,70,.3);
+}
+.beam{
+position:absolute;
+height:2px;
+background:linear-gradient(90deg,transparent,#ff3350,#fff,transparent);
+box-shadow:0 0 14px #ff3350;
+animation:beam 2s infinite;
+}
+@keyframes beam{
+0%{opacity:0;clip-path:inset(0 100% 0 0)}
+40%{opacity:1}
+100%{opacity:0;clip-path:inset(0 0 0 100%)}
+}
+.feed,.ammo,.docs{
+padding:16px;
+}
+.feed div,.ammo div,.docs div{
+margin-bottom:10px;
+padding:10px;
+border:1px solid rgba(0,200,255,.15);
+border-radius:8px;
+background:rgba(0,0,0,.3);
+}
+.footer{
+position:fixed;
+left:0;
+right:0;
+bottom:0;
+height:34px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:0 16px;
+background:#050b14;
+border-top:1px solid rgba(255,0,70,.35);
+font-size:12px;
+}
+.join{
+background:#5b0d1b;
+padding:8px 18px;
+border-radius:8px;
+border:1px solid rgba(255,0,70,.5);
+}
 </style>
 </head>
 <body>
-<div class="app">
-<header class="topbar"><div><div class="logo">ABSWAR</div><small>GLOBAL WAR MMO</small></div><nav class="nav"><button class="active">Dashboard</button><button>Map</button><button>Countries</button><button>Alliances</button><button>Stats</button><button>Market</button><button>Ranking</button></nav><div class="topright"><button class="docs">?</button><div class="eth">0.045 ETH</div><button class="btn wallet">CONNECT WALLET</button></div></header>
-<main class="main">
-<aside class="col">
-<section class="panel profile"><div class="body"><div class="avatarrow"><div class="avatar">☠</div><div><div class="name">COMMANDER<br>REXEK60</div><div class="level">LEVEL 60</div><div class="xp"><div></div></div><small style="color:var(--muted)">124,750 / 250,000 XP</small></div></div></div></section>
-<section class="panel menu"><div class="body"><button class="menuBtn active"><i>⌂</i><div><b>DASHBOARD</b><small>War Overview</small></div></button><button class="menuBtn"><i>⬡</i><div><b>MAP</b><small>World Conquest</small></div></button><button class="menuBtn"><i>⚔</i><div><b>BATTLES</b><small>Live Operations</small></div></button><button class="menuBtn"><i>🛡</i><div><b>ALLIANCE</b><small>Brotherhood</small></div></button><button class="menuBtn"><i>▣</i><div><b>MARKET</b><small>War Economy</small></div></button><button class="menuBtn"><i>♜</i><div><b>LEADERBOARD</b><small>Top Commanders</small></div></button><button class="menuBtn"><i>▤</i><div><b>DOCUMENTS</b><small>War Archives</small></div></button></div></section>
-<section class="panel launch"><div class="body"><button>⚔ LAUNCH ATTACK<br><small>DEPLOY FORCES</small></button></div></section>
-<section class="panel walletPanel"><div class="body"><small style="color:var(--muted)">WALLET STATUS</small><div class="walletBig"><span class="diamond">♦</span><span>2.847 ETH</span></div><div class="usd">≈ $7,192.45 USD</div><button class="btn" style="width:100%;margin-top:12px">CONNECT WALLET</button></div></section>
-</aside>
-<section class="col">
-<section class="panel mapPanel"><div class="head"><span>World War Map</span><small>Real-time global conflict status</small></div><div class="map">
-<div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div><div class="ring r4"></div>
-<svg class="world-svg" viewBox="0 0 1000 520" preserveAspectRatio="none">
-<path class="redzone" d="M80,170 C140,90 250,110 300,165 C330,210 285,250 220,240 C150,235 55,235 80,170Z"/>
-<path class="redzone" d="M270,310 C315,355 325,440 285,490 C235,445 220,360 270,310Z"/>
-<path class="greenzone" d="M445,160 C495,125 555,145 585,180 C560,215 490,215 445,160Z"/>
-<path class="greenzone" d="M470,235 C560,210 640,275 620,390 C560,455 470,390 470,235Z"/>
-<path class="bluezone" d="M625,150 C740,90 900,130 930,210 C880,285 705,275 625,150Z"/>
-<path class="bluezone" d="M790,355 C850,350 900,375 920,420 C875,455 800,425 790,355Z"/>
-<path class="greenzone" d="M410,205 C440,180 480,190 500,220 C470,250 425,240 410,205Z"/>
-</svg>
-<div class="route" style="left:22%;top:43%;width:340px;transform:rotate(8deg)"></div><div class="route" style="left:39%;top:64%;width:290px;transform:rotate(-32deg);animation-delay:.7s"></div><div class="route" style="left:57%;top:33%;width:220px;transform:rotate(27deg);animation-delay:1.2s"></div><div class="route" style="left:49%;top:43%;width:190px;transform:rotate(-8deg);animation-delay:1.7s"></div>
-<div class="pulse" style="left:49%;top:43%"></div><div class="pulse" style="left:22%;top:41%;animation-delay:.5s"></div><div class="pulse" style="left:72%;top:45%;animation-delay:1s"></div>
-<div class="node" style="left:49%;top:43%"><div class="flag">🇹🇷</div><div class="label">Türkiye<br>100K HP</div></div><div class="node" style="left:22%;top:41%"><div class="flag">🇺🇸</div><div class="label">USA<br>100K HP</div></div><div class="node" style="left:63%;top:30%"><div class="flag">🇷🇺</div><div class="label">Russia<br>100K HP</div></div><div class="node" style="left:72%;top:45%"><div class="flag">🇨🇳</div><div class="label">China<br>100K HP</div></div><div class="node" style="left:83%;top:43%"><div class="flag">🇯🇵</div><div class="label">Japan<br>100K HP</div></div><div class="node" style="left:34%;top:66%"><div class="flag">🇧🇷</div><div class="label">Brazil<br>100K HP</div></div><div class="node" style="left:78%;top:69%"><div class="flag">🇦🇺</div><div class="label">Australia<br>100K HP</div></div>
-<div class="radar-sweep"></div>
-<div class="legend"><b>MAP LEGEND</b><p>🟢 YOUR ALLIANCE</p><p>🔵 ALLY TERRITORY</p><p>🔴 ENEMY TERRITORY</p><p>🟡 CONTESTED ZONE</p></div><div class="liveBox"><b style="color:var(--cyan)">LIVE ACTIVITY</b><div style="font-size:11px;color:#bdf;margin-top:8px">🔴 TR → RU<br>🔴 US → CN<br>🟢 Alliance formed</div></div>
-</div><div class="stats"><div class="stat"><b>124K</b><small>Total Players</small></div><div class="stat"><b>1.2M</b><small>Total Battles</small></div><div class="stat"><b>78.4%</b><small>Victory Rate</small></div></div></section>
-<section class="bottom"><div class="panel"><div class="head"><span>War Statistics</span></div><div class="body"><div class="item"><b>78.4%</b><br>Victory Rate</div><div class="item green">Wars Won 44,498,771</div><div class="item" style="color:var(--red2)">Wars Lost 12,290,570</div></div></div><div class="panel"><div class="head"><span>Alliance Status</span></div><div class="body"><input class="input" placeholder="Alliance adı"><button class="btn">ALLIANCE KUR</button><div class="item" style="margin-top:8px">No active alliance yet.</div></div></div><div class="panel"><div class="head"><span>Resource Overview</span></div><div class="body"><div class="item">🟡 GOLD <b style="float:right">2.4M</b></div><div class="item">🛢 OIL <b style="float:right">1.8M</b></div><div class="item">⚙ STEEL <b style="float:right">3.2M</b></div><div class="item">✳ TECH <b style="float:right">956K</b></div></div></div></section>
-</section>
-<aside class="col">
-<section class="panel feed"><div class="head"><span>Live War Feed</span><button class="btn">ALL⌄</button></div><div class="body"><div class="list"><div class="item">🔴 Russia under attack by Türkiye</div><div class="item">🟢 Alliance created: Iron Pact</div><div class="item">🔴 China launched counter attack</div><div class="item">🔵 Japan reinforcements arrived</div></div></div></section>
-<section class="panel market"><div class="head"><span>Buy Ammo</span></div><div class="body"><div class="pack">Basic Ammo 100 bullets <button class="btn" style="float:right">BUY</button></div><div class="pack">Advanced Ammo 1,000 bullets <button class="btn" style="float:right">BUY</button></div><div class="pack">Premium Ammo 10,000 bullets <button class="btn" style="float:right">BUY</button></div><div class="pack">Legendary Ammo 100,000 bullets <button class="btn" style="float:right">BUY</button></div></div></section>
-<section class="panel leader"><div class="head"><span>Top Commanders</span><button class="btn">VIEW ALL</button></div><div class="body"><div class="list"><div class="item">#1 REXEK60 — 2.847M</div><div class="item">#2 ShadowMaster — 2.341M</div><div class="item">#3 WarMachine — 1.892M</div><div class="item">#4 NightHawk — 1.567M</div></div></div></section>
-<section class="panel docsPanel"><div class="head"><span>Recent Documents</span><button class="btn">VIEW ALL</button></div><div class="body"><div class="item">Battle Report - Tokyo Defense</div><div class="item">Alliance War Declaration</div></div></section>
-</aside>
-</main>
-<footer class="footer"><div>SYSTEM STATUS <span class="green">OPERATIONAL</span></div><div><span class="announce">GLOBAL ANNOUNCEMENT:</span> Double XP Event Active!</div><button class="join">JOIN THE WAR</button></footer>
+<div class="scan"></div>
+<div class="top">
+<div class="logo">ABSWAR</div>
+<div class="nav">
+<div>DASHBOARD</div>
+<div>MAP</div>
+<div>ALLIANCES</div>
+<div>MARKET</div>
+<div>RANKING</div>
+</div>
+<div>0.045 ETH</div>
+</div>
+
+<div class="wrap">
+<div class="left">
+<div class="panel profile">
+<h2>COMMANDER</h2>
+<h1>REXEK60</h1>
+<p>LEVEL 60</p>
+</div>
+<div class="panel profile">
+<h2>LAUNCH ATTACK</h2>
+<p>DEPLOY FORCES</p>
+</div>
+</div>
+
+<div class="panel map">
+<div class="world"></div>
+<div class="ring r1"></div>
+<div class="ring r2"></div>
+<div class="ring r3"></div>
+
+<div class="beam" style="left:25%;top:45%;width:360px;transform:rotate(8deg)"></div>
+<div class="beam" style="left:55%;top:40%;width:240px;transform:rotate(-18deg);animation-delay:1s"></div>
+
+<div class="node" style="left:20%;top:40%">USA</div>
+<div class="node" style="left:48%;top:45%">TURKEY</div>
+<div class="node" style="left:68%;top:35%">RUSSIA</div>
+<div class="node" style="left:76%;top:48%">CHINA</div>
+<div class="node" style="left:84%;top:42%">JAPAN</div>
+</div>
+
+<div class="right">
+<div class="panel feed">
+<h3>LIVE WAR FEED</h3>
+<div>Russia under attack</div>
+<div>Alliance created</div>
+<div>China launched counter attack</div>
+</div>
+<div class="panel ammo">
+<h3>BUY AMMO</h3>
+<div>Basic Ammo</div>
+<div>Advanced Ammo</div>
+<div>Legendary Ammo</div>
+</div>
+<div class="panel docs">
+<h3>RECENT DOCUMENTS</h3>
+<div>Battle Report</div>
+<div>War Declaration</div>
+</div>
+</div>
+</div>
+
+<div class="footer">
+<div>SYSTEM STATUS OPERATIONAL</div>
+<div class="join">JOIN THE WAR</div>
 </div>
 </body>
 </html>
