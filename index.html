@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=1440, initial-scale=1">
-<title>ABSWAR UI V8 Final Complete</title>
+<title>ABSWAR UI V9 Backend Connected</title>
 <style>
 :root{--bg:#020408;--panel:#07111c;--red:#ff263d;--red2:#ff6070;--cyan:#00d9ff;--blue:#1d8cff;--green:#00ff8a;--yellow:#ffd15a;--text:#edfaff;--muted:#7e98aa;--line:rgba(0,217,255,.22)}
 *{box-sizing:border-box}
@@ -117,17 +117,38 @@ body:after{content:"";position:fixed;inset:0;pointer-events:none;background:repe
 }
 .toast.show{display:block}
 
+
+/* V9 backend connected layer */
+.server-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  color:#00ff8a;
+  font-size:11px;
+  font-weight:1000;
+  text-shadow:0 0 10px #00ff8a;
+}
+.server-dot{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:#00ff8a;
+  box-shadow:0 0 12px #00ff8a;
+  animation:pulseDot 1s infinite;
+}
+@keyframes pulseDot{50%{transform:scale(1.6);opacity:.55}}
+
 </style>
 </head>
 <body>
 <div class="app">
-<header class="topbar"><div><div class="logo">ABSWAR</div><small>GLOBAL WAR MMO</small></div><nav class="nav"><button class="active">Dashboard</button><button>Map</button><button onclick="openGlobal('countries')">Countries</button><button onclick="openGlobal('alliances')">Alliances</button><button>Stats</button><button onclick="openGlobal('market')">Market</button><button onclick="openGlobal('ranking')">Ranking</button></nav><div class="topright"><button class="docs" onclick="openGlobal('docs')">?</button><div class="eth">0.045 ETH</div><button class="btn wallet" onclick="openDeploy('Wallet')">CONNECT WALLET</button></div></header>
+<header class="topbar"><div><div class="logo">ABSWAR</div><small>GLOBAL WAR MMO</small></div><nav class="nav"><button class="active">Dashboard</button><button>Map</button><button onclick="openGlobal('countries')">Countries</button><button onclick="openGlobal('alliances')">Alliances</button><button>Stats</button><button onclick="openGlobal('market')">Market</button><button onclick="openGlobal('ranking')">Ranking</button></nav><div class="topright"><button class="docs" onclick="openGlobal('docs')">?</button><div class="eth" id="ethBox">0.045 ETH</div><button class="btn wallet" onclick="connectWallet()">CONNECT WALLET</button></div></header>
 <main class="main">
 <aside class="col">
 <section class="panel profile"><div class="body"><div class="avatarrow"><div class="avatar">☠</div><div><div class="name">COMMANDER<br>REXEK60</div><div class="level">LEVEL 60</div><div class="xp"><div></div></div><small style="color:var(--muted)">124,750 / 250,000 XP</small></div></div></div></section>
 <section class="panel menu"><div class="body"><button class="menuBtn active"><i>⌂</i><div><b>DASHBOARD</b><small>War Overview</small></div></button><button class="menuBtn"><i>⬡</i><div><b>MAP</b><small>World Conquest</small></div></button><button class="menuBtn"><i>⚔</i><div><b>BATTLES</b><small>Live Operations</small></div></button><button class="menuBtn"><i>🛡</i><div><b>ALLIANCE</b><small>Brotherhood</small></div></button><button class="menuBtn"><i>▣</i><div><b>MARKET</b><small>War Economy</small></div></button><button class="menuBtn"><i>♜</i><div><b>LEADERBOARD</b><small>Top Commanders</small></div></button><button class="menuBtn" onclick="openGlobal('docs')"><i>▤</i><div><b>DOCUMENTS</b><small>War Archives</small></div></button></div></section>
-<section class="panel launch"><div class="body"><button onclick="openDeploy('Launch Attack')">⚔ LAUNCH ATTACK<br><small>DEPLOY FORCES</small></button></div></section>
-<section class="panel walletPanel"><div class="body"><small style="color:var(--muted)">WALLET STATUS</small><div class="walletBig"><span class="diamond">♦</span><span>2.847 ETH</span></div><div class="usd">≈ $7,192.45 USD</div><button class="btn" style="width:100%;margin-top:12px" onclick="openDeploy('Wallet')">CONNECT WALLET</button></div></section>
+<section class="panel launch"><div class="body"><button onclick="joinWar()">⚔ LAUNCH ATTACK<br><small>DEPLOY FORCES</small></button></div></section>
+<section class="panel walletPanel"><div class="body"><small style="color:var(--muted)">WALLET STATUS</small><div class="walletBig"><span class="diamond">♦</span><span>2.847 ETH</span></div><div class="usd">≈ $7,192.45 USD</div><button class="btn" style="width:100%;margin-top:12px" onclick="connectWallet()">CONNECT WALLET</button></div></section>
 </aside>
 <section class="col">
 <section class="panel mapPanel"><div class="head"><span>World War Map</span><small>Real-time global conflict status</small></div><div class="map">
@@ -144,7 +165,7 @@ body:after{content:"";position:fixed;inset:0;pointer-events:none;background:repe
 </svg>
 <div class="route" style="left:22%;top:43%;width:340px;transform:rotate(8deg)"></div><div class="route" style="left:39%;top:64%;width:290px;transform:rotate(-32deg);animation-delay:.7s"></div><div class="route" style="left:57%;top:33%;width:220px;transform:rotate(27deg);animation-delay:1.2s"></div><div class="route" style="left:49%;top:43%;width:190px;transform:rotate(-8deg);animation-delay:1.7s"></div><div class="route" style="left:68%;top:35%;width:160px;transform:rotate(15deg);animation-delay:2.1s"></div>
 <div class="pulse" style="left:49%;top:43%"></div><div class="pulse" style="left:22%;top:41%;animation-delay:.5s"></div><div class="pulse" style="left:72%;top:45%;animation-delay:1s"></div>
-<div class="node" style="left:49%;top:43%" onclick="openDeploy('Türkiye Command')"><div class="flag">🇹🇷</div><div class="label">Türkiye<br>100K HP</div></div><div class="node" style="left:22%;top:41%" onclick="openDeploy('USA Target')"><div class="flag">🇺🇸</div><div class="label">USA<br>100K HP</div></div><div class="node" style="left:63%;top:30%" onclick="openDeploy('Russia Target')"><div class="flag">🇷🇺</div><div class="label">Russia<br>100K HP</div></div><div class="node" style="left:72%;top:45%" onclick="openDeploy('China Target')"><div class="flag">🇨🇳</div><div class="label">China<br>100K HP</div></div><div class="node" style="left:83%;top:43%" onclick="openDeploy('Japan Target')"><div class="flag">🇯🇵</div><div class="label">Japan<br>100K HP</div></div><div class="node" style="left:34%;top:66%" onclick="openDeploy('Brazil Target')"><div class="flag">🇧🇷</div><div class="label">Brazil<br>100K HP</div></div><div class="node" style="left:78%;top:69%" onclick="openDeploy('Australia Target')"><div class="flag">🇦🇺</div><div class="label">Australia<br>100K HP</div></div>
+<div class="node" style="left:49%;top:43%" onclick="attackCountry('TR')"><div class="flag">🇹🇷</div><div class="label">Türkiye<br>100K HP</div></div><div class="node" style="left:22%;top:41%" onclick="attackCountry('US')"><div class="flag">🇺🇸</div><div class="label">USA<br>100K HP</div></div><div class="node" style="left:63%;top:30%" onclick="attackCountry('RU')"><div class="flag">🇷🇺</div><div class="label">Russia<br>100K HP</div></div><div class="node" style="left:72%;top:45%" onclick="attackCountry('CN')"><div class="flag">🇨🇳</div><div class="label">China<br>100K HP</div></div><div class="node" style="left:83%;top:43%" onclick="attackCountry('JP')"><div class="flag">🇯🇵</div><div class="label">Japan<br>100K HP</div></div><div class="node" style="left:34%;top:66%" onclick="attackCountry('BR')"><div class="flag">🇧🇷</div><div class="label">Brazil<br>100K HP</div></div><div class="node" style="left:78%;top:69%" onclick="attackCountry('AU')"><div class="flag">🇦🇺</div><div class="label">Australia<br>100K HP</div></div>
 <div class="radar-sweep"></div><div class="ticker"><span>GLOBAL ALERT: TURKEY LAUNCHED MASSIVE OFFENSIVE • RUSSIA UNDER ATTACK • ALLIANCE NETWORK SYNCHRONIZED</span></div>
 <div class="legend"><b>MAP LEGEND</b><p>🟢 YOUR ALLIANCE</p><p>🔵 ALLY TERRITORY</p><p>🔴 ENEMY TERRITORY</p><p>🟡 CONTESTED ZONE</p></div><div class="liveBox"><b style="color:var(--cyan)">LIVE ACTIVITY</b><div style="font-size:11px;color:#bdf;margin-top:8px">🔴 TR → RU<br>🔴 US → CN<br>🟢 Alliance formed</div></div>
 <div class="deploy-modal" id="deploy"><h3 id="deployTitle">Deployment</h3><p style="font-size:12px;color:#bde">Target locked. Tactical overlay ready.</p><button class="btn" onclick="confirmDeploy()">CONFIRM</button></div>
@@ -153,12 +174,12 @@ body:after{content:"";position:fixed;inset:0;pointer-events:none;background:repe
 </section>
 <aside class="col">
 <section class="panel feed"><div class="head"><span>Live War Feed</span><button class="btn">ALL⌄</button></div><div class="body"><div class="list"><div class="item">🔴 Russia under attack by Türkiye</div><div class="item">🟢 Alliance created: Iron Pact</div><div class="item">🔴 China launched counter attack</div><div class="item">🔵 Japan reinforcements arrived</div></div></div></section>
-<section class="panel market"><div class="head"><span>Buy Ammo</span></div><div class="body"><div class="pack">Basic Ammo 100 bullets <button class="btn" style="float:right" onclick="openDeploy('Basic Ammo')">BUY</button></div><div class="pack">Advanced Ammo 1,000 bullets <button class="btn" style="float:right" onclick="openDeploy('Advanced Ammo')">BUY</button></div><div class="pack">Premium Ammo 10,000 bullets <button class="btn" style="float:right" onclick="openDeploy('Premium Ammo')">BUY</button></div><div class="pack">Legendary Ammo 100,000 bullets <button class="btn" style="float:right" onclick="openDeploy('Legendary Ammo')">BUY</button></div></div></section>
+<section class="panel market"><div class="head"><span>Buy Ammo</span></div><div class="body"><div class="pack">Basic Ammo 100 bullets <button class="btn" style="float:right" onclick="buyAmmo(1)">BUY</button></div><div class="pack">Advanced Ammo 1,000 bullets <button class="btn" style="float:right" onclick="buyAmmo(10)">BUY</button></div><div class="pack">Premium Ammo 10,000 bullets <button class="btn" style="float:right" onclick="buyAmmo(100)">BUY</button></div><div class="pack">Legendary Ammo 100,000 bullets <button class="btn" style="float:right" onclick="buyAmmo(1000)">BUY</button></div></div></section>
 <section class="panel leader"><div class="head"><span>Top Commanders</span><button class="btn">VIEW ALL</button></div><div class="body"><div class="list"><div class="item">#1 REXEK60 — 2.847M<div class="bar"><div class="fill" style="width:98%"></div></div></div><div class="item">#2 ShadowMaster — 2.341M<div class="bar"><div class="fill" style="width:82%"></div></div></div><div class="item">#3 WarMachine — 1.892M<div class="bar"><div class="fill" style="width:67%"></div></div></div><div class="item">#4 NightHawk — 1.567M<div class="bar"><div class="fill" style="width:51%"></div></div></div></div></div></section>
 <section class="panel docsPanel"><div class="head"><span>Recent Documents</span><button class="btn">VIEW ALL</button></div><div class="body"><div class="item">Battle Report - Tokyo Defense</div><div class="item">Alliance War Declaration</div></div></section>
 </aside>
 </main>
-<footer class="footer"><div>SYSTEM STATUS <span class="green">OPERATIONAL</span></div><div><span class="announce">GLOBAL ANNOUNCEMENT:</span> Double XP Event Active!</div><button class="join" onclick="openDeploy('Join The War')">JOIN THE WAR</button></footer>
+<footer class="footer"><div>SYSTEM STATUS <span class="green" id="serverStatus">CONNECTING</span></div><div><span class="announce">GLOBAL ANNOUNCEMENT:</span> Double XP Event Active!</div><button class="join" onclick="joinWar()">JOIN THE WAR</button></footer>
 </div>
 
 <div class="global-modal" id="globalModal">
@@ -240,6 +261,87 @@ function closeGlobal(){
   document.getElementById('globalModal').classList.remove('show');
 }
 
+
+const API="https://abswar-clean-backend-production.up.railway.app";
+let wallet="demo-player-"+Math.floor(Math.random()*999999);
+let gameState=null;
+
+async function api(path, options={}){
+  const res=await fetch(API+path,{
+    ...options,
+    headers:{ "Content-Type":"application/json", ...(options.headers||{}) }
+  });
+  return await res.json();
+}
+
+async function connectWallet(){
+  try{
+    if(!window.ethereum){
+      toast("MetaMask yok, demo wallet aktif");
+      await api("/api/player/connect",{method:"POST",body:JSON.stringify({wallet})});
+      return;
+    }
+    const acc=await ethereum.request({method:"eth_requestAccounts"});
+    wallet=acc[0].toLowerCase();
+    await api("/api/player/connect",{method:"POST",body:JSON.stringify({wallet})});
+    toast("Wallet bağlandı: "+wallet.slice(0,6)+"..."+wallet.slice(-4));
+    const box=document.getElementById("ethBox");
+    if(box) box.textContent="CONNECTED";
+  }catch(e){ toast("Wallet bağlantısı iptal edildi"); }
+}
+
+async function joinWar(){
+  try{
+    const d=await api("/api/player/choose-country",{method:"POST",body:JSON.stringify({wallet,countryCode:"TR"})});
+    toast(d.error || "Türkiye tarafına katıldın");
+  }catch(e){ toast("Join hata: "+e.message); }
+}
+
+async function buyAmmo(pack){
+  try{
+    const d=await api("/api/market/buy-demo",{method:"POST",body:JSON.stringify({wallet,pack})});
+    toast(d.error || ("+"+d.added+" mermi eklendi"));
+  }catch(e){ toast("Market hata: "+e.message); }
+}
+
+async function attackCountry(code){
+  try{
+    if(code==="TR"){ toast("Türkiye senin merkez üssün"); return; }
+    const d=await api("/api/game/attack",{method:"POST",body:JSON.stringify({wallet,targetCountry:code})});
+    toast(d.error || ("Attack sent: "+code));
+  }catch(e){ toast("Attack hata: "+e.message); }
+}
+
+function renderState(d){
+  gameState=d;
+  const s=document.getElementById("serverStatus");
+  if(s) s.textContent="OPERATIONAL";
+  const globalPlayers=document.querySelector(".stat b");
+  if(globalPlayers && d.onlinePlayers!==undefined) globalPlayers.textContent=(124847 + d.onlinePlayers).toLocaleString();
+}
+
+async function loadState(){
+  try{
+    const d=await api("/api/game/state");
+    renderState(d);
+  }catch(e){
+    const s=document.getElementById("serverStatus");
+    if(s) s.textContent="OFFLINE";
+  }
+}
+
+try{
+  const socket=io(API,{transports:["websocket","polling"]});
+  socket.on("connect",()=>toast("Realtime connected"));
+  socket.on("war:state",renderState);
+  socket.on("war:attack",(a)=>toast("Live attack: "+a.from_country+" → "+a.target_country));
+  socket.on("alliance:feed",(x)=>toast(x.message));
+}catch(e){}
+
+loadState();
+setInterval(loadState,5000);
+
 </script>
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 </body>
 </html>
