@@ -2,152 +2,498 @@
 <html lang="tr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=1536, initial-scale=1">
-<title>ABSWAR — Alliance Beta</title>
+<meta name="viewport" content="width=1280, initial-scale=1">
+<title>ABSWAR — Final UI</title>
 <style>
-html,body{margin:0;background:#020305;color:white;font-family:Arial,Helvetica,sans-serif;overflow-x:hidden}
-.stage{position:relative;width:1536px;height:1024px;margin:0 auto;background:url("./assets/abswar-final-ui.png") center top / 1536px 1024px no-repeat;overflow:hidden;box-shadow:0 0 80px rgba(255,36,74,.18)}
-.stage:before{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(to bottom,rgba(255,255,255,.035) 0 1px,transparent 1px 4px);mix-blend-mode:screen}
-.panel{position:absolute;background:rgba(4,10,18,.94);border:1px solid rgba(0,255,170,.35);border-radius:14px;box-shadow:0 0 24px rgba(0,255,170,.16);z-index:4}
-.status{right:24px;top:64px;width:295px;padding:14px}
-.title{font-size:12px;color:#9defff;letter-spacing:1px;font-weight:900}
-.online{font-size:18px;font-weight:900;margin-top:6px;color:#00ff88;text-shadow:0 0 12px #00ff88}
-.offline{font-size:18px;font-weight:900;margin-top:6px;color:#ff244a;text-shadow:0 0 12px #ff244a}
-.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#00ff88;margin-right:7px;box-shadow:0 0 14px #00ff88;animation:pulse 1s infinite}
-@keyframes pulse{50%{transform:scale(1.6);opacity:.55}}
-.countries{right:22px;bottom:20px;width:360px;height:380px;padding:14px;overflow:auto}
-.feed{left:22px;bottom:20px;width:385px;height:230px;padding:14px;overflow:auto}
-.market{left:420px;bottom:20px;width:260px;height:230px;padding:14px;overflow:auto}
-.leader{left:695px;bottom:20px;width:250px;height:230px;padding:14px;overflow:auto}
-.alliance{left:960px;bottom:20px;width:285px;height:380px;padding:14px;overflow:auto}
-.radio{left:22px;top:88px;width:260px;height:260px;padding:14px;overflow:auto}
-.item,.country,.pack,.row{padding:9px;border-radius:10px;background:rgba(255,255,255,.035);margin-top:8px;color:#dff;font-size:12px}
-.top{display:flex;justify-content:space-between;font-weight:700}
-.bar{height:7px;background:#000;border-radius:50px;overflow:hidden;margin-top:7px}
-.fill{height:100%;background:linear-gradient(90deg,#00ff88,#72ffd1);box-shadow:0 0 12px #00ff88}
-button{cursor:pointer}
-.attack,.pack button,.mainbtn,.radioBtn{width:100%;margin-top:8px;padding:9px;border-radius:10px;border:1px solid rgba(255,36,74,.5);background:#2a0610;color:#fff;font-weight:900;font-size:12px}
-.pack button{background:#00ff88;color:#001500;border:0}
-.mainbtn{background:#071018;border-color:#00ff88;color:#00ff88}
-.radioBtn{background:#071018;border-color:#00d9ff;color:#dff}
-input{width:100%;padding:9px;border-radius:9px;border:1px solid #00ff8855;background:#030812;color:white;margin-top:8px}
-.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#080d14;border:1px solid #ff244a88;color:white;border-radius:12px;padding:13px 18px;box-shadow:0 0 25px #ff244a55;display:none;z-index:50}
-.toast.show{display:block}
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  background: #030407;
+  color: #fff;
+  font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+}
+
+body {
+  min-height: 100vh;
+}
+
+.stage {
+  position: relative;
+  width: 1280px;
+  height: 853px;
+  margin: 0 auto;
+  background-image: url("./assets/abswar-final-ui.jpg");
+  background-repeat: no-repeat;
+  background-position: center top;
+  background-size: 1280px 853px;
+  overflow: hidden;
+}
+
+.scanlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255,255,255,0.025) 0px,
+    rgba(255,255,255,0.025) 1px,
+    transparent 1px,
+    transparent 4px
+  );
+  mix-blend-mode: screen;
+  opacity: .35;
+}
+
+.attack-line {
+  position: absolute;
+  height: 2px;
+  transform-origin: left center;
+  background: linear-gradient(90deg, transparent, #ff244a, #fff, transparent);
+  box-shadow: 0 0 16px #ff244a, 0 0 30px rgba(255,36,74,.55);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.l1 { left: 229px; top: 224px; width: 275px; transform: rotate(-5deg); animation: flow 2.4s infinite; }
+.l2 { left: 392px; top: 339px; width: 247px; transform: rotate(-25deg); animation: flow 2.8s infinite .5s; }
+.l3 { left: 546px; top: 237px; width: 170px; transform: rotate(31deg); animation: flow 2.6s infinite 1s; }
+
+@keyframes flow {
+  0% { opacity: 0; clip-path: inset(0 100% 0 0); }
+  20% { opacity: 1; }
+  55% { opacity: 1; clip-path: inset(0 0 0 0); }
+  100% { opacity: 0; clip-path: inset(0 0 0 100%); }
+}
+
+.live-dot {
+  position: absolute;
+  left: 1016px;
+  top: 795px;
+  width: 10px;
+  height: 10px;
+  background: #00ff88;
+  border-radius: 50%;
+  box-shadow: 0 0 14px #00ff88;
+  animation: pulse 1s infinite;
+  pointer-events: none;
+}
+
+@keyframes pulse {
+  50% { transform: scale(1.7); opacity: .55; }
+}
+
+.hotspot {
+  position: absolute;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.hotspot:hover {
+  outline: 1px solid rgba(255,36,74,.45);
+  outline-offset: -1px;
+}
+
+.nav-dashboard { left: 188px; top: 0; width: 65px; height: 47px; }
+.nav-map { left: 253px; top: 0; width: 43px; height: 47px; }
+.nav-countries { left: 304px; top: 0; width: 70px; height: 47px; }
+.nav-alliances { left: 378px; top: 0; width: 76px; height: 47px; }
+.nav-stats { left: 463px; top: 0; width: 50px; height: 47px; }
+.nav-market { left: 525px; top: 0; width: 65px; height: 47px; }
+.nav-ranking { left: 596px; top: 0; width: 72px; height: 47px; }
+
+.wallet { left: 722px; top: 12px; width: 103px; height: 28px; }
+.buy-basic { left: 1000px; top: 365px; width: 34px; height: 24px; }
+.buy-advanced { left: 1000px; top: 413px; width: 34px; height: 24px; }
+.buy-premium { left: 1000px; top: 459px; width: 34px; height: 24px; }
+.buy-legendary { left: 1000px; top: 505px; width: 34px; height: 24px; }
+
+.join-war { right: 18px; bottom: 18px; width: 135px; height: 38px; }
+.view-ranking { left: 1090px; top: 345px; width: 135px; height: 25px; }
+.view-history { left: 27px; top: 748px; width: 181px; height: 27px; }
+.chat-input { left: 249px; top: 742px; width: 150px; height: 27px; }
+.chat-send { left: 399px; top: 742px; width: 24px; height: 27px; }
+.scan-upgrades { left: 640px; top: 748px; width: 130px; height: 27px; }
+.view-regions { left: 790px; top: 748px; width: 165px; height: 27px; }
+.view-news { left: 1042px; top: 748px; width: 175px; height: 27px; }
+
+.attack-greece { left: 17px; top: 685px; width: 195px; height: 22px; }
+.attack-bulgaria { left: 17px; top: 725px; width: 195px; height: 22px; }
+
+.status-pill {
+  position: absolute;
+  right: 18px;
+  top: 58px;
+  min-width: 192px;
+  padding: 8px 11px;
+  border: 1px solid rgba(0,255,136,.42);
+  border-radius: 10px;
+  background: rgba(4,10,18,.72);
+  box-shadow: 0 0 18px rgba(0,255,136,.18);
+  font-size: 11px;
+  z-index: 5;
+}
+
+.status-pill strong {
+  display: block;
+  color: #00ff88;
+  font-size: 13px;
+  margin-top: 3px;
+  text-shadow: 0 0 10px #00ff88;
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 22px;
+  transform: translateX(-50%);
+  background: #080d14;
+  border: 1px solid rgba(255,36,74,.75);
+  color: white;
+  border-radius: 12px;
+  padding: 12px 16px;
+  box-shadow: 0 0 25px rgba(255,36,74,.45);
+  display: none;
+  z-index: 99;
+  font-size: 14px;
+}
+
+.toast.show {
+  display: block;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.84);
+  backdrop-filter: blur(8px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 90;
+}
+
+.modal.show {
+  display: flex;
+}
+
+.box {
+  width: 760px;
+  max-height: 80vh;
+  overflow: auto;
+  background: #071018;
+  border: 1px solid rgba(255,36,74,.72);
+  border-radius: 16px;
+  box-shadow: 0 0 45px rgba(255,36,74,.35);
+  padding: 28px;
+}
+
+.box h1 {
+  margin-top: 0;
+  color: #ff405f;
+}
+
+.box p, .box li {
+  color: #dcecff;
+  line-height: 1.7;
+}
+
+.close {
+  float: right;
+  background: #2a0610;
+  color: #ff6b82;
+  border: 1px solid #ff244a;
+  border-radius: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-weight: 900;
+}
+
+@media (max-width: 1280px) {
+  .stage {
+    transform-origin: top left;
+  }
+}
 </style>
 </head>
 <body>
 <main class="stage" id="stage">
-<div class="panel status">
-<div class="title">ABSWAR ALLIANCE BETA</div>
-<div id="statusText" class="offline">Bağlanıyor...</div>
-<div id="playerInfo" style="font-size:12px;color:#d8f7ff;margin-top:8px">Wallet: demo</div>
-<button class="mainbtn" onclick="connectWallet()">WALLET BAĞLA</button>
-<button class="mainbtn" onclick="chooseCountry('TR')">TÜRKİYE'YE KATIL</button>
-</div>
+  <div class="scanlines"></div>
+  <div class="attack-line l1"></div>
+  <div class="attack-line l2"></div>
+  <div class="attack-line l3"></div>
+  <div class="live-dot"></div>
 
-<div class="panel radio">
-<div class="title">WAR RADIO</div>
-<button class="radioBtn" onclick="radio('ATTACK_NOW')">ATTACK NOW</button>
-<button class="radioBtn" onclick="radio('DEFEND')">DEFEND</button>
-<button class="radioBtn" onclick="radio('NEED_SUPPORT')">NEED SUPPORT</button>
-<button class="radioBtn" onclick="radio('FALL_BACK')">FALL BACK</button>
-<button class="radioBtn" onclick="radio('ENEMY_DETECTED')">ENEMY DETECTED</button>
-<button class="radioBtn" onclick="radio('PUSH_FINAL')">PUSH FINAL</button>
-</div>
+  <div class="status-pill">
+    ABSWAR SERVER
+    <strong id="serverStatus">Kontrol ediliyor...</strong>
+    <span id="serverInfo">Backend bağlantısı</span>
+  </div>
 
-<div class="panel feed"><div class="title">LIVE WAR FEED</div><div id="feed"></div></div>
-<div class="panel countries"><div class="title">COUNTRIES STATUS</div><div id="countries"></div></div>
-<div class="panel market"><div class="title">MARKET</div><div id="market"></div></div>
-<div class="panel leader"><div class="title">LEADERBOARD</div><div id="leaderboard"></div></div>
-<div class="panel alliance">
-<div class="title">ALLIANCE CENTER</div>
-<input id="allianceName" placeholder="Alliance adı">
-<button class="mainbtn" onclick="createAlliance()">ALLIANCE KUR</button>
-<div id="alliances"></div>
-<div class="title" style="margin-top:12px">ALLIANCE FEED</div>
-<div id="allianceFeed"></div>
-</div>
+  <button class="hotspot nav-dashboard" onclick="showToast('Dashboard aktif')"></button>
+  <button class="hotspot nav-map" onclick="showToast('Map aktif')"></button>
+  <button class="hotspot nav-countries" onclick="openModal('countries')"></button>
+  <button class="hotspot nav-alliances" onclick="openModal('alliances')"></button>
+  <button class="hotspot nav-stats" onclick="openModal('stats')"></button>
+  <button class="hotspot nav-market" onclick="openModal('market')"></button>
+  <button class="hotspot nav-ranking" onclick="openModal('ranking')"></button>
+
+  <button class="hotspot wallet" onclick="connectWallet()"></button>
+  <button class="hotspot buy-basic" onclick="buyAmmo(1)"></button>
+  <button class="hotspot buy-advanced" onclick="buyAmmo(10)"></button>
+  <button class="hotspot buy-premium" onclick="buyAmmo(100)"></button>
+  <button class="hotspot buy-legendary" onclick="buyAmmo(1000)"></button>
+
+  <button class="hotspot join-war" onclick="joinWar()"></button>
+  <button class="hotspot view-ranking" onclick="openModal('ranking')"></button>
+  <button class="hotspot view-history" onclick="openModal('history')"></button>
+  <button class="hotspot chat-send" onclick="sendRadio()"></button>
+  <button class="hotspot scan-upgrades" onclick="showToast('Radar scan upgrade demo')"></button>
+  <button class="hotspot view-regions" onclick="openModal('regions')"></button>
+  <button class="hotspot view-news" onclick="openModal('news')"></button>
+  <button class="hotspot attack-greece" onclick="attackCountry('GR')"></button>
+  <button class="hotspot attack-bulgaria" onclick="attackCountry('BG')"></button>
 </main>
 
+<div class="modal" id="modal">
+  <div class="box">
+    <button class="close" onclick="closeModal()">KAPAT</button>
+    <h1 id="modalTitle">ABSWAR</h1>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
+
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <script>
-const API="https://abswar-clean-backend-production.up.railway.app";
-let wallet="demo-player-"+Math.floor(Math.random()*999999);
-let state=null;
-let playerCountry=null;
+const API = "https://abswar-clean-backend-production.up.railway.app";
+let wallet = "demo-player-" + Math.floor(Math.random() * 999999);
+let gameState = null;
 
-function scaleStage(){const stage=document.getElementById("stage");const scale=Math.min(window.innerWidth/1536,1);stage.style.transform="scale("+scale+")";stage.style.transformOrigin="top left";document.body.style.height=(1024*scale)+"px"}
-window.addEventListener("resize",scaleStage);scaleStage();
-
-function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2500)}
-function info(extra=""){document.getElementById("playerInfo").innerHTML="Wallet: "+wallet.slice(0,14)+"<br>"+extra}
-
-async function connectWallet(){
- if(!window.ethereum){toast("Cüzdan yok, demo wallet kullanılıyor.");info("Demo mode");return}
- try{const acc=await ethereum.request({method:"eth_requestAccounts"});wallet=acc[0].toLowerCase();await fetch(API+"/api/player/connect",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({wallet})});info("Wallet connected");toast("Wallet bağlandı")}catch(e){toast("Wallet iptal edildi")}
+function scaleStage() {
+  const stage = document.getElementById("stage");
+  const scale = Math.min(window.innerWidth / 1280, 1);
+  stage.style.transform = "scale(" + scale + ")";
+  document.body.style.height = (853 * scale) + "px";
 }
 
-async function chooseCountry(code){
- const res=await fetch(API+"/api/player/choose-country",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({wallet,countryCode:code})});
- const data=await res.json(); if(data.error) toast(data.error); else {playerCountry=code;info("Country: "+code+" | Bullets: "+data.player.bullets);toast(code+" seçildi")}
+window.addEventListener("resize", scaleStage);
+scaleStage();
+
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2500);
 }
 
-async function buy(pack){const res=await fetch(API+"/api/market/buy-demo",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({wallet,pack})});const data=await res.json(); if(data.error) toast(data.error); else {toast("+"+data.added+" mermi");info("Bullets: "+data.player.bullets)}}
-async function attack(code){const res=await fetch(API+"/api/game/attack",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({wallet,targetCountry:code})});const data=await res.json(); if(data.error) toast(data.error); else toast("Saldırı: "+code)}
-
-async function createAlliance(){
- const name=document.getElementById("allianceName").value;
- const res=await fetch(API+"/api/alliance/create",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({wallet,name})});
- const data=await res.json(); if(data.error) toast(data.error); else toast("Alliance kuruldu: "+name);
+function setStatus(text, info) {
+  document.getElementById("serverStatus").textContent = text;
+  document.getElementById("serverInfo").textContent = info || "";
 }
 
-async function joinAlliance(id){
- const res=await fetch(API+"/api/alliance/join",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({wallet,allianceId:id})});
- const data=await res.json(); if(data.error) toast(data.error); else toast("Alliance katıldın");
+async function checkBackend() {
+  try {
+    const res = await fetch(API + "/health");
+    const data = await res.json();
+    if (data.ok) {
+      setStatus("ONLINE", "Realtime: " + !!data.realtime);
+    } else {
+      setStatus("HATA", "Backend response error");
+    }
+  } catch (e) {
+    setStatus("OFFLINE", e.message);
+  }
 }
 
-async function radio(command){
- const res=await fetch(API+"/api/alliance/radio",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({wallet,command})});
- const data=await res.json(); if(data.error) toast(data.error); else toast(data.message);
+async function loadState() {
+  try {
+    const res = await fetch(API + "/api/game/state");
+    gameState = await res.json();
+  } catch (e) {
+    showToast("State alınamadı: " + e.message);
+  }
 }
 
-function render(data){
- state=data;
- const status=document.getElementById("statusText"); status.className="online"; status.innerHTML='<span class="dot"></span>REALTIME ONLINE';
- document.getElementById("playerInfo").innerHTML="Wallet: "+wallet.slice(0,14)+"<br>Online: "+(data.onlinePlayers||0);
-
- const c=document.getElementById("countries"); c.innerHTML="";
- data.countries.forEach(x=>{const hp=(x.hp/x.max_hp)*100;c.innerHTML+=`<div class="country"><div class="top"><span>${x.flag} ${x.name}</span><span>${x.hp.toLocaleString()}</span></div><div class="bar"><div class="fill" style="width:${hp}%"></div></div><button class="attack" onclick="attack('${x.code}')">ATTACK</button></div>`});
-
- const f=document.getElementById("feed"); f.innerHTML="";
- if(!data.recentAttacks.length) f.innerHTML='<div class="item">Henüz saldırı yok.</div>';
- data.recentAttacks.forEach(a=>f.innerHTML+=`<div class="item">⚔️ ${a.from_country} → ${a.target_country} <span style="color:#00ff88">-${a.damage} HP</span></div>`);
-
- const l=document.getElementById("leaderboard"); l.innerHTML="";
- if(!data.leaderboard?.length) l.innerHTML='<div class="item">Henüz oyuncu yok.</div>';
- (data.leaderboard||[]).forEach((p,i)=>l.innerHTML+=`<div class="item">#${i+1} ${p.wallet.slice(0,10)} — ${p.contribution} pts</div>`);
-
- document.getElementById("market").innerHTML='<div class="pack">$1 = 100 mermi <button onclick="buy(1)">DEMO AL</button></div><div class="pack">$10 = 1.000 mermi <button onclick="buy(10)">DEMO AL</button></div><div class="pack">$100 = 10.000 mermi <button onclick="buy(100)">DEMO AL</button></div>';
-
- const al=document.getElementById("alliances"); al.innerHTML="";
- if(!data.alliances?.length) al.innerHTML='<div class="row">Henüz alliance yok.</div>';
- (data.alliances||[]).forEach(a=>al.innerHTML+=`<div class="row"><b>${a.name}</b><br>Country: ${a.country_code} | Score: ${a.score} | Members: ${a.members.length}<button class="mainbtn" onclick="joinAlliance('${a.id}')">KATIL</button></div>`);
-
- const af=document.getElementById("allianceFeed"); af.innerHTML="";
- (data.allianceFeed||[]).forEach(x=>af.innerHTML+=`<div class="row">${x.message}</div>`);
+async function connectWallet() {
+  if (!window.ethereum) {
+    showToast("MetaMask bulunamadı. Demo wallet aktif.");
+    return;
+  }
+  try {
+    const accounts = await ethereum.request({ method: "eth_requestAccounts" });
+    wallet = accounts[0].toLowerCase();
+    await fetch(API + "/api/player/connect", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ wallet })
+    });
+    showToast("Wallet bağlandı: " + wallet.slice(0,6) + "..." + wallet.slice(-4));
+  } catch (e) {
+    showToast("Wallet iptal edildi");
+  }
 }
 
-async function load(){try{const res=await fetch(API+"/api/game/state");render(await res.json())}catch(e){document.getElementById("statusText").className="offline";document.getElementById("statusText").textContent="BACKEND HATA";toast(e.message)}}
+async function joinWar() {
+  try {
+    const res = await fetch(API + "/api/player/choose-country", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ wallet, countryCode: "TR" })
+    });
+    const data = await res.json();
+    if (data.error) showToast(data.error);
+    else showToast("Türkiye tarafına katıldın");
+  } catch (e) {
+    showToast("Join failed");
+  }
+}
 
-const socket=io(API,{transports:["websocket","polling"]});
-socket.on("connect",()=>toast("Realtime bağlandı"));
-socket.on("war:state",render);
-socket.on("players:online",d=>{if(state){state.onlinePlayers=d.onlinePlayers;render(state)}});
-socket.on("alliance:feed",x=>toast(x.message));
-socket.on("war:attack",a=>toast("Live attack: "+a.from_country+" → "+a.target_country));
+async function buyAmmo(pack) {
+  try {
+    const res = await fetch(API + "/api/market/buy-demo", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ wallet, pack })
+    });
+    const data = await res.json();
+    if (data.error) showToast(data.error);
+    else showToast("+" + data.added + " mermi eklendi");
+  } catch (e) {
+    showToast("Market hatası");
+  }
+}
 
-load();
+async function attackCountry(code) {
+  try {
+    await fetch(API + "/api/player/choose-country", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ wallet, countryCode: "TR" })
+    });
+
+    const res = await fetch(API + "/api/game/attack", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ wallet, targetCountry: code })
+    });
+
+    const data = await res.json();
+    if (data.error) showToast(data.error);
+    else showToast("Saldırı gönderildi: " + code);
+  } catch (e) {
+    showToast("Saldırı hatası");
+  }
+}
+
+async function sendRadio() {
+  try {
+    const res = await fetch(API + "/api/alliance/radio", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ wallet, command: "ATTACK_NOW" })
+    });
+    const data = await res.json();
+    if (data.error) showToast(data.error);
+    else showToast(data.message);
+  } catch (e) {
+    showToast("Radio demo");
+  }
+}
+
+function openModal(type) {
+  const title = document.getElementById("modalTitle");
+  const body = document.getElementById("modalBody");
+
+  if (!gameState) {
+    body.innerHTML = "<p>Veri yükleniyor...</p>";
+  }
+
+  if (type === "countries") {
+    title.textContent = "Countries";
+    body.innerHTML = (gameState?.countries || []).map(c =>
+      `<p>${c.flag} <b>${c.name}</b> — HP: ${c.hp.toLocaleString()} / ${c.max_hp.toLocaleString()}</p>`
+    ).join("") || "<p>Ülke verisi yok.</p>";
+  }
+
+  if (type === "alliances") {
+    title.textContent = "Alliances";
+    body.innerHTML = (gameState?.alliances || []).map(a =>
+      `<p><b>${a.name}</b> — Score: ${a.score} — Members: ${a.members.length}</p>`
+    ).join("") || "<p>Henüz alliance yok.</p>";
+  }
+
+  if (type === "ranking") {
+    title.textContent = "Ranking";
+    body.innerHTML = (gameState?.leaderboard || []).map((p,i) =>
+      `<p>#${i+1} ${p.wallet.slice(0,12)} — ${p.contribution} pts</p>`
+    ).join("") || "<p>Henüz ranking yok.</p>";
+  }
+
+  if (type === "market") {
+    title.textContent = "Market";
+    body.innerHTML = "<ul><li>$1 = 100 mermi</li><li>$10 = 1.000 mermi</li><li>$100 = 10.000 mermi</li><li>$1000 = 100.000 mermi</li></ul><p>Demo satın alma aktif. NFT/token yok.</p>";
+  }
+
+  if (type === "stats") {
+    title.textContent = "Stats";
+    body.innerHTML = `<p>Online: ${gameState?.onlinePlayers || 0}</p><p>Total Attacks: ${gameState?.war?.total_attacks || 0}</p><p>Countries Left: ${gameState?.war?.countries_left || 0}</p>`;
+  }
+
+  if (type === "history") {
+    title.textContent = "Attack History";
+    body.innerHTML = (gameState?.recentAttacks || []).map(a =>
+      `<p>⚔️ ${a.from_country} → ${a.target_country} — -${a.damage} HP</p>`
+    ).join("") || "<p>Henüz saldırı yok.</p>";
+  }
+
+  if (type === "regions") {
+    title.textContent = "Resource Regions";
+    body.innerHTML = "<p>Resource control sistemi sonraki aşamada backend’e bağlanacak.</p>";
+  }
+
+  if (type === "news") {
+    title.textContent = "War News";
+    body.innerHTML = "<p>Germany defenses collapsing!</p><p>USA alliance under attack!</p><p>Turkey launched a massive offensive!</p>";
+  }
+
+  document.getElementById("modal").classList.add("show");
+}
+
+function closeModal() {
+  document.getElementById("modal").classList.remove("show");
+}
+
+const socket = io(API, { transports: ["websocket", "polling"] });
+
+socket.on("connect", () => {
+  setStatus("REALTIME ONLINE", "Socket connected");
+});
+
+socket.on("disconnect", () => {
+  setStatus("REALTIME OFFLINE", "Socket disconnected");
+});
+
+socket.on("war:state", data => {
+  gameState = data;
+});
+
+socket.on("war:attack", a => {
+  showToast("Live attack: " + a.from_country + " → " + a.target_country);
+});
+
+socket.on("alliance:feed", x => {
+  showToast(x.message);
+});
+
+checkBackend();
+loadState();
+setInterval(loadState, 4000);
 </script>
 </body>
 </html>

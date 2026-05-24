@@ -1,6 +1,6 @@
 {
-  "name": "abswar-alliance-beta-frontend",
-  "version": "4.0.0",
+  "name": "abswar-final-ui-pixel",
+  "version": "1.0.0",
   "scripts": {
     "start": "vite --host 0.0.0.0",
     "dev": "vite --host 0.0.0.0",
