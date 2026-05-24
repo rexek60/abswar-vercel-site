@@ -3,58 +3,70 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=1536, initial-scale=1">
-<title>ABSWAR — No Token Beta</title>
+<title>ABSWAR — Alliance Beta</title>
 <style>
 html,body{margin:0;background:#020305;color:white;font-family:Arial,Helvetica,sans-serif;overflow-x:hidden}
 .stage{position:relative;width:1536px;height:1024px;margin:0 auto;background:url("./assets/abswar-final-ui.png") center top / 1536px 1024px no-repeat;overflow:hidden;box-shadow:0 0 80px rgba(255,36,74,.18)}
 .stage:before{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(to bottom,rgba(255,255,255,.035) 0 1px,transparent 1px 4px);mix-blend-mode:screen}
 .panel{position:absolute;background:rgba(4,10,18,.94);border:1px solid rgba(0,255,170,.35);border-radius:14px;box-shadow:0 0 24px rgba(0,255,170,.16);z-index:4}
 .status{right:24px;top:64px;width:295px;padding:14px}
-.title{font-size:12px;color:#9defff;letter-spacing:1px}
+.title{font-size:12px;color:#9defff;letter-spacing:1px;font-weight:900}
 .online{font-size:18px;font-weight:900;margin-top:6px;color:#00ff88;text-shadow:0 0 12px #00ff88}
 .offline{font-size:18px;font-weight:900;margin-top:6px;color:#ff244a;text-shadow:0 0 12px #ff244a}
 .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#00ff88;margin-right:7px;box-shadow:0 0 14px #00ff88;animation:pulse 1s infinite}
 @keyframes pulse{50%{transform:scale(1.6);opacity:.55}}
-.countries{right:22px;bottom:20px;width:360px;height:430px;padding:14px;overflow:auto}
-.feed{left:22px;bottom:20px;width:430px;height:230px;padding:14px;overflow:auto}
-.market{left:470px;bottom:20px;width:330px;height:230px;padding:14px}
-.leader{left:815px;bottom:20px;width:330px;height:230px;padding:14px;overflow:auto}
-.item,.country,.pack{padding:10px;border-radius:10px;background:rgba(255,255,255,.035);margin-top:8px;color:#dff;font-size:13px}
+.countries{right:22px;bottom:20px;width:360px;height:380px;padding:14px;overflow:auto}
+.feed{left:22px;bottom:20px;width:385px;height:230px;padding:14px;overflow:auto}
+.market{left:420px;bottom:20px;width:260px;height:230px;padding:14px;overflow:auto}
+.leader{left:695px;bottom:20px;width:250px;height:230px;padding:14px;overflow:auto}
+.alliance{left:960px;bottom:20px;width:285px;height:380px;padding:14px;overflow:auto}
+.radio{left:22px;top:88px;width:260px;height:260px;padding:14px;overflow:auto}
+.item,.country,.pack,.row{padding:9px;border-radius:10px;background:rgba(255,255,255,.035);margin-top:8px;color:#dff;font-size:12px}
 .top{display:flex;justify-content:space-between;font-weight:700}
 .bar{height:7px;background:#000;border-radius:50px;overflow:hidden;margin-top:7px}
 .fill{height:100%;background:linear-gradient(90deg,#00ff88,#72ffd1);box-shadow:0 0 12px #00ff88}
 button{cursor:pointer}
-.attack,.pack button,.mainbtn{width:100%;margin-top:10px;padding:10px;border-radius:10px;border:1px solid rgba(255,36,74,.5);background:#2a0610;color:#fff;font-weight:900}
+.attack,.pack button,.mainbtn,.radioBtn{width:100%;margin-top:8px;padding:9px;border-radius:10px;border:1px solid rgba(255,36,74,.5);background:#2a0610;color:#fff;font-weight:900;font-size:12px}
 .pack button{background:#00ff88;color:#001500;border:0}
 .mainbtn{background:#071018;border-color:#00ff88;color:#00ff88}
+.radioBtn{background:#071018;border-color:#00d9ff;color:#dff}
+input{width:100%;padding:9px;border-radius:9px;border:1px solid #00ff8855;background:#030812;color:white;margin-top:8px}
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#080d14;border:1px solid #ff244a88;color:white;border-radius:12px;padding:13px 18px;box-shadow:0 0 25px #ff244a55;display:none;z-index:50}
 .toast.show{display:block}
-.radar{position:absolute;left:558px;top:700px;width:200px;height:200px;border-radius:50%;overflow:hidden;pointer-events:none;z-index:3}
-.radar:before{content:"";position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,transparent 0 278deg,rgba(0,255,120,.55),transparent 334deg);animation:sweep 2.6s linear infinite;mix-blend-mode:screen}
-@keyframes sweep{to{transform:rotate(360deg)}}
-.line{position:absolute;height:2px;transform-origin:left center;background:linear-gradient(90deg,transparent,#ff244a,#fff,transparent);box-shadow:0 0 18px #ff244a;opacity:0;pointer-events:none;z-index:3}
-.l1{left:305px;top:260px;width:235px;transform:rotate(9deg);animation:flow 2.2s infinite .1s}
-.l2{left:425px;top:391px;width:285px;transform:rotate(-29deg);animation:flow 2.7s infinite .55s}
-.l3{left:605px;top:233px;width:165px;transform:rotate(31deg);animation:flow 2.4s infinite 1s}
-@keyframes flow{0%{opacity:0;clip-path:inset(0 100% 0 0)}20%{opacity:1}55%{opacity:1;clip-path:inset(0 0 0 0)}100%{opacity:0;clip-path:inset(0 0 0 100%)}}
 </style>
 </head>
 <body>
 <main class="stage" id="stage">
-<div class="line l1"></div><div class="line l2"></div><div class="line l3"></div><div class="radar"></div>
-
 <div class="panel status">
-<div class="title">ABSWAR BETA SERVER</div>
+<div class="title">ABSWAR ALLIANCE BETA</div>
 <div id="statusText" class="offline">Bağlanıyor...</div>
 <div id="playerInfo" style="font-size:12px;color:#d8f7ff;margin-top:8px">Wallet: demo</div>
 <button class="mainbtn" onclick="connectWallet()">WALLET BAĞLA</button>
 <button class="mainbtn" onclick="chooseCountry('TR')">TÜRKİYE'YE KATIL</button>
 </div>
 
+<div class="panel radio">
+<div class="title">WAR RADIO</div>
+<button class="radioBtn" onclick="radio('ATTACK_NOW')">ATTACK NOW</button>
+<button class="radioBtn" onclick="radio('DEFEND')">DEFEND</button>
+<button class="radioBtn" onclick="radio('NEED_SUPPORT')">NEED SUPPORT</button>
+<button class="radioBtn" onclick="radio('FALL_BACK')">FALL BACK</button>
+<button class="radioBtn" onclick="radio('ENEMY_DETECTED')">ENEMY DETECTED</button>
+<button class="radioBtn" onclick="radio('PUSH_FINAL')">PUSH FINAL</button>
+</div>
+
 <div class="panel feed"><div class="title">LIVE WAR FEED</div><div id="feed"></div></div>
 <div class="panel countries"><div class="title">COUNTRIES STATUS</div><div id="countries"></div></div>
-<div class="panel market"><div class="title">MARKET DEMO — TOKEN/NFT YOK</div><div id="market"></div></div>
+<div class="panel market"><div class="title">MARKET</div><div id="market"></div></div>
 <div class="panel leader"><div class="title">LEADERBOARD</div><div id="leaderboard"></div></div>
+<div class="panel alliance">
+<div class="title">ALLIANCE CENTER</div>
+<input id="allianceName" placeholder="Alliance adı">
+<button class="mainbtn" onclick="createAlliance()">ALLIANCE KUR</button>
+<div id="alliances"></div>
+<div class="title" style="margin-top:12px">ALLIANCE FEED</div>
+<div id="allianceFeed"></div>
+</div>
 </main>
 
 <div class="toast" id="toast"></div>
@@ -63,82 +75,76 @@ button{cursor:pointer}
 const API="https://abswar-clean-backend-production.up.railway.app";
 let wallet="demo-player-"+Math.floor(Math.random()*999999);
 let state=null;
+let playerCountry=null;
 
-function scaleStage(){
- const stage=document.getElementById("stage");
- const scale=Math.min(window.innerWidth/1536,1);
- stage.style.transform="scale("+scale+")";
- stage.style.transformOrigin="top left";
- document.body.style.height=(1024*scale)+"px";
-}
+function scaleStage(){const stage=document.getElementById("stage");const scale=Math.min(window.innerWidth/1536,1);stage.style.transform="scale("+scale+")";stage.style.transformOrigin="top left";document.body.style.height=(1024*scale)+"px"}
 window.addEventListener("resize",scaleStage);scaleStage();
 
 function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2500)}
-function updatePlayerInfo(extra=""){document.getElementById("playerInfo").innerHTML="Wallet: "+wallet+"<br>"+extra}
+function info(extra=""){document.getElementById("playerInfo").innerHTML="Wallet: "+wallet.slice(0,14)+"<br>"+extra}
 
 async function connectWallet(){
- if(!window.ethereum){toast("Cüzdan yok, demo wallet kullanılıyor.");updatePlayerInfo("Demo mode");return}
- try{
-  const acc=await ethereum.request({method:"eth_requestAccounts"});
-  wallet=acc[0].toLowerCase();
-  await fetch(API+"/api/player/connect",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({wallet})});
-  updatePlayerInfo("Wallet connected");
-  toast("Wallet bağlandı");
- }catch(e){toast("Wallet iptal edildi")}
+ if(!window.ethereum){toast("Cüzdan yok, demo wallet kullanılıyor.");info("Demo mode");return}
+ try{const acc=await ethereum.request({method:"eth_requestAccounts"});wallet=acc[0].toLowerCase();await fetch(API+"/api/player/connect",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({wallet})});info("Wallet connected");toast("Wallet bağlandı")}catch(e){toast("Wallet iptal edildi")}
 }
 
 async function chooseCountry(code){
  const res=await fetch(API+"/api/player/choose-country",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({wallet,countryCode:code})});
- const data=await res.json();
- if(data.error) toast(data.error); else {toast(code+" seçildi");updatePlayerInfo("Country: "+code+" | Bullets: "+data.player.bullets)}
+ const data=await res.json(); if(data.error) toast(data.error); else {playerCountry=code;info("Country: "+code+" | Bullets: "+data.player.bullets);toast(code+" seçildi")}
 }
 
-async function buy(pack){
- const res=await fetch(API+"/api/market/buy-demo",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({wallet,pack})});
- const data=await res.json();
- if(data.error) toast(data.error); else {toast("+"+data.added+" mermi eklendi");updatePlayerInfo("Bullets: "+data.player.bullets)}
+async function buy(pack){const res=await fetch(API+"/api/market/buy-demo",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({wallet,pack})});const data=await res.json(); if(data.error) toast(data.error); else {toast("+"+data.added+" mermi");info("Bullets: "+data.player.bullets)}}
+async function attack(code){const res=await fetch(API+"/api/game/attack",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({wallet,targetCountry:code})});const data=await res.json(); if(data.error) toast(data.error); else toast("Saldırı: "+code)}
+
+async function createAlliance(){
+ const name=document.getElementById("allianceName").value;
+ const res=await fetch(API+"/api/alliance/create",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({wallet,name})});
+ const data=await res.json(); if(data.error) toast(data.error); else toast("Alliance kuruldu: "+name);
 }
 
-async function attack(code){
- const res=await fetch(API+"/api/game/attack",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({wallet,targetCountry:code})});
- const data=await res.json();
- if(data.error) toast(data.error); else toast("Saldırı: "+code);
+async function joinAlliance(id){
+ const res=await fetch(API+"/api/alliance/join",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({wallet,allianceId:id})});
+ const data=await res.json(); if(data.error) toast(data.error); else toast("Alliance katıldın");
+}
+
+async function radio(command){
+ const res=await fetch(API+"/api/alliance/radio",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({wallet,command})});
+ const data=await res.json(); if(data.error) toast(data.error); else toast(data.message);
 }
 
 function render(data){
  state=data;
- const status=document.getElementById("statusText");
- status.className="online";status.innerHTML='<span class="dot"></span>REALTIME ONLINE';
- document.getElementById("playerInfo").innerHTML="Wallet: "+wallet+"<br>Online: "+(data.onlinePlayers||0);
+ const status=document.getElementById("statusText"); status.className="online"; status.innerHTML='<span class="dot"></span>REALTIME ONLINE';
+ document.getElementById("playerInfo").innerHTML="Wallet: "+wallet.slice(0,14)+"<br>Online: "+(data.onlinePlayers||0);
 
- const c=document.getElementById("countries");c.innerHTML="";
- data.countries.forEach(x=>{
-  const hp=(x.hp/x.max_hp)*100;
-  c.innerHTML+=`<div class="country"><div class="top"><span>${x.flag} ${x.name}</span><span>${x.hp.toLocaleString()}</span></div><div class="bar"><div class="fill" style="width:${hp}%"></div></div><button class="attack" onclick="attack('${x.code}')">ATTACK COUNTRY</button></div>`;
- });
+ const c=document.getElementById("countries"); c.innerHTML="";
+ data.countries.forEach(x=>{const hp=(x.hp/x.max_hp)*100;c.innerHTML+=`<div class="country"><div class="top"><span>${x.flag} ${x.name}</span><span>${x.hp.toLocaleString()}</span></div><div class="bar"><div class="fill" style="width:${hp}%"></div></div><button class="attack" onclick="attack('${x.code}')">ATTACK</button></div>`});
 
- const f=document.getElementById("feed");f.innerHTML="";
+ const f=document.getElementById("feed"); f.innerHTML="";
  if(!data.recentAttacks.length) f.innerHTML='<div class="item">Henüz saldırı yok.</div>';
  data.recentAttacks.forEach(a=>f.innerHTML+=`<div class="item">⚔️ ${a.from_country} → ${a.target_country} <span style="color:#00ff88">-${a.damage} HP</span></div>`);
 
- const l=document.getElementById("leaderboard");l.innerHTML="";
- if(!data.leaderboard || !data.leaderboard.length) l.innerHTML='<div class="item">Henüz oyuncu yok.</div>';
+ const l=document.getElementById("leaderboard"); l.innerHTML="";
+ if(!data.leaderboard?.length) l.innerHTML='<div class="item">Henüz oyuncu yok.</div>';
  (data.leaderboard||[]).forEach((p,i)=>l.innerHTML+=`<div class="item">#${i+1} ${p.wallet.slice(0,10)} — ${p.contribution} pts</div>`);
 
- document.getElementById("market").innerHTML=
-  '<div class="pack">$1 = 100 mermi <button onclick="buy(1)">DEMO AL</button></div>'+
-  '<div class="pack">$10 = 1.000 mermi <button onclick="buy(10)">DEMO AL</button></div>'+
-  '<div class="pack">$100 = 10.000 mermi <button onclick="buy(100)">DEMO AL</button></div>';
+ document.getElementById("market").innerHTML='<div class="pack">$1 = 100 mermi <button onclick="buy(1)">DEMO AL</button></div><div class="pack">$10 = 1.000 mermi <button onclick="buy(10)">DEMO AL</button></div><div class="pack">$100 = 10.000 mermi <button onclick="buy(100)">DEMO AL</button></div>';
+
+ const al=document.getElementById("alliances"); al.innerHTML="";
+ if(!data.alliances?.length) al.innerHTML='<div class="row">Henüz alliance yok.</div>';
+ (data.alliances||[]).forEach(a=>al.innerHTML+=`<div class="row"><b>${a.name}</b><br>Country: ${a.country_code} | Score: ${a.score} | Members: ${a.members.length}<button class="mainbtn" onclick="joinAlliance('${a.id}')">KATIL</button></div>`);
+
+ const af=document.getElementById("allianceFeed"); af.innerHTML="";
+ (data.allianceFeed||[]).forEach(x=>af.innerHTML+=`<div class="row">${x.message}</div>`);
 }
 
-async function load(){
- try{const res=await fetch(API+"/api/game/state");render(await res.json())}catch(e){document.getElementById("statusText").className="offline";document.getElementById("statusText").textContent="BACKEND HATA";toast(e.message)}
-}
+async function load(){try{const res=await fetch(API+"/api/game/state");render(await res.json())}catch(e){document.getElementById("statusText").className="offline";document.getElementById("statusText").textContent="BACKEND HATA";toast(e.message)}}
 
 const socket=io(API,{transports:["websocket","polling"]});
 socket.on("connect",()=>toast("Realtime bağlandı"));
 socket.on("war:state",render);
 socket.on("players:online",d=>{if(state){state.onlinePlayers=d.onlinePlayers;render(state)}});
+socket.on("alliance:feed",x=>toast(x.message));
 socket.on("war:attack",a=>toast("Live attack: "+a.from_country+" → "+a.target_country));
 
 load();

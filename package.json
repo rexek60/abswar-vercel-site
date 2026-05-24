@@ -1,6 +1,6 @@
 {
-  "name": "abswar-no-token-beta-frontend",
-  "version": "3.0.0",
+  "name": "abswar-alliance-beta-frontend",
+  "version": "4.0.0",
   "scripts": {
     "start": "vite --host 0.0.0.0",
     "dev": "vite --host 0.0.0.0",
