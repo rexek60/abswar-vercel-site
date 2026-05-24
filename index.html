@@ -3,26 +3,29 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=1536, initial-scale=1">
-<title>ABSWAR — Vercel Ready</title>
+<title>ABSWAR — Realtime MMO Frontend</title>
 <style>
 html,body{margin:0;background:#020305;color:white;font-family:Arial,Helvetica,sans-serif;overflow-x:hidden}
 .stage{position:relative;width:1536px;height:1024px;margin:0 auto;background:url("./assets/abswar-final-ui.png") center top / 1536px 1024px no-repeat;overflow:hidden;box-shadow:0 0 80px rgba(255,36,74,.18)}
 .stage:before{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(to bottom,rgba(255,255,255,.035) 0 1px,transparent 1px 4px);mix-blend-mode:screen}
-.status{position:absolute;right:24px;top:64px;width:270px;background:rgba(4,10,18,.94);border:1px solid #00ff88aa;border-radius:14px;box-shadow:0 0 25px #00ff8844;padding:14px;z-index:5}
+.status{position:absolute;right:24px;top:64px;width:280px;background:rgba(4,10,18,.94);border:1px solid #00ff88aa;border-radius:14px;box-shadow:0 0 25px #00ff8844;padding:14px;z-index:5}
 .title{font-size:12px;color:#9defff;letter-spacing:1px}
 .online{font-size:18px;font-weight:900;margin-top:6px;color:#00ff88;text-shadow:0 0 12px #00ff88}
 .offline{font-size:18px;font-weight:900;margin-top:6px;color:#ff244a;text-shadow:0 0 12px #ff244a}
 .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#00ff88;margin-right:7px;box-shadow:0 0 14px #00ff88;animation:pulse 1s infinite}
 @keyframes pulse{50%{transform:scale(1.6);opacity:.55}}
 .panel{position:absolute;background:rgba(4,10,18,.92);border:1px solid rgba(0,255,170,.35);border-radius:14px;box-shadow:0 0 24px rgba(0,255,170,.16);z-index:4}
-.countries{right:22px;bottom:20px;width:340px;height:420px;padding:14px;overflow:auto}
-.feed{left:22px;bottom:20px;width:430px;height:220px;padding:14px;overflow:auto}
+.countries{right:22px;bottom:20px;width:350px;height:430px;padding:14px;overflow:auto}
+.feed{left:22px;bottom:20px;width:450px;height:230px;padding:14px;overflow:auto}
 .item{padding:10px;border-radius:10px;background:rgba(255,255,255,.035);margin-top:8px;color:#dff;font-size:13px}
 .country{padding:10px;border-radius:12px;background:rgba(255,255,255,.035);margin-top:10px}
+.country.flash{animation:hitFlash .6s}
+@keyframes hitFlash{0%{box-shadow:0 0 25px #ff244a;border-color:#ff244a}100%{box-shadow:none}}
 .top{display:flex;justify-content:space-between;font-weight:700}
 .bar{height:7px;background:#000;border-radius:50px;overflow:hidden;margin-top:7px}
 .fill{height:100%;background:linear-gradient(90deg,#00ff88,#72ffd1);box-shadow:0 0 12px #00ff88}
 .attack{width:100%;margin-top:10px;padding:10px;border-radius:10px;border:1px solid rgba(255,36,74,.5);background:#2a0610;color:#fff;font-weight:900;cursor:pointer}
+.attack:hover{box-shadow:0 0 16px rgba(255,36,74,.45)}
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#080d14;border:1px solid #ff244a88;color:white;border-radius:12px;padding:13px 18px;box-shadow:0 0 25px #ff244a55;display:none;z-index:50}
 .toast.show{display:block}
 .radar{position:absolute;left:558px;top:700px;width:200px;height:200px;border-radius:50%;overflow:hidden;pointer-events:none;z-index:3}
@@ -33,20 +36,22 @@ html,body{margin:0;background:#020305;color:white;font-family:Arial,Helvetica,sa
 .l2{left:425px;top:391px;width:285px;transform:rotate(-29deg);animation:flow 2.7s infinite .55s}
 .l3{left:605px;top:233px;width:165px;transform:rotate(31deg);animation:flow 2.4s infinite 1s}
 @keyframes flow{0%{opacity:0;clip-path:inset(0 100% 0 0)}20%{opacity:1}55%{opacity:1;clip-path:inset(0 0 0 0)}100%{opacity:0;clip-path:inset(0 0 0 100%)}}
-.hotspot{position:absolute;border:0;background:transparent;cursor:pointer;z-index:6}
-.wallet-hit{left:1052px;top:15px;width:135px;height:30px}
-.join-hit{right:21px;bottom:18px;width:153px;height:40px}
+.blast{position:absolute;width:14px;height:14px;border-radius:50%;background:#ff244a;box-shadow:0 0 20px #ff244a;z-index:6;display:none}
+.blast.show{display:block;animation:blast 1s forwards}
+@keyframes blast{from{transform:scale(.5);opacity:1}to{transform:scale(4);opacity:0}}
 </style>
 </head>
 <body>
 <main class="stage" id="stage">
   <div class="line l1"></div><div class="line l2"></div><div class="line l3"></div>
   <div class="radar"></div>
+  <div class="blast" id="blast"></div>
 
   <div class="status">
-    <div class="title">RAILWAY BACKEND</div>
-    <div id="statusText" class="online"><span class="dot"></span>Kontrol ediliyor...</div>
+    <div class="title">REALTIME MMO SERVER</div>
+    <div id="statusText" class="offline">Bağlanıyor...</div>
     <div id="statusDetail" style="font-size:11px;color:#d8f7ff;margin-top:8px;word-break:break-all">https://abswar-clean-backend-production.up.railway.app</div>
+    <div id="onlinePlayers" style="font-size:13px;color:#00ff88;margin-top:8px">Online: 0</div>
   </div>
 
   <div class="panel feed">
@@ -58,16 +63,17 @@ html,body{margin:0;background:#020305;color:white;font-family:Arial,Helvetica,sa
     <div class="title">COUNTRIES STATUS</div>
     <div id="countries"></div>
   </div>
-
-  <button class="hotspot wallet-hit" onclick="connectWallet()"></button>
-  <button class="hotspot join-hit" onclick="loadState()"></button>
 </main>
 
 <div class="toast" id="toast"></div>
 
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <script>
 const API = "https://abswar-clean-backend-production.up.railway.app";
-const wallet = "demo-player";
+const wallet = "demo-player-" + Math.floor(Math.random()*100000);
+let latestState = null;
+let lastHitCountry = null;
+let socket = null;
 
 function scaleStage(){
   const stage=document.getElementById("stage");
@@ -76,29 +82,42 @@ function scaleStage(){
   stage.style.transformOrigin="top left";
   document.body.style.height=(1024*scale)+"px";
 }
-window.addEventListener("resize",scaleStage);scaleStage();
+window.addEventListener("resize",scaleStage); scaleStage();
 
 function toast(msg){
   const t=document.getElementById("toast");
-  t.textContent=msg;t.classList.add("show");
+  t.textContent=msg; t.classList.add("show");
   setTimeout(()=>t.classList.remove("show"),2600);
 }
 
-async function checkHealth(){
-  const s=document.getElementById("statusText");
-  const d=document.getElementById("statusDetail");
-  try{
-    const res=await fetch(API+"/health");
-    const data=await res.json();
-    if(data.ok){
-      s.className="online";
-      s.innerHTML='<span class="dot"></span>BACKEND ONLINE';
-      d.textContent="Postgres: "+data.postgres+" | Redis: "+data.redis;
-    }else{
-      s.className="offline";s.textContent="BACKEND ERROR";d.textContent=JSON.stringify(data);
-    }
-  }catch(e){
-    s.className="offline";s.textContent="BACKEND OFFLINE";d.textContent=e.message;
+function renderState(data){
+  latestState = data;
+
+  document.getElementById("onlinePlayers").textContent = "Online: " + (data.onlinePlayers || 0);
+
+  const countries=document.getElementById("countries");
+  countries.innerHTML="";
+  data.countries.slice(0,24).forEach(c=>{
+    const hp=(c.hp/c.max_hp)*100;
+    const div=document.createElement("div");
+    div.className="country" + (lastHitCountry === c.code ? " flash" : "");
+    div.innerHTML=`<div class="top"><span>${c.flag} ${c.name}</span><span>${Number(c.hp).toLocaleString()}</span></div>
+      <div class="bar"><div class="fill" style="width:${hp}%"></div></div>
+      <button class="attack" onclick="attackCountry('${c.code}')">ATTACK COUNTRY</button>`;
+    countries.appendChild(div);
+  });
+
+  const feed=document.getElementById("feed");
+  feed.innerHTML="";
+  if(!data.recentAttacks || data.recentAttacks.length===0){
+    feed.innerHTML='<div class="item">Henüz saldırı yok. İlk savaşı başlat.</div>';
+  } else {
+    data.recentAttacks.forEach(a=>{
+      const item=document.createElement("div");
+      item.className="item";
+      item.innerHTML="⚔️ "+a.from_country+" attacked "+a.target_country+" <span style='color:#00ff88'>-"+a.damage+" HP</span>";
+      feed.appendChild(item);
+    });
   }
 }
 
@@ -106,34 +125,20 @@ async function loadState(){
   try{
     const res=await fetch(API+"/api/game/state");
     const data=await res.json();
-
-    const countries=document.getElementById("countries");
-    countries.innerHTML="";
-    data.countries.slice(0,20).forEach(c=>{
-      const hp=(c.hp/c.max_hp)*100;
-      const div=document.createElement("div");
-      div.className="country";
-      div.innerHTML=`<div class="top"><span>${c.flag} ${c.name}</span><span>${Number(c.hp).toLocaleString()}</span></div>
-      <div class="bar"><div class="fill" style="width:${hp}%"></div></div>
-      <button class="attack" onclick="attackCountry('${c.code}')">ATTACK COUNTRY</button>`;
-      countries.appendChild(div);
-    });
-
-    const feed=document.getElementById("feed");
-    feed.innerHTML="";
-    if(!data.recentAttacks || data.recentAttacks.length===0){
-      feed.innerHTML='<div class="item">Henüz saldırı yok. İlk savaşı başlat.</div>';
-    }else{
-      data.recentAttacks.forEach(a=>{
-        const item=document.createElement("div");
-        item.className="item";
-        item.innerHTML="⚔️ "+a.from_country+" attacked "+a.target_country+" <span style='color:#00ff88'>-"+a.damage+" HP</span>";
-        feed.appendChild(item);
-      });
-    }
+    renderState(data);
   }catch(e){
-    toast("Game state alınamadı: "+e.message);
+    toast("State error: "+e.message);
   }
+}
+
+function showBlast(){
+  const b=document.getElementById("blast");
+  const x=300+Math.random()*430;
+  const y=170+Math.random()*250;
+  b.style.left=x+"px"; b.style.top=y+"px";
+  b.classList.remove("show");
+  void b.offsetWidth;
+  b.classList.add("show");
 }
 
 async function attackCountry(code){
@@ -142,22 +147,47 @@ async function attackCountry(code){
     await fetch(API+"/api/player/choose-country",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({wallet,countryCode:"TR"})});
     const res=await fetch(API+"/api/game/attack",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({wallet,targetCountry:code})});
     const data=await res.json();
-    if(data.error) toast(data.error); else toast("Attack success: "+code);
-    loadState();
-  }catch(e){toast("Attack failed: "+e.message)}
+    if(data.error) toast(data.error); else {
+      lastHitCountry = code;
+      toast("Realtime attack sent: "+code);
+      showBlast();
+    }
+  }catch(e){ toast("Attack failed: "+e.message); }
 }
 
-async function connectWallet(){
-  if(!window.ethereum){toast("Cüzdan bulunamadı.");return}
-  try{
-    const accounts=await ethereum.request({method:"eth_requestAccounts"});
-    toast("Cüzdan bağlandı: "+accounts[0].slice(0,6)+"..."+accounts[0].slice(-4));
-  }catch(e){toast("Cüzdan bağlantısı iptal edildi.")}
+function connectSocket(){
+  socket = io(API, { transports:["websocket","polling"] });
+
+  socket.on("connect", ()=>{
+    const s=document.getElementById("statusText");
+    s.className="online";
+    s.innerHTML='<span class="dot"></span>REALTIME ONLINE';
+    toast("Realtime bağlantı kuruldu.");
+  });
+
+  socket.on("disconnect", ()=>{
+    const s=document.getElementById("statusText");
+    s.className="offline";
+    s.textContent="REALTIME OFFLINE";
+  });
+
+  socket.on("players:online", data=>{
+    document.getElementById("onlinePlayers").textContent = "Online: " + data.onlinePlayers;
+  });
+
+  socket.on("war:attack", data=>{
+    lastHitCountry = data.target_country;
+    showBlast();
+    toast("Live attack: "+data.from_country+" → "+data.target_country);
+  });
+
+  socket.on("war:state", data=>{
+    renderState(data);
+  });
 }
 
-checkHealth();
 loadState();
-setInterval(loadState,5000);
+connectSocket();
 </script>
 </body>
 </html>
