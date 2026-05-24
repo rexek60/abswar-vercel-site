@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=1440, initial-scale=1">
-<title>ABSWAR UI V9 Backend Connected</title>
+<title>ABSWAR Final Demo</title>
 <style>
 :root{--bg:#020408;--panel:#07111c;--red:#ff263d;--red2:#ff6070;--cyan:#00d9ff;--blue:#1d8cff;--green:#00ff8a;--yellow:#ffd15a;--text:#edfaff;--muted:#7e98aa;--line:rgba(0,217,255,.22)}
 *{box-sizing:border-box}
@@ -138,6 +138,22 @@ body:after{content:"";position:fixed;inset:0;pointer-events:none;background:repe
 }
 @keyframes pulseDot{50%{transform:scale(1.6);opacity:.55}}
 
+
+/* V10 final demo stability layer */
+.final-watermark{
+  position:fixed;
+  right:14px;
+  top:70px;
+  z-index:50;
+  color:#00ff8a;
+  font-size:10px;
+  font-weight:1000;
+  letter-spacing:.8px;
+  text-shadow:0 0 10px #00ff8a;
+  pointer-events:none;
+}
+button,.node,.menuBtn{user-select:none}
+
 </style>
 </head>
 <body>
@@ -179,7 +195,7 @@ body:after{content:"";position:fixed;inset:0;pointer-events:none;background:repe
 <section class="panel docsPanel"><div class="head"><span>Recent Documents</span><button class="btn">VIEW ALL</button></div><div class="body"><div class="item">Battle Report - Tokyo Defense</div><div class="item">Alliance War Declaration</div></div></section>
 </aside>
 </main>
-<footer class="footer"><div>SYSTEM STATUS <span class="green" id="serverStatus">CONNECTING</span></div><div><span class="announce">GLOBAL ANNOUNCEMENT:</span> Double XP Event Active!</div><button class="join" onclick="joinWar()">JOIN THE WAR</button></footer>
+<footer class="footer"><div>SYSTEM STATUS <span class="green" id="serverStatus">CONNECTING</span></div><div><span class="announce">GLOBAL ANNOUNCEMENT:</span> ABSWAR FINAL DEMO BUILD ONLINE</div><button class="join" onclick="joinWar()">JOIN THE WAR</button></footer>
 </div>
 
 <div class="global-modal" id="globalModal">
@@ -211,7 +227,7 @@ function openGlobal(type){
   const templates={
     docs:{
       title:'ABSWAR DOCUMENTS',
-      html:`<p>ABSWAR ülke tabanlı cyber war MMO arayüzüdür. NFT/token sistemi bu sürümde kapalıdır.</p>
+      html:`<p>ABSWAR final demo build: cyber war MMO dashboard, realtime-ready UI, wallet/attack/market/alliance prototype. NFT/token sistemi bu sürümde kapalıdır.</p>
       <div class="global-grid">
       <div class="modal-card"><b>Nasıl oynanır</b><br>Ülke seç, mermi al, hedef ülkeye saldır.</div>
       <div class="modal-card"><b>Alliance</b><br>Takım kur, ortak saldırı planla.</div>
@@ -343,5 +359,11 @@ setInterval(loadState,5000);
 
 </script>
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script>
+window.addEventListener('error', function(e){
+  try { console.warn('ABSWAR final demo warning:', e.message); } catch(_){}
+});
+console.log('ABSWAR FINAL DEMO BUILD READY');
+</script>
 </body>
 </html>
