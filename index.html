@@ -51,11 +51,18 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 
 /* MAP */
 #mapSvg{width:100%;height:100%;cursor:crosshair}
-.country-land{fill:#16683a;stroke:#3ac46e;stroke-width:0.8;stroke-linejoin:round;stroke-linecap:round;transition:fill .2s;cursor:crosshair}
-.country-land:hover{fill:#1f9050;stroke:#00ff88;stroke-width:1.2}
-.country-land.my-country{fill:#1a8a3a;stroke:#00ff88;stroke-width:1.5}
-.country-land.targeted{fill:#a01525;stroke:#ff3050;stroke-width:1.5}
-.country-land.eliminated{fill:#2a2a2a;stroke:#444;stroke-width:0.4;opacity:0.4}
+.country-land{stroke-width:0.6;stroke-linejoin:round;stroke-linecap:round;transition:fill .4s,stroke .3s,filter .3s;cursor:crosshair}
+/* HP seviyesine göre renkler */
+.country-land.hp-full{fill:url(#landGrad);stroke:#3ce67a}
+.country-land.hp-high{fill:#1a7d44;stroke:#35d46e}
+.country-land.hp-mid{fill:#7d6a18;stroke:#e8c842}
+.country-land.hp-low{fill:#8a3015;stroke:#ff7a35}
+.country-land.hp-critical{fill:#9c1525;stroke:#ff2d4a}
+.country-land:hover{fill:#27a862 !important;stroke:#00ff9d !important;stroke-width:1.1;filter:url(#landGlow)}
+.country-land.my-country{fill:#1a9a48 !important;stroke:#00ff9d !important;stroke-width:1.4;filter:url(#neonGlow)}
+.country-land.targeted{fill:#c41530 !important;stroke:#ff3050 !important;stroke-width:1.4;filter:url(#neonGlow)}
+.country-land.eliminated{fill:#1a1a1a !important;stroke:#383838 !important;stroke-width:0.3;opacity:0.35}
+@keyframes countryBreath{0%,100%{filter:url(#landGlow)}50%{filter:url(#neonGlow)}}
 .city-dot{fill:#e8162a;cursor:crosshair}
 .city-dot.my-city{fill:#00c853}
 .city-dot.target-city{fill:#ff4500}
@@ -217,23 +224,110 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   <!-- WORLD MAP SVG -->
   <svg id="mapSvg" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid meet" style="position:absolute;inset:0;width:100%;height:100%;z-index:3">
     <defs>
-      <filter id="gR"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-      <filter id="gG"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-      <radialGradient id="oceanGrad" cx="50%" cy="42%" r="75%">
-        <stop offset="0%" stop-color="#0c2f4a"/>
-        <stop offset="55%" stop-color="#071b2c"/>
-        <stop offset="100%" stop-color="#030a12"/>
+      <filter id="gR" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      <filter id="gG" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+
+      <!-- Kıta glow filtresi -->
+      <filter id="landGlow" x="-30%" y="-30%" width="160%" height="160%">
+        <feGaussianBlur stdDeviation="1.4" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+
+      <!-- Güçlü neon glow (kendi ülke / hedef) -->
+      <filter id="neonGlow" x="-80%" y="-80%" width="260%" height="260%">
+        <feGaussianBlur stdDeviation="4" result="b1"/>
+        <feGaussianBlur stdDeviation="8" result="b2"/>
+        <feMerge><feMergeNode in="b2"/><feMergeNode in="b1"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+
+      <!-- Okyanus derinlik gradyanı -->
+      <radialGradient id="oceanGrad" cx="50%" cy="40%" r="80%">
+        <stop offset="0%" stop-color="#0e3a5c"/>
+        <stop offset="45%" stop-color="#082338"/>
+        <stop offset="78%" stop-color="#04121f"/>
+        <stop offset="100%" stop-color="#01060c"/>
       </radialGradient>
+
+      <!-- Kıta gradyanı (normal ülkeler) -->
+      <linearGradient id="landGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#1d8048"/>
+        <stop offset="100%" stop-color="#0d4628"/>
+      </linearGradient>
+
+      <!-- Arka plan ülkeleri gradyanı -->
+      <linearGradient id="bgLandGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#16303f"/>
+        <stop offset="100%" stop-color="#0a1a24"/>
+      </linearGradient>
+
+      <!-- Atmosfer parıltısı -->
+      <radialGradient id="atmoGlow" cx="50%" cy="38%" r="60%">
+        <stop offset="0%" stop-color="rgba(0,200,150,0.10)"/>
+        <stop offset="100%" stop-color="rgba(0,200,150,0)"/>
+      </radialGradient>
+
+      <!-- Tarama ışını gradyanı -->
+      <linearGradient id="sweepGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="rgba(0,255,150,0)"/>
+        <stop offset="80%" stop-color="rgba(0,255,150,0.06)"/>
+        <stop offset="100%" stop-color="rgba(0,255,150,0.22)"/>
+      </linearGradient>
+
+      <!-- Kıta üst-ışık (rim light) -->
+      <linearGradient id="rimLight" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="rgba(120,255,200,0.5)"/>
+        <stop offset="18%" stop-color="rgba(120,255,200,0)"/>
+      </linearGradient>
+
+      <!-- Saldırı dalga gradyanı -->
+      <radialGradient id="waveGrad" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="rgba(255,45,74,0)"/>
+        <stop offset="70%" stop-color="rgba(255,45,74,0.4)"/>
+        <stop offset="100%" stop-color="rgba(255,45,74,0)"/>
+      </radialGradient>
+
+      <!-- Yumuşak gölge (kıta derinliği) -->
+      <filter id="landShadow" x="-20%" y="-20%" width="140%" height="160%">
+        <feDropShadow dx="0" dy="2.5" stdDeviation="2" flood-color="#000814" flood-opacity="0.55"/>
+      </filter>
+
+      <!-- Pırıltı filtresi -->
+      <filter id="twinkle"><feGaussianBlur stdDeviation="0.6"/></filter>
     </defs>
 
     <!-- Okyanus arka plan -->
     <rect x="0" y="0" width="1000" height="500" fill="url(#oceanGrad)"/>
+
+    <!-- Enlem/boylam ızgarası -->
+    <g id="mapGrid" opacity="0.5"></g>
+
+    <!-- Atmosfer parıltısı -->
+    <rect x="0" y="0" width="1000" height="500" fill="url(#atmoGlow)"/>
+
+    <!-- Yıldız parıltıları (okyanusta) -->
+    <g id="starField"></g>
+
+    <!-- Dönen tarama ışını -->
+    <g id="radarSweep" style="transform-origin:500px 250px">
+      <polygon points="500,250 500,0 720,40" fill="url(#sweepGrad)" opacity="0.7"/>
+      <animateTransform attributeName="transform" type="rotate"
+        from="0 500 250" to="360 500 250" dur="12s" repeatCount="indefinite"/>
+    </g>
+
+    <!-- Yatay tarama çizgisi -->
+    <rect id="scanBeam" x="0" y="0" width="1000" height="2"
+      fill="rgba(0,255,150,0.18)">
+      <animate attributeName="y" values="-4;500;-4" dur="9s" repeatCount="indefinite"/>
+    </rect>
 
     <!-- Diğer ülkeler (tıklanamaz arka plan) -->
     <g id="landBackground"></g>
 
     <!-- Oyun ülkeleri (tıklanabilir) -->
     <g id="gameCountries"></g>
+
+    <!-- Saldırı dalga efektleri -->
+    <g id="attackWaves"></g>
 
     <!-- ATTACK LINES GROUP -->
     <g id="attackLines"></g>
@@ -755,15 +849,37 @@ let gameCountries=[], attackLineTimer=null;
 
 /* ── GERÇEK DÜNYA HARİTASINI ÇİZ ── */
 function buildMap() {
-  // Arka plan ülkeleri (tıklanamaz - diğer dünya ülkeleri)
+  // Yıldız parıltıları (okyanusta)
+  const starG = document.getElementById('starField');
+  if (starG && !starG.hasChildNodes()) {
+    for (let i=0;i<60;i++){
+      const s = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      const x = Math.random()*1000, y = Math.random()*500;
+      s.setAttribute('cx',x.toFixed(0)); s.setAttribute('cy',y.toFixed(0));
+      s.setAttribute('r',(Math.random()*0.8+0.2).toFixed(2));
+      s.setAttribute('fill','#7fd4ff');
+      s.setAttribute('opacity',(Math.random()*0.5+0.1).toFixed(2));
+      const dur = (Math.random()*3+2).toFixed(1);
+      const an = document.createElementNS('http://www.w3.org/2000/svg','animate');
+      an.setAttribute('attributeName','opacity');
+      an.setAttribute('values','0.1;0.7;0.1');
+      an.setAttribute('dur',dur+'s');
+      an.setAttribute('repeatCount','indefinite');
+      s.appendChild(an);
+      starG.appendChild(s);
+    }
+  }
+
+  // Arka plan ülkeleri (tıklanamaz)
   const landG = document.getElementById('landBackground');
   landG.innerHTML = '';
   LAND_PATHS.forEach(d => {
     const p = document.createElementNS('http://www.w3.org/2000/svg','path');
     p.setAttribute('d', d);
-    p.setAttribute('fill', '#13202b');
-    p.setAttribute('stroke', '#1e3340');
+    p.setAttribute('fill', 'url(#bgLandGrad)');
+    p.setAttribute('stroke', '#2a4a5c');
     p.setAttribute('stroke-width', '0.3');
+    p.setAttribute('stroke-linejoin', 'round');
     landG.appendChild(p);
   });
 
@@ -774,15 +890,148 @@ function buildMap() {
     const p = document.createElementNS('http://www.w3.org/2000/svg','path');
     p.setAttribute('d', d);
     p.setAttribute('id', code);
-    p.setAttribute('class', 'country-land');
+    p.setAttribute('class', 'country-land hp-full');
+    p.setAttribute('filter', 'url(#landGlow)');
     p.setAttribute('data-name', CD[code]?.n || code);
     p.setAttribute('onclick', `handleMapClick('${code}')`);
     gameG.appendChild(p);
   });
+
+  // Enlem/boylam ızgarası
+  const gridG = document.getElementById('mapGrid');
+  if (gridG && !gridG.hasChildNodes()) {
+    for (let x=0; x<=1000; x+=62.5) {
+      const l = document.createElementNS('http://www.w3.org/2000/svg','line');
+      l.setAttribute('x1',x); l.setAttribute('y1',0);
+      l.setAttribute('x2',x); l.setAttribute('y2',500);
+      l.setAttribute('stroke','rgba(0,180,140,0.13)');
+      l.setAttribute('stroke-width','0.4');
+      gridG.appendChild(l);
+    }
+    for (let y=0; y<=500; y+=62.5) {
+      const l = document.createElementNS('http://www.w3.org/2000/svg','line');
+      l.setAttribute('x1',0); l.setAttribute('y1',y);
+      l.setAttribute('x2',1000); l.setAttribute('y2',y);
+      l.setAttribute('stroke','rgba(0,180,140,0.13)');
+      l.setAttribute('stroke-width','0.4');
+      gridG.appendChild(l);
+    }
+  }
+}
+
+/* ── SALDIRI DALGA EFEKTİ ── */
+function spawnAttackWave(code) {
+  const c = CD[code];
+  if (!c) return;
+  const g = document.getElementById('attackWaves');
+  if (!g) return;
+  const ring = document.createElementNS('http://www.w3.org/2000/svg','circle');
+  ring.setAttribute('cx', c.x);
+  ring.setAttribute('cy', c.y);
+  ring.setAttribute('r', '3');
+  ring.setAttribute('fill', 'none');
+  ring.setAttribute('stroke', '#ff2d4a');
+  ring.setAttribute('stroke-width', '1.2');
+  const aR = document.createElementNS('http://www.w3.org/2000/svg','animate');
+  aR.setAttribute('attributeName','r'); aR.setAttribute('from','3'); aR.setAttribute('to','28');
+  aR.setAttribute('dur','1s'); aR.setAttribute('repeatCount','1');
+  const aO = document.createElementNS('http://www.w3.org/2000/svg','animate');
+  aO.setAttribute('attributeName','opacity'); aO.setAttribute('from','0.9'); aO.setAttribute('to','0');
+  aO.setAttribute('dur','1s'); aO.setAttribute('repeatCount','1');
+  ring.appendChild(aR); ring.appendChild(aO);
+  g.appendChild(ring);
+  setTimeout(()=>{ try{g.removeChild(ring);}catch(e){} }, 1100);
+}
+
+// HP'ye göre renk sınıfı
+function hpClass(hp) {
+  const pct = hp / 100000;
+  if (pct > 0.85) return 'hp-full';
+  if (pct > 0.55) return 'hp-high';
+  if (pct > 0.30) return 'hp-mid';
+  if (pct > 0.12) return 'hp-low';
+  return 'hp-critical';
 }
 
 /* ── RENDER COUNTRY LABELS ── */
 function renderLabels() {
+  const g = document.getElementById('countryLabels');
+  g.innerHTML = '';
+  Object.entries(CD).forEach(([code, c]) => {
+    const country = gameCountries.find(x=>x.code===code);
+    const hp = country ? country.hp : 100000;
+    const alive = country ? country.is_alive !== false : true;
+    const isMe = code === myCountry;
+    const isTgt = code === targetCountry;
+
+    // SVG path rengini HP'ye göre güncelle
+    const el = document.getElementById(code);
+    if (el) {
+      if (!alive) {
+        el.setAttribute('class','country-land eliminated');
+        el.removeAttribute('filter');
+      } else if (isMe) {
+        el.setAttribute('class','country-land my-country');
+      } else if (isTgt) {
+        el.setAttribute('class','country-land targeted');
+      } else {
+        el.setAttribute('class','country-land ' + hpClass(hp));
+        el.setAttribute('filter','url(#landGlow)');
+      }
+    }
+    if (!alive) return;
+
+    const color = isMe ? '#00ff9d' : isTgt ? '#ff3050' : '#cfe6f5';
+    const r = isMe || isTgt ? 3.2 : 1.8;
+
+    // Nabız atan nokta
+    const dot = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    dot.setAttribute('cx', c.x); dot.setAttribute('cy', c.y); dot.setAttribute('r', r);
+    dot.setAttribute('fill', color);
+    dot.setAttribute('onclick', `handleMapClick('${code}')`);
+    dot.style.cursor = 'crosshair';
+    if (isMe || isTgt) {
+      dot.setAttribute('filter', isMe ? 'url(#gG)' : 'url(#gR)');
+      // Nabız halkası
+      const ring = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      ring.setAttribute('cx', c.x); ring.setAttribute('cy', c.y);
+      ring.setAttribute('fill','none');
+      ring.setAttribute('stroke', color);
+      ring.setAttribute('stroke-width','0.8');
+      const an1 = document.createElementNS('http://www.w3.org/2000/svg','animate');
+      an1.setAttribute('attributeName','r'); an1.setAttribute('values',`${r};${r+9}`);
+      an1.setAttribute('dur','1.6s'); an1.setAttribute('repeatCount','indefinite');
+      const an2 = document.createElementNS('http://www.w3.org/2000/svg','animate');
+      an2.setAttribute('attributeName','opacity'); an2.setAttribute('values','0.9;0');
+      an2.setAttribute('dur','1.6s'); an2.setAttribute('repeatCount','indefinite');
+      ring.appendChild(an1); ring.appendChild(an2);
+      g.appendChild(ring);
+    }
+    g.appendChild(dot);
+
+    const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
+    txt.setAttribute('x', c.x); txt.setAttribute('y', c.y - r - 3);
+    txt.setAttribute('text-anchor','middle');
+    txt.setAttribute('class','city-label');
+    txt.setAttribute('fill', color);
+    txt.setAttribute('font-size', isMe || isTgt ? '7.5' : '6.2');
+    txt.setAttribute('font-weight', isMe || isTgt ? '700' : '400');
+    txt.textContent = c.f + ' ' + code;
+    g.appendChild(txt);
+
+    if (isMe || isTgt) {
+      const hpTxt = document.createElementNS('http://www.w3.org/2000/svg','text');
+      hpTxt.setAttribute('x', c.x); hpTxt.setAttribute('y', c.y + r + 9);
+      hpTxt.setAttribute('text-anchor','middle');
+      hpTxt.setAttribute('class','hp-label');
+      hpTxt.setAttribute('fill', isMe ? 'rgba(0,255,150,0.8)' : 'rgba(255,48,80,0.8)');
+      hpTxt.textContent = hp.toLocaleString('tr-TR') + ' HP';
+      g.appendChild(hpTxt);
+    }
+  });
+}
+
+function renderLabels_OLD() {
   const g = document.getElementById('countryLabels');
   g.innerHTML = '';
   Object.entries(CD).forEach(([code, c]) => {
@@ -875,18 +1124,42 @@ function drawAttackLine(fromCode, toCode) {
   const from = CD[fromCode], to = CD[toCode];
   if (!from || !to) return;
   const g = document.getElementById('attackLines');
+
+  // Parlayan füze izi
   const line = document.createElementNS('http://www.w3.org/2000/svg','line');
   line.setAttribute('x1',from.x); line.setAttribute('y1',from.y);
   line.setAttribute('x2',to.x);   line.setAttribute('y2',to.y);
-  line.setAttribute('stroke','#e8162a'); line.setAttribute('stroke-width','0.8');
-  line.setAttribute('stroke-dasharray','4 3'); line.setAttribute('opacity','0.7');
-  const anim = document.createElementNS('http://www.w3.org/2000/svg','animate');
-  anim.setAttribute('attributeName','stroke-dashoffset');
-  anim.setAttribute('from','0'); anim.setAttribute('to','-100');
-  anim.setAttribute('dur','0.8s'); anim.setAttribute('repeatCount','3');
-  line.appendChild(anim);
+  line.setAttribute('stroke','#ff3050'); line.setAttribute('stroke-width','1');
+  line.setAttribute('stroke-linecap','round');
+  line.setAttribute('filter','url(#gR)');
+  line.setAttribute('opacity','0.85');
+  const dash = document.createElementNS('http://www.w3.org/2000/svg','animate');
+  dash.setAttribute('attributeName','stroke-dasharray');
+  dash.setAttribute('values','0 200;200 0');
+  dash.setAttribute('dur','0.5s'); dash.setAttribute('repeatCount','1');
+  line.appendChild(dash);
   g.appendChild(line);
-  setTimeout(() => { try { g.removeChild(line); } catch(e){} }, 2500);
+
+  // Hareketli mermi (parlak nokta)
+  const proj = document.createElementNS('http://www.w3.org/2000/svg','circle');
+  proj.setAttribute('r','2.2');
+  proj.setAttribute('fill','#fff');
+  proj.setAttribute('filter','url(#gR)');
+  const mx = document.createElementNS('http://www.w3.org/2000/svg','animate');
+  mx.setAttribute('attributeName','cx'); mx.setAttribute('from',from.x); mx.setAttribute('to',to.x);
+  mx.setAttribute('dur','0.5s'); mx.setAttribute('repeatCount','1');
+  const my = document.createElementNS('http://www.w3.org/2000/svg','animate');
+  my.setAttribute('attributeName','cy'); my.setAttribute('from',from.y); my.setAttribute('to',to.y);
+  my.setAttribute('dur','0.5s'); my.setAttribute('repeatCount','1');
+  proj.appendChild(mx); proj.appendChild(my);
+  g.appendChild(proj);
+
+  // Hedefte patlama dalgası
+  setTimeout(()=>spawnAttackWave(toCode), 480);
+
+  setTimeout(() => {
+    try { g.removeChild(line); g.removeChild(proj); } catch(e){}
+  }, 1400);
 }
 
 /* ── WALLET ── */
