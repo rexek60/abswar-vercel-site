@@ -23,6 +23,8 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .logo-sub{font-size:8px;letter-spacing:3px;color:var(--dim);text-transform:uppercase;margin-right:24px;align-self:flex-end;padding-bottom:2px}
 .nav-link{padding:0 11px;height:44px;display:flex;align-items:center;font-family:var(--hud);font-size:9px;letter-spacing:2px;color:var(--dim);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;text-transform:uppercase}
 .nav-link:hover{color:var(--text)}.nav-link.active{color:var(--red);border-bottom-color:var(--red)}
+@keyframes panelFocus{0%{box-shadow:0 0 0 0 rgba(232,22,42,0)}30%{box-shadow:0 0 0 2px var(--red),0 0 28px rgba(232,22,42,0.55)}100%{box-shadow:0 0 0 0 rgba(232,22,42,0)}}
+.panel-focused{animation:panelFocus 1.6s ease-out;z-index:50}
 .btn-wallet{padding:7px 16px;background:var(--red);color:white;font-family:var(--hud);font-size:9px;letter-spacing:2px;border:none;cursor:pointer;border-radius:2px;transition:all .15s}
 .btn-wallet:hover{background:#ff1a3c;box-shadow:0 0 16px rgba(232,22,42,0.4)}
 .btn-wallet.connected{background:transparent;border:1px solid var(--green);color:var(--green)}
@@ -174,13 +176,13 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   <span class="logo-main">ABSWAR</span>
   <span class="logo-sub">Küresel Savaş MMO</span>
   <div style="display:flex">
-    <div class="nav-link">KONTROL PANELİ</div>
-    <div class="nav-link active">HARİTA</div>
-    <div class="nav-link">ÜLKELER</div>
-    <div class="nav-link">İTTİFAKLAR</div>
-    <div class="nav-link">İSTATİSTİKLER</div>
-    <div class="nav-link">PAZAR</div>
-    <div class="nav-link">SIRALAMA</div>
+    <div class="nav-link" onclick="focusPanel('kontrol',this)">KONTROL PANELİ</div>
+    <div class="nav-link active" onclick="focusPanel('harita',this)">HARİTA</div>
+    <div class="nav-link" onclick="focusPanel('ulkeler',this)">ÜLKELER</div>
+    <div class="nav-link" onclick="focusPanel('ittifak',this)">İTTİFAKLAR</div>
+    <div class="nav-link" onclick="focusPanel('siralama',this)">İSTATİSTİKLER</div>
+    <div class="nav-link" onclick="focusPanel('ulkeler',this)">PAZAR</div>
+    <div class="nav-link" onclick="focusPanel('siralama',this)">SIRALAMA</div>
   </div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:10px">
     <span style="font-family:var(--mono);font-size:11px;color:var(--red)" id="ethBal">0.000 ETH</span>
@@ -192,7 +194,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 <div class="layout">
 
 <!-- LEFT SIDEBAR -->
-<div class="cell" style="grid-column:1;grid-row:1/3">
+<div class="cell" id="panel-kontrol" style="grid-column:1;grid-row:1/3">
   <div style="padding:8px 10px;border-bottom:1px solid var(--border);flex-shrink:0">
     <div style="display:flex;align-items:center"><span class="ldot"></span><span style="font-family:var(--hud);font-size:11px;font-weight:700;color:var(--red);letter-spacing:3px">CANLI SAVAŞ</span></div>
     <div style="font-size:8px;color:var(--dim);letter-spacing:2px;margin-top:2px">SEZON 1: İLK ÇÖKÜŞ</div>
@@ -212,7 +214,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 </div>
 
 <!-- MAP -->
-<div class="cell" style="grid-column:2;grid-row:1/3;background:radial-gradient(ellipse at 50% 40%, #0a2540 0%, #061520 60%, #03080e 100%);position:relative">
+<div class="cell" id="panel-harita" style="grid-column:2;grid-row:1/3;background:radial-gradient(ellipse at 50% 40%, #0a2540 0%, #061520 60%, #03080e 100%);position:relative">
   <!-- Grid -->
   <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:0.06;pointer-events:none;z-index:1">
     <defs><pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M30 0L0 0 0 30" fill="none" stroke="#00c853" stroke-width="0.4"/></pattern></defs>
@@ -372,14 +374,14 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   </div>
 
   <!-- Radar badge -->
-  <div style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.75);border:1px solid rgba(0,200,83,0.3);padding:5px 8px;z-index:10;text-align:center">
-    <div style="font-family:var(--hud);font-size:7px;color:var(--dim);letter-spacing:2px">RADAR SEVİYE 3</div>
-    <button style="margin-top:3px;padding:3px 8px;background:var(--green);color:#000;font-family:var(--hud);font-size:7px;border:none;cursor:pointer;width:100%">YÜKSELT</button>
+  <div style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.75);border:1px solid rgba(0,200,83,0.3);padding:5px 8px;z-index:10;text-align:center;min-width:90px">
+    <div style="font-family:var(--hud);font-size:7px;color:var(--dim);letter-spacing:2px">RADAR SEVİYE <span id="radarLevel" style="color:var(--green)">3</span></div>
+    <button id="radarUpgradeBtn" onclick="upgradeRadar()" style="margin-top:3px;padding:3px 8px;background:var(--green);color:#000;font-family:var(--hud);font-size:7px;border:none;cursor:pointer;width:100%">YÜKSELT (0.01 ETH)</button>
   </div>
 </div>
 
 <!-- COUNTRY OVERVIEW + AMMO (col 3) -->
-<div class="cell" style="grid-column:3;grid-row:1/3">
+<div class="cell" id="panel-ulkeler" style="grid-column:3;grid-row:1/3">
   <div class="sh">ÜLKE GENEL BAKIŞI</div>
   <div class="co-header">
     <div style="display:flex;align-items:center;gap:7px">
@@ -417,7 +419,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 </div>
 
 <!-- LEADERBOARD + STATS (col 4) -->
-<div class="cell" style="grid-column:4;grid-row:1/3">
+<div class="cell" id="panel-siralama" style="grid-column:4;grid-row:1/3">
   <div class="sh">LİDERLİK TABLOSU</div>
   <div class="lb-tabs">
     <div class="lb-tab active" onclick="setLbTab('countries',this)">ÜLKELER</div>
@@ -461,7 +463,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 </div>
 
 <!-- Alliance Chat -->
-<div class="cell" style="grid-column:2;grid-row:2">
+<div class="cell" id="panel-ittifak" style="grid-column:2;grid-row:2">
   <div class="sh">İTTİFAK SOHBETİ <span style="font-family:var(--mono);font-size:8px;color:var(--green)" id="allianceTag">🇹🇷 İTTİFAK YOK</span></div>
   <div style="display:flex;gap:4px;padding:5px 8px;border-bottom:1px solid var(--border);flex-shrink:0">
     <button class="btn-sm btn-red" style="flex:1" onclick="openAllianceModal('create')">+ İTTİFAK KUR</button>
@@ -504,21 +506,15 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
       <div class="det-row"><span style="font-size:12px">🇧🇬</span><div><div class="det-country">BULGARİSTAN</div><div class="det-act movement">Kuvvet Hareketi</div></div><span style="font-size:7px;color:var(--dim);margin-left:auto">5dk</span></div>
       <div class="det-row"><span style="font-size:12px">🇺🇸</span><div><div class="det-country">ABD</div><div class="det-act alliance-m">İttifak Hareketi</div></div><span style="font-size:7px;color:var(--dim);margin-left:auto">7dk</span></div>
       <div class="det-row"><span style="font-size:12px">🇷🇺</span><div><div class="det-country">RUSYA</div><div class="det-act nuclear">Nükleer Hazırlık</div></div><span style="font-size:7px;color:var(--dim);margin-left:auto">10dk</span></div>
-      <button class="btn-sm btn-out" style="margin-top:6px;width:100%">TARAMA YÜKSELTMELERİ</button>
+      <button class="btn-sm btn-out" style="margin-top:6px;width:100%" onclick="upgradeRadar()">TARAMA YÜKSELTMELERİ</button>
     </div>
   </div>
 </div>
 
 <!-- Resource -->
 <div class="cell" style="grid-column:4;grid-row:2">
-  <div class="sh">KAYNAK KONTROLÜ <button class="btn-sm btn-out" style="font-size:7px;padding:2px 6px">TÜM BÖLGELERİ GÖR</button></div>
-  <div style="flex:1;overflow-y:auto;padding:10px 0">
-    <div class="res-row"><div class="res-hdr"><span class="res-name">🛢️ PETROL</span><span class="res-pct">72.5%</span></div><div class="res-bar"><div class="res-fill" style="width:72.5%;background:linear-gradient(90deg,#e8162a,#ff4500)"></div></div><div class="res-chg pos">+126%</div></div>
-    <div class="res-row"><div class="res-hdr"><span class="res-name">💧 GAZ</span><span class="res-pct">64.3%</span></div><div class="res-bar"><div class="res-fill" style="width:64.3%;background:linear-gradient(90deg,#e87016,#ffaa00)"></div></div><div class="res-chg pos">+56%</div></div>
-    <div class="res-row"><div class="res-hdr"><span class="res-name">⚙️ METAL</span><span class="res-pct">81.7%</span></div><div class="res-bar"><div class="res-fill" style="width:81.7%;background:linear-gradient(90deg,#888,#ccc)"></div></div><div class="res-chg pos">+150%</div></div>
-    <div class="res-row"><div class="res-hdr"><span class="res-name">💻 TEKNOLOJİ</span><span class="res-pct">55.2%</span></div><div class="res-bar"><div class="res-fill" style="width:55.2%;background:linear-gradient(90deg,#0066ff,#00aaff)"></div></div><div class="res-chg pos">+70%</div></div>
-    <div class="res-row"><div class="res-hdr"><span class="res-name">⚡ ENERJİ</span><span class="res-pct">88.1%</span></div><div class="res-bar"><div class="res-fill" style="width:88.1%;background:linear-gradient(90deg,#f5c842,#ffee00)"></div></div><div class="res-chg neg">-12%</div></div>
-  </div>
+  <div class="sh">KAYNAK KONTROLÜ <button class="btn-sm btn-out" style="font-size:7px;padding:2px 6px" onclick="boostAllResources()">TÜMÜNÜ ÜRET</button></div>
+  <div style="flex:1;overflow-y:auto;padding:10px 0" id="resourceList"></div>
 </div>
 
 </div><!-- end layout -->
@@ -846,6 +842,111 @@ const LAND_PATHS = ["M557,134L558,137L557,139L555,139L554,135L554,133L556,132L55
 
 let wallet=null, myCountry=null, targetCountry=null, toastTimer=null, modalMode='nation';
 let gameCountries=[], attackLineTimer=null;
+
+/* ── RADAR SİSTEMİ ── */
+let radarLevel = 3;
+const RADAR_MAX = 10;
+
+function upgradeRadar() {
+  if (radarLevel >= RADAR_MAX) {
+    showToast('📡 Radar zaten maksimum seviyede!','info');
+    return;
+  }
+  if (!wallet) { showToast('Önce wallet bağla!','error'); return; }
+  radarLevel++;
+  document.getElementById('radarLevel').textContent = radarLevel;
+  const btn = document.getElementById('radarUpgradeBtn');
+  if (radarLevel >= RADAR_MAX) {
+    btn.textContent = 'MAKSİMUM';
+    btn.disabled = true;
+    btn.style.opacity = '0.5';
+  }
+  showToast(`📡 Radar Seviye ${radarLevel}'e yükseltildi! Tespit menzili arttı.`,'success');
+  if (typeof addChatSystem === 'function') addChatSystem(`📡 Radar sistemi Seviye ${radarLevel}'e yükseltildi`);
+}
+
+/* ── KAYNAK KONTROLÜ ── */
+const RESOURCES = [
+  { id:'oil',  name:'PETROL',     icon:'🛢️', val:72.5, chg:126,  grad:'linear-gradient(90deg,#e8162a,#ff4500)' },
+  { id:'gas',  name:'GAZ',        icon:'💧', val:64.3, chg:56,   grad:'linear-gradient(90deg,#e87016,#ffaa00)' },
+  { id:'metal',name:'METAL',      icon:'⚙️', val:81.7, chg:150,  grad:'linear-gradient(90deg,#888,#ccc)' },
+  { id:'tech', name:'TEKNOLOJİ',  icon:'💻', val:55.2, chg:70,   grad:'linear-gradient(90deg,#0066ff,#00aaff)' },
+  { id:'energy',name:'ENERJİ',    icon:'⚡', val:88.1, chg:-12,  grad:'linear-gradient(90deg,#f5c842,#ffee00)' },
+];
+
+function renderResources() {
+  const list = document.getElementById('resourceList');
+  if (!list) return;
+  list.innerHTML = '';
+  RESOURCES.forEach(r => {
+    const row = document.createElement('div');
+    row.className = 'res-row';
+    row.style.cursor = 'pointer';
+    row.title = 'Üretmek için tıkla';
+    row.onclick = ()=>produceResource(r.id);
+    const chgClass = r.chg >= 0 ? 'pos' : 'neg';
+    const chgTxt = (r.chg >= 0 ? '+' : '') + r.chg + '%';
+    row.innerHTML = `
+      <div class="res-hdr">
+        <span class="res-name">${r.icon} ${r.name}</span>
+        <span class="res-pct">${r.val.toFixed(1)}%</span>
+      </div>
+      <div class="res-bar"><div class="res-fill" style="width:${r.val}%;background:${r.grad}"></div></div>
+      <div class="res-chg ${chgClass}">${chgTxt}</div>`;
+    list.appendChild(row);
+  });
+}
+
+function produceResource(id) {
+  const r = RESOURCES.find(x=>x.id===id);
+  if (!r) return;
+  if (r.val >= 100) { showToast(`${r.icon} ${r.name} zaten %100!`,'info'); return; }
+  r.val = Math.min(100, r.val + (Math.random()*8 + 4));
+  r.chg = Math.abs(r.chg) + Math.floor(Math.random()*20);
+  renderResources();
+  showToast(`${r.icon} ${r.name} üretimi arttı → %${r.val.toFixed(1)}`,'success');
+}
+
+function boostAllResources() {
+  let any = false;
+  RESOURCES.forEach(r => {
+    if (r.val < 100) {
+      r.val = Math.min(100, r.val + (Math.random()*6 + 3));
+      r.chg = Math.abs(r.chg) + Math.floor(Math.random()*15);
+      any = true;
+    }
+  });
+  renderResources();
+  showToast(any ? '🏭 Tüm kaynaklar üretimde — seviyeler yükseldi!' : 'Tüm kaynaklar zaten maksimumda!', any?'success':'info');
+}
+
+// Kaynaklar zamanla hafif dalgalanır (canlı his)
+setInterval(()=>{
+  RESOURCES.forEach(r=>{
+    const drift = (Math.random()-0.45) * 1.5;
+    r.val = Math.max(15, Math.min(100, r.val + drift));
+  });
+  renderResources();
+}, 8000);
+
+/* ── ÜST MENÜ — PANEL ODAKLAMA ── */
+function focusPanel(panelId, navEl) {
+  // Nav aktif durumu
+  document.querySelectorAll('.nav-link').forEach(n=>n.classList.remove('active'));
+  if (navEl) navEl.classList.add('active');
+
+  const panel = document.getElementById('panel-' + panelId);
+  if (!panel) return;
+
+  // Panele kaydır
+  panel.scrollIntoView({ behavior:'smooth', block:'nearest', inline:'nearest' });
+
+  // Vurgu animasyonu
+  panel.classList.remove('panel-focused');
+  void panel.offsetWidth; // reflow — animasyonu yeniden tetikle
+  panel.classList.add('panel-focused');
+  setTimeout(()=>panel.classList.remove('panel-focused'), 1700);
+}
 
 /* ── GERÇEK DÜNYA HARİTASINI ÇİZ ── */
 function buildMap() {
@@ -1616,6 +1717,7 @@ if(window.ethereum){
 /* ── INIT ── */
 buildMap();
 renderLabels();
+renderResources();
 pollState();
 setInterval(pollState,15000);
 </script>

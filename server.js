@@ -238,7 +238,7 @@ app.post("/api/player/choose-country", (req,res)=>{
 app.post("/api/market/buy-demo", (req,res)=>{
   const player = getPlayer(req.body.wallet);
   const pack = Number(req.body.pack || 1);
-  const packs = { 1:100, 10:1000, 100:10000, 1000:100000 };
+  const packs = { 100:100, 500:1000, 2000:10000, 9999:100000 };
   const bullets = packs[pack] || 100;
   player.bullets += bullets;
 
