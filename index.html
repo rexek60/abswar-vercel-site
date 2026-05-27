@@ -224,7 +224,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   <div style="position:absolute;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,200,83,0.25),transparent);animation:scanLine 5s linear infinite;z-index:2;pointer-events:none"></div>
 
   <!-- WORLD MAP SVG -->
-  <svg id="mapSvg" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid meet" style="position:absolute;inset:0;width:100%;height:100%;z-index:3">
+  <svg id="mapSvg" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;width:100%;height:100%;z-index:3">
     <defs>
       <filter id="gR" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
       <filter id="gG" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
@@ -392,16 +392,16 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   </div>
   <div style="padding:8px 12px;border-bottom:1px solid var(--border);flex-shrink:0">
     <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-      <span style="font-family:var(--hud);font-size:14px;color:white" id="coHP">78,500</span>
-      <span style="font-family:var(--mono);font-size:9px;color:var(--dim);align-self:flex-end">/ 100,000</span>
+      <span style="font-family:var(--hud);font-size:14px;color:white" id="coHP">1,000</span>
+      <span style="font-family:var(--mono);font-size:9px;color:var(--dim);align-self:flex-end">/ 1,000</span>
     </div>
-    <div class="hpb"><div class="hpf" id="coHPBar" style="width:78.5%"></div></div>
-    <div style="font-family:var(--mono);font-size:8px;color:var(--red);text-align:right;margin-top:2px" id="coHPPct">78.5%</div>
+    <div class="hpb"><div class="hpf" id="coHPBar" style="width:100%"></div></div>
+    <div style="font-family:var(--mono);font-size:8px;color:var(--red);text-align:right;margin-top:2px" id="coHPPct">100%</div>
   </div>
   <div class="stats-grid">
-    <div class="stat-cell"><div class="stat-label">Toplam Saldırı</div><div class="stat-val">1,246,789</div></div>
-    <div class="stat-cell"><div class="stat-label">Savunma</div><div class="stat-val">987,654</div></div>
-    <div class="stat-cell"><div class="stat-label">Katkı</div><div class="stat-val" id="myContrib">0</div></div>
+    <div class="stat-cell"><div class="stat-label">🔫 Mermilerim</div><div class="stat-val" id="myBullets" style="color:var(--green)">0</div></div>
+    <div class="stat-cell"><div class="stat-label">⚔️ Saldırılarım</div><div class="stat-val" id="myAttacks">0</div></div>
+    <div class="stat-cell"><div class="stat-label">📊 Katkı</div><div class="stat-val" id="myContrib">0</div></div>
   </div>
   <div class="boost-grid">
     <div class="boost-card"><span class="boost-icon">⚔️</span><div class="boost-type">SALDIRI</div><div class="boost-val">+20%</div><div class="boost-timer">15d 32s</div></div>
@@ -426,16 +426,16 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     <div class="lb-tab" onclick="setLbTab('players',this)">OYUNCULAR</div>
   </div>
   <div style="flex:1;overflow-y:auto" id="lbList">
-    <div class="lb-row"><span class="lb-num">1</span><span style="font-size:13px">🇷🇺</span><span class="lb-name">Rusya</span><span class="lb-hp">91.2K HP</span></div>
-    <div class="lb-row"><span class="lb-num">2</span><span style="font-size:13px">🇨🇳</span><span class="lb-name">Çin</span><span class="lb-hp">88.7K HP</span></div>
-    <div class="lb-row"><span class="lb-num">3</span><span style="font-size:13px">🇩🇪</span><span class="lb-name">Almanya</span><span class="lb-hp">83.1K HP</span></div>
-    <div class="lb-row"><span class="lb-num">4</span><span style="font-size:13px">🇧🇷</span><span class="lb-name">Brezilya</span><span class="lb-hp">79.9K HP</span></div>
-    <div class="lb-row me"><span class="lb-num">5</span><span style="font-size:13px">🇹🇷</span><span class="lb-name">Türkiye</span><span class="lb-hp">78.5K HP</span></div>
-    <div class="lb-row"><span class="lb-num">6</span><span style="font-size:13px">🇮🇳</span><span class="lb-name">Hindistan</span><span class="lb-hp">64.2K HP</span></div>
-    <div class="lb-row"><span class="lb-num">7</span><span style="font-size:13px">🇺🇸</span><span class="lb-name">ABD</span><span class="lb-hp">62.1K HP</span></div>
-    <div class="lb-row"><span class="lb-num">8</span><span style="font-size:13px">🇫🇷</span><span class="lb-name">Fransa</span><span class="lb-hp">58.7K HP</span></div>
-    <div class="lb-row"><span class="lb-num">9</span><span style="font-size:13px">🇯🇵</span><span class="lb-name">Japonya</span><span class="lb-hp">53.6K HP</span></div>
-    <div class="lb-row"><span class="lb-num">10</span><span style="font-size:13px">🇬🇧</span><span class="lb-name">Bir. Krallık</span><span class="lb-hp">50.4K HP</span></div>
+    <div class="lb-row"><span class="lb-num">1</span><span style="font-size:13px">🇷🇺</span><span class="lb-name">Rusya</span><span class="lb-hp">1000 HP</span></div>
+    <div class="lb-row"><span class="lb-num">2</span><span style="font-size:13px">🇨🇳</span><span class="lb-name">Çin</span><span class="lb-hp">1000 HP</span></div>
+    <div class="lb-row"><span class="lb-num">3</span><span style="font-size:13px">🇩🇪</span><span class="lb-name">Almanya</span><span class="lb-hp">1000 HP</span></div>
+    <div class="lb-row"><span class="lb-num">4</span><span style="font-size:13px">🇧🇷</span><span class="lb-name">Brezilya</span><span class="lb-hp">1000 HP</span></div>
+    <div class="lb-row me"><span class="lb-num">5</span><span style="font-size:13px">🇹🇷</span><span class="lb-name">Türkiye</span><span class="lb-hp">1000 HP</span></div>
+    <div class="lb-row"><span class="lb-num">6</span><span style="font-size:13px">🇮🇳</span><span class="lb-name">Hindistan</span><span class="lb-hp">1000 HP</span></div>
+    <div class="lb-row"><span class="lb-num">7</span><span style="font-size:13px">🇺🇸</span><span class="lb-name">ABD</span><span class="lb-hp">1000 HP</span></div>
+    <div class="lb-row"><span class="lb-num">8</span><span style="font-size:13px">🇫🇷</span><span class="lb-name">Fransa</span><span class="lb-hp">1000 HP</span></div>
+    <div class="lb-row"><span class="lb-num">9</span><span style="font-size:13px">🇯🇵</span><span class="lb-name">Japonya</span><span class="lb-hp">1000 HP</span></div>
+    <div class="lb-row"><span class="lb-num">10</span><span style="font-size:13px">🇬🇧</span><span class="lb-name">Bir. Krallık</span><span class="lb-hp">1000 HP</span></div>
   </div>
   <button class="btn-sm btn-out" style="margin:6px;width:calc(100%-12px)">TAM SIRALAMAYI GÖR</button>
   <div class="sh" style="flex-shrink:0">İSTATİSTİKLERİN</div>
@@ -901,13 +901,24 @@ function produceResource(id) {
   const r = RESOURCES.find(x=>x.id===id);
   if (!r) return;
   if (r.val >= 100) { showToast(`${r.icon} ${r.name} zaten %100!`,'info'); return; }
+  // 1 mermi ücreti
+  const curB = parseInt((document.getElementById('myBullets').textContent||'0').replace(/\D/g,''))||0;
+  if (!wallet) { showToast('Önce wallet bağla!','error'); return; }
+  if (curB < 1) { showToast('Yeterli merminiz yok! Pazardan mermi alın.','error'); return; }
+  // Optimistic UI: mermiyi düş
+  document.getElementById('myBullets').textContent = (curB-1).toLocaleString('tr-TR');
   r.val = Math.min(100, r.val + (Math.random()*8 + 4));
   r.chg = Math.abs(r.chg) + Math.floor(Math.random()*20);
   renderResources();
-  showToast(`${r.icon} ${r.name} üretimi arttı → %${r.val.toFixed(1)}`,'success');
+  showToast(`${r.icon} ${r.name} üretimi arttı → %${r.val.toFixed(1)} (-1 mermi)`,'success');
+  // Backend ile senkron
+  refreshPlayerState();
 }
 
 function boostAllResources() {
+  if (!wallet) { showToast('Önce wallet bağla!','error'); return; }
+  const curB = parseInt((document.getElementById('myBullets').textContent||'0').replace(/\D/g,''))||0;
+  if (curB < 1) { showToast('Yeterli merminiz yok! Pazardan mermi alın.','error'); return; }
   let any = false;
   RESOURCES.forEach(r => {
     if (r.val < 100) {
@@ -917,7 +928,13 @@ function boostAllResources() {
     }
   });
   renderResources();
-  showToast(any ? '🏭 Tüm kaynaklar üretimde — seviyeler yükseldi!' : 'Tüm kaynaklar zaten maksimumda!', any?'success':'info');
+  if (any) {
+    document.getElementById('myBullets').textContent = (curB-1).toLocaleString('tr-TR');
+    showToast('🏭 Tüm kaynaklar üretimde — seviyeler yükseldi! (-1 mermi)','success');
+    refreshPlayerState();
+  } else {
+    showToast('Tüm kaynaklar zaten maksimumda!','info');
+  }
 }
 
 // Kaynaklar zamanla hafif dalgalanır (canlı his)
@@ -1046,7 +1063,7 @@ function spawnAttackWave(code) {
 
 // HP'ye göre renk sınıfı
 function hpClass(hp) {
-  const pct = hp / 100000;
+  const pct = hp / 1000;
   if (pct > 0.85) return 'hp-full';
   if (pct > 0.55) return 'hp-high';
   if (pct > 0.30) return 'hp-mid';
@@ -1060,7 +1077,7 @@ function renderLabels() {
   g.innerHTML = '';
   Object.entries(CD).forEach(([code, c]) => {
     const country = gameCountries.find(x=>x.code===code);
-    const hp = country ? country.hp : 100000;
+    const hp = country ? country.hp : 1000;
     const alive = country ? country.is_alive !== false : true;
     const isMe = code === myCountry;
     const isTgt = code === targetCountry;
@@ -1137,7 +1154,7 @@ function renderLabels_OLD() {
   g.innerHTML = '';
   Object.entries(CD).forEach(([code, c]) => {
     const country = gameCountries.find(x=>x.code===code);
-    const hp = country ? country.hp : 100000;
+    const hp = country ? country.hp : 1000;
     const alive = country ? country.is_alive !== false : true;
     if (!alive) return;
     const isMe = code === myCountry;
@@ -1290,12 +1307,31 @@ async function registerPlayer() {
       showToast('Wallet bağlandı! Ülke seçin.','success');
       setTimeout(()=>openModal('nation'),700);
     }
-    if (p.contribution) {
-      document.getElementById('myContrib').textContent = (+p.contribution).toLocaleString('tr-TR');
-      document.getElementById('ysScore').textContent   = (+p.contribution).toLocaleString('tr-TR');
-      document.getElementById('ysKills').textContent   = (+p.contribution).toLocaleString('tr-TR');
-    }
+    updatePlayerUI(p);
   } catch(e) { showToast('Sunucuya bağlanılamadı.','error'); }
+}
+
+/* ── OYUNCU STATS GÜNCELLEME ── */
+function updatePlayerUI(p) {
+  if (!p) return;
+  if (p.bullets != null) {
+    document.getElementById('myBullets').textContent = (+p.bullets).toLocaleString('tr-TR');
+  }
+  if (p.contribution != null) {
+    const c = +p.contribution;
+    document.getElementById('myContrib').textContent = c.toLocaleString('tr-TR');
+    document.getElementById('ysScore').textContent   = c.toLocaleString('tr-TR');
+    document.getElementById('ysKills').textContent   = c.toLocaleString('tr-TR');
+  }
+}
+
+async function refreshPlayerState() {
+  if (!wallet) return;
+  try {
+    const res = await fetch(API+'/api/player/connect',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet})});
+    const data = await res.json();
+    updatePlayerUI(data.player || data);
+  } catch(e) {}
 }
 
 /* ── CHOOSE COUNTRY ── */
@@ -1349,11 +1385,9 @@ async function attackTarget() {
       drawAttackLine(myCountry, targetCountry);
       if (data.newHp !== undefined) updateHP(targetCountry, data.newHp);
       btn.disabled=false; btn.textContent=`⚡ ${targetCountry} SALDIRI BAŞLAT`;
-      const cur = parseInt(document.getElementById('myContrib').textContent.replace(/\D/g,''))||0;
-      const nxt = (cur+1).toLocaleString('tr-TR');
-      document.getElementById('myContrib').textContent = nxt;
-      document.getElementById('ysScore').textContent   = nxt;
-      document.getElementById('ysKills').textContent   = nxt;
+      // Mermi sayacı + katkı puanı backend'den senkronize edilsin
+      if (data.player) updatePlayerUI(data.player);
+      else refreshPlayerState();
       pollState();
     }
   } catch(e) {
@@ -1366,7 +1400,7 @@ function updateHP(code, hp) {
   const idx = gameCountries.findIndex(x=>x.code===code);
   if (idx>=0) gameCountries[idx].hp = hp;
   if (code === myCountry) {
-    const pct = Math.max(0,(hp/100000*100));
+    const pct = Math.max(0,(hp/1000*100));
     document.getElementById('coHP').textContent = hp.toLocaleString('tr-TR');
     document.getElementById('coHPBar').style.width = pct+'%';
     document.getElementById('coHPPct').textContent = pct.toFixed(1)+'%';
@@ -1470,11 +1504,11 @@ async function buyAmmo(pack) {
 
     showToast(`✅ İşlem gönderildi! ${pack.toLocaleString('tr-TR')} mermi alınıyor...`,'success');
 
-    // 3. Backend'e de bildir (oyun içi kayıt)
+    // 3. Backend'e de bildir (oyun içi kayıt) + bakiyeyi al
     fetch(API+'/api/market/buy-demo',{
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ wallet, pack, txHash })
-    }).catch(()=>{});
+    }).then(r=>r.json()).then(d=>{ if(d.player) updatePlayerUI(d.player); }).catch(()=>{});
 
     // 4. Sohbete sistem mesajı
     addChatSystem(`💳 ${pack.toLocaleString('tr-TR')} mermi satın alındı (${ethAmount} ETH)`);
@@ -1584,21 +1618,24 @@ function setLbTab(tab,el) {  document.querySelectorAll('.lb-tab').forEach(t=>t.c
 
 function updateLeaderboard(countries) {
   gameCountries = countries;
-  const sorted=[...countries].filter(c=>c.is_alive!==false).sort((a,b)=>(b.hp||0)-(a.hp||0));
+  const sorted=[...countries]
+    .filter(c=> c.is_alive!==false && c.eliminated!==true)
+    .sort((a,b)=>(b.hp||0)-(a.hp||0));
   const list=document.getElementById('lbList'); list.innerHTML='';
-  sorted.slice(0,10).forEach((c,i)=>{
+  sorted.slice(0,12).forEach((c,i)=>{
     const cd=CD[c.code];
     const row=document.createElement('div');
     row.className='lb-row'+(c.code===myCountry?' me':'');
-    row.innerHTML=`<span class="lb-num">${i+1}</span><span style="font-size:13px">${cd?.f||'🏳️'}</span><span class="lb-name">${cd?.n||c.code}</span><span class="lb-hp">${((c.hp||0)/1000).toFixed(1)}K</span>`;
+    const hpVal = (c.hp||0);
+    row.innerHTML=`<span class="lb-num">${i+1}</span><span style="font-size:13px">${cd?.f||c.flag||'🏳️'}</span><span class="lb-name">${cd?.n||c.name||c.code}</span><span class="lb-hp">${hpVal} HP</span>`;
     list.appendChild(row);
   });
   if (myCountry) {
     const me=sorted.find(c=>c.code===myCountry);
     if (me) {
-      const pct=Math.max(0,(me.hp/100000*100));
+      const pct=Math.max(0,(me.hp/1000*100));
       document.getElementById('coHPBar').style.width=pct+'%';
-      document.getElementById('coHP').textContent=me.hp.toLocaleString('tr-TR');
+      document.getElementById('coHP').textContent=(me.hp||0).toLocaleString('tr-TR');
       document.getElementById('coHPPct').textContent=pct.toFixed(1)+'%';
       const rank=sorted.findIndex(c=>c.code===myCountry)+1;
       document.getElementById('coRank').textContent='#'+rank;

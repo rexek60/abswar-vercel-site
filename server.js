@@ -140,7 +140,7 @@ const countries = [
   ["ZM","Zambia","🇿🇲"],
   ["ZW","Zimbabwe","🇿🇼"]
 ].map(([code,name,flag]) => ({
-  code, name, flag, hp:100000, max_hp:100000, eliminated:false
+  code, name, flag, hp:1000, max_hp:1000, eliminated:false
 }));
 
 const players = new Map();
@@ -327,7 +327,9 @@ app.post("/api/game/attack", (req,res)=>{
   if (!target) return res.status(404).json({ error:"Target country not found" });
   if (own.code === target.code) return res.status(400).json({ error:"Kendi ulkeni vuramazsin" });
   if (target.eliminated) return res.status(400).json({ error:"Bu ulke elenmis" });
+  if (player.bullets <= 0) return res.status(400).json({ error:"Mermin yok! Marketten mermi al." });
 
+  player.bullets -= 1;
   target.hp = Math.max(0, target.hp - 1);
   own.hp += 1;
   player.contribution += 1;
@@ -363,7 +365,7 @@ app.post("/api/game/attack", (req,res)=>{
 });
 
 app.post("/api/admin/reset", (_req,res)=>{
-  countries.forEach(c=>{ c.hp=100000; c.max_hp=100000; c.eliminated=false; });
+  countries.forEach(c=>{ c.hp=1000; c.max_hp=1000; c.eliminated=false; });
   players.clear();
   recentAttacks.length=0;
   cooldowns.clear();
