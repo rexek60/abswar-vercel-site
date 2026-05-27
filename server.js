@@ -149,6 +149,45 @@ const cooldowns = new Map();
 const alliances = new Map();
 const allianceFeed = [];
 
+// ── KÖTÜYE KULLANIM KORUMASI ─────────────────────
+const rateLimits = new Map(); // wallet -> { count, windowStart }
+const RATE_LIMIT_WINDOW = 10000; // 10 saniye
+const RATE_LIMIT_MAX = 30;       // 10 saniyede max 30 istek
+const ATTACK_COOLDOWN = 250;     // saldırılar arası min 250ms
+
+function checkRateLimit(wallet) {
+  const now = Date.now();
+  const r = rateLimits.get(wallet) || { count:0, windowStart:now };
+  if (now - r.windowStart > RATE_LIMIT_WINDOW) {
+    r.count = 0;
+    r.windowStart = now;
+  }
+  r.count++;
+  rateLimits.set(wallet, r);
+  return r.count <= RATE_LIMIT_MAX;
+}
+
+// Yasaklı/küfür kelime filtresi (basit)
+const BANNED_WORDS = ['amk','aq','oç','orospu','siktir','piç','salak','aptal','admin','official','anthropic','claude'];
+function isCleanText(text) {
+  if (!text || typeof text !== 'string') return false;
+  const lower = text.toLowerCase();
+  return !BANNED_WORDS.some(w => lower.includes(w));
+}
+
+function validWallet(w) {
+  return typeof w === 'string' && /^0x[a-f0-9]{40}$/i.test(w) || w === 'demo-player' || (typeof w === 'string' && w.length > 0 && w.length < 50);
+}
+
+// Middleware
+function rateLimited(req, res, next) {
+  const wallet = (req.body && req.body.wallet) || 'anon';
+  if (!checkRateLimit(String(wallet).toLowerCase())) {
+    return res.status(429).json({ error: 'Çok fazla istek. Lütfen yavaşla.' });
+  }
+  next();
+}
+
 function getPlayer(wallet) {
   const id = String(wallet || "demo-player").toLowerCase();
   if (!players.has(id)) {
@@ -235,7 +274,8 @@ app.post("/api/player/choose-country", (req,res)=>{
   res.json({ ok:true, player });
 });
 
-app.post("/api/market/buy-demo", (req,res)=>{
+app.post("/api/market/buy-demo", rateLimited, (req,res)=>{
+  if (!validWallet(req.body.wallet)) return res.status(400).json({ error:"Gecersiz wallet" });
   const player = getPlayer(req.body.wallet);
   const pack = Number(req.body.pack || 1);
   const packs = { 100:100, 500:1000, 2000:10000, 9999:100000 };
@@ -247,12 +287,15 @@ app.post("/api/market/buy-demo", (req,res)=>{
   res.json({ ok:true, player, added:bullets });
 });
 
-app.post("/api/alliance/create", (req,res)=>{
+app.post("/api/alliance/create", rateLimited, (req,res)=>{
+  if (!validWallet(req.body.wallet)) return res.status(400).json({ error:"Gecersiz wallet" });
   const wallet = req.body.wallet;
   const name = String(req.body.name || "").trim().slice(0,24);
   const player = getPlayer(wallet);
 
   if (!name) return res.status(400).json({ error:"Alliance adi gerekli" });
+  if (name.length < 3) return res.status(400).json({ error:"Alliance adi en az 3 karakter" });
+  if (!isCleanText(name)) return res.status(400).json({ error:"Uygunsuz isim — lütfen başka bir isim seç" });
   if (!player.country_code) return res.status(400).json({ error:"Once ulke secmelisin" });
   if (player.alliance_id) return res.status(400).json({ error:"Zaten alliance icindesin" });
 
@@ -277,7 +320,8 @@ app.post("/api/alliance/create", (req,res)=>{
   res.json({ ok:true, alliance:publicAlliance(alliance), player });
 });
 
-app.post("/api/alliance/join", (req,res)=>{
+app.post("/api/alliance/join", rateLimited, (req,res)=>{
+  if (!validWallet(req.body.wallet)) return res.status(400).json({ error:"Gecersiz wallet" });
   const wallet = req.body.wallet;
   const allianceId = String(req.body.allianceId || "");
   const player = getPlayer(wallet);
@@ -296,7 +340,8 @@ app.post("/api/alliance/join", (req,res)=>{
   res.json({ ok:true, alliance:publicAlliance(alliance), player });
 });
 
-app.post("/api/alliance/radio", (req,res)=>{
+app.post("/api/alliance/radio", rateLimited, (req,res)=>{
+  if (!validWallet(req.body.wallet)) return res.status(400).json({ error:"Gecersiz wallet" });
   const wallet = req.body.wallet;
   const command = String(req.body.command || "").toUpperCase();
   const player = getPlayer(wallet);
@@ -315,11 +360,21 @@ app.post("/api/alliance/radio", (req,res)=>{
   res.json({ ok:true, message:msg });
 });
 
-app.post("/api/game/attack", (req,res)=>{
+app.post("/api/game/attack", rateLimited, (req,res)=>{
+  if (!validWallet(req.body.wallet)) return res.status(400).json({ error:"Gecersiz wallet" });
   const player = getPlayer(req.body.wallet);
-  const targetCountry = String(req.body.targetCountry || "").toUpperCase();
+  const targetCountry = String(req.body.targetCountry || "").toUpperCase().slice(0,3);
+
+  // Saldırı cooldown — flood koruması
+  const now = Date.now();
+  const last = cooldowns.get(player.wallet) || 0;
+  if (now - last < ATTACK_COOLDOWN) {
+    return res.status(429).json({ error: "Çok hızlı saldırı — biraz yavaşla." });
+  }
+  cooldowns.set(player.wallet, now);
 
   if (!player.country_code) return res.status(400).json({ error:"Once ulke secmelisin" });
+  if (player.bullets <= 0) return res.status(400).json({ error:"Mermin yok! Pazardan mermi al." });
 
   const own = countries.find(c=>c.code===player.country_code);
   const target = countries.find(c=>c.code===targetCountry);
@@ -327,7 +382,7 @@ app.post("/api/game/attack", (req,res)=>{
   if (!target) return res.status(404).json({ error:"Target country not found" });
   if (own.code === target.code) return res.status(400).json({ error:"Kendi ulkeni vuramazsin" });
   if (target.eliminated) return res.status(400).json({ error:"Bu ulke elenmis" });
-  if (player.bullets <= 0) return res.status(400).json({ error:"Mermin yok! Marketten mermi al." });
+  if (own.eliminated) return res.status(400).json({ error:"Ulken elenmis — saldiramazsin" });
 
   player.bullets -= 1;
   target.hp = Math.max(0, target.hp - 1);
@@ -364,7 +419,12 @@ app.post("/api/game/attack", (req,res)=>{
   res.json({ ok:true, attack, player, newHp: target.hp, damage:1 });
 });
 
-app.post("/api/admin/reset", (_req,res)=>{
+const ADMIN_TOKEN = process.env.ADMIN_TOKEN || ("abswar-admin-" + Math.random().toString(36).slice(2,10));
+console.log("ADMIN_TOKEN (kullan x-admin-token header):", ADMIN_TOKEN);
+
+app.post("/api/admin/reset", (req,res)=>{
+  const token = req.headers['x-admin-token'] || (req.body && req.body.token);
+  if (token !== ADMIN_TOKEN) return res.status(403).json({ error:"Yetki yok" });
   countries.forEach(c=>{ c.hp=1000; c.max_hp=1000; c.eliminated=false; });
   players.clear();
   recentAttacks.length=0;
