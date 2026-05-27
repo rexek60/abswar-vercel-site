@@ -672,6 +672,29 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   </div>
 </div>
 
+<!-- TUR BİTTİ MODALI -->
+<div class="modal" id="roundEndModal">
+  <div class="modal-box" style="width:560px;max-width:92vw;max-height:88vh;overflow-y:auto">
+    <button class="modal-close" onclick="closeRoundEndModal()">✕ KAPAT</button>
+    <div class="modal-title" style="color:var(--gold)">🏆 TUR <span id="rendNum">?</span> BİTTİ</div>
+    <div class="modal-sub">Kazananlar ve ödül dağılımı:</div>
+    <div id="rendPodium" style="display:flex;flex-direction:column;gap:10px;margin-top:14px"></div>
+    <div id="rendAdmin" style="margin-top:18px;display:none">
+      <div style="background:rgba(245,200,66,0.08);border:1px solid rgba(245,200,66,0.3);padding:12px;font-size:12px;color:var(--text);line-height:1.5">
+        <b style="color:var(--gold)">ADMIN PANELİ</b><br>
+        Bu adresleri Remix'te <code>payReward(adres, miktar)</code> ile öde. Miktarlar ödül havuzu (%70) baz alınarak hesaplanmıştır. Her ödemeyi MetaMask'tan onaylaman gerekir.
+      </div>
+      <div id="rendPayouts" style="margin-top:10px;font-family:var(--mono);font-size:11px;color:var(--text)"></div>
+      <button onclick="startNextRound()" class="btn-sm btn-red" style="margin-top:14px;width:100%;padding:10px">
+        ✅ ÖDEMELERİ YAPTIM · YENİ TUR BAŞLAT
+      </button>
+    </div>
+    <div id="rendUser" style="margin-top:14px;font-size:12px;color:var(--dim);text-align:center;display:none">
+      Ödüller admin onayını bekliyor. Yeni tur yakında başlayacak.
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -938,6 +961,77 @@ try {
     setTimeout(()=>{ openHelp(); localStorage.setItem('abswar-help-seen','1'); }, 800);
   }
 } catch(e) {}
+
+/* ── TUR BİTTİ MODALI ── */
+// Sahibin (deploy edenin) cüzdan adresi — bu adres bağlıysa admin paneli görünür
+const OWNER_WALLET = '0x87EA222a358Af798a5afABa8F85715c3eCae5D8c'.toLowerCase();
+let roundEndShown = false;
+
+function showRoundEndModal(result) {
+  if (!result || !result.winners) return;
+  // Aynı turu iki kez gösterme
+  const key = 'rend-shown-' + (result.roundNumber || result.endedAt || '');
+  try { if (sessionStorage.getItem(key)) return; sessionStorage.setItem(key,'1'); } catch(e){}
+
+  document.getElementById('rendNum').textContent = result.roundNumber || '?';
+  const podium = document.getElementById('rendPodium');
+  podium.innerHTML = '';
+  const colors = ['#f5c842','#b8c0c8','#cd7f32']; // altın, gümüş, bronz
+  result.winners.forEach((w,i) => {
+    const row = document.createElement('div');
+    row.style.cssText = `display:flex;align-items:center;gap:14px;padding:12px;background:rgba(255,255,255,0.03);border-left:4px solid ${colors[i]};border:1px solid var(--border)`;
+    row.innerHTML = `
+      <div style="font-size:28px;color:${colors[i]};min-width:36px;text-align:center">${i===0?'🥇':i===1?'🥈':'🥉'}</div>
+      <div style="font-size:24px">${w.flag||'🏳️'}</div>
+      <div style="flex:1">
+        <div style="font-family:var(--hud);font-size:14px;color:var(--text)">${w.countryName||w.country}</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--dim)">HP: ${(w.hp||0).toLocaleString('tr-TR')} · Üst katkı: ${(w.topPlayerContribution||0).toLocaleString('tr-TR')}</div>
+      </div>
+      <div style="font-family:var(--hud);font-size:18px;color:${colors[i]};font-weight:700">%${w.sharePct}</div>
+    `;
+    podium.appendChild(row);
+  });
+
+  // Admin paneli sadece owner cüzdanına göster
+  const isOwner = wallet && wallet.toLowerCase() === OWNER_WALLET;
+  document.getElementById('rendAdmin').style.display = isOwner ? 'block' : 'none';
+  document.getElementById('rendUser').style.display  = isOwner ? 'none'  : 'block';
+
+  if (isOwner) {
+    // Ödül hesaplaması — gerçek miktar contract'ın rewardPool'undan, ama burada % olarak göster
+    const payouts = document.getElementById('rendPayouts');
+    payouts.innerHTML = result.winners.map((w,i)=>{
+      const addr = w.topPlayer || '(o ülkeden oyuncu yok — atla)';
+      return `<div style="padding:6px 0;border-bottom:1px solid var(--border)">
+        ${i+1}. ${w.flag||''} ${w.country} · <b style="color:${colors[i]}">%${w.sharePct}</b><br>
+        <span style="color:var(--dim)">→ ${addr}</span>
+      </div>`;
+    }).join('');
+  }
+
+  document.getElementById('roundEndModal').classList.add('show');
+  roundEndShown = true;
+}
+
+function closeRoundEndModal() {
+  document.getElementById('roundEndModal').classList.remove('show');
+}
+
+async function startNextRound() {
+  const token = prompt('ADMIN_TOKEN gir (Railway loglarından):');
+  if (!token) return;
+  try {
+    const res = await fetch(API+'/api/admin/round/start',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-admin-token':token}
+    });
+    const data = await res.json();
+    if (data.error) { showToast(data.error,'error'); return; }
+    showToast('🎯 Yeni tur başlatıldı!','success');
+    closeRoundEndModal();
+    pollState();
+  } catch(e) { showToast('Sunucuya ulaşılamadı.','error'); }
+}
 
 /* ── RADAR SİSTEMİ ── */
 let radarLevel = 3;
@@ -1747,6 +1841,7 @@ async function pollState() {
     const data=await res.json();
     if (data?.countries) updateLeaderboard(data.countries);
     if (data?.onlinePlayers!=null) document.getElementById('onlineCount').textContent=Number(data.onlinePlayers).toLocaleString('tr-TR');
+    if (data?.round) setRoundFromState(data.round);
   } catch(e){}
 }
 
@@ -1801,12 +1896,37 @@ function showToast(msg,type='info') {
   toastTimer=setTimeout(()=>t.classList.remove('show'),3000);
 }
 
-/* ── TIMER ── */
-let secs=23*86400+14*3600+42*60+18;
+/* ── TUR ZAMANLAYICI (gerçek, backend'den) ── */
+let roundEndAt = null;       // ms epoch
+let roundNumber_FE = 1;
+let roundStatus_FE = 'active';
+
+function setRoundFromState(round) {
+  if (!round) return;
+  roundEndAt = round.endTime || (Date.now() + (round.remainingMs||0));
+  roundNumber_FE = round.number || 1;
+  roundStatus_FE = round.status || 'active';
+  const titleEl = document.querySelector('.logo-sub');
+  if (titleEl) titleEl.textContent = `Tur ${roundNumber_FE} · Küresel Savaş`;
+  if (round.lastResult && round.status === 'ended') {
+    showRoundEndModal(round.lastResult);
+  }
+}
+
 setInterval(()=>{
-  if(secs>0)secs--;
-  const d=Math.floor(secs/86400),h=Math.floor((secs%86400)/3600),m=Math.floor((secs%3600)/60),s=secs%60;
-  document.getElementById('timerVal').textContent=`${d}G ${String(h).padStart(2,'0')}S ${String(m).padStart(2,'0')}D ${String(s).padStart(2,'0')}S`;
+  const el = document.getElementById('timerVal');
+  if (!el) return;
+  if (roundEndAt == null) { el.textContent = '— — —'; return; }
+  const ms = Math.max(0, roundEndAt - Date.now());
+  const secs = Math.floor(ms/1000);
+  const d = Math.floor(secs/86400);
+  const h = Math.floor((secs%86400)/3600);
+  const m = Math.floor((secs%3600)/60);
+  const s = secs%60;
+  el.textContent = `${d}G ${String(h).padStart(2,'0')}S ${String(m).padStart(2,'0')}D ${String(s).padStart(2,'0')}S`;
+  if (ms === 0 && roundStatus_FE === 'active') {
+    el.style.color = 'var(--gold)';
+  }
 },1000);
 
 /* ── WEBSOCKET ── */
@@ -1824,7 +1944,13 @@ ioScript.onload=()=>{
     if(from&&to){ addActivity(from,to); drawAttackLine(from,to); }
   });
   socket.on('hp:update',(d)=>{ updateHP(d.target||d.targetCountry, d.newHP||d.hp); });
-  socket.on('war:state',(d)=>{ if(d?.countries) updateLeaderboard(d.countries); });
+  socket.on('war:state',(d)=>{ if(d?.countries) updateLeaderboard(d.countries); if(d?.round) setRoundFromState(d.round); });
+  socket.on('round:ended',(result)=>{ showRoundEndModal(result); });
+  socket.on('round:started',(d)=>{
+    showToast(`🎯 TUR ${d.roundNumber} BAŞLADI!`,'success');
+    closeRoundEndModal();
+    pollState();
+  });
   socket.on('players:online',(n)=>{ document.getElementById('onlineCount').textContent=Number(n).toLocaleString('tr-TR'); });
   socket.on('country:eliminated',(d)=>{ showToast(`💀 ${CD[d.country]?.f||''} ${CD[d.country]?.n||d.country} ELİMİNE EDİLDİ!`,'error'); });
   socket.on('game:over',(d)=>{ showToast(`🏆 OYUN BİTTİ! Kazanan: ${CD[d.winner]?.f||''} ${CD[d.winner]?.n||d.winner}`,'success'); });
