@@ -83,6 +83,10 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .fb-tag-btn{flex:1;padding:7px 4px;background:var(--bg2);color:var(--dim);font-family:var(--hud);font-size:9px;letter-spacing:0.5px;border:1px solid var(--border);cursor:pointer;border-radius:1px;transition:all 0.15s}
 .fb-tag-btn:hover{color:var(--text);border-color:rgba(255,255,255,0.25)}
 .fb-tag-btn.fb-tag-active{background:rgba(232,22,42,0.18);color:#ff6b7a;border-color:rgba(232,22,42,0.5)}
+.wm-item{display:block;width:100%;text-align:left;background:transparent;color:var(--text);font-family:var(--hud);font-size:10px;letter-spacing:1px;padding:9px 12px;border:none;cursor:pointer;transition:background 0.12s}
+.wm-item:hover{background:rgba(255,255,255,0.05);color:#fff}
+.wm-item.wm-danger{color:#ff6b7a}
+.wm-item.wm-danger:hover{background:rgba(232,22,42,0.12);color:#ff8a99}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.6}}
 @keyframes loaderSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 @keyframes countryPulse{0%,100%{filter:drop-shadow(0 0 4px var(--cyan))}50%{filter:drop-shadow(0 0 14px var(--cyan)) drop-shadow(0 0 24px var(--cyan))}}
@@ -265,7 +269,17 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     <button onclick="openHelp()" title="Nasıl Oynanır" style="background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer">❓ NASIL OYNANIR</button>
     <span style="font-family:var(--mono);font-size:11px;color:var(--red)" id="ethBal">0.000 ETH</span>
     <button id="nicknameBtn" onclick="openNicknameModal()" title="Nickname ayarla" style="display:none;background:transparent;border:1px solid var(--border);color:var(--green);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer">👤 <span id="nicknameLabel">İSİM EKLE</span></button>
-    <button class="btn-wallet" id="walletBtn" onclick="connectWallet()">CÜZDAN BAĞLA</button>
+    <div style="position:relative">
+      <button class="btn-wallet" id="walletBtn" onclick="handleWalletBtn(event)">CÜZDAN BAĞLA</button>
+      <div id="walletMenu" style="display:none;position:absolute;top:calc(100% + 4px);right:0;min-width:200px;background:var(--bg1);border:1px solid var(--border);box-shadow:0 6px 20px rgba(0,0,0,0.6);z-index:1500;font-family:var(--hud)">
+        <div style="padding:10px 12px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:10px;color:var(--dim);word-break:break-all" id="walletMenuAddr">0x0000...</div>
+        <button class="wm-item" onclick="copyWalletAddress()">📋 ADRESİ KOPYALA</button>
+        <button class="wm-item" onclick="openNicknameModal();closeWalletMenu()">👤 NICKNAME DEĞİŞTİR</button>
+        <button class="wm-item" onclick="openExplorer()">🔍 EXPLORER'DA GÖR</button>
+        <div style="border-top:1px solid var(--border)"></div>
+        <button class="wm-item wm-danger" onclick="disconnectWallet()">⏏ ÇIKIŞ YAP</button>
+      </div>
+    </div>
   </div>
 </nav>
 
@@ -3035,6 +3049,101 @@ if(window.ethereum){
     showToast('🔗 Ağ değişti, sayfa yenileniyor...','info');
     setTimeout(()=>location.reload(),800);
   });
+}
+
+/* ── CÜZDAN MENÜSÜ & ÇIKIŞ ── */
+function handleWalletBtn(event) {
+  if (event) event.stopPropagation();
+  if (!wallet) {
+    connectWallet();
+  } else {
+    toggleWalletMenu();
+  }
+}
+
+function toggleWalletMenu() {
+  const m = document.getElementById('walletMenu');
+  if (!m) return;
+  const isOpen = m.style.display === 'block';
+  if (isOpen) { closeWalletMenu(); return; }
+  // Adresi göster
+  const addr = document.getElementById('walletMenuAddr');
+  if (addr && wallet) addr.textContent = wallet;
+  m.style.display = 'block';
+  // Dış tıkla → kapat
+  setTimeout(()=>{
+    document.addEventListener('click', _closeWalletMenuOnOutsideClick);
+  }, 0);
+}
+
+function closeWalletMenu() {
+  const m = document.getElementById('walletMenu');
+  if (m) m.style.display = 'none';
+  document.removeEventListener('click', _closeWalletMenuOnOutsideClick);
+}
+
+function _closeWalletMenuOnOutsideClick(e) {
+  const m = document.getElementById('walletMenu');
+  const btn = document.getElementById('walletBtn');
+  if (m && !m.contains(e.target) && e.target !== btn) {
+    closeWalletMenu();
+  }
+}
+
+function copyWalletAddress() {
+  if (!wallet) return;
+  try {
+    navigator.clipboard.writeText(wallet).then(()=> {
+      showToast('📋 Adres kopyalandı','success');
+    });
+  } catch(e) {
+    prompt('Adresi kopyala:', wallet);
+  }
+  closeWalletMenu();
+}
+
+function openExplorer() {
+  if (!wallet) return;
+  const url = `https://explorer.testnet.abs.xyz/address/${wallet}`;
+  window.open(url, '_blank', 'noopener');
+  closeWalletMenu();
+}
+
+function disconnectWallet() {
+  if (!confirm('Çıkış yapmak istediğinden emin misin?\n\nNot: MetaMask bağlantısı sayfa düzeyinde kesilir. Cüzdanını tarayıcı izinlerinden de kaldırmak için MetaMask uzantısını kullan.')) {
+    return;
+  }
+  // Tam session sıfırla
+  wallet = null;
+  myCountry = null;
+  targetCountry = null;
+  myAlliance = null;
+  myAllianceData = null;
+  myNickname = null;
+  myBulletsCount = 0;
+
+  // UI'yı sıfırla
+  document.getElementById('walletBtn').textContent = 'CÜZDAN BAĞLA';
+  document.getElementById('walletBtn').className = 'btn-wallet';
+  document.getElementById('myBullets').textContent = '0';
+  document.getElementById('myContrib').textContent = '0';
+  document.getElementById('myAttacks').textContent = '0';
+  document.getElementById('ethBal').textContent = '0.000 ETH';
+  document.getElementById('ysKills').textContent = '0';
+  document.getElementById('ysDeaths').textContent = '0';
+  document.getElementById('ysScore').textContent = '0';
+  const nb = document.getElementById('nicknameBtn');
+  if (nb) nb.style.display = 'none';
+  // İttifak UI sıfırla
+  if (typeof _updateAllianceUI === 'function') _updateAllianceUI(null);
+  // Saldırı butonu disable
+  const atk = document.getElementById('attackBtn');
+  if (atk) { atk.disabled = true; atk.style.opacity = '0.4'; atk.textContent = '⚡ SALDIRI BAŞLAT'; }
+  // Bulk butonlar disable
+  document.querySelectorAll('.bulk-atk-btn').forEach(b => b.disabled = true);
+
+  closeWalletMenu();
+  showToast('⏏ Çıkış yapıldı','info');
 }
 
 /* ── GERİ BİLDİRİM ── */
