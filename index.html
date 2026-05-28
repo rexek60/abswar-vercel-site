@@ -81,6 +81,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .bulk-atk-btn:disabled{opacity:0.3;cursor:not-allowed}
 .bulk-atk-btn.running{background:var(--gold);color:#000;border-color:var(--gold);animation:pulse 1s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.6}}
+@keyframes loaderSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 .country-land{transition:fill 0.4s,stroke 0.4s,stroke-width 0.3s}
 .country-land:hover{fill:#27a862 !important;stroke:#00ff9d !important;stroke-width:1.1;filter:url(#landGlow)}
 .country-land.my-country{fill:#1a9a48 !important;stroke:#00ff9d !important;stroke-width:1.4;filter:url(#neonGlow)}
@@ -192,6 +193,12 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 </style>
 </head>
 <body>
+<!-- Global yükleme göstergesi -->
+<div id="globalLoader" style="display:none;position:fixed;top:14px;left:50%;transform:translateX(-50%);background:rgba(15,20,28,0.95);border:1px solid var(--green);color:var(--green);font-family:var(--mono);font-size:11px;padding:6px 14px;z-index:9998;letter-spacing:1px;display:none;align-items:center;gap:8px">
+  <div style="width:10px;height:10px;border:1.5px solid var(--green);border-top-color:transparent;border-radius:50%;animation:loaderSpin 0.8s linear infinite"></div>
+  <span id="globalLoaderText">YÜKLENİYOR...</span>
+</div>
+
 <!-- Hoş geldin overlay (wallet bağlı değilken) -->
 <div id="welcomeOverlay" style="position:fixed;inset:0;z-index:5000;background:radial-gradient(ellipse at 50% 35%, rgba(20,40,60,0.92), rgba(5,10,15,0.96));backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:20px">
   <svg width="80" height="80" viewBox="0 0 64 64" style="margin-bottom:18px">
@@ -251,6 +258,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     <button onclick="toggleSound()" id="soundBtn" title="Sesi aç/kapa" style="background:transparent;border:1px solid var(--border);color:var(--text);font-size:14px;width:30px;height:28px;cursor:pointer;padding:0">🔊</button>
     <button onclick="openHelp()" title="Nasıl Oynanır" style="background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer">❓ NASIL OYNANIR</button>
     <span style="font-family:var(--mono);font-size:11px;color:var(--red)" id="ethBal">0.000 ETH</span>
+    <button id="nicknameBtn" onclick="openNicknameModal()" title="Nickname ayarla" style="display:none;background:transparent;border:1px solid var(--border);color:var(--green);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer">👤 <span id="nicknameLabel">İSİM EKLE</span></button>
     <button class="btn-wallet" id="walletBtn" onclick="connectWallet()">WALLET BAĞLA</button>
   </div>
 </nav>
@@ -743,10 +751,38 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
         Yeşil = sağlam · Sarı = hasarlı · Turuncu = kritik · Kırmızı = ölmek üzere · Gri = elenen.
       </div>
 
+      <div style="border-left:3px solid #66b3ff;padding-left:12px">
+        <div style="font-family:var(--hud);font-size:11px;color:#66b3ff;letter-spacing:2px;margin-bottom:4px">⌨ KLAVYE KISAYOLLARI</div>
+        <div style="font-family:var(--mono);font-size:11px;line-height:1.8">
+          <b>Enter / Space</b> — Saldırı başlat<br>
+          <b>1 / 2 / 3</b> — 10 / 100 / 1000 toplu saldırı<br>
+          <b>ESC</b> — Açık modal'ı kapat<br>
+          <b>M</b> — Sesi aç / kapat<br>
+          <b>?</b> — Bu yardım ekranını aç
+        </div>
+      </div>
+
       <div style="background:rgba(232,22,42,0.1);padding:10px;border:1px solid rgba(232,22,42,0.3);font-size:11px;color:var(--text);margin-top:4px">
         <b style="color:var(--red)">⚠️ NOT:</b> Oyun şu an <b>Abstract Testnet</b>'te — gerçek para değil, test ETH. Mainnet'e geçiş audit sonrası yapılır.
       </div>
 
+    </div>
+  </div>
+</div>
+
+<!-- NICKNAME MODALI -->
+<div class="modal" id="nicknameModal">
+  <div class="modal-box" style="width:380px;max-width:92vw">
+    <button class="modal-close" onclick="closeNicknameModal()">✕ KAPAT</button>
+    <div class="modal-title">👤 NICKNAME AYARLA</div>
+    <div class="modal-sub">Diğer oyuncular seni nasıl görsün?</div>
+    <div style="margin-top:14px;text-align:left">
+      <input id="nicknameInput" type="text" maxlength="16" placeholder="Örn: Komutan34, WarLord, GamerTR..." style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:13px;padding:10px;outline:none">
+      <div style="margin-top:6px;font-size:10px;color:var(--dim)">3-16 karakter · Harf, rakam, _, - · Küfür/admin reddedilir</div>
+      <div style="margin-top:14px;display:flex;gap:8px">
+        <button class="btn-sm btn-red" style="flex:1;padding:10px" onclick="saveNickname()">✅ KAYDET</button>
+        <button class="btn-sm btn-out" style="flex:1;padding:10px" onclick="closeNicknameModal()">İPTAL</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1028,6 +1064,129 @@ const LAND_PATHS = ["M557,134L558,137L557,139L555,139L554,135L554,133L556,132L55
 
 let wallet=null, myCountry=null, targetCountry=null, toastTimer=null, modalMode='nation';
 let gameCountries=[], attackLineTimer=null;
+
+/* ── YÜKLEME GÖSTERGESİ ── */
+function showLoader(text='YÜKLENİYOR...') {
+  const el = document.getElementById('globalLoader');
+  const t = document.getElementById('globalLoaderText');
+  if (t) t.textContent = text;
+  if (el) el.style.display = 'flex';
+}
+function hideLoader() {
+  const el = document.getElementById('globalLoader');
+  if (el) el.style.display = 'none';
+}
+
+function setBtnLoading(btn, loading, originalText) {
+  if (!btn) return;
+  if (loading) {
+    btn.dataset.originalText = btn.textContent;
+    btn.disabled = true;
+    btn.dataset.originalOpacity = btn.style.opacity || '1';
+    btn.style.opacity = '0.65';
+    btn.textContent = '⏳ ' + (originalText || btn.dataset.originalText);
+  } else {
+    btn.disabled = false;
+    btn.style.opacity = btn.dataset.originalOpacity || '1';
+    if (btn.dataset.originalText) btn.textContent = btn.dataset.originalText;
+  }
+}
+
+/* ── KLAVYE KISAYOLLARI ── */
+document.addEventListener('keydown', (e) => {
+  // Bir input/textarea içindeyken kısayolları çalıştırma
+  const tag = (e.target.tagName || '').toLowerCase();
+  if (tag === 'input' || tag === 'textarea') {
+    // İstisna: Sohbet input'unda Enter mesaj gönderir
+    if (e.key === 'Enter' && e.target.id === 'chatInput') {
+      e.preventDefault();
+      sendChat();
+    }
+    // İstisna: Nickname input'unda Enter kaydeder
+    if (e.key === 'Enter' && e.target.id === 'nicknameInput') {
+      e.preventDefault();
+      saveNickname();
+    }
+    return;
+  }
+
+  // ESC: tüm modal'ları kapat
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal.show').forEach(m => m.classList.remove('show'));
+    return;
+  }
+
+  // Enter / Space: hedef varsa saldırı
+  if ((e.key === 'Enter' || e.key === ' ') && targetCountry && !_bulkActive) {
+    e.preventDefault();
+    const atk = document.getElementById('attackBtn');
+    if (atk && !atk.disabled) attackTarget();
+    return;
+  }
+
+  // 1, 2, 3: toplu saldırı 10/100/1000
+  if (targetCountry && !_bulkActive) {
+    if (e.key === '1') { e.preventDefault(); bulkAttack(10); return; }
+    if (e.key === '2') { e.preventDefault(); bulkAttack(100); return; }
+    if (e.key === '3') { e.preventDefault(); bulkAttack(1000); return; }
+  }
+
+  // ?: yardım ekranı
+  if (e.key === '?' || (e.shiftKey && e.key === '/')) {
+    e.preventDefault();
+    openHelp();
+    return;
+  }
+
+  // M: sesi aç/kapat
+  if (e.key === 'm' || e.key === 'M') {
+    e.preventDefault();
+    toggleSound();
+    return;
+  }
+});
+
+/* ── NICKNAME ── */
+let myNickname = null;
+
+function openNicknameModal() {
+  if (!wallet) { showToast('Önce wallet bağla!','error'); return; }
+  document.getElementById('nicknameInput').value = myNickname || '';
+  document.getElementById('nicknameModal').classList.add('show');
+  setTimeout(()=>document.getElementById('nicknameInput').focus(), 100);
+}
+function closeNicknameModal() {
+  document.getElementById('nicknameModal').classList.remove('show');
+}
+document.getElementById('nicknameModal').addEventListener('click', function(e){ if(e.target===this) closeNicknameModal(); });
+
+async function saveNickname() {
+  const nick = document.getElementById('nicknameInput').value.trim();
+  if (!nick) { showToast('Boş bırakılamaz','error'); return; }
+  try {
+    const res = await fetch(API+'/api/player/nickname',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({wallet, nickname:nick}),
+      signal: AbortSignal.timeout(8000)
+    });
+    const data = await res.json();
+    if (data.error) { showToast(data.error,'error'); return; }
+    myNickname = nick;
+    updateNicknameUI(nick);
+    showToast(`✅ Nickname: ${nick}`,'success');
+    closeNicknameModal();
+  } catch(e) {
+    showToast('Bağlantı hatası','error');
+  }
+}
+
+function updateNicknameUI(nick) {
+  const btn = document.getElementById('nicknameBtn');
+  const lbl = document.getElementById('nicknameLabel');
+  if (btn) btn.style.display = wallet ? 'inline-block' : 'none';
+  if (lbl) lbl.textContent = nick || 'İSİM EKLE';
+}
 
 /* ── HOŞ GELDİN OVERLAY ── */
 function dismissWelcome() {
@@ -1666,6 +1825,7 @@ function drawAttackLine(fromCode, toCode) {
 /* ── WALLET ── */
 async function connectWallet() {
   if (!window.ethereum) { showToast('MetaMask bulunamadı! metamask.io kurulu olmalı.','error'); return; }
+  showLoader('CÜZDANA BAĞLANIYOR...');
   try {
     const accounts = await ethereum.request({method:'eth_requestAccounts'});
     wallet = accounts[0];
@@ -1675,9 +1835,11 @@ async function connectWallet() {
     dismissWelcome();
     await registerPlayer();
   } catch(e) { showToast('Bağlantı iptal edildi.','error'); }
+  finally { hideLoader(); }
 }
 
 async function registerPlayer() {
+  showLoader('OYUNCU YÜKLENİYOR...');
   try {
     const res = await fetch(API+'/api/player/connect',{
       method:'POST',
@@ -1702,12 +1864,21 @@ async function registerPlayer() {
   } catch(e) {
     setBackendStatus(false);
     showToast('Sunucuya bağlanılamadı. Tekrar deneniyor...','error');
-  }
+  } finally { hideLoader(); }
 }
 
 /* ── OYUNCU STATS GÜNCELLEME ── */
 function updatePlayerUI(p) {
   if (!p) return;
+  // Nickname senkronizasyonu (backend'den)
+  if (p.nickname !== undefined) {
+    myNickname = p.nickname;
+    updateNicknameUI(p.nickname);
+  } else if (wallet) {
+    // İlk girişte nickname yoksa butonu yine göster
+    const btn = document.getElementById('nicknameBtn');
+    if (btn) btn.style.display = 'inline-block';
+  }
   if (p.bullets != null) {
     const bullets = +p.bullets;
     myBulletsCount = bullets;  // Toplu saldırı için global ref
@@ -1761,6 +1932,7 @@ async function refreshPlayerState() {
 /* ── CHOOSE COUNTRY ── */
 async function chooseCountry(code) {
   if (!wallet) { showToast('Önce wallet bağla!','error'); return; }
+  showLoader(`ÜLKE SEÇİLİYOR: ${CD[code]?.n||code}...`);
   try {
     const res = await fetch(API+'/api/player/choose-country',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet,countryCode:code})});
     const data = await res.json();
@@ -1769,6 +1941,7 @@ async function chooseCountry(code) {
     applyMyCountry(code);
     showToast('Ülke seçildi: '+(CD[code]?.f||'')+' '+(CD[code]?.n||code),'success');
   } catch(e) { showToast('Ülke seçilemedi.','error'); }
+  finally { hideLoader(); }
 }
 
 function applyMyCountry(code) {
@@ -2041,6 +2214,7 @@ async function buyAmmo(pack) {
   const ethAmount = AMMO_PRICE_ETH[pack];
   if (!ethAmount) { showToast('Geçersiz paket.','error'); return; }
 
+  showLoader(`${pack.toLocaleString('tr-TR')} MERMİ SATIN ALINIYOR...`);
   try {
     // 1. Doğru ağda mıyız kontrol et
     const chainId = await ethereum.request({ method: 'eth_chainId' });
@@ -2099,6 +2273,8 @@ async function buyAmmo(pack) {
   } catch(e) {
     if (e.code === 4001) showToast('Ödeme iptal edildi.','error');
     else showToast('İşlem başarısız: ' + (e.message||'').slice(0,40),'error');
+  } finally {
+    hideLoader();
   }
 }
 
@@ -2109,7 +2285,8 @@ function sendChat() {
   const c = CD[myCountry];
   const row = document.createElement('div');
   row.className='chat-msg anim-new';
-  row.innerHTML=`<div class="chat-who"><span style="font-size:11px">${c?.f||'🏳️'}</span><span class="chat-name">${wallet?wallet.slice(0,6)+'...':'Misafir'}</span><span class="chat-t">şimdi</span></div><div class="chat-txt">${msg}</div>`;
+  const displayName = myNickname || (wallet ? wallet.slice(0,6)+'...' : 'Misafir');
+  row.innerHTML=`<div class="chat-who"><span style="font-size:11px">${c?.f||'🏳️'}</span><span class="chat-name">${displayName}</span><span class="chat-t">şimdi</span></div><div class="chat-txt">${msg}</div>`;
   const body=document.getElementById('chatBody');
   const empty = document.getElementById('chatEmpty');
   if (empty) empty.style.display = 'none';
