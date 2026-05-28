@@ -76,6 +76,11 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .country-land.hp-mid{fill:#a08428;stroke:#f5d058;stroke-width:0.7}
 .country-land.hp-low{fill:#a04825;stroke:#ff8a45;stroke-width:0.7}
 .country-land.hp-critical{fill:#b21f30;stroke:#ff3050;stroke-width:0.8}
+.bulk-atk-btn{padding:5px 8px;background:rgba(232,22,42,0.12);color:#ff6b7a;font-family:var(--hud);font-size:9px;letter-spacing:0.5px;border:1px solid rgba(232,22,42,0.35);cursor:pointer;border-radius:1px;transition:all 0.15s}
+.bulk-atk-btn:hover:not(:disabled){background:rgba(232,22,42,0.25);color:#fff}
+.bulk-atk-btn:disabled{opacity:0.3;cursor:not-allowed}
+.bulk-atk-btn.running{background:var(--gold);color:#000;border-color:var(--gold);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.6}}
 .country-land{transition:fill 0.4s,stroke 0.4s,stroke-width 0.3s}
 .country-land:hover{fill:#27a862 !important;stroke:#00ff9d !important;stroke-width:1.1;filter:url(#landGlow)}
 .country-land.my-country{fill:#1a9a48 !important;stroke:#00ff9d !important;stroke-width:1.4;filter:url(#neonGlow)}
@@ -454,10 +459,18 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(7,11,14,0.92);border-top:1px solid var(--border);display:flex;align-items:center;gap:10px;padding:5px 10px;z-index:10">
     <span style="font-family:var(--mono);font-size:8px;color:var(--dim)">HARİTA: 119 ÜLKE</span>
     <span class="gdot"></span><span style="font-family:var(--mono);font-size:8px;color:var(--green)">CANLI</span>
-    <div style="margin-left:auto;display:flex;gap:6px">
+    <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
       <button id="attackBtn" onclick="attackTarget()" disabled
         style="padding:5px 18px;background:var(--red);color:white;font-family:var(--hud);font-size:9px;letter-spacing:2px;border:none;cursor:pointer;opacity:0.4;border-radius:1px;transition:all .15s">
         ⚡ SALDIRI BAŞLAT
+      </button>
+      <div style="display:flex;gap:2px" id="bulkBtnRow">
+        <button class="bulk-atk-btn" data-n="10"   onclick="bulkAttack(10)"   title="10 mermi at" disabled>×10</button>
+        <button class="bulk-atk-btn" data-n="100"  onclick="bulkAttack(100)"  title="100 mermi at" disabled>×100</button>
+        <button class="bulk-atk-btn" data-n="1000" onclick="bulkAttack(1000)" title="1000 mermi at (~4dk sürer)" disabled>×1000</button>
+      </div>
+      <button id="bulkCancelBtn" onclick="cancelBulkAttack()" style="display:none;padding:5px 10px;background:var(--gold);color:#000;font-family:var(--hud);font-size:9px;letter-spacing:1px;border:none;cursor:pointer;border-radius:1px">
+        ⏹ DURDUR (<span id="bulkRemaining">0</span>)
       </button>
       <button onclick="openModal('target')"
         style="padding:5px 10px;background:var(--bg2);color:var(--dim);font-family:var(--hud);font-size:9px;letter-spacing:1px;border:1px solid var(--border);cursor:pointer;border-radius:1px">
@@ -1584,6 +1597,11 @@ function selectTarget(code) {
   btn.style.opacity = '1';
   btn.textContent = `⚡ ${code} SALDIRI BAŞLAT`;
 
+  // Toplu saldırı butonlarını da aç (mermi varsa)
+  document.querySelectorAll('.bulk-atk-btn').forEach(b => {
+    b.disabled = _bulkActive || myBulletsCount <= 0;
+  });
+
   renderLabels();
   showToast(`🎯 ${CD[code]?.f||''} ${CD[code]?.n||code} hedef kilitlendi`, 'info');
 }
@@ -1692,6 +1710,7 @@ function updatePlayerUI(p) {
   if (!p) return;
   if (p.bullets != null) {
     const bullets = +p.bullets;
+    myBulletsCount = bullets;  // Toplu saldırı için global ref
     document.getElementById('myBullets').textContent = bullets.toLocaleString('tr-TR');
     // Mermi 0'a düşünce saldırı butonu disable olsun (hedef seçili olsa bile)
     const atkBtn = document.getElementById('attackBtn');
@@ -1700,12 +1719,16 @@ function updatePlayerUI(p) {
         atkBtn.disabled = true;
         atkBtn.style.opacity = '0.4';
         atkBtn.textContent = '🔫 MERMİN YOK — PAZARDAN AL';
-      } else if (targetCountry) {
+      } else if (targetCountry && !_bulkActive) {
         atkBtn.disabled = false;
         atkBtn.style.opacity = '1';
         atkBtn.textContent = `⚡ ${targetCountry} SALDIRI BAŞLAT`;
       }
     }
+    // Toplu butonları da bullet durumuna göre güncelle
+    document.querySelectorAll('.bulk-atk-btn').forEach(b => {
+      if (!_bulkActive) b.disabled = !targetCountry || bullets <= 0;
+    });
     // Mermilerim renk değişimi
     const bEl = document.getElementById('myBullets');
     if (bEl) bEl.style.color = bullets < 5 ? 'var(--red)' : bullets < 20 ? 'var(--gold)' : 'var(--green)';
@@ -1811,6 +1834,135 @@ async function attackTarget() {
     showToast('Saldırı başarısız.','error');
     btn.disabled=false; btn.textContent=`⚡ ${targetCountry} SALDIRI BAŞLAT`;
   }
+}
+
+/* ── TOPLU SALDIRI ── */
+let _bulkActive = false;
+let _bulkCancel = false;
+let _bulkRemaining = 0;
+
+function _setBulkUI(running, remaining=0) {
+  _bulkActive = running;
+  // Bulk butonları
+  document.querySelectorAll('.bulk-atk-btn').forEach(b => {
+    b.disabled = running || !targetCountry;
+    b.classList.toggle('running', running && Number(b.dataset.n) === _bulkOriginal);
+  });
+  // Tek saldırı butonu
+  const atk = document.getElementById('attackBtn');
+  if (atk) atk.disabled = running || !targetCountry || myBulletsCount <= 0;
+  // İptal butonu
+  const cancel = document.getElementById('bulkCancelBtn');
+  if (cancel) {
+    cancel.style.display = running ? 'inline-block' : 'none';
+    const rem = document.getElementById('bulkRemaining');
+    if (rem) rem.textContent = remaining;
+  }
+  // Hedef seç dropdown ve diğer kontroller
+  if (running) {
+    document.body.style.cursor = 'wait';
+  } else {
+    document.body.style.cursor = '';
+  }
+}
+
+let _bulkOriginal = 0;
+let myBulletsCount = 0; // updatePlayerUI'da güncelleniyor — referans
+
+async function bulkAttack(n) {
+  if (!wallet)        { showToast('Önce wallet bağla!','error'); return; }
+  if (!myCountry)     { showToast('Önce ülke seç!','error'); return; }
+  if (!targetCountry) { showToast('Haritadan hedef seç!','error'); return; }
+  if (_bulkActive)    { showToast('Zaten toplu saldırı var!','error'); return; }
+  if (myBulletsCount <= 0) { showToast('Mermin yok!','error'); return; }
+
+  // Mermi sayısından fazlaysa, mevcut kadar at
+  const planned = Math.min(n, myBulletsCount);
+  if (planned < n) {
+    showToast(`⚠️ Sadece ${planned} mermin var, ${planned} atılacak`,'info');
+  } else {
+    showToast(`⚔️ ${planned} saldırı başlatıldı — ${CD[targetCountry]?.n||targetCountry}`,'info');
+  }
+
+  _bulkCancel = false;
+  _bulkOriginal = n;
+  _bulkRemaining = planned;
+  _setBulkUI(true, _bulkRemaining);
+
+  let successCount = 0;
+  let failCount = 0;
+  let cooldownStreak = 0;
+
+  for (let i = 0; i < planned; i++) {
+    if (_bulkCancel) {
+      showToast(`⏹ Durduruldu — ${successCount}/${planned} saldırı yapıldı`,'info');
+      break;
+    }
+    if (myBulletsCount <= 0) {
+      showToast(`⚠️ Mermin bitti — ${successCount}/${planned} saldırı yapıldı`,'error');
+      break;
+    }
+    try {
+      const res = await fetch(API+'/api/game/attack',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({wallet, targetCountry}),
+        signal: AbortSignal.timeout(8000)
+      });
+      const data = await res.json();
+      if (data.error) {
+        // Rate limit / cooldown — biraz bekle
+        if (res.status === 429) {
+          cooldownStreak++;
+          // Sürekli rate limit → daha uzun bekleme
+          await new Promise(r => setTimeout(r, 350 + cooldownStreak*50));
+          i--; // Bu tur sayılmasın
+          continue;
+        }
+        // Diğer hatalar — durdur
+        if (data.error.includes('elen') || data.error.includes('Mermin yok')) {
+          showToast(data.error,'error');
+          break;
+        }
+        failCount++;
+      } else {
+        successCount++;
+        cooldownStreak = 0;
+        // İlk birkaç saldırı animasyonu göster, sonra atla (performans için)
+        if (successCount <= 8 || successCount % 10 === 0) {
+          drawAttackLine(myCountry, targetCountry);
+          addAttackHistory(targetCountry, 1);
+          if (data.newHp !== undefined) updateHP(targetCountry, data.newHp);
+        }
+        // Mermi sayacını güncelle (her saldırıdan sonra)
+        if (data.player) updatePlayerUI(data.player);
+      }
+      _bulkRemaining = planned - i - 1;
+      _setBulkUI(true, _bulkRemaining);
+    } catch(e) {
+      failCount++;
+      cooldownStreak++;
+      if (failCount > 5) {
+        showToast('Çok fazla hata — durduruluyor','error');
+        break;
+      }
+    }
+    // 250ms cooldown (backend gerektirir)
+    await new Promise(r => setTimeout(r, 270));
+  }
+
+  _setBulkUI(false);
+  if (!_bulkCancel) {
+    showToast(`✅ ${successCount}/${planned} saldırı tamamlandı`,'success');
+  }
+  pollState();
+  refreshPlayerState();
+}
+
+function cancelBulkAttack() {
+  if (!_bulkActive) return;
+  _bulkCancel = true;
+  showToast('⏹ Durdurma sinyali gönderildi...','info');
 }
 
 function updateHP(code, hp) {
