@@ -186,6 +186,12 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 </style>
 </head>
 <body>
+<!-- Bağlantı kayıp uyarısı -->
+<div id="offlineBanner" style="display:none;position:fixed;top:0;left:0;right:0;background:var(--red);color:#fff;font-family:var(--hud);font-size:11px;padding:8px 14px;z-index:9999;align-items:center;justify-content:center;gap:10px;letter-spacing:1.5px">
+  <span style="font-size:14px">⚠️</span>
+  <span>SUNUCU BAĞLANTISI KAYIP — OTOMATİK YENİDEN DENENİYOR</span>
+  <button onclick="location.reload()" style="background:rgba(255,255,255,0.2);border:1px solid #fff;color:#fff;padding:3px 10px;font-family:var(--hud);font-size:10px;cursor:pointer">🔄 SAYFAYI YENİLE</button>
+</div>
 
 <!-- NAV -->
 <nav class="topnav">
@@ -1485,8 +1491,15 @@ async function connectWallet() {
 
 async function registerPlayer() {
   try {
-    const res = await fetch(API+'/api/player/connect',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet})});
+    const res = await fetch(API+'/api/player/connect',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({wallet}),
+      signal:AbortSignal.timeout(8000)
+    });
+    if (!res.ok) throw new Error('HTTP '+res.status);
     const data = await res.json();
+    setBackendStatus(true);
     const p = data.player || data;
     const cc = p.countryCode || p.country_code;
     if (cc) {
@@ -1498,7 +1511,10 @@ async function registerPlayer() {
       setTimeout(()=>openModal('nation'),700);
     }
     updatePlayerUI(p);
-  } catch(e) { showToast('Sunucuya bağlanılamadı.','error'); }
+  } catch(e) {
+    setBackendStatus(false);
+    showToast('Sunucuya bağlanılamadı. Tekrar deneniyor...','error');
+  }
 }
 
 /* ── OYUNCU STATS GÜNCELLEME ── */
@@ -1507,11 +1523,20 @@ function updatePlayerUI(p) {
   if (p.bullets != null) {
     document.getElementById('myBullets').textContent = (+p.bullets).toLocaleString('tr-TR');
   }
+  if (p.attacks != null) {
+    document.getElementById('myAttacks').textContent = (+p.attacks).toLocaleString('tr-TR');
+  }
   if (p.contribution != null) {
     const c = +p.contribution;
     document.getElementById('myContrib').textContent = c.toLocaleString('tr-TR');
     document.getElementById('ysScore').textContent   = c.toLocaleString('tr-TR');
-    document.getElementById('ysKills').textContent   = c.toLocaleString('tr-TR');
+  }
+  // Gerçek öldürme/ölüm sayıları
+  if (p.kills != null) {
+    document.getElementById('ysKills').textContent = (+p.kills).toLocaleString('tr-TR');
+  }
+  if (p.deaths != null) {
+    document.getElementById('ysDeaths').textContent = (+p.deaths).toLocaleString('tr-TR');
   }
 }
 
@@ -1835,14 +1860,35 @@ function updateLeaderboard(countries) {
 }
 
 /* ── POLL ── */
+let _backendOnline = true;
+let _consecutiveFailures = 0;
+
+function setBackendStatus(online) {
+  if (online === _backendOnline) return;
+  _backendOnline = online;
+  const banner = document.getElementById('offlineBanner');
+  if (banner) banner.style.display = online ? 'none' : 'flex';
+  if (!online) {
+    showToast('⚠️ Sunucu bağlantısı kayıp — tekrar deneniyor...', 'error');
+  } else {
+    showToast('✅ Sunucu bağlantısı geri geldi', 'success');
+  }
+}
+
 async function pollState() {
   try {
-    const res=await fetch(API+'/api/game/state');
+    const res=await fetch(API+'/api/game/state',{signal:AbortSignal.timeout(8000)});
+    if (!res.ok) throw new Error('HTTP '+res.status);
     const data=await res.json();
+    _consecutiveFailures = 0;
+    setBackendStatus(true);
     if (data?.countries) updateLeaderboard(data.countries);
     if (data?.onlinePlayers!=null) document.getElementById('onlineCount').textContent=Number(data.onlinePlayers).toLocaleString('tr-TR');
     if (data?.round) setRoundFromState(data.round);
-  } catch(e){}
+  } catch(e){
+    _consecutiveFailures++;
+    if (_consecutiveFailures >= 2) setBackendStatus(false);
+  }
 }
 
 /* ── MODAL ── */
@@ -1889,11 +1935,16 @@ function closeModal() { document.getElementById('countryModal').classList.remove
 document.getElementById('countryModal').addEventListener('click',function(e){if(e.target===this)closeModal();});
 
 /* ── TOAST ── */
+let _lastToast = { msg:'', at:0 };
 function showToast(msg,type='info') {
+  // Aynı mesaj 1.5sn içinde tekrar gelirse görmezden gel
+  const now = Date.now();
+  if (msg === _lastToast.msg && now - _lastToast.at < 1500) return;
+  _lastToast = { msg, at: now };
   clearTimeout(toastTimer);
   const t=document.getElementById('toast');
   t.textContent=msg; t.className=`toast show ${type}`;
-  toastTimer=setTimeout(()=>t.classList.remove('show'),3000);
+  toastTimer=setTimeout(()=>t.classList.remove('show'), type==='error'?4000:2800);
 }
 
 /* ── TUR ZAMANLAYICI (gerçek, backend'den) ── */
@@ -1933,12 +1984,31 @@ setInterval(()=>{
 const ioScript=document.createElement('script');
 ioScript.src='https://cdn.socket.io/4.7.2/socket.io.min.js';
 ioScript.onload=()=>{
-  const socket=io(API,{transports:['websocket'],reconnectionDelay:3000});
+  const socket=io(API,{
+    transports:['websocket','polling'],
+    reconnection:true,
+    reconnectionDelay:2000,
+    reconnectionDelayMax:10000,
+    reconnectionAttempts:Infinity,
+    timeout:8000
+  });
+  let _firstConnect = true;
   socket.on('connect',()=>{
     document.querySelector('.gdot').style.background='#00c853';
+    setBackendStatus(true);
+    if (!_firstConnect) {
+      showToast('🟢 Sunucu bağlantısı kuruldu','success');
+      if (wallet) registerPlayer();
+      pollState();
+    }
+    _firstConnect = false;
     setInterval(()=>{if(wallet)socket.emit('heartbeat',{wallet});},30000);
   });
-  socket.on('disconnect',()=>{ document.querySelector('.gdot').style.background='#e8162a'; });
+  socket.on('disconnect',(reason)=>{
+    document.querySelector('.gdot').style.background='#e8162a';
+    setBackendStatus(false);
+  });
+  socket.on('connect_error',()=>{ setBackendStatus(false); });
   socket.on('war:attack',(d)=>{
     const from=d.attackerCountry||d.from||'', to=d.targetCountry||d.to||'';
     if(from&&to){ addActivity(from,to); drawAttackLine(from,to); }
@@ -1968,8 +2038,37 @@ document.head.appendChild(ioScript);
 /* ── METAMASK EVENTS ── */
 if(window.ethereum){
   ethereum.on('accountsChanged',(accounts)=>{
-    if(!accounts.length){wallet=null;document.getElementById('walletBtn').textContent='WALLET BAĞLA';document.getElementById('walletBtn').className='btn-wallet';showToast('Wallet bağlantısı kesildi.','error');}
-    else{wallet=accounts[0];document.getElementById('walletBtn').textContent=wallet.slice(0,6)+'...'+wallet.slice(-4);registerPlayer();}
+    if(!accounts.length){
+      // Bağlantı kesildi — tüm session'ı temizle
+      wallet = null;
+      myCountry = null;
+      targetCountry = null;
+      document.getElementById('walletBtn').textContent='WALLET BAĞLA';
+      document.getElementById('walletBtn').className='btn-wallet';
+      document.getElementById('myBullets').textContent = '0';
+      document.getElementById('myContrib').textContent = '0';
+      document.getElementById('ethBal').textContent = '0.000 ETH';
+      showToast('🔌 Wallet bağlantısı kesildi.','error');
+    } else {
+      // Hesap değişti — yeni wallet ile yeniden başla
+      const newWallet = accounts[0];
+      if (wallet && wallet.toLowerCase() !== newWallet.toLowerCase()) {
+        // Eski state'i sıfırla
+        myCountry = null;
+        targetCountry = null;
+        document.getElementById('myBullets').textContent = '0';
+        document.getElementById('myContrib').textContent = '0';
+        showToast('🔄 Wallet değişti, yeni profil yükleniyor...','info');
+      }
+      wallet = newWallet;
+      document.getElementById('walletBtn').textContent=wallet.slice(0,6)+'...'+wallet.slice(-4);
+      registerPlayer();
+    }
+  });
+  // Ağ değişimi — sayfayı yenile (en güvenli)
+  ethereum.on('chainChanged',()=>{
+    showToast('🔗 Ağ değişti, sayfa yenileniyor...','info');
+    setTimeout(()=>location.reload(),800);
   });
 }
 
