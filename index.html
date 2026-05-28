@@ -174,8 +174,8 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .c-btn:disabled{opacity:0.25;cursor:not-allowed;border-color:var(--border)}
 
 /* TOAST */
-.toast{position:fixed;bottom:34px;left:50%;transform:translateX(-50%);padding:9px 18px;border-radius:2px;font-family:var(--mono);font-size:11px;z-index:1000;pointer-events:none;opacity:0;transition:opacity .2s;white-space:nowrap}
-.toast.show{opacity:1}
+.toast{position:fixed;top:70px;right:18px;padding:10px 18px;border-radius:2px;font-family:var(--mono);font-size:11px;z-index:1000;pointer-events:none;opacity:0;transition:opacity .25s,transform .25s;transform:translateX(20px);white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,0.5);max-width:90vw}
+.toast.show{opacity:1;transform:translateX(0)}
 .toast.success{background:rgba(0,200,83,0.12);border:1px solid rgba(0,200,83,0.35);color:var(--green)}
 .toast.error{background:rgba(232,22,42,0.12);border:1px solid rgba(232,22,42,0.35);color:var(--red)}
 .toast.info{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:var(--text)}
@@ -236,14 +236,11 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     <div class="sl">KALAN SÜRE</div>
     <div style="font-family:var(--mono);font-size:14px;color:var(--red);letter-spacing:2px;margin-top:3px" id="timerVal">23G 14S 42D 18S</div>
   </div>
-  <div class="sh" style="flex-shrink:0">SAVAŞ FAALİYETİ</div>
+  <div class="sh" style="flex-shrink:0">SAVAŞ FAALİYETİ <span id="activityCount" style="font-size:9px;color:var(--dim);margin-left:6px">(0)</span></div>
   <div style="flex:1;overflow-y:auto" id="activityList">
-    <div class="act-item"><div class="act-country"><span class="ldot" style="width:4px;height:4px;margin-right:5px"></span>ALMANYA</div><div class="act-detail">saldırdı: <b>FRANSA</b></div><div class="act-time">2dk önce</div></div>
-    <div class="act-item"><div class="act-country"><span class="ldot" style="width:4px;height:4px;margin-right:5px"></span>TÜRKİYE</div><div class="act-detail">saldırdı: <b>YUNANİSTAN</b></div><div class="act-time">3dk önce</div></div>
-    <div class="act-item"><div class="act-country"><span class="ldot" style="width:4px;height:4px;margin-right:5px"></span>ABD</div><div class="act-detail">saldırdı: <b>ÇİN</b></div><div class="act-time">5dk önce</div></div>
-    <div class="act-item"><div class="act-country"><span class="ldot" style="width:4px;height:4px;margin-right:5px"></span>RUSYA</div><div class="act-detail">saldırdı: <b>UKRAYNA</b></div><div class="act-time">8dk önce</div></div>
+    <div style="padding:20px;text-align:center;color:var(--dim);font-size:10px" id="activityEmpty">Henüz savaş faaliyeti yok</div>
   </div>
-  <button class="btn-sm btn-out" style="margin:8px;width:calc(100% - 16px)" onclick="openModal('target')">TÜMÜ GÖRÜNTÜLE</button>
+  <button class="btn-sm btn-out" style="margin:8px;width:calc(100% - 16px)" onclick="openModal('target')">HEDEF SEÇ</button>
 </div>
 
 <!-- MAP -->
@@ -484,15 +481,11 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 <!-- BOTTOM ROW -->
 <!-- Attack History -->
 <div class="cell" style="grid-column:1;grid-row:2">
-  <div class="sh">SALDIRI TARİHİ</div>
+  <div class="sh">SALDIRI TARİHİ <span id="ahCount" style="font-size:9px;color:var(--dim);margin-left:6px">(0)</span></div>
   <div class="ah-head"><span>HEDEF</span><span>HASAR</span><span>ZAMAN</span></div>
   <div style="flex:1;overflow-y:auto" id="attackHistory">
-    <div class="ah-row"><div style="display:flex;align-items:center;gap:4px;font-size:9px"><span>🇬🇷</span> YUNANİSTAN</div><div class="ah-dmg">-2,350 HP</div><div class="ah-time">2dk önce</div></div>
-    <div class="ah-row"><div style="display:flex;align-items:center;gap:4px;font-size:9px"><span>🇧🇬</span> BULGARİSTAN</div><div class="ah-dmg">-1,650 HP</div><div class="ah-time">5dk önce</div></div>
-    <div class="ah-row"><div style="display:flex;align-items:center;gap:4px;font-size:9px"><span>🇦🇲</span> ERMENİSTAN</div><div class="ah-dmg">-3,200 HP</div><div class="ah-time">10dk önce</div></div>
-    <div class="ah-row"><div style="display:flex;align-items:center;gap:4px;font-size:9px"><span>🇸🇾</span> SURİYE</div><div class="ah-dmg">-2,100 HP</div><div class="ah-time">20dk önce</div></div>
+    <div style="padding:20px;text-align:center;color:var(--dim);font-size:10px" id="ahEmpty">Henüz saldırı yok</div>
   </div>
-  <button class="btn-sm btn-out" style="margin:5px 8px;width:calc(100% - 16px)">TÜM GEÇMİŞİ GÖRÜNTÜLE</button>
 </div>
 
 <!-- Alliance Chat -->
@@ -504,9 +497,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     <button class="btn-sm btn-out" style="flex:1" onclick="openRadioModal()">📻 TELSİZ</button>
   </div>
   <div class="chat-body" id="chatBody">
-    <div class="chat-msg"><div class="chat-who"><span style="font-size:11px">🇹🇷</span><span class="chat-name">KomutanTR</span><span class="chat-t">2dk</span></div><div class="chat-txt">Herkes Yunanistan'a odaklanın!</div></div>
-    <div class="chat-msg"><div class="chat-who"><span style="font-size:11px">🇹🇷</span><span class="chat-name">General34</span><span class="chat-t">3dk</span></div><div class="chat-txt">Batı cephesinde daha fazla desteğe ihtiyaç var!</div></div>
-    <div class="chat-msg"><div class="chat-who"><span style="font-size:11px">🇹🇷</span><span class="chat-name">SavaşLord</span><span class="chat-t">5dk</span></div><div class="chat-txt">Gelişmiş cephane gönderiyorum.</div></div>
+    <div style="padding:20px;text-align:center;color:var(--dim);font-size:10px" id="chatEmpty">İttifak sohbeti boş — ilk mesajı sen yaz</div>
   </div>
   <div class="chat-input-row">
     <input class="chat-inp" id="chatInput" placeholder="Mesaj yaz..." onkeydown="if(event.key==='Enter')sendChat()">
@@ -570,7 +561,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     </div>
   </div>
   <div class="ticker-lbl ticker-warn" style="border-left:1px solid var(--border)">⚠️ SAVAŞ UYARISI &nbsp;<span style="color:var(--text)">ABD ittifakı saldırı altında!</span></div>
-  <div class="ticker-online">ÇEVRİMİÇİ: <span id="onlineCount">12,458</span></div>
+  <div class="ticker-online">ÇEVRİMİÇİ: <span id="onlineCount">0</span></div>
   <button class="btn-join" onclick="connectWallet()">SAVAŞA KATIL</button>
 </div>
 
@@ -1536,7 +1527,24 @@ async function registerPlayer() {
 function updatePlayerUI(p) {
   if (!p) return;
   if (p.bullets != null) {
-    document.getElementById('myBullets').textContent = (+p.bullets).toLocaleString('tr-TR');
+    const bullets = +p.bullets;
+    document.getElementById('myBullets').textContent = bullets.toLocaleString('tr-TR');
+    // Mermi 0'a düşünce saldırı butonu disable olsun (hedef seçili olsa bile)
+    const atkBtn = document.getElementById('attackBtn');
+    if (atkBtn) {
+      if (bullets <= 0) {
+        atkBtn.disabled = true;
+        atkBtn.style.opacity = '0.4';
+        atkBtn.textContent = '🔫 MERMİN YOK — PAZARDAN AL';
+      } else if (targetCountry) {
+        atkBtn.disabled = false;
+        atkBtn.style.opacity = '1';
+        atkBtn.textContent = `⚡ ${targetCountry} SALDIRI BAŞLAT`;
+      }
+    }
+    // Mermilerim renk değişimi
+    const bEl = document.getElementById('myBullets');
+    if (bEl) bEl.style.color = bullets < 5 ? 'var(--red)' : bullets < 20 ? 'var(--gold)' : 'var(--green)';
   }
   if (p.attacks != null) {
     document.getElementById('myAttacks').textContent = (+p.attacks).toLocaleString('tr-TR');
@@ -1546,7 +1554,6 @@ function updatePlayerUI(p) {
     document.getElementById('myContrib').textContent = c.toLocaleString('tr-TR');
     document.getElementById('ysScore').textContent   = c.toLocaleString('tr-TR');
   }
-  // Gerçek öldürme/ölüm sayıları
   if (p.kills != null) {
     document.getElementById('ysKills').textContent = (+p.kills).toLocaleString('tr-TR');
   }
@@ -1606,7 +1613,24 @@ async function attackTarget() {
     const data = await res.json();
     if (data.error) {
       showToast(data.error,'error');
-      btn.disabled=false; btn.textContent=`⚡ ${targetCountry} SALDIRI BAŞLAT`;
+      // Cooldown hatasıysa kısa bekleme göster
+      if (res.status === 429) {
+        let s = 1;
+        btn.textContent = `⏳ ${s}s...`;
+        const cd = setInterval(()=>{
+          s--;
+          if (s <= 0) {
+            clearInterval(cd);
+            btn.disabled=false;
+            btn.textContent=`⚡ ${targetCountry} SALDIRI BAŞLAT`;
+          } else {
+            btn.textContent = `⏳ ${s}s...`;
+          }
+        }, 1000);
+      } else {
+        btn.disabled=false;
+        btn.textContent=`⚡ ${targetCountry} SALDIRI BAŞLAT`;
+      }
     } else {
       const dmg = data.damage||1;
       showToast(`⚡ ${CD[targetCountry]?.f||''} ${targetCountry} vuruldu! -${dmg} HP`,'success');
@@ -1615,7 +1639,6 @@ async function attackTarget() {
       drawAttackLine(myCountry, targetCountry);
       if (data.newHp !== undefined) updateHP(targetCountry, data.newHp);
       btn.disabled=false; btn.textContent=`⚡ ${targetCountry} SALDIRI BAŞLAT`;
-      // Mermi sayacı + katkı puanı backend'den senkronize edilsin
       if (data.player) updatePlayerUI(data.player);
       else refreshPlayerState();
       pollState();
@@ -1644,8 +1667,17 @@ function addAttackHistory(code, dmg) {
   row.className='ah-row anim-new';
   row.innerHTML=`<div style="display:flex;align-items:center;gap:4px;font-size:9px"><span>${c?.f||'🏳️'}</span> ${c?.n||code}</div><div class="ah-dmg">-${dmg||1} HP</div><div class="ah-time">şimdi</div>`;
   const hist = document.getElementById('attackHistory');
+  // Boş durum mesajını gizle
+  const empty = document.getElementById('ahEmpty');
+  if (empty) empty.style.display = 'none';
   hist.insertBefore(row,hist.firstChild);
-  if (hist.children.length>20) hist.removeChild(hist.lastChild);
+  if (hist.children.length>50) hist.removeChild(hist.lastChild);
+  // Sayı güncelle
+  const cnt = document.getElementById('ahCount');
+  if (cnt) {
+    const realRows = hist.querySelectorAll('.ah-row').length;
+    cnt.textContent = `(${realRows})`;
+  }
 }
 
 function addActivity(from, to) {
@@ -1654,8 +1686,12 @@ function addActivity(from, to) {
   item.className='act-item anim-new';
   item.innerHTML=`<div class="act-country"><span class="ldot" style="width:4px;height:4px;margin-right:5px"></span>${tc?.f||''} ${tc?.n||to}</div><div class="act-detail">saldırdı: <b>${fc?.f||''} ${fc?.n||from}</b></div><div class="act-time">şimdi</div>`;
   const list = document.getElementById('activityList');
+  const empty = document.getElementById('activityEmpty');
+  if (empty) empty.style.display = 'none';
   list.insertBefore(item,list.firstChild);
-  if (list.children.length>12) list.removeChild(list.lastChild);
+  if (list.children.length>30) list.removeChild(list.lastChild);
+  const cnt = document.getElementById('activityCount');
+  if (cnt) cnt.textContent = `(${list.querySelectorAll('.act-item').length})`;
 }
 
 /* ── BUY AMMO (Smart Contract) ── */
@@ -1759,6 +1795,8 @@ function sendChat() {
   row.className='chat-msg anim-new';
   row.innerHTML=`<div class="chat-who"><span style="font-size:11px">${c?.f||'🏳️'}</span><span class="chat-name">${wallet?wallet.slice(0,6)+'...':'Misafir'}</span><span class="chat-t">şimdi</span></div><div class="chat-txt">${msg}</div>`;
   const body=document.getElementById('chatBody');
+  const empty = document.getElementById('chatEmpty');
+  if (empty) empty.style.display = 'none';
   body.insertBefore(row,body.firstChild);
   inp.value='';
   if (wallet) fetch(API+'/api/alliance/radio',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet,command:msg})}).catch(()=>{});
@@ -1836,7 +1874,10 @@ function addChatSystem(text) {
   row.style.background='rgba(0,200,83,0.06)';
   row.innerHTML=`<div class="chat-who"><span style="font-size:11px">📡</span><span class="chat-name" style="color:var(--green)">SİSTEM</span><span class="chat-t">şimdi</span></div><div class="chat-txt" style="color:var(--green)">${text}</div>`;
   const body=document.getElementById('chatBody');
+  const empty = document.getElementById('chatEmpty');
+  if (empty) empty.style.display = 'none';
   body.insertBefore(row,body.firstChild);
+  if (body.children.length > 40) body.removeChild(body.lastChild);
 }
 
 document.getElementById('allianceModal').addEventListener('click',function(e){if(e.target===this)closeAllianceModal();});
@@ -1853,14 +1894,18 @@ function updateLeaderboard(countries) {
     .filter(c=> c.is_alive!==false && c.eliminated!==true)
     .sort((a,b)=>(b.hp||0)-(a.hp||0));
   const list=document.getElementById('lbList'); list.innerHTML='';
-  sorted.slice(0,12).forEach((c,i)=>{
-    const cd=CD[c.code];
-    const row=document.createElement('div');
-    row.className='lb-row'+(c.code===myCountry?' me':'');
-    const hpVal = (c.hp||0);
-    row.innerHTML=`<span class="lb-num">${i+1}</span><span style="font-size:13px">${cd?.f||c.flag||'🏳️'}</span><span class="lb-name">${cd?.n||c.name||c.code}</span><span class="lb-hp">${hpVal} HP</span>`;
-    list.appendChild(row);
-  });
+  if (sorted.length === 0) {
+    list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--dim);font-size:11px">Henüz oyunda ülke yok</div>';
+  } else {
+    sorted.slice(0,12).forEach((c,i)=>{
+      const cd=CD[c.code];
+      const row=document.createElement('div');
+      row.className='lb-row'+(c.code===myCountry?' me':'');
+      const hpVal = (c.hp||0);
+      row.innerHTML=`<span class="lb-num">${i+1}</span><span style="font-size:13px">${cd?.f||c.flag||'🏳️'}</span><span class="lb-name">${cd?.n||c.name||c.code}</span><span class="lb-hp">${hpVal} HP</span>`;
+      list.appendChild(row);
+    });
+  }
   if (myCountry) {
     const me=sorted.find(c=>c.code===myCountry);
     if (me) {
@@ -2200,7 +2245,10 @@ ioScript.onload=()=>{
     closeRoundEndModal();
     pollState();
   });
-  socket.on('players:online',(n)=>{ document.getElementById('onlineCount').textContent=Number(n).toLocaleString('tr-TR'); });
+  socket.on('players:online',(d)=>{
+    const n = typeof d === 'object' ? (d.onlinePlayers ?? d.count ?? 0) : d;
+    document.getElementById('onlineCount').textContent=Number(n).toLocaleString('tr-TR');
+  });
   socket.on('country:eliminated',(d)=>{ playSound('eliminated'); showToast(`💀 ${CD[d.country]?.f||''} ${CD[d.country]?.n||d.country} ELİMİNE EDİLDİ!`,'error'); });
   socket.on('game:over',(d)=>{ playSound('victory'); showToast(`🏆 OYUN BİTTİ! Kazanan: ${CD[d.winner]?.f||''} ${CD[d.winner]?.n||d.winner}`,'success'); });
   socket.on('alliance:feed',(d)=>{
@@ -2208,8 +2256,10 @@ ioScript.onload=()=>{
     const cc=CD[d.country]||{};
     row.innerHTML=`<div class="chat-who"><span style="font-size:11px">${cc.f||'🏳️'}</span><span class="chat-name">${(d.wallet||'???').slice(0,6)}</span><span class="chat-t">şimdi</span></div><div class="chat-txt">${d.command||d.message||''}</div>`;
     const body=document.getElementById('chatBody');
+    const empty = document.getElementById('chatEmpty');
+    if (empty) empty.style.display = 'none';
     body.insertBefore(row,body.firstChild);
-    if(body.children.length>20)body.removeChild(body.lastChild);
+    if(body.children.length>40)body.removeChild(body.lastChild);
   });
 };
 document.head.appendChild(ioScript);
