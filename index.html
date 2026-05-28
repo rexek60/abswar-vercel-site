@@ -80,8 +80,13 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .bulk-atk-btn:hover:not(:disabled){background:rgba(232,22,42,0.25);color:#fff}
 .bulk-atk-btn:disabled{opacity:0.3;cursor:not-allowed}
 .bulk-atk-btn.running{background:var(--gold);color:#000;border-color:var(--gold);animation:pulse 1s infinite}
+.fb-tag-btn{flex:1;padding:7px 4px;background:var(--bg2);color:var(--dim);font-family:var(--hud);font-size:9px;letter-spacing:0.5px;border:1px solid var(--border);cursor:pointer;border-radius:1px;transition:all 0.15s}
+.fb-tag-btn:hover{color:var(--text);border-color:rgba(255,255,255,0.25)}
+.fb-tag-btn.fb-tag-active{background:rgba(232,22,42,0.18);color:#ff6b7a;border-color:rgba(232,22,42,0.5)}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.6}}
 @keyframes loaderSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes countryPulse{0%,100%{filter:drop-shadow(0 0 4px var(--cyan))}50%{filter:drop-shadow(0 0 14px var(--cyan)) drop-shadow(0 0 24px var(--cyan))}}
+.country-pulse{animation:countryPulse 0.9s ease-in-out 4}
 .country-land{transition:fill 0.4s,stroke 0.4s,stroke-width 0.3s}
 .country-land:hover{fill:#27a862 !important;stroke:#00ff9d !important;stroke-width:1.1;filter:url(#landGlow)}
 .country-land.my-country{fill:#1a9a48 !important;stroke:#00ff9d !important;stroke-width:1.4;filter:url(#neonGlow)}
@@ -216,7 +221,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     119 ülkeden birini seç, ittifak kur, savaş alanına gir. Web3 cüzdanınla bağlan, mermi al, hedeflerini eli yenmesi için saldır.
   </div>
   <button onclick="connectWallet()" style="background:linear-gradient(180deg,#e8162a,#a01020);border:none;color:#fff;font-family:var(--hud);font-size:13px;letter-spacing:3px;padding:14px 36px;cursor:pointer;font-weight:700;box-shadow:0 4px 20px rgba(232,22,42,0.4),inset 0 1px 0 rgba(255,255,255,0.15)">
-    🔗 WALLET BAĞLA & SAVAŞA KATIL
+    🔗 CÜZDAN BAĞLA & SAVAŞA KATIL
   </button>
   <button onclick="dismissWelcome()" style="background:transparent;border:none;color:var(--dim);font-family:var(--mono);font-size:10px;padding:14px;margin-top:8px;cursor:pointer">
     Önce çevreyi gözden geçirmek istiyorum →
@@ -256,10 +261,11 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   </div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:10px">
     <button onclick="toggleSound()" id="soundBtn" title="Sesi aç/kapa" style="background:transparent;border:1px solid var(--border);color:var(--text);font-size:14px;width:30px;height:28px;cursor:pointer;padding:0">🔊</button>
+    <button onclick="openFeedbackModal()" title="Geri bildirim / bug rapor" style="background:transparent;border:1px solid var(--border);color:var(--text);font-size:14px;width:30px;height:28px;cursor:pointer;padding:0">💬</button>
     <button onclick="openHelp()" title="Nasıl Oynanır" style="background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer">❓ NASIL OYNANIR</button>
     <span style="font-family:var(--mono);font-size:11px;color:var(--red)" id="ethBal">0.000 ETH</span>
     <button id="nicknameBtn" onclick="openNicknameModal()" title="Nickname ayarla" style="display:none;background:transparent;border:1px solid var(--border);color:var(--green);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer">👤 <span id="nicknameLabel">İSİM EKLE</span></button>
-    <button class="btn-wallet" id="walletBtn" onclick="connectWallet()">WALLET BAĞLA</button>
+    <button class="btn-wallet" id="walletBtn" onclick="connectWallet()">CÜZDAN BAĞLA</button>
   </div>
 </nav>
 
@@ -502,7 +508,10 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
       <span style="font-size:20px" id="coFlag">🇹🇷</span>
       <span style="font-family:var(--hud);font-size:13px;font-weight:700;color:white;letter-spacing:2px" id="coName">TÜRKİYE</span>
     </div>
-    <div class="co-rank"><div style="font-size:6px;color:rgba(255,255,255,0.7);letter-spacing:1px">SIRA</div><div style="font-size:14px;font-weight:900" id="coRank">#5</div></div>
+    <div style="display:flex;align-items:center;gap:6px">
+      <button onclick="copyCountryLink(myCountry)" title="Bu ülkenin linkini kopyala" style="background:transparent;border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.6);font-size:10px;padding:3px 7px;cursor:pointer;border-radius:1px">🔗</button>
+      <div class="co-rank"><div style="font-size:6px;color:rgba(255,255,255,0.7);letter-spacing:1px">SIRA</div><div style="font-size:14px;font-weight:900" id="coRank">#5</div></div>
+    </div>
   </div>
   <div style="padding:8px 12px;border-bottom:1px solid var(--border);flex-shrink:0">
     <div style="display:flex;justify-content:space-between;margin-bottom:4px">
@@ -712,7 +721,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 
       <div style="border-left:3px solid var(--red);padding-left:12px">
         <div style="font-family:var(--hud);font-size:11px;color:var(--red);letter-spacing:2px;margin-bottom:4px">1 · CÜZDAN BAĞLA</div>
-        Sağ üstteki "WALLET BAĞLA" butonuna bas. MetaMask açılır, Abstract Testnet ağına geçer.
+        Sağ üstteki "CÜZDAN BAĞLA" butonuna bas. MetaMask açılır, Abstract Testnet ağına geçer.
       </div>
 
       <div style="border-left:3px solid var(--gold);padding-left:12px">
@@ -766,6 +775,35 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
         <b style="color:var(--red)">⚠️ NOT:</b> Oyun şu an <b>Abstract Testnet</b>'te — gerçek para değil, test ETH. Mainnet'e geçiş audit sonrası yapılır.
       </div>
 
+    </div>
+  </div>
+</div>
+
+<!-- GERİ BİLDİRİM / BUG RAPOR MODALI -->
+<div class="modal" id="feedbackModal">
+  <div class="modal-box" style="width:440px;max-width:92vw;max-height:88vh;overflow-y:auto">
+    <button class="modal-close" onclick="closeFeedbackModal()">✕ KAPAT</button>
+    <div class="modal-title">💬 GERİ BİLDİRİM / BUG RAPOR</div>
+    <div class="modal-sub">Bir sorun mu var? Bir fikrin mi var? Bize yaz.</div>
+    <div style="margin-top:14px;text-align:left">
+      <div style="display:flex;gap:6px;margin-bottom:10px">
+        <button class="fb-tag-btn fb-tag-active" data-tag="bug" onclick="setFeedbackType('bug',this)">🐛 BUG</button>
+        <button class="fb-tag-btn" data-tag="idea" onclick="setFeedbackType('idea',this)">💡 ÖNERİ</button>
+        <button class="fb-tag-btn" data-tag="praise" onclick="setFeedbackType('praise',this)">⭐ BEĞENİ</button>
+        <button class="fb-tag-btn" data-tag="other" onclick="setFeedbackType('other',this)">❓ DİĞER</button>
+      </div>
+      <textarea id="feedbackInput" rows="6" maxlength="500" placeholder="Sorunu / fikrini detaylıca anlat... (mesela: 'Ülke seçince harita kayboldu' veya 'Profil sayfası ekleyin')" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:12px;padding:10px;outline:none;resize:vertical"></textarea>
+      <div style="margin-top:6px;display:flex;justify-content:space-between;font-size:10px;color:var(--dim)">
+        <span>500 karaktere kadar</span>
+        <span id="fbCount">0 / 500</span>
+      </div>
+      <div style="margin-top:14px;padding:10px;background:rgba(102,179,255,0.08);border:1px solid rgba(102,179,255,0.3);font-size:11px;color:var(--text);line-height:1.5">
+        <b style="color:#66b3ff">📝 Not:</b> Mesajın panoya kopyalanır. Sahibe iletmek için Twitter / Discord / e-postaya yapıştırabilirsin.
+      </div>
+      <div style="margin-top:14px;display:flex;gap:8px">
+        <button class="btn-sm btn-red" style="flex:1;padding:10px" onclick="submitFeedback()">📋 KOPYALA & İLET</button>
+        <button class="btn-sm btn-out" style="flex:1;padding:10px" onclick="closeFeedbackModal()">İPTAL</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1150,7 +1188,7 @@ document.addEventListener('keydown', (e) => {
 let myNickname = null;
 
 function openNicknameModal() {
-  if (!wallet) { showToast('Önce wallet bağla!','error'); return; }
+  if (!wallet) { showToast('Önce cüzdan bağla!','error'); return; }
   document.getElementById('nicknameInput').value = myNickname || '';
   document.getElementById('nicknameModal').classList.add('show');
   setTimeout(()=>document.getElementById('nicknameInput').focus(), 100);
@@ -1330,7 +1368,7 @@ function upgradeRadar() {
     showToast('📡 Radar zaten maksimum seviyede!','info');
     return;
   }
-  if (!wallet) { showToast('Önce wallet bağla!','error'); return; }
+  if (!wallet) { showToast('Önce cüzdan bağla!','error'); return; }
   radarLevel++;
   document.getElementById('radarLevel').textContent = radarLevel;
   _applyRadarVisual(radarLevel);
@@ -1382,7 +1420,7 @@ function produceResource(id) {
   if (r.val >= 100) { showToast(`${r.icon} ${r.name} zaten %100!`,'info'); return; }
   // 1 mermi ücreti
   const curB = parseInt((document.getElementById('myBullets').textContent||'0').replace(/\D/g,''))||0;
-  if (!wallet) { showToast('Önce wallet bağla!','error'); return; }
+  if (!wallet) { showToast('Önce cüzdan bağla!','error'); return; }
   if (curB < 1) { showToast('Yeterli merminiz yok! Pazardan mermi alın.','error'); return; }
   // Optimistic UI: mermiyi düş
   document.getElementById('myBullets').textContent = (curB-1).toLocaleString('tr-TR');
@@ -1395,7 +1433,7 @@ function produceResource(id) {
 }
 
 function boostAllResources() {
-  if (!wallet) { showToast('Önce wallet bağla!','error'); return; }
+  if (!wallet) { showToast('Önce cüzdan bağla!','error'); return; }
   const curB = parseInt((document.getElementById('myBullets').textContent||'0').replace(/\D/g,''))||0;
   if (curB < 1) { showToast('Yeterli merminiz yok! Pazardan mermi alın.','error'); return; }
   let any = false;
@@ -1724,7 +1762,7 @@ function renderLabels_OLD() {
 
 /* ── MAP CLICK ── */
 function handleMapClick(code) {
-  if (!wallet) { showToast('Önce wallet bağla!', 'error'); return; }
+  if (!wallet) { showToast('Önce cüzdan bağla!', 'error'); return; }
   if (!myCountry) { openModal('nation'); return; }
   if (code === myCountry) { showToast('Kendi ülkene saldıramazsın!', 'error'); return; }
   selectTarget(code);
@@ -1857,7 +1895,7 @@ async function registerPlayer() {
       applyMyCountry(cc);
       showToast('Hoş geldin Komutan! '+( CD[cc]?.f||'')+' '+cc,'success');
     } else {
-      showToast('Wallet bağlandı! Ülke seçin.','success');
+      showToast('Cüzdan bağlandı! Ülke seçin.','success');
       setTimeout(()=>openModal('nation'),700);
     }
     updatePlayerUI(p);
@@ -1931,7 +1969,7 @@ async function refreshPlayerState() {
 
 /* ── CHOOSE COUNTRY ── */
 async function chooseCountry(code) {
-  if (!wallet) { showToast('Önce wallet bağla!','error'); return; }
+  if (!wallet) { showToast('Önce cüzdan bağla!','error'); return; }
   showLoader(`ÜLKE SEÇİLİYOR: ${CD[code]?.n||code}...`);
   try {
     const res = await fetch(API+'/api/player/choose-country',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet,countryCode:code})});
@@ -1963,7 +2001,7 @@ function applyMyCountry(code) {
 
 /* ── ATTACK ── */
 async function attackTarget() {
-  if (!wallet)        { showToast('Önce wallet bağla!','error'); return; }
+  if (!wallet)        { showToast('Önce cüzdan bağla!','error'); return; }
   if (!myCountry)     { showToast('Önce ülke seç!','error'); openModal('nation'); return; }
   if (!targetCountry) { showToast('Haritadan hedef seç!','error'); return; }
   const btn = document.getElementById('attackBtn');
@@ -2043,7 +2081,7 @@ let _bulkOriginal = 0;
 let myBulletsCount = 0; // updatePlayerUI'da güncelleniyor — referans
 
 async function bulkAttack(n) {
-  if (!wallet)        { showToast('Önce wallet bağla!','error'); return; }
+  if (!wallet)        { showToast('Önce cüzdan bağla!','error'); return; }
   if (!myCountry)     { showToast('Önce ülke seç!','error'); return; }
   if (!targetCountry) { showToast('Haritadan hedef seç!','error'); return; }
   if (_bulkActive)    { showToast('Zaten toplu saldırı var!','error'); return; }
@@ -2208,7 +2246,7 @@ function ethToWeiHex(ethStr) {
 }
 
 async function buyAmmo(pack) {
-  if (!wallet) { showToast('Önce wallet bağla!','error'); return; }
+  if (!wallet) { showToast('Önce cüzdan bağla!','error'); return; }
   if (!window.ethereum) { showToast('MetaMask bulunamadı!','error'); return; }
 
   const ethAmount = AMMO_PRICE_ETH[pack];
@@ -2324,7 +2362,7 @@ function _updateAllianceUI(data) {
 }
 
 function openAllianceModal(mode) {
-  if (!wallet) { showToast('Önce wallet bağla!','error'); return; }
+  if (!wallet) { showToast('Önce cüzdan bağla!','error'); return; }
   if (myAlliance && mode === 'create') {
     showToast('Zaten bir ittifaktasın. Önce ayrıl.','error');
     return;
@@ -2418,13 +2456,13 @@ function showAllianceMembers() {
 
 /* ── RADIO ── */
 function openRadioModal() {
-  if (!wallet) { showToast('Önce wallet bağla!','error'); return; }
+  if (!wallet) { showToast('Önce cüzdan bağla!','error'); return; }
   document.getElementById('radioModal').classList.add('show');
 }
 function closeRadioModal() { document.getElementById('radioModal').classList.remove('show'); }
 
 async function radioCommand(cmd) {
-  if (!wallet) { showToast('Önce wallet bağla!','error'); return; }
+  if (!wallet) { showToast('Önce cüzdan bağla!','error'); return; }
   const labels = {ATTACK_NOW:'⚔️ ŞİMDİ SALDIR',DEFEND:'🛡️ SAVUN',REGROUP:'🔄 YENİDEN TOPLAN',RETREAT:'🏃 GERİ ÇEKİL',FOCUS_FIRE:'🎯 ODAKLI ATEŞ'};
   try {
     await fetch(API+'/api/alliance/radio',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet,command:cmd})});
@@ -2970,12 +3008,12 @@ if(window.ethereum){
       wallet = null;
       myCountry = null;
       targetCountry = null;
-      document.getElementById('walletBtn').textContent='WALLET BAĞLA';
+      document.getElementById('walletBtn').textContent='CÜZDAN BAĞLA';
       document.getElementById('walletBtn').className='btn-wallet';
       document.getElementById('myBullets').textContent = '0';
       document.getElementById('myContrib').textContent = '0';
       document.getElementById('ethBal').textContent = '0.000 ETH';
-      showToast('🔌 Wallet bağlantısı kesildi.','error');
+      showToast('🔌 Cüzdan bağlantısı kesildi.','error');
     } else {
       // Hesap değişti — yeni wallet ile yeniden başla
       const newWallet = accounts[0];
@@ -2985,7 +3023,7 @@ if(window.ethereum){
         targetCountry = null;
         document.getElementById('myBullets').textContent = '0';
         document.getElementById('myContrib').textContent = '0';
-        showToast('🔄 Wallet değişti, yeni profil yükleniyor...','info');
+        showToast('🔄 Cüzdan değişti, yeni profil yükleniyor...','info');
       }
       wallet = newWallet;
       document.getElementById('walletBtn').textContent=wallet.slice(0,6)+'...'+wallet.slice(-4);
@@ -2999,11 +3037,125 @@ if(window.ethereum){
   });
 }
 
+/* ── GERİ BİLDİRİM ── */
+let _feedbackType = 'bug';
+
+function openFeedbackModal() {
+  document.getElementById('feedbackModal').classList.add('show');
+  document.getElementById('feedbackInput').value = '';
+  document.getElementById('fbCount').textContent = '0 / 500';
+  setTimeout(()=>document.getElementById('feedbackInput').focus(), 100);
+}
+function closeFeedbackModal() {
+  document.getElementById('feedbackModal').classList.remove('show');
+}
+function setFeedbackType(type, el) {
+  _feedbackType = type;
+  document.querySelectorAll('.fb-tag-btn').forEach(b => b.classList.remove('fb-tag-active'));
+  if (el) el.classList.add('fb-tag-active');
+}
+document.getElementById('feedbackModal').addEventListener('click', function(e){ if(e.target===this) closeFeedbackModal(); });
+document.getElementById('feedbackInput').addEventListener('input', function() {
+  document.getElementById('fbCount').textContent = `${this.value.length} / 500`;
+});
+
+function submitFeedback() {
+  const text = document.getElementById('feedbackInput').value.trim();
+  if (!text) { showToast('Lütfen mesajını yaz','error'); return; }
+  if (text.length < 5) { showToast('Mesaj çok kısa','error'); return; }
+
+  const labels = { bug:'🐛 BUG', idea:'💡 ÖNERİ', praise:'⭐ BEĞENİ', other:'❓ DİĞER' };
+  const browserInfo = `${navigator.userAgent.split(' ').slice(-2).join(' ')}`;
+  const time = new Date().toLocaleString('tr-TR');
+  const walletShort = wallet ? wallet.slice(0,6)+'...'+wallet.slice(-4) : 'Bağlı değil';
+  const nick = myNickname || 'Yok';
+  const country = myCountry || 'Yok';
+
+  const formatted = `[ABSWAR ${labels[_feedbackType]||_feedbackType}]
+Tarih: ${time}
+Oyuncu: ${nick} (${walletShort})
+Ülke: ${country}
+Tarayıcı: ${browserInfo}
+URL: ${window.location.href}
+
+---
+${text}`;
+
+  try {
+    navigator.clipboard.writeText(formatted).then(()=> {
+      showToast('📋 Panoya kopyalandı! Twitter/Discord/e-postaya yapıştırabilirsin.','success');
+      closeFeedbackModal();
+    }).catch(()=> {
+      // Fallback
+      prompt('Mesajı kopyala:', formatted);
+      closeFeedbackModal();
+    });
+  } catch(e) {
+    prompt('Mesajı kopyala:', formatted);
+    closeFeedbackModal();
+  }
+}
+
+/* ── URL PARAMETRELERİ ── */
+function _parseUrlParams() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    return {
+      country: (params.get('country') || params.get('c') || '').toUpperCase() || null,
+      target:  (params.get('target')  || params.get('t') || '').toUpperCase() || null
+    };
+  } catch(e) { return { country:null, target:null }; }
+}
+
+function _applyUrlParams() {
+  const p = _parseUrlParams();
+  if (!p.country && !p.target) return;
+
+  if (p.country && CD[p.country]) {
+    const c = CD[p.country];
+    setTimeout(()=> {
+      // Haritayı kullanıcının ilgilendiği yere kaydır
+      const svg = document.querySelector('#mainMap svg') || document.querySelector('.map-cell svg');
+      if (svg) {
+        try {
+          // Vurgu — kısa süreli pulse
+          const path = document.getElementById(p.country);
+          if (path) {
+            path.classList.add('country-pulse');
+            setTimeout(()=> path.classList.remove('country-pulse'), 3500);
+          }
+        } catch(e){}
+      }
+      showToast(`🔗 Paylaşılan ülke: ${c.f||''} ${c.n||p.country}`, 'info');
+
+      // Target olarak seç (wallet bağlıysa)
+      if (p.target && CD[p.target]) {
+        setTimeout(()=> { try { selectTarget(p.target); } catch(e){} }, 1500);
+      }
+    }, 1200);
+  }
+}
+
+/* Mevcut bir ülke paylaşmak için URL üret */
+function copyCountryLink(code) {
+  if (!code) return;
+  const url = `${window.location.origin}${window.location.pathname}?country=${code}`;
+  try {
+    navigator.clipboard.writeText(url).then(()=> {
+      showToast(`🔗 Link kopyalandı: ${code}`, 'success');
+    });
+  } catch(e) {
+    // Fallback — prompt göster
+    prompt('Linki kopyala:', url);
+  }
+}
+
 /* ── INIT ── */
 buildMap();
 renderLabels();
 renderResources();
 pollState();
+_applyUrlParams();
 setInterval(pollState,15000);
 </script>
 </body>
