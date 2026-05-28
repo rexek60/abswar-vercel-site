@@ -187,6 +187,32 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 </style>
 </head>
 <body>
+<!-- Hoş geldin overlay (wallet bağlı değilken) -->
+<div id="welcomeOverlay" style="position:fixed;inset:0;z-index:5000;background:radial-gradient(ellipse at 50% 35%, rgba(20,40,60,0.92), rgba(5,10,15,0.96));backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:20px">
+  <svg width="80" height="80" viewBox="0 0 64 64" style="margin-bottom:18px">
+    <circle cx="32" cy="32" r="26" fill="none" stroke="#00c853" stroke-width="2"/>
+    <circle cx="32" cy="32" r="18" fill="none" stroke="#00c853" stroke-width="1.5" opacity="0.6"/>
+    <circle cx="32" cy="32" r="10" fill="none" stroke="#00c853" stroke-width="1" opacity="0.4"/>
+    <path d="M32 6 L32 58 M6 32 L58 32" stroke="#00c853" stroke-width="1" opacity="0.5"/>
+    <circle cx="32" cy="32" r="3" fill="#e8162a">
+      <animate attributeName="r" values="3;5;3" dur="1.8s" repeatCount="indefinite"/>
+    </circle>
+  </svg>
+  <div style="font-family:var(--hud);font-size:36px;letter-spacing:8px;color:#fff;font-weight:900;margin-bottom:6px">ABSWAR</div>
+  <div style="font-family:var(--hud);font-size:11px;letter-spacing:4px;color:var(--green);margin-bottom:24px">KÜRESEL SAVAŞ MMO · ABSTRACT TESTNET</div>
+  <div style="font-family:var(--ui);font-size:14px;color:var(--text);max-width:480px;line-height:1.6;margin-bottom:28px">
+    119 ülkeden birini seç, ittifak kur, savaş alanına gir. Web3 cüzdanınla bağlan, mermi al, hedeflerini eli yenmesi için saldır.
+  </div>
+  <button onclick="connectWallet()" style="background:linear-gradient(180deg,#e8162a,#a01020);border:none;color:#fff;font-family:var(--hud);font-size:13px;letter-spacing:3px;padding:14px 36px;cursor:pointer;font-weight:700;box-shadow:0 4px 20px rgba(232,22,42,0.4),inset 0 1px 0 rgba(255,255,255,0.15)">
+    🔗 WALLET BAĞLA & SAVAŞA KATIL
+  </button>
+  <button onclick="dismissWelcome()" style="background:transparent;border:none;color:var(--dim);font-family:var(--mono);font-size:10px;padding:14px;margin-top:8px;cursor:pointer">
+    Önce çevreyi gözden geçirmek istiyorum →
+  </button>
+  <div style="margin-top:32px;font-family:var(--mono);font-size:10px;color:var(--dim);max-width:420px;line-height:1.6">
+    ⚠️ Test ağında çalışır. Gerçek para gerekmez. Test ETH almak için Sepolia faucet kullan, sonra Abstract köprüsünden geçir.
+  </div>
+</div>
 <!-- Bağlantı kayıp uyarısı -->
 <div id="offlineBanner" style="display:none;position:fixed;top:0;left:0;right:0;background:var(--red);color:#fff;font-family:var(--hud);font-size:11px;padding:8px 14px;z-index:9999;align-items:center;justify-content:center;gap:10px;letter-spacing:1.5px">
   <span style="font-size:14px">⚠️</span>
@@ -376,7 +402,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     <!-- Dönen tarama ışını -->
     <g id="radarSweep" style="transform-origin:500px 250px">
       <polygon points="500,250 500,0 720,40" fill="url(#sweepGrad)" opacity="0.7"/>
-      <animateTransform attributeName="transform" type="rotate"
+      <animateTransform id="radarRotateAnim" attributeName="transform" type="rotate"
         from="0 500 250" to="360 500 250" dur="12s" repeatCount="indefinite"/>
     </g>
 
@@ -527,11 +553,16 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 
 <!-- Alliance Chat -->
 <div class="cell" id="panel-ittifak" style="grid-column:2;grid-row:2">
-  <div class="sh">İTTİFAK SOHBETİ <span style="font-family:var(--mono);font-size:8px;color:var(--green)" id="allianceTag">🇹🇷 İTTİFAK YOK</span></div>
-  <div style="display:flex;gap:4px;padding:5px 8px;border-bottom:1px solid var(--border);flex-shrink:0">
+  <div class="sh">İTTİFAK SOHBETİ <span style="font-family:var(--mono);font-size:8px;color:var(--green)" id="allianceTag">İTTİFAK YOK</span> <span id="allianceMeta" style="font-family:var(--mono);font-size:8px;color:var(--dim);margin-left:6px"></span></div>
+  <div id="allianceBtnRow" style="display:flex;gap:4px;padding:5px 8px;border-bottom:1px solid var(--border);flex-shrink:0">
     <button class="btn-sm btn-red" style="flex:1" onclick="openAllianceModal('create')">+ İTTİFAK KUR</button>
     <button class="btn-sm btn-out" style="flex:1" onclick="openAllianceModal('join')">İTTİFAKA KATIL</button>
     <button class="btn-sm btn-out" style="flex:1" onclick="openRadioModal()">📻 TELSİZ</button>
+  </div>
+  <div id="allianceMemberRow" style="display:none;padding:5px 8px;border-bottom:1px solid var(--border);flex-shrink:0;gap:4px">
+    <button class="btn-sm btn-out" style="flex:1" onclick="showAllianceMembers()">👥 ÜYELER</button>
+    <button class="btn-sm btn-out" style="flex:1" onclick="openRadioModal()">📻 TELSİZ</button>
+    <button class="btn-sm btn-out" style="flex:1;color:var(--red);border-color:rgba(232,22,42,0.4)" onclick="leaveAlliance()">✕ AYRIL</button>
   </div>
   <div class="chat-body" id="chatBody">
     <div style="padding:20px;text-align:center;color:var(--dim);font-size:10px" id="chatEmpty">İttifak sohbeti boş — ilk mesajı sen yaz</div>
@@ -985,6 +1016,31 @@ const LAND_PATHS = ["M557,134L558,137L557,139L555,139L554,135L554,133L556,132L55
 let wallet=null, myCountry=null, targetCountry=null, toastTimer=null, modalMode='nation';
 let gameCountries=[], attackLineTimer=null;
 
+/* ── HOŞ GELDİN OVERLAY ── */
+function dismissWelcome() {
+  const ov = document.getElementById('welcomeOverlay');
+  if (ov) { ov.style.transition='opacity 0.4s'; ov.style.opacity='0'; setTimeout(()=>ov.remove(), 450); }
+}
+
+/* ── SEKME BAŞLIĞI BİLDİRİM SAYACI ── */
+const BASE_TITLE = 'ABSWAR — Küresel Savaş MMO';
+let _unseenCount = 0;
+let _tabVisible = !document.hidden;
+document.addEventListener('visibilitychange', () => {
+  _tabVisible = !document.hidden;
+  if (_tabVisible) {
+    _unseenCount = 0;
+    document.title = BASE_TITLE;
+  }
+});
+function notifyTab(msg) {
+  // Sadece sekme arka plandayken sayacı arttır
+  if (!_tabVisible) {
+    _unseenCount++;
+    document.title = `(${_unseenCount}) ⚔️ ${BASE_TITLE}`;
+  }
+}
+
 /* ── YARDIM EKRANI ── */
 function openHelp() { document.getElementById('helpModal').classList.add('show'); }
 function closeHelp() { document.getElementById('helpModal').classList.remove('show'); }
@@ -1072,6 +1128,31 @@ async function startNextRound() {
 let radarLevel = 3;
 const RADAR_MAX = 10;
 
+function _applyRadarVisual(level) {
+  // Seviye 3 = 12sn, her seviye -1sn (max 10 = 5sn)
+  const sweepDur = Math.max(3, 13 - level); // saniye
+  const beamDur  = Math.max(3, 11 - level);
+  const sweepAnim = document.getElementById('radarRotateAnim');
+  if (sweepAnim) {
+    sweepAnim.setAttribute('dur', sweepDur+'s');
+    // Animasyonu yeniden başlat
+    try { sweepAnim.beginElement(); } catch(e){}
+  }
+  const beam = document.getElementById('scanBeam');
+  if (beam) {
+    const beamAnim = beam.querySelector('animate');
+    if (beamAnim) {
+      beamAnim.setAttribute('dur', beamDur+'s');
+      try { beamAnim.beginElement(); } catch(e){}
+    }
+  }
+  // Tarama parlaklığını artır (yüksek seviyede daha güçlü)
+  const sweepPolygon = document.querySelector('#radarSweep polygon');
+  if (sweepPolygon) {
+    sweepPolygon.setAttribute('opacity', Math.min(1, 0.5 + level*0.05));
+  }
+}
+
 function upgradeRadar() {
   if (radarLevel >= RADAR_MAX) {
     showToast('📡 Radar zaten maksimum seviyede!','info');
@@ -1080,14 +1161,15 @@ function upgradeRadar() {
   if (!wallet) { showToast('Önce wallet bağla!','error'); return; }
   radarLevel++;
   document.getElementById('radarLevel').textContent = radarLevel;
+  _applyRadarVisual(radarLevel);
   const btn = document.getElementById('radarUpgradeBtn');
   if (radarLevel >= RADAR_MAX) {
     btn.textContent = 'MAKSİMUM';
     btn.disabled = true;
     btn.style.opacity = '0.5';
   }
-  showToast(`📡 Radar Seviye ${radarLevel}'e yükseltildi! Tespit menzili arttı.`,'success');
-  if (typeof addChatSystem === 'function') addChatSystem(`📡 Radar sistemi Seviye ${radarLevel}'e yükseltildi`);
+  showToast(`📡 Radar Seviye ${radarLevel} — tarama hızı arttı!`,'success');
+  if (typeof addChatSystem === 'function') addChatSystem(`📡 Radar Seviye ${radarLevel} → tarama hızı ${Math.max(3, 13-radarLevel)}sn`);
 }
 
 /* ── KAYNAK KONTROLÜ ── */
@@ -1572,6 +1654,7 @@ async function connectWallet() {
     const btn = document.getElementById('walletBtn');
     btn.textContent = wallet.slice(0,6)+'...'+wallet.slice(-4);
     btn.className = 'btn-wallet connected';
+    dismissWelcome();
     await registerPlayer();
   } catch(e) { showToast('Bağlantı iptal edildi.','error'); }
 }
@@ -1884,10 +1967,39 @@ function sendChat() {
 }
 
 /* ── ALLIANCE ── */
-let myAlliance = null;
+let myAlliance = null;       // ID
+let myAllianceData = null;   // {id, name, leader, members, ...}
+
+function _toggleAllianceButtons() {
+  const inAlliance = !!myAlliance;
+  document.getElementById('allianceBtnRow').style.display    = inAlliance ? 'none' : 'flex';
+  document.getElementById('allianceMemberRow').style.display = inAlliance ? 'flex' : 'none';
+}
+
+function _updateAllianceUI(data) {
+  myAllianceData = data || null;
+  const tag = document.getElementById('allianceTag');
+  const meta = document.getElementById('allianceMeta');
+  if (data) {
+    tag.textContent = `🛡️ ${String(data.name || data.id).toUpperCase()}`;
+    tag.style.color = 'var(--green)';
+    const count = data.memberCount || (data.members ? data.members.length : 1);
+    const isLeader = (data.leader && wallet && data.leader.toLowerCase() === wallet.toLowerCase());
+    meta.textContent = `${count} üye${isLeader ? ' · LİDER' : ''}`;
+  } else {
+    tag.textContent = 'İTTİFAK YOK';
+    tag.style.color = 'var(--dim)';
+    meta.textContent = '';
+  }
+  _toggleAllianceButtons();
+}
 
 function openAllianceModal(mode) {
   if (!wallet) { showToast('Önce wallet bağla!','error'); return; }
+  if (myAlliance && mode === 'create') {
+    showToast('Zaten bir ittifaktasın. Önce ayrıl.','error');
+    return;
+  }
   document.getElementById('createForm').style.display = mode==='create' ? 'block' : 'none';
   document.getElementById('joinForm').style.display   = mode==='join'   ? 'block' : 'none';
   document.getElementById('allianceModalTitle').textContent = mode==='create' ? 'İTTİFAK KUR' : 'İTTİFAKA KATIL';
@@ -1905,12 +2017,12 @@ async function createAlliance() {
     const res = await fetch(API+'/api/alliance/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet,name})});
     const data = await res.json();
     if (data.error) { showToast(data.error,'error'); return; }
-    myAlliance = data.allianceId || data.id || name;
-    document.getElementById('allianceTag').textContent = `🛡️ ${name.toUpperCase()}`;
-    document.getElementById('allianceTag').style.color = 'var(--green)';
-    showToast(`✅ İttifak kuruldu: ${name}`,'success');
+    const a = data.alliance || data;
+    myAlliance = a.id || data.allianceId || name;
+    _updateAllianceUI(a);
+    showToast(`✅ İttifak kuruldu: ${a.name||name}`,'success');
     closeAllianceModal();
-    addChatSystem(`İttifak "${name}" kuruldu! ID: ${myAlliance}`);
+    addChatSystem(`İttifak "${a.name||name}" kuruldu! ID: ${myAlliance}`);
   } catch(e) { showToast('İttifak kurulamadı.','error'); }
 }
 
@@ -1921,14 +2033,58 @@ async function joinAlliance() {
     const res = await fetch(API+'/api/alliance/join',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet,allianceId:id})});
     const data = await res.json();
     if (data.error) { showToast(data.error,'error'); return; }
-    myAlliance = id;
-    const name = data.name || data.allianceName || id;
-    document.getElementById('allianceTag').textContent = `🛡️ ${String(name).toUpperCase()}`;
-    document.getElementById('allianceTag').style.color = 'var(--green)';
+    const a = data.alliance || data;
+    myAlliance = a.id || id;
+    _updateAllianceUI(a);
     showToast(`✅ İttifaka katıldın!`,'success');
     closeAllianceModal();
-    addChatSystem(`İttifaka katıldın!`);
+    addChatSystem(`İttifaka katıldın: ${a.name || ''}`);
   } catch(e) { showToast('İttifaka katılınamadı.','error'); }
+}
+
+async function leaveAlliance() {
+  if (!myAlliance) return;
+  if (!confirm('İttifaktan ayrılmak istediğine emin misin?')) return;
+  try {
+    const res = await fetch(API+'/api/alliance/leave',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet})});
+    const data = await res.json();
+    if (data.error) { showToast(data.error,'error'); return; }
+    myAlliance = null;
+    _updateAllianceUI(null);
+    showToast('İttifaktan ayrıldın','info');
+    addChatSystem('İttifaktan ayrıldın');
+  } catch(e) { showToast('İşlem başarısız','error'); }
+}
+
+function showAllianceMembers() {
+  if (!myAllianceData) { showToast('Önce ittifaka katıl','error'); return; }
+  const a = myAllianceData;
+  const members = a.members || [];
+  let html = `<div style="text-align:left;font-family:var(--ui);font-size:12px;color:var(--text);line-height:1.6">`;
+  html += `<div style="margin-bottom:10px"><b style="color:var(--green)">İttifak:</b> ${a.name || a.id}</div>`;
+  html += `<div style="margin-bottom:10px"><b style="color:var(--gold)">Lider:</b> ${(a.leader||'?').slice(0,8)}...${(a.leader||'').slice(-4)}</div>`;
+  html += `<div style="margin-bottom:6px"><b>Üyeler (${members.length}/50):</b></div>`;
+  html += `<div style="max-height:300px;overflow-y:auto;border:1px solid var(--border);padding:8px;background:rgba(0,0,0,0.2)">`;
+  members.forEach((m, i) => {
+    const isLeader = m === a.leader;
+    const isMe = wallet && m.toLowerCase() === wallet.toLowerCase();
+    html += `<div style="padding:4px 0;display:flex;justify-content:space-between;border-bottom:1px solid var(--border)">
+      <span>${i+1}. ${m.slice(0,6)}...${m.slice(-4)}${isMe?' <span style="color:var(--green)">(SEN)</span>':''}</span>
+      ${isLeader ? '<span style="color:var(--gold)">👑 LİDER</span>' : ''}
+    </div>`;
+  });
+  html += `</div></div>`;
+  // Mevcut bir modal yok — basit overlay göster
+  const ov = document.createElement('div');
+  ov.className = 'modal show';
+  ov.style.zIndex = 2000;
+  ov.innerHTML = `<div class="modal-box" style="width:420px;max-width:92vw">
+    <button class="modal-close" onclick="this.closest('.modal').remove()">✕ KAPAT</button>
+    <div class="modal-title">👥 İTTİFAK ÜYELERİ</div>
+    ${html}
+  </div>`;
+  ov.addEventListener('click', function(e){ if (e.target===this) this.remove(); });
+  document.body.appendChild(ov);
 }
 
 /* ── RADIO ── */
@@ -2027,6 +2183,21 @@ async function pollState() {
     if (data?.countries) updateLeaderboard(data.countries);
     if (data?.onlinePlayers!=null) document.getElementById('onlineCount').textContent=Number(data.onlinePlayers).toLocaleString('tr-TR');
     if (data?.round) setRoundFromState(data.round);
+    // İttifak senkronizasyonu
+    if (wallet && data?.alliances) {
+      const myAll = data.alliances.find(a =>
+        a.members && a.members.some(m => m.toLowerCase() === wallet.toLowerCase())
+      );
+      if (myAll && !myAlliance) {
+        myAlliance = myAll.id;
+        _updateAllianceUI(myAll);
+      } else if (myAll) {
+        _updateAllianceUI(myAll); // Üye sayısı vs. güncellensin
+      } else if (!myAll && myAlliance) {
+        myAlliance = null;
+        _updateAllianceUI(null);
+      }
+    }
   } catch(e){
     _consecutiveFailures++;
     if (_consecutiveFailures >= 2) setBackendStatus(false);
@@ -2428,7 +2599,12 @@ ioScript.onload=()=>{
   socket.on('connect_error',()=>{ setBackendStatus(false); });
   socket.on('war:attack',(d)=>{
     const from=d.attackerCountry||d.from||'', to=d.targetCountry||d.to||'';
-    if(from&&to){ addActivity(from,to); drawAttackLine(from,to); }
+    if(from&&to){
+      addActivity(from,to);
+      drawAttackLine(from,to);
+      // Kendi ülken hedefse sekme başlığında bildirim
+      if (to === myCountry) notifyTab();
+    }
   });
   socket.on('hp:update',(d)=>{ updateHP(d.target||d.targetCountry, d.newHP||d.hp); });
   socket.on('war:state',(d)=>{ if(d?.countries) updateLeaderboard(d.countries); if(d?.round) setRoundFromState(d.round); });
