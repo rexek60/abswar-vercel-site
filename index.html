@@ -580,7 +580,8 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     <div class="ys-row"><span class="ys-l">ÖLDÜRME</span><span class="ys-v red" id="ysKills">0</span></div>
     <div class="ys-row"><span class="ys-l">ÖLÜM</span><span class="ys-v" id="ysDeaths">0</span></div>
     <div class="ys-row"><span class="ys-l">KATKI PUANI</span><span class="ys-v green" id="ysScore">0</span></div>
-    <div class="ys-row"><span class="ys-l">RÜTBE</span><span class="ys-v">Komutan</span></div>
+    <div class="ys-row"><span class="ys-l">RÜTBE</span><span class="ys-v" id="ysRank" style="color:var(--gold)">🪖 Asker</span></div>
+    <div class="ys-row"><span class="ys-l">SONRAKI</span><span class="ys-v" id="ysNextRank" style="font-size:10px;color:var(--dim)">Onbaşı (50 katkı)</span></div>
     <div class="ys-row"><span class="ys-l">ÜLKE</span><span class="ys-v" id="ysCountry">— SEÇİLMEDİ —</span></div>
   </div>
 </div>
@@ -765,12 +766,28 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
       </div>
 
       <div style="border-left:3px solid #f5c842;padding-left:12px">
-        <div style="font-family:var(--hud);font-size:11px;color:#f5c842;letter-spacing:2px;margin-bottom:4px">6 · KAYNAK ÜRET</div>
-        Kaynak panelinde her bir kaynağa tıklayınca seviyesi yükselir. Üretim 1 mermi harcar. "TÜMÜNÜ ÜRET" hepsini birden artırır.
+        <div style="font-family:var(--hud);font-size:11px;color:#f5c842;letter-spacing:2px;margin-bottom:4px">6 · KAYNAK SİSTEMİ</div>
+        Her kaynak farklı işe yarar (1 mermi → +10 seviye):<br>
+        <span style="color:var(--dim);font-size:11px">
+        🛢️ <b>Petrol</b> — %100'e ulaşırsa <b>+10 mermi</b> (sıfırlanır)<br>
+        ⚙️ <b>Metal</b> — Her seviye için <b>+%1 ekstra hasar</b> (max %10)<br>
+        ☢️ <b>Uranyum</b> — Her seviye için <b>+%1 kalkan</b> (savunma)<br>
+        ⚡ <b>Enerji</b> — %100'e ulaşırsa ülkene <b>+50 HP</b> (sıfırlanır)
+        </span>
+      </div>
+
+      <div style="border-left:3px solid #ff6b7a;padding-left:12px">
+        <div style="font-family:var(--hud);font-size:11px;color:#ff6b7a;letter-spacing:2px;margin-bottom:4px">7 · RÜTBE SİSTEMİ</div>
+        Katkı puanına göre rütben yükselir. Her rütbe <b>katkı bonusu</b> verir — saldırı başına daha çok puan kazanırsın:<br>
+        <span style="color:var(--dim);font-size:11px;line-height:1.7">
+        🪖 Asker (0) · 🎖 Onbaşı (50, +%5) · 🎖🎖 Çavuş (200, +%10)<br>
+        ⭐ Teğmen (500, +%15) · ⭐⭐ Yüzbaşı (1.500, +%20)<br>
+        ⭐⭐⭐ Binbaşı (5.000, +%25) · ⭐⭐⭐⭐ General (15.000, +%30)
+        </span>
       </div>
 
       <div style="border-left:3px solid var(--dim);padding-left:12px">
-        <div style="font-family:var(--hud);font-size:11px;color:var(--dim);letter-spacing:2px;margin-bottom:4px">7 · HARİTA RENKLERİ</div>
+        <div style="font-family:var(--hud);font-size:11px;color:var(--dim);letter-spacing:2px;margin-bottom:4px">8 · HARİTA RENKLERİ</div>
         Yeşil = sağlam · Sarı = hasarlı · Turuncu = kritik · Kırmızı = ölmek üzere · Gri = elenen.
       </div>
 
@@ -1432,12 +1449,13 @@ async function upgradeRadar() {
 }
 
 /* ── KAYNAK KONTROLÜ ── */
+/* ── KAYNAK SİSTEMİ ── */
+// 4 kaynak — her birinin farklı oyun etkisi var
 const RESOURCES = [
-  { id:'oil',  name:'PETROL',     icon:'🛢️', val:72.5, chg:126,  grad:'linear-gradient(90deg,#e8162a,#ff4500)' },
-  { id:'gas',  name:'GAZ',        icon:'💧', val:64.3, chg:56,   grad:'linear-gradient(90deg,#e87016,#ffaa00)' },
-  { id:'metal',name:'METAL',      icon:'⚙️', val:81.7, chg:150,  grad:'linear-gradient(90deg,#888,#ccc)' },
-  { id:'tech', name:'TEKNOLOJİ',  icon:'💻', val:55.2, chg:70,   grad:'linear-gradient(90deg,#0066ff,#00aaff)' },
-  { id:'energy',name:'ENERJİ',    icon:'⚡', val:88.1, chg:-12,  grad:'linear-gradient(90deg,#f5c842,#ffee00)' },
+  { id:'oil',     name:'PETROL',  icon:'🛢️', val:0, effect:'%100 → +10 mermi',         grad:'linear-gradient(90deg,#a05020,#ff8040)' },
+  { id:'metal',   name:'METAL',   icon:'⚙️', val:0, effect:'Seviye×%1 ekstra hasar',    grad:'linear-gradient(90deg,#666,#bbb)' },
+  { id:'uranium', name:'URANYUM', icon:'☢️', val:0, effect:'Seviye×%1 kalkan (savunma)', grad:'linear-gradient(90deg,#00aa55,#66ff99)' },
+  { id:'energy',  name:'ENERJİ',  icon:'⚡', val:0, effect:'%100 → ülkene +50 HP',       grad:'linear-gradient(90deg,#f5c842,#ffee55)' },
 ];
 
 function renderResources() {
@@ -1448,69 +1466,81 @@ function renderResources() {
     const row = document.createElement('div');
     row.className = 'res-row';
     row.style.cursor = 'pointer';
-    row.title = 'Üretmek için tıkla';
+    row.title = `Üretmek için tıkla (1 mermi) — ${r.effect}`;
     row.onclick = ()=>produceResource(r.id);
-    const chgClass = r.chg >= 0 ? 'pos' : 'neg';
-    const chgTxt = (r.chg >= 0 ? '+' : '') + r.chg + '%';
     row.innerHTML = `
       <div class="res-hdr">
         <span class="res-name">${r.icon} ${r.name}</span>
-        <span class="res-pct">${r.val.toFixed(1)}%</span>
+        <span class="res-pct">${r.val.toFixed(0)}%</span>
       </div>
       <div class="res-bar"><div class="res-fill" style="width:${r.val}%;background:${r.grad}"></div></div>
-      <div class="res-chg ${chgClass}">${chgTxt}</div>`;
+      <div class="res-chg" style="font-size:8px;color:var(--dim);margin-top:2px">${r.effect}</div>`;
     list.appendChild(row);
   });
 }
 
-function produceResource(id) {
+async function produceResource(id) {
   const r = RESOURCES.find(x=>x.id===id);
   if (!r) return;
-  if (r.val >= 100) { showToast(`${r.icon} ${r.name} zaten %100!`,'info'); return; }
-  // 1 mermi ücreti
-  const curB = parseInt((document.getElementById('myBullets').textContent||'0').replace(/\D/g,''))||0;
   if (!wallet) { showToast('Önce cüzdan bağla!','error'); return; }
-  if (curB < 1) { showToast('Yeterli merminiz yok! Pazardan mermi alın.','error'); return; }
-  // Optimistic UI: mermiyi düş
-  document.getElementById('myBullets').textContent = (curB-1).toLocaleString('tr-TR');
-  r.val = Math.min(100, r.val + (Math.random()*8 + 4));
-  r.chg = Math.abs(r.chg) + Math.floor(Math.random()*20);
-  renderResources();
-  showToast(`${r.icon} ${r.name} üretimi arttı → %${r.val.toFixed(1)} (-1 mermi)`,'success');
-  // Backend ile senkron
-  refreshPlayerState();
-}
-
-function boostAllResources() {
-  if (!wallet) { showToast('Önce cüzdan bağla!','error'); return; }
-  const curB = parseInt((document.getElementById('myBullets').textContent||'0').replace(/\D/g,''))||0;
-  if (curB < 1) { showToast('Yeterli merminiz yok! Pazardan mermi alın.','error'); return; }
-  let any = false;
-  RESOURCES.forEach(r => {
-    if (r.val < 100) {
-      r.val = Math.min(100, r.val + (Math.random()*6 + 3));
-      r.chg = Math.abs(r.chg) + Math.floor(Math.random()*15);
-      any = true;
+  if (myBulletsCount < 1) { showToast('Yetersiz mermi! Pazardan al.','error'); return; }
+  if (r.val >= 100 && (id === 'metal' || id === 'uranium')) {
+    showToast(`${r.icon} ${r.name} zaten %100 — sürekli aktif`,'info');
+    return;
+  }
+  try {
+    const res = await fetch(API+'/api/player/produce-resource',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({wallet, resource:id}),
+      signal: AbortSignal.timeout(8000)
+    });
+    let data = {};
+    try { data = await res.json(); } catch(_){}
+    if (!res.ok || data.error) {
+      showToast(data.error || `Sunucu hatası (${res.status})`,'error');
+      return;
     }
-  });
-  renderResources();
-  if (any) {
-    document.getElementById('myBullets').textContent = (curB-1).toLocaleString('tr-TR');
-    showToast('🏭 Tüm kaynaklar üretimde — seviyeler yükseldi! (-1 mermi)','success');
-    refreshPlayerState();
-  } else {
-    showToast('Tüm kaynaklar zaten maksimumda!','info');
+    // Backend'den gerçek değerleri al
+    if (data.player) {
+      updatePlayerUI(data.player);
+      _applyResourcesFromPlayer(data.player);
+    }
+    // Bonus ödülü mü tetiklendi?
+    if (data.bonus) {
+      showToast(data.bonus.message,'success');
+      playSound && playSound('purchase');
+    } else {
+      showToast(`${r.icon} ${r.name} +10 (-1 mermi)`,'success');
+      playSound && playSound('click');
+    }
+  } catch(e) {
+    showToast('Üretim başarısız','error');
   }
 }
 
-// Kaynaklar zamanla hafif dalgalanır (canlı his)
-setInterval(()=>{
-  RESOURCES.forEach(r=>{
-    const drift = (Math.random()-0.45) * 1.5;
-    r.val = Math.max(15, Math.min(100, r.val + drift));
+function _applyResourcesFromPlayer(p) {
+  if (!p || !p.resources) return;
+  RESOURCES.forEach(r => {
+    if (p.resources[r.id] != null) r.val = p.resources[r.id];
   });
   renderResources();
-}, 8000);
+}
+
+async function boostAllResources() {
+  if (!wallet) { showToast('Önce cüzdan bağla!','error'); return; }
+  const eligible = RESOURCES.filter(r => r.val < 100 || (r.id !== 'metal' && r.id !== 'uranium'));
+  if (myBulletsCount < eligible.length) {
+    showToast(`Yetersiz mermi! ${eligible.length} gerekir.`,'error');
+    return;
+  }
+  // Sırayla üret
+  for (const r of eligible) {
+    if (r.val >= 100 && (r.id === 'metal' || r.id === 'uranium')) continue;
+    await produceResource(r.id);
+    await new Promise(res => setTimeout(res, 280));
+  }
+}
 
 /* ── ÜST MENÜ — PANEL ODAKLAMA ── */
 function focusPanel(panelId, navEl) {
@@ -1998,6 +2028,7 @@ function updatePlayerUI(p) {
     const c = +p.contribution;
     document.getElementById('myContrib').textContent = c.toLocaleString('tr-TR');
     document.getElementById('ysScore').textContent   = c.toLocaleString('tr-TR');
+    updateRankUI(c);
   }
   if (p.kills != null) {
     document.getElementById('ysKills').textContent = (+p.kills).toLocaleString('tr-TR');
@@ -2005,6 +2036,8 @@ function updatePlayerUI(p) {
   if (p.deaths != null) {
     document.getElementById('ysDeaths').textContent = (+p.deaths).toLocaleString('tr-TR');
   }
+  // Kaynaklar
+  if (p.resources) _applyResourcesFromPlayer(p);
 }
 
 async function refreshPlayerState() {
@@ -3099,6 +3132,45 @@ if(window.ethereum){
     showToast('🔗 Ağ değişti, sayfa yenileniyor...','info');
     setTimeout(()=>location.reload(),800);
   });
+}
+
+/* ── RÜTBE SİSTEMİ ── */
+const RANKS_FE = [
+  { min:0,      name:'Asker',    icon:'🪖',          bonus:0 },
+  { min:50,     name:'Onbaşı',   icon:'🎖',          bonus:5 },
+  { min:200,    name:'Çavuş',    icon:'🎖🎖',        bonus:10 },
+  { min:500,    name:'Teğmen',   icon:'⭐',          bonus:15 },
+  { min:1500,   name:'Yüzbaşı',  icon:'⭐⭐',        bonus:20 },
+  { min:5000,   name:'Binbaşı',  icon:'⭐⭐⭐',      bonus:25 },
+  { min:15000,  name:'General',  icon:'⭐⭐⭐⭐',    bonus:30 }
+];
+function getRankFE(contribution) {
+  let r = RANKS_FE[0];
+  for (const rank of RANKS_FE) if (contribution >= rank.min) r = rank;
+  return r;
+}
+function getNextRankFE(contribution) {
+  for (const rank of RANKS_FE) if (contribution < rank.min) return rank;
+  return null;
+}
+function updateRankUI(contribution) {
+  const r = getRankFE(contribution);
+  const next = getNextRankFE(contribution);
+  const rankEl = document.getElementById('ysRank');
+  const nextEl = document.getElementById('ysNextRank');
+  if (rankEl) {
+    rankEl.textContent = `${r.icon} ${r.name}${r.bonus>0?` (+%${r.bonus})`:''}`;
+    rankEl.style.color = r.bonus >= 20 ? '#ff6b7a' : r.bonus >= 10 ? 'var(--gold)' : 'var(--green)';
+  }
+  if (nextEl) {
+    if (next) {
+      const remaining = next.min - contribution;
+      nextEl.textContent = `${next.icon} ${next.name} (${remaining} katkı kaldı)`;
+    } else {
+      nextEl.textContent = '🏆 En yüksek rütbe!';
+      nextEl.style.color = 'var(--gold)';
+    }
+  }
 }
 
 /* ── CÜZDAN MENÜSÜ & ÇIKIŞ ── */
