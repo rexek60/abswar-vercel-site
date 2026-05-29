@@ -323,25 +323,25 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     </circle>
   </svg>
   <div style="font-family:var(--hud);font-size:36px;letter-spacing:8px;color:#fff;font-weight:900;margin-bottom:6px">ABSWAR</div>
-  <div style="font-family:var(--hud);font-size:11px;letter-spacing:4px;color:var(--green);margin-bottom:24px">KÜRESEL SAVAŞ MMO · ABSTRACT TESTNET</div>
-  <div style="font-family:var(--ui);font-size:14px;color:var(--text);max-width:480px;line-height:1.6;margin-bottom:28px">
+  <div style="font-family:var(--hud);font-size:11px;letter-spacing:4px;color:var(--green);margin-bottom:24px" data-i18n="welcome.subtitle">KÜRESEL SAVAŞ MMO · ABSTRACT TESTNET</div>
+  <div style="font-family:var(--ui);font-size:14px;color:var(--text);max-width:480px;line-height:1.6;margin-bottom:28px" data-i18n="welcome.body">
     119 ülkeden birini seç, ittifak kur, savaş alanına gir. Web3 cüzdanınla bağlan, mermi al, hedeflerini eli yenmesi için saldır.
   </div>
-  <button onclick="connectWallet()" style="background:linear-gradient(180deg,#e8162a,#a01020);border:none;color:#fff;font-family:var(--hud);font-size:13px;letter-spacing:3px;padding:14px 36px;cursor:pointer;font-weight:700;box-shadow:0 4px 20px rgba(232,22,42,0.4),inset 0 1px 0 rgba(255,255,255,0.15)">
+  <button onclick="connectWallet()" style="background:linear-gradient(180deg,#e8162a,#a01020);border:none;color:#fff;font-family:var(--hud);font-size:13px;letter-spacing:3px;padding:14px 36px;cursor:pointer;font-weight:700;box-shadow:0 4px 20px rgba(232,22,42,0.4),inset 0 1px 0 rgba(255,255,255,0.15)" data-i18n="welcome.cta">
     🔗 CÜZDAN BAĞLA & SAVAŞA KATIL
   </button>
-  <button onclick="dismissWelcome()" style="background:transparent;border:none;color:var(--dim);font-family:var(--mono);font-size:10px;padding:14px;margin-top:8px;cursor:pointer">
+  <button onclick="dismissWelcome()" style="background:transparent;border:none;color:var(--dim);font-family:var(--mono);font-size:10px;padding:14px;margin-top:8px;cursor:pointer" data-i18n="welcome.skip">
     Önce çevreyi gözden geçirmek istiyorum →
   </button>
-  <div style="margin-top:32px;font-family:var(--mono);font-size:10px;color:var(--dim);max-width:420px;line-height:1.6">
+  <div style="margin-top:32px;font-family:var(--mono);font-size:10px;color:var(--dim);max-width:420px;line-height:1.6" data-i18n="welcome.warning">
     ⚠️ Test ağında çalışır. Gerçek para gerekmez. Test ETH almak için Sepolia faucet kullan, sonra Abstract köprüsünden geçir.
   </div>
 </div>
 <!-- Bağlantı kayıp uyarısı -->
 <div id="offlineBanner" style="display:none;position:fixed;top:0;left:0;right:0;background:var(--red);color:#fff;font-family:var(--hud);font-size:11px;padding:8px 14px;z-index:9999;align-items:center;justify-content:center;gap:10px;letter-spacing:1.5px">
   <span style="font-size:14px">⚠️</span>
-  <span>SUNUCU BAĞLANTISI KAYIP — OTOMATİK YENİDEN DENENİYOR</span>
-  <button onclick="location.reload()" style="background:rgba(255,255,255,0.2);border:1px solid #fff;color:#fff;padding:3px 10px;font-family:var(--hud);font-size:10px;cursor:pointer">🔄 SAYFAYI YENİLE</button>
+  <span data-i18n="conn.lost">SUNUCU BAĞLANTISI KAYIP — OTOMATİK YENİDEN DENENİYOR</span>
+  <button onclick="location.reload()" style="background:rgba(255,255,255,0.2);border:1px solid #fff;color:#fff;padding:3px 10px;font-family:var(--hud);font-size:10px;cursor:pointer" data-i18n="conn.reload">🔄 SAYFAYI YENİLE</button>
 </div>
 
 <!-- NAV -->
@@ -614,7 +614,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   <!-- Radar badge -->
   <div style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.75);border:1px solid rgba(0,200,83,0.3);padding:5px 8px;z-index:10;text-align:center;min-width:90px">
     <div style="font-family:var(--hud);font-size:7px;color:var(--dim);letter-spacing:2px">RADAR SEVİYE <span id="radarLevel" style="color:var(--green)">3</span></div>
-    <button id="radarUpgradeBtn" onclick="upgradeRadar()" style="margin-top:3px;padding:3px 8px;background:var(--green);color:#000;font-family:var(--hud);font-size:7px;border:none;cursor:pointer;width:100%">YÜKSELT (5 MERMİ)</button>
+    <button id="radarUpgradeBtn" onclick="upgradeRadar()" style="margin-top:3px;padding:3px 8px;background:var(--green);color:#000;font-family:var(--hud);font-size:7px;border:none;cursor:pointer;width:100%" data-i18n="btn.upgradeRadar">YÜKSELT (5 MERMİ)</button>
   </div>
 </div>
 
@@ -662,7 +662,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 
 <!-- LEADERBOARD + STATS (col 4) -->
 <div class="cell" id="panel-siralama" style="grid-column:4;grid-row:1">
-  <div class="sh">LİDERLİK TABLOSU</div>
+  <div class="sh" data-i18n="panel.leaderboard">LİDERLİK TABLOSU</div>
   <div class="lb-tabs">
     <div class="lb-tab active" onclick="setLbTab('countries',this)">ÜLKELER</div>
     <div class="lb-tab" onclick="setLbTab('players',this)">OYUNCULAR</div>
@@ -705,20 +705,20 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 <div class="cell" id="panel-ittifak" style="grid-column:2;grid-row:2">
   <div class="sh"><span data-i18n="panel.allianceChat">İTTİFAK SOHBETİ</span> <span style="font-family:var(--mono);font-size:8px;color:var(--green)" id="allianceTag">İTTİFAK YOK</span> <span id="allianceMeta" style="font-family:var(--mono);font-size:8px;color:var(--dim);margin-left:6px"></span></div>
   <div id="allianceBtnRow" style="display:flex;gap:4px;padding:5px 8px;border-bottom:1px solid var(--border);flex-shrink:0">
-    <button class="btn-sm btn-red" style="flex:1" onclick="openAllianceModal('create')">+ İTTİFAK KUR</button>
+    <button class="btn-sm btn-red" style="flex:1" onclick="openAllianceModal('create')" data-i18n="btn.allianceCreateBig">+ İTTİFAK KUR</button>
     <button class="btn-sm btn-out" style="flex:1" onclick="openAllianceModal('join')">İTTİFAKA KATIL</button>
-    <button class="btn-sm btn-out" style="flex:1" onclick="openRadioModal()">📻 TELSİZ</button>
+    <button class="btn-sm btn-out" style="flex:1" onclick="openRadioModal()" data-i18n="btn.allianceRadio">📻 TELSİZ</button>
   </div>
   <div id="allianceMemberRow" style="display:none;padding:5px 8px;border-bottom:1px solid var(--border);flex-shrink:0;gap:4px">
-    <button class="btn-sm btn-out" style="flex:1" onclick="showAllianceMembers()">👥 ÜYELER</button>
-    <button class="btn-sm btn-out" style="flex:1" onclick="openRadioModal()">📻 TELSİZ</button>
-    <button class="btn-sm btn-out" style="flex:1;color:var(--red);border-color:rgba(232,22,42,0.4)" onclick="leaveAlliance()">✕ AYRIL</button>
+    <button class="btn-sm btn-out" style="flex:1" onclick="showAllianceMembers()" data-i18n="btn.allianceMembersBig">👥 ÜYELER</button>
+    <button class="btn-sm btn-out" style="flex:1" onclick="openRadioModal()" data-i18n="btn.allianceRadio">📻 TELSİZ</button>
+    <button class="btn-sm btn-out" style="flex:1;color:var(--red);border-color:rgba(232,22,42,0.4)" onclick="leaveAlliance()" data-i18n="btn.allianceLeaveBig">✕ AYRIL</button>
   </div>
   <div class="chat-body" id="chatBody">
     <div style="padding:20px;text-align:center;color:var(--dim);font-size:10px" id="chatEmpty" data-i18n="empty.chat">İttifak sohbeti boş — ilk mesajı sen yaz</div>
   </div>
   <div class="chat-input-row">
-    <input class="chat-inp" id="chatInput" placeholder="Mesaj yaz..." onkeydown="if(event.key==='Enter')sendChat()">
+    <input class="chat-inp" id="chatInput" placeholder="Mesaj yaz..." data-i18n-placeholder="placeholder.chat" onkeydown="if(event.key==='Enter')sendChat()">
     <button class="chat-send" onclick="sendChat()">➤</button>
   </div>
 </div>
@@ -747,14 +747,14 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
       <div id="radarDetections">
         <div style="padding:14px 4px;text-align:center;color:var(--dim);font-size:9px" id="radarEmpty" data-i18n="empty.radar">Henüz faaliyet tespit edilmedi</div>
       </div>
-      <button class="btn-sm btn-out" style="margin-top:6px;width:100%" onclick="upgradeRadar()" id="radarUpgradeListBtn">YÜKSELT (5 MERMİ)</button>
+      <button class="btn-sm btn-out" style="margin-top:6px;width:100%" onclick="upgradeRadar()" id="radarUpgradeListBtn" data-i18n="btn.upgradeRadar">YÜKSELT (5 MERMİ)</button>
     </div>
   </div>
 </div>
 
 <!-- Resource -->
 <div class="cell" id="panel-kaynak" style="grid-column:4;grid-row:2">
-  <div class="sh"><span data-i18n="panel.resources">KAYNAK KONTROLÜ</span> <button class="btn-sm btn-out" style="font-size:7px;padding:2px 6px" onclick="boostAllResources()">TÜMÜNÜ ÜRET</button></div>
+  <div class="sh"><span data-i18n="panel.resources">KAYNAK KONTROLÜ</span> <button class="btn-sm btn-out" style="font-size:7px;padding:2px 6px" onclick="boostAllResources()" data-i18n="btn.produceAll">TÜMÜNÜ ÜRET</button></div>
   <div style="flex:1;overflow-y:auto;padding:10px 0" id="resourceList"></div>
 </div>
 
@@ -797,7 +797,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     <button class="modal-close" onclick="closeModal()">✕ KAPAT</button>
     <div class="modal-title" id="modalTitle">ÜLKE SEÇ</div>
     <div class="modal-sub" id="modalSub">Haritadan hedef seç veya aşağıdan ara</div>
-    <input id="countrySearch" class="chat-inp" placeholder="🔍 Ülke ara..." oninput="filterCountries()"
+    <input id="countrySearch" class="chat-inp" placeholder="🔍 Ülke ara..." data-i18n-placeholder="placeholder.country" oninput="filterCountries()"
       style="width:100%;padding:8px 10px;border:1px solid var(--border);margin-bottom:10px;font-size:12px">
     <div class="c-grid" id="cGrid" style="max-height:340px;overflow-y:auto"></div>
   </div>
@@ -807,17 +807,17 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 <div class="modal" id="allianceModal">
   <div class="modal-box">
     <button class="modal-close" onclick="closeAllianceModal()">✕ KAPAT</button>
-    <div class="modal-title" id="allianceModalTitle">İTTİFAK KUR</div>
-    <div class="modal-sub" id="allianceModalSub">İttifakına bir isim ver. Diğer komutanlar katılabilir.</div>
+    <div class="modal-title" id="allianceModalTitle" data-i18n="modal.allianceCreate">İTTİFAK KUR</div>
+    <div class="modal-sub" id="allianceModalSub" data-i18n="sub.allianceCreate">İttifakına bir isim ver. Diğer komutanlar katılabilir.</div>
     <div id="createForm">
-      <input id="allianceName" class="chat-inp" placeholder="İttifak adı (örn: Türk İttifakı)"
+      <input id="allianceName" class="chat-inp" placeholder="İttifak adı (örn: Türk İttifakı)" data-i18n-placeholder="placeholder.alliance"
         style="width:100%;padding:9px 10px;border:1px solid var(--border);margin-bottom:10px;font-size:12px">
-      <button class="btn-sm btn-red" style="width:100%;padding:9px" onclick="createAlliance()">İTTİFAKI OLUŞTUR</button>
+      <button class="btn-sm btn-red" style="width:100%;padding:9px" onclick="createAlliance()" data-i18n="btn.allianceCreateModal">İTTİFAKI OLUŞTUR</button>
     </div>
     <div id="joinForm" style="display:none">
       <input id="allianceId" class="chat-inp" placeholder="İttifak ID'si yapıştır"
         style="width:100%;padding:9px 10px;border:1px solid var(--border);margin-bottom:10px;font-size:12px">
-      <button class="btn-sm btn-red" style="width:100%;padding:9px" onclick="joinAlliance()">İTTİFAKA KATIL</button>
+      <button class="btn-sm btn-red" style="width:100%;padding:9px" onclick="joinAlliance()" data-i18n="btn.allianceJoinBig">İTTİFAKA KATIL</button>
     </div>
   </div>
 </div>
@@ -827,7 +827,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   <div class="modal-box">
     <button class="modal-close" onclick="closeRadioModal()">✕ KAPAT</button>
     <div class="modal-title">📻 İTTİFAK TELSİZİ</div>
-    <div class="modal-sub">İttifakındaki tüm oyunculara komut yayınla.</div>
+    <div class="modal-sub" data-i18n="sub.allianceRadio">İttifakındaki tüm oyunculara komut yayınla.</div>
     <div style="display:flex;flex-direction:column;gap:6px">
       <button class="btn-sm btn-red" style="padding:10px" onclick="radioCommand('ATTACK_NOW')">⚔️ ŞİMDİ SALDIR</button>
       <button class="btn-sm btn-out" style="padding:10px" onclick="radioCommand('DEFEND')">🛡️ SAVUN</button>
@@ -842,8 +842,8 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 <div class="modal" id="helpModal">
   <div class="modal-box" style="width:520px;max-width:92vw;max-height:88vh;overflow-y:auto">
     <button class="modal-close" onclick="closeHelp()">✕ KAPAT</button>
-    <div class="modal-title">❓ NASIL OYNANIR</div>
-    <div class="modal-sub">ABSWAR'a hoş geldin Komutan. Adımları takip et:</div>
+    <div class="modal-title" data-i18n="modal.help">❓ NASIL OYNANIR</div>
+    <div class="modal-sub" data-i18n="sub.help">ABSWAR'a hoş geldin Komutan. Adımları takip et:</div>
 
     <div style="display:flex;flex-direction:column;gap:14px;text-align:left;font-family:var(--ui);font-size:13px;color:var(--text);line-height:1.55;margin-top:10px">
 
@@ -927,16 +927,16 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 <div class="modal" id="feedbackModal">
   <div class="modal-box" style="width:440px;max-width:92vw;max-height:88vh;overflow-y:auto">
     <button class="modal-close" onclick="closeFeedbackModal()">✕ KAPAT</button>
-    <div class="modal-title">💬 GERİ BİLDİRİM / BUG RAPOR</div>
-    <div class="modal-sub">Bir sorun mu var? Bir fikrin mi var? Bize yaz.</div>
+    <div class="modal-title" data-i18n="modal.feedback">💬 GERİ BİLDİRİM / BUG RAPOR</div>
+    <div class="modal-sub" data-i18n="sub.feedback">Bir sorun mu var? Bir fikrin mi var? Bize yaz.</div>
     <div style="margin-top:14px;text-align:left">
       <div style="display:flex;gap:6px;margin-bottom:10px">
-        <button class="fb-tag-btn fb-tag-active" data-tag="bug" onclick="setFeedbackType('bug',this)">🐛 BUG</button>
-        <button class="fb-tag-btn" data-tag="idea" onclick="setFeedbackType('idea',this)">💡 ÖNERİ</button>
-        <button class="fb-tag-btn" data-tag="praise" onclick="setFeedbackType('praise',this)">⭐ BEĞENİ</button>
-        <button class="fb-tag-btn" data-tag="other" onclick="setFeedbackType('other',this)">❓ DİĞER</button>
+        <button class="fb-tag-btn fb-tag-active" data-tag="bug" onclick="setFeedbackType('bug',this)" data-i18n="fb.bug">🐛 BUG</button>
+        <button class="fb-tag-btn" data-tag="idea" onclick="setFeedbackType('idea',this)" data-i18n="fb.idea">💡 ÖNERİ</button>
+        <button class="fb-tag-btn" data-tag="praise" onclick="setFeedbackType('praise',this)" data-i18n="fb.praise">⭐ BEĞENİ</button>
+        <button class="fb-tag-btn" data-tag="other" onclick="setFeedbackType('other',this)" data-i18n="fb.other">❓ DİĞER</button>
       </div>
-      <textarea id="feedbackInput" rows="6" maxlength="500" placeholder="Sorunu / fikrini detaylıca anlat... (mesela: 'Ülke seçince harita kayboldu' veya 'Profil sayfası ekleyin')" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:12px;padding:10px;outline:none;resize:vertical"></textarea>
+      <textarea id="feedbackInput" rows="6" maxlength="500" placeholder="Sorunu / fikrini detaylıca anlat..." data-i18n-placeholder="placeholder.feedback" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:12px;padding:10px;outline:none;resize:vertical"></textarea>
       <div style="margin-top:6px;display:flex;justify-content:space-between;font-size:10px;color:var(--dim)">
         <span>500 karaktere kadar</span>
         <span id="fbCount">0 / 500</span>
@@ -945,8 +945,8 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
         <b style="color:#66b3ff">📝 Not:</b> Mesajın panoya kopyalanır. Sahibe iletmek için Twitter / Discord / e-postaya yapıştırabilirsin.
       </div>
       <div style="margin-top:14px;display:flex;gap:8px">
-        <button class="btn-sm btn-red" style="flex:1;padding:10px" onclick="submitFeedback()">📋 KOPYALA & İLET</button>
-        <button class="btn-sm btn-out" style="flex:1;padding:10px" onclick="closeFeedbackModal()">İPTAL</button>
+        <button class="btn-sm btn-red" style="flex:1;padding:10px" onclick="submitFeedback()" data-i18n="fb.submit">📋 KOPYALA & İLET</button>
+        <button class="btn-sm btn-out" style="flex:1;padding:10px" onclick="closeFeedbackModal()" data-i18n="btn.cancel">İPTAL</button>
       </div>
     </div>
   </div>
@@ -956,14 +956,14 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 <div class="modal" id="nicknameModal">
   <div class="modal-box" style="width:380px;max-width:92vw">
     <button class="modal-close" onclick="closeNicknameModal()">✕ KAPAT</button>
-    <div class="modal-title">👤 NICKNAME AYARLA</div>
-    <div class="modal-sub">Diğer oyuncular seni nasıl görsün?</div>
+    <div class="modal-title" data-i18n="modal.nickname">👤 NICKNAME AYARLA</div>
+    <div class="modal-sub" data-i18n="sub.nickname">Diğer oyuncular seni nasıl görsün?</div>
     <div style="margin-top:14px;text-align:left">
-      <input id="nicknameInput" type="text" maxlength="16" placeholder="Örn: Komutan34, WarLord, GamerTR..." style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:13px;padding:10px;outline:none">
+      <input id="nicknameInput" type="text" maxlength="16" placeholder="Örn: Komutan34, WarLord, GamerTR..." data-i18n-placeholder="placeholder.nickname" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:13px;padding:10px;outline:none">
       <div style="margin-top:6px;font-size:10px;color:var(--dim)">3-16 karakter · Harf, rakam, _, - · Küfür/admin reddedilir</div>
       <div style="margin-top:14px;display:flex;gap:8px">
-        <button class="btn-sm btn-red" style="flex:1;padding:10px" onclick="saveNickname()">✅ KAYDET</button>
-        <button class="btn-sm btn-out" style="flex:1;padding:10px" onclick="closeNicknameModal()">İPTAL</button>
+        <button class="btn-sm btn-red" style="flex:1;padding:10px" onclick="saveNickname()" data-i18n="btn.save">✅ KAYDET</button>
+        <button class="btn-sm btn-out" style="flex:1;padding:10px" onclick="closeNicknameModal()" data-i18n="btn.cancel">İPTAL</button>
       </div>
     </div>
   </div>
@@ -982,7 +982,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
         Bu adresleri Remix'te <code>payReward(adres, miktar)</code> ile öde. Miktarlar ödül havuzu (%70) baz alınarak hesaplanmıştır. Her ödemeyi MetaMask'tan onaylaman gerekir.
       </div>
       <div id="rendPayouts" style="margin-top:10px;font-family:var(--mono);font-size:11px;color:var(--text)"></div>
-      <button onclick="startNextRound()" class="btn-sm btn-red" style="margin-top:14px;width:100%;padding:10px">
+      <button onclick="startNextRound()" class="btn-sm btn-red" style="margin-top:14px;width:100%;padding:10px" data-i18n="re.startNew">
         ✅ ÖDEMELERİ YAPTIM · YENİ TUR BAŞLAT
       </button>
     </div>
@@ -2669,7 +2669,7 @@ function showAllianceMembers() {
   ov.style.zIndex = 2000;
   ov.innerHTML = `<div class="modal-box" style="width:420px;max-width:92vw">
     <button class="modal-close" onclick="this.closest('.modal').remove()">✕ KAPAT</button>
-    <div class="modal-title">👥 İTTİFAK ÜYELERİ</div>
+    <div class="modal-title" data-i18n="modal.allianceMembers">👥 İTTİFAK ÜYELERİ</div>
     ${html}
   </div>`;
   ov.addEventListener('click', function(e){ if (e.target===this) this.remove(); });
@@ -3458,6 +3458,96 @@ const I18N = {
     'err.ROUND_ALREADY_ENDED': 'Tur zaten bitmiş',
     'err.ROUND_ALREADY_ACTIVE': 'Zaten aktif tur var',
     'err.ERROR': 'Hata oluştu',
+    // Modal başlıkları
+    'modal.allianceCreate': 'İTTİFAK KUR',
+    'modal.allianceJoin': 'İTTİFAKA KATIL',
+    'modal.allianceRadio': 'TELSİZ KOMUTU',
+    'modal.allianceMembers': '👥 İTTİFAK ÜYELERİ',
+    'modal.nickname': '👤 NICKNAME AYARLA',
+    'modal.feedback': '💬 GERİ BİLDİRİM / BUG RAPOR',
+    'modal.help': '❓ NASIL OYNANIR',
+    'modal.country': 'ÜLKE SEÇ',
+    'modal.roundEnd': '🏆 TUR BİTTİ',
+    // Modal alt başlıklar
+    'sub.allianceCreate': 'İttifakına bir isim ver. Diğer komutanlar katılabilir.',
+    'sub.allianceRadio': 'İttifakındaki tüm oyunculara komut yayınla.',
+    'sub.nickname': 'Diğer oyuncular seni nasıl görsün?',
+    'sub.feedback': 'Bir sorun mu var? Bir fikrin mi var? Bize yaz.',
+    'sub.country': 'Hangi ülkenin komutanı olacaksın?',
+    'sub.help': 'ABSWAR\'a hoş geldin Komutan. Adımları takip et:',
+    // Yardım modal adımları (kısa, anahtar)
+    'help.step1': '1 · CÜZDAN BAĞLA',
+    'help.step1.body': 'Sağ üstteki "CÜZDAN BAĞLA" butonuna bas. MetaMask açılır, Abstract Testnet ağına geçer.',
+    'help.step2': '2 · ÜLKE SEÇ',
+    'help.step2.body': 'Bağlanınca ülke seçim penceresi açılır. 119 ülke arasından seç. Ülken elenene kadar değiştiremezsin.',
+    'help.step3': '3 · MERMİ AL',
+    'help.step3.body': '"MERMİ SATIN AL" panelinden paket seç. Bu blockchain işlemidir — MetaMask onayı gerekir.',
+    'help.step4': '4 · SALDIR',
+    'help.step4.body': 'Haritada hedef ülkeye tıkla, "SALDIRI BAŞLAT" butonuna bas. Her saldırı 1 mermi harcar.',
+    'help.step5': '5 · İTTİFAK KUR',
+    'help.step5.body': '"İTTİFAK KUR" ile kendi ittifakını başlat veya mevcut bir ittifağa katıl.',
+    'help.step6': '6 · KAYNAK SİSTEMİ',
+    'help.step6.body': 'Her kaynağın farklı etkisi vardır (1 mermi → +10 seviye).',
+    'help.step7': '7 · RÜTBE SİSTEMİ',
+    'help.step7.body': 'Katkı puanına göre rütben yükselir. Her rütbe katkı bonusu verir.',
+    'help.step8': '8 · HARİTA RENKLERİ',
+    'help.step8.body': 'Yeşil = sağlam · Sarı = hasarlı · Turuncu = kritik · Kırmızı = ölmek üzere · Gri = elenen.',
+    'help.shortcuts': '⌨ KLAVYE KISAYOLLARI',
+    'help.testnet': '⚠️ NOT: Oyun şu an Abstract Testnet\'te — gerçek para değil, test ETH. Mainnet\'e geçiş audit sonrası yapılır.',
+    // İttifak butonları (büyük)
+    'btn.allianceCreateBig': '+ İTTİFAK KUR',
+    'btn.allianceJoinBig': 'İTTİFAKA KATIL',
+    'btn.allianceCreateModal': 'İTTİFAKI OLUŞTUR',
+    'btn.allianceMembersBig': '👥 ÜYELER',
+    'btn.allianceLeaveBig': '✕ AYRIL',
+    'btn.allianceRadio': '📻 TELSİZ',
+    // Inputs
+    'placeholder.chat': 'Mesaj yaz...',
+    'placeholder.country': '🔍 Ülke ara...',
+    'placeholder.alliance': 'İttifak adı (örn: Türk İttifakı)',
+    'placeholder.nickname': 'Örn: Komutan34, WarLord, GamerTR...',
+    'placeholder.feedback': 'Sorunu / fikrini detaylıca anlat...',
+    // Feedback
+    'fb.bug': '🐛 BUG',
+    'fb.idea': '💡 ÖNERİ',
+    'fb.praise': '⭐ BEĞENİ',
+    'fb.other': '❓ DİĞER',
+    'fb.submit': '📋 KOPYALA & İLET',
+    'fb.note': '📝 Not: Mesajın panoya kopyalanır. Sahibe iletmek için Twitter / Discord / e-postaya yapıştırabilirsin.',
+    'fb.maxChars': '500 karaktere kadar',
+    // Mermi paketleri
+    'pack.basic': 'TEMEL',
+    'pack.advanced': 'GELİŞMİŞ',
+    'pack.premium': 'PRİM',
+    'pack.legendary': 'EFSANEVİ',
+    'pack.bullets': 'mermi',
+    // Welcome overlay
+    'welcome.subtitle': 'KÜRESEL SAVAŞ MMO · ABSTRACT TESTNET',
+    'welcome.body': '119 ülkeden birini seç, ittifak kur, savaş alanına gir. Web3 cüzdanınla bağlan, mermi al, hedeflerini yenmesi için saldır.',
+    'welcome.cta': '🔗 CÜZDAN BAĞLA & SAVAŞA KATIL',
+    'welcome.skip': 'Önce çevreyi gözden geçirmek istiyorum →',
+    'welcome.warning': '⚠️ Test ağında çalışır. Gerçek para gerekmez. Test ETH almak için Sepolia faucet kullan, sonra Abstract köprüsünden geçir.',
+    // Round end
+    're.title': 'TUR {n} BİTTİ',
+    're.subtitle': 'Kazananlar ve ödül dağılımı:',
+    're.adminPanel': 'ADMIN PANELİ',
+    're.adminInstr': 'Bu adresleri Remix\'te payReward(adres, miktar) ile öde. Her ödemeyi MetaMask\'tan onayla.',
+    're.startNew': '✅ ÖDEMELERİ YAPTIM · YENİ TUR BAŞLAT',
+    're.waiting': 'Ödüller admin onayını bekliyor. Yeni tur yakında başlayacak.',
+    // Member modal
+    'mem.title': '👥 İTTİFAK ÜYELERİ',
+    'mem.leader': '👑 LİDER',
+    'mem.you': '(SEN)',
+    'mem.count': '{n} üye',
+    // Connection banner
+    'conn.lost': 'SUNUCU BAĞLANTISI KAYIP — OTOMATİK YENİDEN DENENİYOR',
+    'conn.reload': '🔄 SAYFAYI YENİLE',
+    // Loading
+    'load.default': 'YÜKLENİYOR...',
+    'load.connect': 'CÜZDANA BAĞLANIYOR...',
+    'load.player': 'OYUNCU YÜKLENİYOR...',
+    'load.country': 'ÜLKE SEÇİLİYOR...',
+    'load.buying': 'MERMİ SATIN ALINIYOR...',
   },
   en: {
     'wallet.connect': 'CONNECT WALLET',
@@ -3607,6 +3697,85 @@ const I18N = {
     'err.ROUND_ALREADY_ENDED': 'Round already ended',
     'err.ROUND_ALREADY_ACTIVE': 'Active round already exists',
     'err.ERROR': 'An error occurred',
+    // Modal başlıkları
+    'modal.allianceCreate': 'CREATE ALLIANCE',
+    'modal.allianceJoin': 'JOIN ALLIANCE',
+    'modal.allianceRadio': 'RADIO COMMAND',
+    'modal.allianceMembers': '👥 ALLIANCE MEMBERS',
+    'modal.nickname': '👤 SET NICKNAME',
+    'modal.feedback': '💬 FEEDBACK / BUG REPORT',
+    'modal.help': '❓ HOW TO PLAY',
+    'modal.country': 'SELECT COUNTRY',
+    'modal.roundEnd': '🏆 ROUND ENDED',
+    'sub.allianceCreate': 'Give your alliance a name. Other commanders can join.',
+    'sub.allianceRadio': 'Broadcast a command to all alliance members.',
+    'sub.nickname': 'How should other players see you?',
+    'sub.feedback': 'Got a problem? Got an idea? Tell us.',
+    'sub.country': 'Which country will you command?',
+    'sub.help': 'Welcome to ABSWAR, Commander. Follow the steps:',
+    'help.step1': '1 · CONNECT WALLET',
+    'help.step1.body': 'Click "CONNECT WALLET" top right. MetaMask opens and switches to Abstract Testnet.',
+    'help.step2': '2 · PICK COUNTRY',
+    'help.step2.body': 'Country picker opens. Choose from 119 countries. You cannot change until yours is eliminated.',
+    'help.step3': '3 · BUY AMMO',
+    'help.step3.body': 'Pick a pack from "BUY AMMO". This is an on-chain transaction — MetaMask approval required.',
+    'help.step4': '4 · ATTACK',
+    'help.step4.body': 'Click a target on the map, then "ATTACK". Each attack costs 1 ammo.',
+    'help.step5': '5 · FORM ALLIANCE',
+    'help.step5.body': 'Use "CREATE ALLIANCE" to start your own or join an existing one.',
+    'help.step6': '6 · RESOURCE SYSTEM',
+    'help.step6.body': 'Each resource has a different effect (1 ammo → +10 level).',
+    'help.step7': '7 · RANK SYSTEM',
+    'help.step7.body': 'Your rank rises with contribution. Each rank gives a contribution bonus.',
+    'help.step8': '8 · MAP COLORS',
+    'help.step8.body': 'Green = healthy · Yellow = damaged · Orange = critical · Red = dying · Gray = eliminated.',
+    'help.shortcuts': '⌨ KEYBOARD SHORTCUTS',
+    'help.testnet': '⚠️ NOTE: Currently on Abstract Testnet — not real money, test ETH. Mainnet launch after audit.',
+    'btn.allianceCreateBig': '+ CREATE ALLIANCE',
+    'btn.allianceJoinBig': 'JOIN ALLIANCE',
+    'btn.allianceCreateModal': 'CREATE ALLIANCE',
+    'btn.allianceMembersBig': '👥 MEMBERS',
+    'btn.allianceLeaveBig': '✕ LEAVE',
+    'btn.allianceRadio': '📻 RADIO',
+    'placeholder.chat': 'Write a message...',
+    'placeholder.country': '🔍 Search country...',
+    'placeholder.alliance': 'Alliance name (e.g. The Vikings)',
+    'placeholder.nickname': 'E.g.: Commander34, WarLord, GamerUSA...',
+    'placeholder.feedback': 'Describe the problem or idea in detail...',
+    'fb.bug': '🐛 BUG',
+    'fb.idea': '💡 IDEA',
+    'fb.praise': '⭐ PRAISE',
+    'fb.other': '❓ OTHER',
+    'fb.submit': '📋 COPY & SHARE',
+    'fb.note': '📝 Note: Your message will be copied to clipboard. Paste it to Twitter / Discord / email.',
+    'fb.maxChars': 'Up to 500 characters',
+    'pack.basic': 'BASIC',
+    'pack.advanced': 'ADVANCED',
+    'pack.premium': 'PREMIUM',
+    'pack.legendary': 'LEGENDARY',
+    'pack.bullets': 'ammo',
+    'welcome.subtitle': 'GLOBAL WAR MMO · ABSTRACT TESTNET',
+    'welcome.body': 'Pick one of 119 countries, form alliances, enter the battlefield. Connect your Web3 wallet, buy ammo, attack to crush your targets.',
+    'welcome.cta': '🔗 CONNECT WALLET & JOIN WAR',
+    'welcome.skip': 'Let me look around first →',
+    'welcome.warning': '⚠️ Runs on testnet. No real money needed. Get test ETH from Sepolia faucet then bridge to Abstract.',
+    're.title': 'ROUND {n} ENDED',
+    're.subtitle': 'Winners and reward distribution:',
+    're.adminPanel': 'ADMIN PANEL',
+    're.adminInstr': 'Pay these addresses via Remix payReward(addr, amount). Approve each tx in MetaMask.',
+    're.startNew': '✅ PAYMENTS DONE · START NEW ROUND',
+    're.waiting': 'Rewards awaiting admin confirmation. New round starting soon.',
+    'mem.title': '👥 ALLIANCE MEMBERS',
+    'mem.leader': '👑 LEADER',
+    'mem.you': '(YOU)',
+    'mem.count': '{n} members',
+    'conn.lost': 'SERVER CONNECTION LOST — AUTO-RECONNECTING',
+    'conn.reload': '🔄 RELOAD PAGE',
+    'load.default': 'LOADING...',
+    'load.connect': 'CONNECTING TO WALLET...',
+    'load.player': 'LOADING PLAYER...',
+    'load.country': 'SELECTING COUNTRY...',
+    'load.buying': 'BUYING AMMO...',
   },
   ru: {
     'wallet.connect': 'ПОДКЛЮЧИТЬ',
@@ -3756,6 +3925,84 @@ const I18N = {
     'err.ROUND_ALREADY_ENDED': 'Раунд уже закончен',
     'err.ROUND_ALREADY_ACTIVE': 'Раунд уже активен',
     'err.ERROR': 'Произошла ошибка',
+    'modal.allianceCreate': 'СОЗДАТЬ АЛЬЯНС',
+    'modal.allianceJoin': 'ВСТУПИТЬ В АЛЬЯНС',
+    'modal.allianceRadio': 'РАДИО-КОМАНДА',
+    'modal.allianceMembers': '👥 СОСТАВ АЛЬЯНСА',
+    'modal.nickname': '👤 ЗАДАТЬ НИК',
+    'modal.feedback': '💬 ОТЗЫВ / ОШИБКА',
+    'modal.help': '❓ КАК ИГРАТЬ',
+    'modal.country': 'ВЫБРАТЬ СТРАНУ',
+    'modal.roundEnd': '🏆 РАУНД ЗАВЕРШЁН',
+    'sub.allianceCreate': 'Назовите свой альянс. Другие командиры смогут присоединиться.',
+    'sub.allianceRadio': 'Передать команду всем членам альянса.',
+    'sub.nickname': 'Как вас будут видеть другие игроки?',
+    'sub.feedback': 'Есть проблема? Есть идея? Напишите нам.',
+    'sub.country': 'Какой страной вы будете командовать?',
+    'sub.help': 'Добро пожаловать в ABSWAR, Командир. Следуйте шагам:',
+    'help.step1': '1 · ПОДКЛЮЧИТЬ КОШЕЛЁК',
+    'help.step1.body': 'Нажмите "ПОДКЛЮЧИТЬ" справа вверху. MetaMask откроется и переключится на Abstract Testnet.',
+    'help.step2': '2 · ВЫБРАТЬ СТРАНУ',
+    'help.step2.body': 'Откроется выбор страны. Выберите из 119. Нельзя сменить, пока ваша жива.',
+    'help.step3': '3 · КУПИТЬ ПАТРОНЫ',
+    'help.step3.body': 'Выберите пакет в "КУПИТЬ ПАТРОНЫ". Это on-chain транзакция — нужно подтверждение MetaMask.',
+    'help.step4': '4 · АТАКОВАТЬ',
+    'help.step4.body': 'Кликните цель на карте, затем "АТАКОВАТЬ". Каждая атака стоит 1 патрон.',
+    'help.step5': '5 · СОЗДАТЬ АЛЬЯНС',
+    'help.step5.body': 'Используйте "СОЗДАТЬ АЛЬЯНС" или вступите в существующий.',
+    'help.step6': '6 · РЕСУРСЫ',
+    'help.step6.body': 'У каждого ресурса свой эффект (1 патрон → +10 уровень).',
+    'help.step7': '7 · ЗВАНИЯ',
+    'help.step7.body': 'Звание растёт с вкладом. Каждое звание даёт бонус к вкладу.',
+    'help.step8': '8 · ЦВЕТА КАРТЫ',
+    'help.step8.body': 'Зелёный = здоровый · Жёлтый = ранен · Оранжевый = критичен · Красный = умирает · Серый = устранён.',
+    'help.shortcuts': '⌨ ГОРЯЧИЕ КЛАВИШИ',
+    'help.testnet': '⚠️ ВНИМАНИЕ: Игра в Abstract Testnet — не реальные деньги, test ETH. Mainnet после аудита.',
+    'btn.allianceCreateBig': '+ СОЗДАТЬ АЛЬЯНС',
+    'btn.allianceJoinBig': 'ВСТУПИТЬ В АЛЬЯНС',
+    'btn.allianceCreateModal': 'СОЗДАТЬ АЛЬЯНС',
+    'btn.allianceMembersBig': '👥 СОСТАВ',
+    'btn.allianceLeaveBig': '✕ ВЫЙТИ',
+    'btn.allianceRadio': '📻 РАДИО',
+    'placeholder.chat': 'Написать сообщение...',
+    'placeholder.country': '🔍 Поиск страны...',
+    'placeholder.alliance': 'Название альянса (напр. Викинги)',
+    'placeholder.nickname': 'Напр.: Командир34, WarLord, GamerRU...',
+    'placeholder.feedback': 'Опишите проблему или идею подробно...',
+    'fb.bug': '🐛 ОШИБКА',
+    'fb.idea': '💡 ИДЕЯ',
+    'fb.praise': '⭐ ОДОБРЕНИЕ',
+    'fb.other': '❓ ДРУГОЕ',
+    'fb.submit': '📋 КОПИРОВАТЬ',
+    'fb.note': '📝 Прим.: Сообщение скопируется в буфер. Вставьте в Twitter / Discord / email.',
+    'fb.maxChars': 'До 500 символов',
+    'pack.basic': 'БАЗОВЫЙ',
+    'pack.advanced': 'ПРОДВ.',
+    'pack.premium': 'ПРЕМ.',
+    'pack.legendary': 'ЛЕГЕНД.',
+    'pack.bullets': 'патронов',
+    'welcome.subtitle': 'ГЛОБАЛЬНАЯ ВОЕННАЯ MMO · ABSTRACT TESTNET',
+    'welcome.body': 'Выберите одну из 119 стран, создайте альянс, выходите в бой. Подключите Web3-кошелёк, купите патроны, атакуйте цели.',
+    'welcome.cta': '🔗 ПОДКЛЮЧИТЬ И ВСТУПИТЬ В БОЙ',
+    'welcome.skip': 'Сначала осмотрюсь →',
+    'welcome.warning': '⚠️ Работает в testnet. Реальные деньги не нужны. Возьмите test ETH из Sepolia faucet и переведите в Abstract.',
+    're.title': 'РАУНД {n} ЗАВЕРШЁН',
+    're.subtitle': 'Победители и распределение наград:',
+    're.adminPanel': 'АДМИН-ПАНЕЛЬ',
+    're.adminInstr': 'Оплатите эти адреса через Remix payReward(addr, amount). Подтвердите каждую tx в MetaMask.',
+    're.startNew': '✅ ВЫПЛАЧЕНО · НАЧАТЬ НОВЫЙ РАУНД',
+    're.waiting': 'Награды ожидают подтверждения админом. Новый раунд скоро.',
+    'mem.title': '👥 СОСТАВ АЛЬЯНСА',
+    'mem.leader': '👑 ЛИДЕР',
+    'mem.you': '(ВЫ)',
+    'mem.count': '{n} участников',
+    'conn.lost': 'СОЕДИНЕНИЕ ПОТЕРЯНО — АВТОПЕРЕПОДКЛЮЧЕНИЕ',
+    'conn.reload': '🔄 ОБНОВИТЬ',
+    'load.default': 'ЗАГРУЗКА...',
+    'load.connect': 'ПОДКЛЮЧЕНИЕ К КОШЕЛЬКУ...',
+    'load.player': 'ЗАГРУЗКА ИГРОКА...',
+    'load.country': 'ВЫБОР СТРАНЫ...',
+    'load.buying': 'ПОКУПКА ПАТРОНОВ...',
   }
 };
 
