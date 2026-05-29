@@ -358,22 +358,23 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   <span class="logo-main">ABSWAR</span>
   <span class="logo-sub">Küresel Savaş MMO</span>
   <div style="display:flex">
-    <div class="nav-link" onclick="focusPanel('kontrol',this)">KONTROL PANELİ</div>
-    <div class="nav-link active" onclick="focusPanel('harita',this)">HARİTA</div>
-    <div class="nav-link" onclick="focusPanel('ulkeler',this)">ÜLKELER</div>
-    <div class="nav-link" onclick="focusPanel('ittifak',this)">İTTİFAKLAR</div>
-    <div class="nav-link" onclick="focusPanel('siralama',this)">İSTATİSTİKLER</div>
-    <div class="nav-link" onclick="focusPanel('ulkeler',this)">PAZAR</div>
-    <div class="nav-link" onclick="focusPanel('siralama',this)">SIRALAMA</div>
+    <div class="nav-link" onclick="focusPanel('kontrol',this)" data-i18n="nav.controls">KONTROL PANELİ</div>
+    <div class="nav-link active" onclick="focusPanel('harita',this)" data-i18n="nav.map">HARİTA</div>
+    <div class="nav-link" onclick="focusPanel('ulkeler',this)" data-i18n="nav.countries">ÜLKELER</div>
+    <div class="nav-link" onclick="focusPanel('ittifak',this)" data-i18n="nav.alliance">İTTİFAKLAR</div>
+    <div class="nav-link" onclick="focusPanel('siralama',this)" data-i18n="nav.stats">İSTATİSTİKLER</div>
+    <div class="nav-link" onclick="focusPanel('ulkeler',this)" data-i18n="nav.market">PAZAR</div>
+    <div class="nav-link" onclick="focusPanel('siralama',this)" data-i18n="nav.rank">SIRALAMA</div>
   </div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:10px">
+    <button onclick="cycleLang()" id="langBtn" title="Dil / Language / Язык" style="background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--hud);font-size:10px;padding:5px 8px;cursor:pointer">🇹🇷 TR</button>
     <button onclick="toggleSound()" id="soundBtn" title="Sesi aç/kapa" style="background:transparent;border:1px solid var(--border);color:var(--text);font-size:14px;width:30px;height:28px;cursor:pointer;padding:0">🔊</button>
     <button onclick="openFeedbackModal()" title="Geri bildirim / bug rapor" style="background:transparent;border:1px solid var(--border);color:var(--text);font-size:14px;width:30px;height:28px;cursor:pointer;padding:0">💬</button>
-    <button onclick="openHelp()" title="Nasıl Oynanır" style="background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer">❓ NASIL OYNANIR</button>
+    <button onclick="openHelp()" title="Nasıl Oynanır" style="background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer" data-i18n="nav.help">❓ NASIL OYNANIR</button>
     <span style="font-family:var(--mono);font-size:11px;color:var(--red)" id="ethBal">0.000 ETH</span>
-    <button id="nicknameBtn" onclick="openNicknameModal()" title="Nickname ayarla" style="display:none;background:transparent;border:1px solid var(--border);color:var(--green);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer">👤 <span id="nicknameLabel">İSİM EKLE</span></button>
+    <button id="nicknameBtn" onclick="openNicknameModal()" title="Nickname ayarla" style="display:none;background:transparent;border:1px solid var(--border);color:var(--green);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer">👤 <span id="nicknameLabel" data-i18n="nav.nickname">İSİM EKLE</span></button>
     <div style="position:relative">
-      <button class="btn-wallet" id="walletBtn" onclick="handleWalletBtn(event)">CÜZDAN BAĞLA</button>
+      <button class="btn-wallet" id="walletBtn" onclick="handleWalletBtn(event)" data-i18n="wallet.connect">CÜZDAN BAĞLA</button>
       <div id="walletMenu" style="display:none;position:absolute;top:calc(100% + 4px);right:0;min-width:200px;background:var(--bg1);border:1px solid var(--border);box-shadow:0 6px 20px rgba(0,0,0,0.6);z-index:1500;font-family:var(--hud)">
         <div style="padding:10px 12px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:10px;color:var(--dim);word-break:break-all" id="walletMenuAddr">0x0000...</div>
         <button class="wm-item" onclick="copyWalletAddress()">📋 ADRESİ KOPYALA</button>
@@ -401,7 +402,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   </div>
   <div class="sh" style="flex-shrink:0">SAVAŞ FAALİYETİ <span id="activityCount" style="font-size:9px;color:var(--dim);margin-left:6px">(0)</span></div>
   <div style="flex:1;overflow-y:auto" id="activityList">
-    <div style="padding:20px;text-align:center;color:var(--dim);font-size:10px" id="activityEmpty">Henüz savaş faaliyeti yok</div>
+    <div style="padding:20px;text-align:center;color:var(--dim);font-size:10px" id="activityEmpty" data-i18n="empty.activity">Henüz savaş faaliyeti yok</div>
   </div>
   <button class="btn-sm btn-out" style="margin:8px;width:calc(100% - 16px)" onclick="openModal('target')">HEDEF SEÇ</button>
 </div>
@@ -593,7 +594,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
       <button id="attackBtn" onclick="attackTarget()" disabled
         style="padding:5px 18px;background:var(--red);color:white;font-family:var(--hud);font-size:9px;letter-spacing:2px;border:none;cursor:pointer;opacity:0.4;border-radius:1px;transition:all .15s">
-        ⚡ SALDIRI BAŞLAT
+        ⚡ <span data-i18n="btn.attack">SALDIRI BAŞLAT</span>
       </button>
       <div style="display:flex;gap:2px" id="bulkBtnRow">
         <button class="bulk-atk-btn" data-n="10"   onclick="bulkAttack(10)"   title="10 mermi at" disabled>×10</button>
@@ -619,7 +620,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 
 <!-- COUNTRY OVERVIEW + AMMO (col 3) -->
 <div class="cell" id="panel-ulkeler" style="grid-column:3;grid-row:1">
-  <div class="sh">ÜLKE GENEL BAKIŞI</div>
+  <div class="sh" data-i18n="panel.country">ÜLKE GENEL BAKIŞI</div>
   <div class="co-header">
     <div style="display:flex;align-items:center;gap:7px">
       <span style="font-size:20px" id="coFlag">🇹🇷</span>
@@ -639,18 +640,18 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     <div style="font-family:var(--mono);font-size:8px;color:var(--red);text-align:right;margin-top:2px" id="coHPPct">100%</div>
   </div>
   <div class="stats-grid">
-    <div class="stat-cell"><div class="stat-label">🔫 Mermilerim</div><div class="stat-val" id="myBullets" style="color:var(--green)">0</div></div>
-    <div class="stat-cell"><div class="stat-label">⚔️ Saldırılarım</div><div class="stat-val" id="myAttacks">0</div></div>
-    <div class="stat-cell"><div class="stat-label">📊 Katkı</div><div class="stat-val" id="myContrib">0</div></div>
+    <div class="stat-cell"><div class="stat-label" data-i18n="stat.bullets">🔫 Mermilerim</div><div class="stat-val" id="myBullets" style="color:var(--green)">0</div></div>
+    <div class="stat-cell"><div class="stat-label" data-i18n="stat.attacks">⚔️ Saldırılarım</div><div class="stat-val" id="myAttacks">0</div></div>
+    <div class="stat-cell"><div class="stat-label" data-i18n="stat.contrib">📊 Katkı</div><div class="stat-val" id="myContrib">0</div></div>
   </div>
   <!-- AKTİF BUFFLAR (kaynak + rütbe bonusları) -->
   <div class="boost-grid">
-    <div class="boost-card" id="buffAttack" title="Metal kaynak seviyene göre"><span class="boost-icon">⚔️</span><div class="boost-type">HASAR</div><div class="boost-val" id="buffAttackVal">+%0</div><div class="boost-timer">Metal</div></div>
-    <div class="boost-card" id="buffShield" title="Uranyum kaynak seviyene göre"><span class="boost-icon">🛡️</span><div class="boost-type">KALKAN</div><div class="boost-val" id="buffShieldVal">+%0</div><div class="boost-timer">Uranyum</div></div>
-    <div class="boost-card" id="buffRank" title="Rütbene göre"><span class="boost-icon">🎖</span><div class="boost-type">KATKI</div><div class="boost-val" id="buffRankVal">+%0</div><div class="boost-timer" id="buffRankName">Asker</div></div>
-    <div class="boost-card" id="buffRadar" title="Radar seviyene göre"><span class="boost-icon">📡</span><div class="boost-type">RADAR</div><div class="boost-val" id="buffRadarVal">Lv 3</div><div class="boost-timer" id="buffRadarTime">12sn</div></div>
+    <div class="boost-card" id="buffAttack" title="Metal kaynak seviyene göre"><span class="boost-icon">⚔️</span><div class="boost-type" data-i18n="buff.damage">HASAR</div><div class="boost-val" id="buffAttackVal">+%0</div><div class="boost-timer">Metal</div></div>
+    <div class="boost-card" id="buffShield" title="Uranyum kaynak seviyene göre"><span class="boost-icon">🛡️</span><div class="boost-type" data-i18n="buff.shield">KALKAN</div><div class="boost-val" id="buffShieldVal">+%0</div><div class="boost-timer">Uranyum</div></div>
+    <div class="boost-card" id="buffRank" title="Rütbene göre"><span class="boost-icon">🎖</span><div class="boost-type" data-i18n="buff.contrib">KATKI</div><div class="boost-val" id="buffRankVal">+%0</div><div class="boost-timer" id="buffRankName">Asker</div></div>
+    <div class="boost-card" id="buffRadar" title="Radar seviyene göre"><span class="boost-icon">📡</span><div class="boost-type" data-i18n="buff.radar">RADAR</div><div class="boost-val" id="buffRadarVal">Lv 3</div><div class="boost-timer" id="buffRadarTime">12sn</div></div>
   </div>
-  <div class="sh" style="flex-shrink:0">MERMİ SATIN AL</div>
+  <div class="sh" style="flex-shrink:0" data-i18n="panel.market">MERMİ SATIN AL</div>
   <div style="flex:1;overflow-y:auto">
     <div class="ammo-row"><span style="font-size:16px">🔹</span><div class="ammo-info"><div class="ammo-name">TEMEL CEPHANE</div><div class="ammo-sub">100 mermi</div></div><span class="ammo-price">0.001 ETH</span><button class="btn-sm btn-red" id="b1" onclick="buyAmmo(100)">SATIN AL</button></div>
     <div class="ammo-row"><span style="font-size:16px">🔶</span><div class="ammo-info"><div class="ammo-name">GELİŞMİŞ CEPHANE</div><div class="ammo-sub">1,000 mermi</div></div><span class="ammo-price">0.01 ETH</span><button class="btn-sm btn-red" id="b2" onclick="buyAmmo(500)">SATIN AL</button></div>
@@ -681,28 +682,28 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   <button class="btn-sm btn-out" style="margin:6px;width:calc(100%-12px)">TAM SIRALAMAYI GÖR</button>
   <div class="sh" style="flex-shrink:0">İSTATİSTİKLERİN</div>
   <div>
-    <div class="ys-row"><span class="ys-l">ÖLDÜRME</span><span class="ys-v red" id="ysKills">0</span></div>
-    <div class="ys-row"><span class="ys-l">ÖLÜM</span><span class="ys-v" id="ysDeaths">0</span></div>
-    <div class="ys-row"><span class="ys-l">KATKI PUANI</span><span class="ys-v green" id="ysScore">0</span></div>
-    <div class="ys-row"><span class="ys-l">RÜTBE</span><span class="ys-v" id="ysRank" style="color:var(--gold)">🪖 Asker</span></div>
-    <div class="ys-row"><span class="ys-l">SONRAKI</span><span class="ys-v" id="ysNextRank" style="font-size:10px;color:var(--dim)">Onbaşı (50 katkı)</span></div>
-    <div class="ys-row"><span class="ys-l">ÜLKE</span><span class="ys-v" id="ysCountry">— SEÇİLMEDİ —</span></div>
+    <div class="ys-row"><span class="ys-l" data-i18n="stat.kills">ÖLDÜRME</span><span class="ys-v red" id="ysKills">0</span></div>
+    <div class="ys-row"><span class="ys-l" data-i18n="stat.deaths">ÖLÜM</span><span class="ys-v" id="ysDeaths">0</span></div>
+    <div class="ys-row"><span class="ys-l" data-i18n="stat.score">KATKI PUANI</span><span class="ys-v green" id="ysScore">0</span></div>
+    <div class="ys-row"><span class="ys-l" data-i18n="stat.rank">RÜTBE</span><span class="ys-v" id="ysRank" style="color:var(--gold)">🪖 Asker</span></div>
+    <div class="ys-row"><span class="ys-l" data-i18n="stat.next">SONRAKI</span><span class="ys-v" id="ysNextRank" style="font-size:10px;color:var(--dim)">Onbaşı (50 katkı)</span></div>
+    <div class="ys-row"><span class="ys-l" data-i18n="stat.country">ÜLKE</span><span class="ys-v" id="ysCountry">— SEÇİLMEDİ —</span></div>
   </div>
 </div>
 
 <!-- BOTTOM ROW -->
 <!-- Attack History -->
 <div class="cell" id="panel-tarih" style="grid-column:1;grid-row:2">
-  <div class="sh">SALDIRI TARİHİ <span id="ahCount" style="font-size:9px;color:var(--dim);margin-left:6px">(0)</span></div>
+  <div class="sh"><span data-i18n="panel.history">SALDIRI TARİHİ</span> <span id="ahCount" style="font-size:9px;color:var(--dim);margin-left:6px">(0)</span></div>
   <div class="ah-head"><span>HEDEF</span><span>HASAR</span><span>ZAMAN</span></div>
   <div style="flex:1;overflow-y:auto" id="attackHistory">
-    <div style="padding:20px;text-align:center;color:var(--dim);font-size:10px" id="ahEmpty">Henüz saldırı yok</div>
+    <div style="padding:20px;text-align:center;color:var(--dim);font-size:10px" id="ahEmpty" data-i18n="empty.attacks">Henüz saldırı yok</div>
   </div>
 </div>
 
 <!-- Alliance Chat -->
 <div class="cell" id="panel-ittifak" style="grid-column:2;grid-row:2">
-  <div class="sh">İTTİFAK SOHBETİ <span style="font-family:var(--mono);font-size:8px;color:var(--green)" id="allianceTag">İTTİFAK YOK</span> <span id="allianceMeta" style="font-family:var(--mono);font-size:8px;color:var(--dim);margin-left:6px"></span></div>
+  <div class="sh"><span data-i18n="panel.allianceChat">İTTİFAK SOHBETİ</span> <span style="font-family:var(--mono);font-size:8px;color:var(--green)" id="allianceTag">İTTİFAK YOK</span> <span id="allianceMeta" style="font-family:var(--mono);font-size:8px;color:var(--dim);margin-left:6px"></span></div>
   <div id="allianceBtnRow" style="display:flex;gap:4px;padding:5px 8px;border-bottom:1px solid var(--border);flex-shrink:0">
     <button class="btn-sm btn-red" style="flex:1" onclick="openAllianceModal('create')">+ İTTİFAK KUR</button>
     <button class="btn-sm btn-out" style="flex:1" onclick="openAllianceModal('join')">İTTİFAKA KATIL</button>
@@ -714,7 +715,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     <button class="btn-sm btn-out" style="flex:1;color:var(--red);border-color:rgba(232,22,42,0.4)" onclick="leaveAlliance()">✕ AYRIL</button>
   </div>
   <div class="chat-body" id="chatBody">
-    <div style="padding:20px;text-align:center;color:var(--dim);font-size:10px" id="chatEmpty">İttifak sohbeti boş — ilk mesajı sen yaz</div>
+    <div style="padding:20px;text-align:center;color:var(--dim);font-size:10px" id="chatEmpty" data-i18n="empty.chat">İttifak sohbeti boş — ilk mesajı sen yaz</div>
   </div>
   <div class="chat-input-row">
     <input class="chat-inp" id="chatInput" placeholder="Mesaj yaz..." onkeydown="if(event.key==='Enter')sendChat()">
@@ -724,7 +725,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 
 <!-- Radar -->
 <div class="cell" id="panel-radar" style="grid-column:3;grid-row:2">
-  <div class="sh">RADAR SİSTEMİ</div>
+  <div class="sh"><span data-i18n="panel.radar">RADAR SİSTEMİ</span></div>
   <div class="radar-wrap">
     <svg viewBox="0 0 120 120" style="width:105px;height:105px;flex-shrink:0">
       <circle cx="60" cy="60" r="58" fill="#020e06" stroke="rgba(0,200,83,0.25)" stroke-width="1"/>
@@ -744,7 +745,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     <div style="flex:1;overflow-y:auto">
       <div class="sl" style="margin-bottom:5px">TESPİT EDİLEN FAALİYET <span id="radarCount" style="font-size:9px;color:var(--dim);margin-left:4px">(0)</span></div>
       <div id="radarDetections">
-        <div style="padding:14px 4px;text-align:center;color:var(--dim);font-size:9px" id="radarEmpty">Henüz faaliyet tespit edilmedi</div>
+        <div style="padding:14px 4px;text-align:center;color:var(--dim);font-size:9px" id="radarEmpty" data-i18n="empty.radar">Henüz faaliyet tespit edilmedi</div>
       </div>
       <button class="btn-sm btn-out" style="margin-top:6px;width:100%" onclick="upgradeRadar()" id="radarUpgradeListBtn">YÜKSELT (5 MERMİ)</button>
     </div>
@@ -753,7 +754,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 
 <!-- Resource -->
 <div class="cell" id="panel-kaynak" style="grid-column:4;grid-row:2">
-  <div class="sh">KAYNAK KONTROLÜ <button class="btn-sm btn-out" style="font-size:7px;padding:2px 6px" onclick="boostAllResources()">TÜMÜNÜ ÜRET</button></div>
+  <div class="sh"><span data-i18n="panel.resources">KAYNAK KONTROLÜ</span> <button class="btn-sm btn-out" style="font-size:7px;padding:2px 6px" onclick="boostAllResources()">TÜMÜNÜ ÜRET</button></div>
   <div style="flex:1;overflow-y:auto;padding:10px 0" id="resourceList"></div>
 </div>
 
@@ -762,25 +763,25 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 <!-- MOBİL BOTTOM NAV (sadece mobil/tablet) -->
 <nav class="mob-bottom-nav" id="mobBottomNav">
   <button class="mb-tab active" data-tab="harita" onclick="switchMobTab('harita',this)">
-    <span class="mb-icon">🗺️</span><span class="mb-label">HARİTA</span>
+    <span class="mb-icon">🗺️</span><span class="mb-label" data-i18n="mob.map">HARİTA</span>
   </button>
   <button class="mb-tab" data-tab="savas" onclick="switchMobTab('savas',this)">
-    <span class="mb-icon">⚔️</span><span class="mb-label">SAVAŞ</span>
+    <span class="mb-icon">⚔️</span><span class="mb-label" data-i18n="mob.war">SAVAŞ</span>
   </button>
   <button class="mb-tab" data-tab="ittifak" onclick="switchMobTab('ittifak',this)">
-    <span class="mb-icon">🛡️</span><span class="mb-label">İTTİFAK</span>
+    <span class="mb-icon">🛡️</span><span class="mb-label" data-i18n="mob.alliance">İTTİFAK</span>
   </button>
   <button class="mb-tab" data-tab="pazar" onclick="switchMobTab('pazar',this)">
-    <span class="mb-icon">🛒</span><span class="mb-label">PAZAR</span>
+    <span class="mb-icon">🛒</span><span class="mb-label" data-i18n="mob.market">PAZAR</span>
   </button>
   <button class="mb-tab" data-tab="istat" onclick="switchMobTab('istat',this)">
-    <span class="mb-icon">📊</span><span class="mb-label">İSTAT</span>
+    <span class="mb-icon">📊</span><span class="mb-label" data-i18n="mob.stats">İSTAT</span>
   </button>
 </nav>
 
 <!-- TICKER -->
 <div class="ticker">
-  <div class="ticker-lbl">🔴 KÜRESEL HABERLER</div>
+  <div class="ticker-lbl" data-i18n="panel.news">🔴 KÜRESEL HABERLER</div>
   <div class="ticker-scroll">
     <div class="ticker-inner" id="tickerInner">
       <span style="color:var(--dim)">📡 Savaş bekleniyor — saldırılar burada akacak...</span>
@@ -1331,7 +1332,7 @@ document.addEventListener('keydown', (e) => {
 let myNickname = null;
 
 function openNicknameModal() {
-  if (!wallet) { showToast('Önce cüzdan bağla!','error'); return; }
+  if (!wallet) { showToast(t('toast.connectFirst'),'error'); return; }
   document.getElementById('nicknameInput').value = myNickname || '';
   document.getElementById('nicknameModal').classList.add('show');
   setTimeout(()=>document.getElementById('nicknameInput').focus(), 100);
@@ -1343,7 +1344,7 @@ document.getElementById('nicknameModal').addEventListener('click', function(e){ 
 
 async function saveNickname() {
   const nick = document.getElementById('nicknameInput').value.trim();
-  if (!nick) { showToast('Boş bırakılamaz','error'); return; }
+  if (!nick) { showToast(t('toast.nicknameEmpty'),'error'); return; }
   if (!wallet) { showToast('Önce cüzdan bağla','error'); return; }
   try {
     const res = await fetch(API+'/api/player/nickname',{
@@ -1356,7 +1357,7 @@ async function saveNickname() {
     try { data = await res.json(); } catch(_){}
     if (!res.ok || data.error) {
       // Backend hata mesajı gönderdiyse onu, yoksa HTTP kodunu göster
-      showToast(data.error || `Sunucu hatası (${res.status})`,'error');
+      showToast(tErr(data) || t('toast.serverError',{code:res.status}),'error');
       return;
     }
     myNickname = nick;
@@ -1484,7 +1485,7 @@ async function startNextRound() {
       headers:{'Content-Type':'application/json','x-admin-token':token}
     });
     const data = await res.json();
-    if (data.error) { showToast(data.error,'error'); return; }
+    if (data.error) { showToast(tErr(data),'error'); return; }
     showToast('🎯 Yeni tur başlatıldı!','success');
     closeRoundEndModal();
     pollState();
@@ -1525,7 +1526,7 @@ async function upgradeRadar() {
     showToast('📡 Radar zaten maksimum seviyede!','info');
     return;
   }
-  if (!wallet) { showToast('Önce cüzdan bağla!','error'); return; }
+  if (!wallet) { showToast(t('toast.connectFirst'),'error'); return; }
   if (myBulletsCount < 5) {
     showToast('📡 Yetersiz mermi! Yükseltme 5 mermi gerekir.','error');
     return;
@@ -1540,7 +1541,7 @@ async function upgradeRadar() {
     let data = {};
     try { data = await res.json(); } catch(_){}
     if (!res.ok || data.error) {
-      showToast(data.error || `Sunucu hatası (${res.status})`,'error');
+      showToast(tErr(data) || t('toast.serverError',{code:res.status}),'error');
       return;
     }
     radarLevel = data.player.radar_level || (radarLevel+1);
@@ -1594,8 +1595,8 @@ function renderResources() {
 async function produceResource(id) {
   const r = RESOURCES.find(x=>x.id===id);
   if (!r) return;
-  if (!wallet) { showToast('Önce cüzdan bağla!','error'); return; }
-  if (myBulletsCount < 1) { showToast('Yetersiz mermi! Pazardan al.','error'); return; }
+  if (!wallet) { showToast(t('toast.connectFirst'),'error'); return; }
+  if (myBulletsCount < 1) { showToast(t('toast.insufBulletsMarket'),'error'); return; }
   if (r.val >= 100 && (id === 'metal' || id === 'uranium')) {
     showToast(`${r.icon} ${r.name} zaten %100 — sürekli aktif`,'info');
     return;
@@ -1610,7 +1611,7 @@ async function produceResource(id) {
     let data = {};
     try { data = await res.json(); } catch(_){}
     if (!res.ok || data.error) {
-      showToast(data.error || `Sunucu hatası (${res.status})`,'error');
+      showToast(tErr(data) || t('toast.serverError',{code:res.status}),'error');
       return;
     }
     // Backend'den gerçek değerleri al
@@ -1665,7 +1666,7 @@ function updateBuffPanelFromPlayer(p) {
 }
 
 async function boostAllResources() {
-  if (!wallet) { showToast('Önce cüzdan bağla!','error'); return; }
+  if (!wallet) { showToast(t('toast.connectFirst'),'error'); return; }
   const eligible = RESOURCES.filter(r => r.val < 100 || (r.id !== 'metal' && r.id !== 'uranium'));
   if (myBulletsCount < eligible.length) {
     showToast(`Yetersiz mermi! ${eligible.length} gerekir.`,'error');
@@ -2078,7 +2079,7 @@ function drawAttackLine(fromCode, toCode) {
 
 /* ── WALLET ── */
 async function connectWallet() {
-  if (!window.ethereum) { showToast('MetaMask bulunamadı! metamask.io kurulu olmalı.','error'); return; }
+  if (!window.ethereum) { showToast(t('toast.metamaskMissing'),'error'); return; }
   showLoader('CÜZDANA BAĞLANIYOR...');
   try {
     const accounts = await ethereum.request({method:'eth_requestAccounts'});
@@ -2088,7 +2089,7 @@ async function connectWallet() {
     btn.className = 'btn-wallet connected';
     dismissWelcome();
     await registerPlayer();
-  } catch(e) { showToast('Bağlantı iptal edildi.','error'); }
+  } catch(e) { showToast(t('toast.connectionCancelled'),'error'); }
   finally { hideLoader(); }
 }
 
@@ -2111,13 +2112,13 @@ async function registerPlayer() {
       applyMyCountry(cc);
       showToast('Hoş geldin Komutan! '+( CD[cc]?.f||'')+' '+cc,'success');
     } else {
-      showToast('Cüzdan bağlandı! Ülke seçin.','success');
+      showToast(t('toast.connected'),'success');
       setTimeout(()=>openModal('nation'),700);
     }
     updatePlayerUI(p);
   } catch(e) {
     setBackendStatus(false);
-    showToast('Sunucuya bağlanılamadı. Tekrar deneniyor...','error');
+    showToast(t('toast.serverDown'),'error');
   } finally { hideLoader(); }
 }
 
@@ -2190,12 +2191,12 @@ async function refreshPlayerState() {
 
 /* ── CHOOSE COUNTRY ── */
 async function chooseCountry(code) {
-  if (!wallet) { showToast('Önce cüzdan bağla!','error'); return; }
+  if (!wallet) { showToast(t('toast.connectFirst'),'error'); return; }
   showLoader(`ÜLKE SEÇİLİYOR: ${CD[code]?.n||code}...`);
   try {
     const res = await fetch(API+'/api/player/choose-country',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet,countryCode:code})});
     const data = await res.json();
-    if (data.error) { showToast(data.error,'error'); return; }
+    if (data.error) { showToast(tErr(data),'error'); return; }
     myCountry = code;
     applyMyCountry(code);
     showToast('Ülke seçildi: '+(CD[code]?.f||'')+' '+(CD[code]?.n||code),'success');
@@ -2222,16 +2223,16 @@ function applyMyCountry(code) {
 
 /* ── ATTACK ── */
 async function attackTarget() {
-  if (!wallet)        { showToast('Önce cüzdan bağla!','error'); return; }
-  if (!myCountry)     { showToast('Önce ülke seç!','error'); openModal('nation'); return; }
-  if (!targetCountry) { showToast('Haritadan hedef seç!','error'); return; }
+  if (!wallet)        { showToast(t('toast.connectFirst'),'error'); return; }
+  if (!myCountry)     { showToast(t('toast.selectCountryFirst'),'error'); openModal('nation'); return; }
+  if (!targetCountry) { showToast(t('toast.selectTargetFirst'),'error'); return; }
   const btn = document.getElementById('attackBtn');
   btn.disabled = true; btn.textContent='🔴 ATIYOR...';
   try {
     const res = await fetch(API+'/api/game/attack',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet,targetCountry})});
     const data = await res.json();
     if (data.error) {
-      showToast(data.error,'error');
+      showToast(tErr(data),'error');
       // Cooldown hatasıysa kısa bekleme göster
       if (res.status === 429) {
         let s = 1;
@@ -2263,7 +2264,7 @@ async function attackTarget() {
       pollState();
     }
   } catch(e) {
-    showToast('Saldırı başarısız.','error');
+    showToast(t('toast.attackFailed'),'error');
     btn.disabled=false; btn.textContent=`⚡ ${targetCountry} SALDIRI BAŞLAT`;
   }
 }
@@ -2302,11 +2303,11 @@ let _bulkOriginal = 0;
 let myBulletsCount = 0; // updatePlayerUI'da güncelleniyor — referans
 
 async function bulkAttack(n) {
-  if (!wallet)        { showToast('Önce cüzdan bağla!','error'); return; }
-  if (!myCountry)     { showToast('Önce ülke seç!','error'); return; }
-  if (!targetCountry) { showToast('Haritadan hedef seç!','error'); return; }
-  if (_bulkActive)    { showToast('Zaten toplu saldırı var!','error'); return; }
-  if (myBulletsCount <= 0) { showToast('Mermin yok!','error'); return; }
+  if (!wallet)        { showToast(t('toast.connectFirst'),'error'); return; }
+  if (!myCountry)     { showToast(t('toast.selectCountryFirst'),'error'); return; }
+  if (!targetCountry) { showToast(t('toast.selectTargetFirst'),'error'); return; }
+  if (_bulkActive)    { showToast(t('toast.bulkAlreadyRunning'),'error'); return; }
+  if (myBulletsCount <= 0) { showToast(t('err.NO_BULLETS'),'error'); return; }
 
   // Mermi sayısından fazlaysa, mevcut kadar at
   const planned = Math.min(n, myBulletsCount);
@@ -2353,7 +2354,7 @@ async function bulkAttack(n) {
         }
         // Diğer hatalar — durdur
         if (data.error.includes('elen') || data.error.includes('Mermin yok')) {
-          showToast(data.error,'error');
+          showToast(tErr(data),'error');
           break;
         }
         failCount++;
@@ -2467,8 +2468,8 @@ function ethToWeiHex(ethStr) {
 }
 
 async function buyAmmo(pack) {
-  if (!wallet) { showToast('Önce cüzdan bağla!','error'); return; }
-  if (!window.ethereum) { showToast('MetaMask bulunamadı!','error'); return; }
+  if (!wallet) { showToast(t('toast.connectFirst'),'error'); return; }
+  if (!window.ethereum) { showToast(t('toast.metamaskMissing'),'error'); return; }
 
   const ethAmount = AMMO_PRICE_ETH[pack];
   if (!ethAmount) { showToast('Geçersiz paket.','error'); return; }
@@ -2530,7 +2531,7 @@ async function buyAmmo(pack) {
     addChatSystem(`💳 ${pack.toLocaleString('tr-TR')} mermi satın alındı (${ethAmount} ETH)`);
 
   } catch(e) {
-    if (e.code === 4001) showToast('Ödeme iptal edildi.','error');
+    if (e.code === 4001) showToast(t('toast.txCancelled'),'error');
     else showToast('İşlem başarısız: ' + (e.message||'').slice(0,40),'error');
   } finally {
     hideLoader();
@@ -2583,7 +2584,7 @@ function _updateAllianceUI(data) {
 }
 
 function openAllianceModal(mode) {
-  if (!wallet) { showToast('Önce cüzdan bağla!','error'); return; }
+  if (!wallet) { showToast(t('toast.connectFirst'),'error'); return; }
   if (myAlliance && mode === 'create') {
     showToast('Zaten bir ittifaktasın. Önce ayrıl.','error');
     return;
@@ -2604,7 +2605,7 @@ async function createAlliance() {
   try {
     const res = await fetch(API+'/api/alliance/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet,name})});
     const data = await res.json();
-    if (data.error) { showToast(data.error,'error'); return; }
+    if (data.error) { showToast(tErr(data),'error'); return; }
     const a = data.alliance || data;
     myAlliance = a.id || data.allianceId || name;
     _updateAllianceUI(a);
@@ -2620,7 +2621,7 @@ async function joinAlliance() {
   try {
     const res = await fetch(API+'/api/alliance/join',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet,allianceId:id})});
     const data = await res.json();
-    if (data.error) { showToast(data.error,'error'); return; }
+    if (data.error) { showToast(tErr(data),'error'); return; }
     const a = data.alliance || data;
     myAlliance = a.id || id;
     _updateAllianceUI(a);
@@ -2636,7 +2637,7 @@ async function leaveAlliance() {
   try {
     const res = await fetch(API+'/api/alliance/leave',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet})});
     const data = await res.json();
-    if (data.error) { showToast(data.error,'error'); return; }
+    if (data.error) { showToast(tErr(data),'error'); return; }
     myAlliance = null;
     _updateAllianceUI(null);
     showToast('İttifaktan ayrıldın','info');
@@ -2677,13 +2678,13 @@ function showAllianceMembers() {
 
 /* ── RADIO ── */
 function openRadioModal() {
-  if (!wallet) { showToast('Önce cüzdan bağla!','error'); return; }
+  if (!wallet) { showToast(t('toast.connectFirst'),'error'); return; }
   document.getElementById('radioModal').classList.add('show');
 }
 function closeRadioModal() { document.getElementById('radioModal').classList.remove('show'); }
 
 async function radioCommand(cmd) {
-  if (!wallet) { showToast('Önce cüzdan bağla!','error'); return; }
+  if (!wallet) { showToast(t('toast.connectFirst'),'error'); return; }
   const labels = {ATTACK_NOW:'⚔️ ŞİMDİ SALDIR',DEFEND:'🛡️ SAVUN',REGROUP:'🔄 YENİDEN TOPLAN',RETREAT:'🏃 GERİ ÇEKİL',FOCUS_FIRE:'🎯 ODAKLI ATEŞ'};
   try {
     await fetch(API+'/api/alliance/radio',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet,command:cmd})});
@@ -2755,9 +2756,9 @@ function setBackendStatus(online) {
   const banner = document.getElementById('offlineBanner');
   if (banner) banner.style.display = online ? 'none' : 'flex';
   if (!online) {
-    showToast('⚠️ Sunucu bağlantısı kayıp — tekrar deneniyor...', 'error');
+    showToast(t('toast.serverOffline'),'error');
   } else {
-    showToast('✅ Sunucu bağlantısı geri geldi', 'success');
+    showToast(t('toast.serverBack'),'success');
   }
 }
 
@@ -3108,9 +3109,9 @@ function toggleSound() {
   if (btn) btn.textContent = _soundEnabled ? '🔊' : '🔇';
   if (_soundEnabled) {
     playSound('click');
-    showToast('🔊 Ses açık','info');
+    showToast(t('toast.soundOn'),'info');
   } else {
-    showToast('🔇 Ses kapalı','info');
+    showToast(t('toast.soundOff'),'info');
   }
 }
 
@@ -3273,7 +3274,7 @@ if(window.ethereum){
       document.getElementById('myBullets').textContent = '0';
       document.getElementById('myContrib').textContent = '0';
       document.getElementById('ethBal').textContent = '0.000 ETH';
-      showToast('🔌 Cüzdan bağlantısı kesildi.','error');
+      showToast('🔌 '+t('toast.disconnected'),'error');
     } else {
       // Hesap değişti — yeni wallet ile yeniden başla
       const newWallet = accounts[0];
@@ -3295,6 +3296,531 @@ if(window.ethereum){
     showToast('🔗 Ağ değişti, sayfa yenileniyor...','info');
     setTimeout(()=>location.reload(),800);
   });
+}
+
+/* ── DİL SİSTEMİ (TR / EN / RU) ── */
+const I18N = {
+  tr: {
+    // Genel
+    'wallet.connect': 'CÜZDAN BAĞLA',
+    'wallet.disconnect': '⏏ ÇIKIŞ YAP',
+    'wallet.copy': '📋 ADRESİ KOPYALA',
+    'wallet.explorer': '🔍 EXPLORER\'DA GÖR',
+    'wallet.nickname': '👤 NICKNAME DEĞİŞTİR',
+    'nav.controls': 'KONTROL PANELİ',
+    'nav.map': 'HARİTA',
+    'nav.countries': 'ÜLKELER',
+    'nav.alliance': 'İTTİFAKLAR',
+    'nav.stats': 'İSTATİSTİKLER',
+    'nav.market': 'PAZAR',
+    'nav.rank': 'SIRALAMA',
+    'nav.help': '❓ NASIL OYNANIR',
+    'nav.feedback': 'Geri bildirim / bug rapor',
+    'nav.sound': 'Sesi aç/kapa',
+    'nav.nickname': 'İSİM EKLE',
+    // Mobil sekmeler
+    'mob.map': 'HARİTA',
+    'mob.war': 'SAVAŞ',
+    'mob.alliance': 'İTTİFAK',
+    'mob.market': 'PAZAR',
+    'mob.stats': 'İSTAT',
+    // Paneller
+    'panel.controls': 'KONTROL PANELİ',
+    'panel.country': 'ÜLKE GENEL BAKIŞI',
+    'panel.market': 'MERMİ SATIN AL',
+    'panel.alliance': 'İTTİFAK YÖNETİMİ',
+    'panel.allianceChat': 'İTTİFAK SOHBETİ',
+    'panel.leaderboard': 'LİDER TABLOSU',
+    'panel.mystats': 'İSTATİSTİKLERİM',
+    'panel.history': 'SALDIRI TARİHİ',
+    'panel.activity': 'SAVAŞ FAALİYETİ',
+    'panel.radar': 'RADAR SİSTEMİ',
+    'panel.resources': 'KAYNAK KONTROLÜ',
+    'panel.news': '🔴 KÜRESEL HABERLER',
+    // Buton ve eylemler
+    'btn.attack': '⚡ SALDIRI BAŞLAT',
+    'btn.attackTarget': '⚡ {target} SALDIRI BAŞLAT',
+    'btn.attacking': '🔴 ATIYOR...',
+    'btn.noBullets': '🔫 MERMİN YOK — PAZARDAN AL',
+    'btn.selectTarget': 'HEDEF SEÇ ▾',
+    'btn.stopBulk': '⏹ DURDUR',
+    'btn.allianceCreate': 'KUR',
+    'btn.allianceJoin': 'KATIL',
+    'btn.allianceMembers': 'ÜYELER',
+    'btn.allianceLeave': '✕ AYRIL',
+    'btn.radio': '📻 TELSİZ',
+    'btn.buy': 'SATIN AL',
+    'btn.produceAll': 'TÜMÜNÜ ÜRET',
+    'btn.upgradeRadar': 'YÜKSELT (5 MERMİ)',
+    'btn.cancel': 'İPTAL',
+    'btn.save': '✅ KAYDET',
+    'btn.close': '✕ KAPAT',
+    'btn.warJoin': 'SAVAŞA KATIL',
+    // İstat etiketleri
+    'stat.bullets': '🔫 Mermilerim',
+    'stat.attacks': '⚔️ Saldırılarım',
+    'stat.contrib': '📊 Katkı',
+    'stat.country': 'ÜLKE',
+    'stat.score': 'KATKI PUANI',
+    'stat.kills': 'ÖLDÜRME',
+    'stat.deaths': 'ÖLÜM',
+    'stat.rank': 'RÜTBE',
+    'stat.next': 'SONRAKI',
+    'stat.rankMax': '🏆 En yüksek rütbe!',
+    'stat.notSelected': '— SEÇİLMEDİ —',
+    // Buff kartları
+    'buff.damage': 'HASAR',
+    'buff.shield': 'KALKAN',
+    'buff.contrib': 'KATKI',
+    'buff.radar': 'RADAR',
+    // Empty states
+    'empty.attacks': 'Henüz saldırı yok',
+    'empty.activity': 'Henüz savaş faaliyeti yok',
+    'empty.leaderboard': 'Henüz oyunda ülke yok',
+    'empty.chat': 'İttifak sohbeti boş — ilk mesajı sen yaz',
+    'empty.radar': 'Henüz faaliyet tespit edilmedi',
+    'empty.news': '📡 Savaş bekleniyor — saldırılar burada akacak...',
+    // Toast — pozitif
+    'toast.connected': 'Cüzdan bağlandı! Ülke seçin.',
+    'toast.welcome': 'Hoş geldin Komutan!',
+    'toast.targetLocked': '🎯 {country} hedef kilitlendi',
+    'toast.attackOk': '⚡ {country} vuruldu! -{dmg} HP',
+    'toast.allianceCreated': '🛡️ İttifak kuruldu',
+    'toast.allianceJoined': '🛡️ İttifaka katıldın',
+    'toast.allianceLeft': '✕ İttifaktan ayrıldın',
+    'toast.roundStart': '🎯 TUR {n} BAŞLADI!',
+    'toast.soundOn': '🔊 Ses açık',
+    'toast.soundOff': '🔇 Ses kapalı',
+    'toast.disconnected': '⏏ Çıkış yapıldı',
+    'toast.logoutFull': '⏏ Çıkış başarılı — MetaMask izni de iptal edildi',
+    'toast.copied': '📋 Adres kopyalandı',
+    'toast.linkCopied': '🔗 Link kopyalandı: {code}',
+    'toast.nicknameSet': '✅ Nickname: {nick}',
+    'toast.feedbackCopied': '📋 Panoya kopyalandı! Twitter/Discord/e-postaya yapıştırabilirsin.',
+    'toast.bulkStarted': '⚔️ {n} saldırı başlatıldı — {country}',
+    'toast.bulkDone': '✅ {ok}/{total} saldırı tamamlandı',
+    'toast.bulkCancelled': '⏹ Durduruldu — {ok}/{total} saldırı yapıldı',
+    'toast.bulkBulletEnd': '⚠️ Mermin bitti — {ok}/{total} saldırı yapıldı',
+    'toast.bulkOnlyHave': '⚠️ Sadece {n} mermin var, {n} atılacak',
+    // Toast — negatif
+    'toast.connectFirst': 'Önce cüzdan bağla!',
+    'toast.selectCountryFirst': 'Önce ülke seç!',
+    'toast.selectTargetFirst': 'Haritadan hedef seç!',
+    'toast.metamaskMissing': 'MetaMask bulunamadı! metamask.io kurulu olmalı.',
+    'toast.connectionCancelled': 'Bağlantı iptal edildi.',
+    'toast.serverError': 'Sunucu hatası ({code})',
+    'toast.connectionError': 'Bağlantı hatası: {msg}',
+    'toast.serverDown': 'Sunucuya bağlanılamadı. Tekrar deneniyor...',
+    'toast.serverOffline': '⚠️ Sunucu bağlantısı kayıp — tekrar deneniyor...',
+    'toast.serverBack': '✅ Sunucu bağlantısı geri geldi',
+    'toast.attackFailed': 'Saldırı başarısız.',
+    'toast.txCancelled': 'Ödeme iptal edildi.',
+    'toast.txFailed': 'İşlem başarısız: {msg}',
+    'toast.tooFast': 'Çok hızlı — biraz bekle',
+    'toast.bulkAlreadyRunning': 'Zaten toplu saldırı var!',
+    'toast.insufBullets': 'Yetersiz mermi!',
+    'toast.insufBulletsMarket': 'Yetersiz mermi! Pazardan al.',
+    'toast.feedbackEmpty': 'Lütfen mesajını yaz',
+    'toast.feedbackShort': 'Mesaj çok kısa',
+    'toast.nicknameEmpty': 'Boş bırakılamaz',
+    'toast.shareNoCountry': 'Önce ülke seçilmeli',
+    // Backend error mapping (code → user message)
+    'err.INVALID_WALLET': 'Geçersiz cüzdan',
+    'err.COUNTRY_NOT_FOUND': 'Ülke bulunamadı',
+    'err.COUNTRY_ELIMINATED': 'Bu ülke elenmiş',
+    'err.CANT_CHANGE_COUNTRY': 'Ülken elenmeden başka ülkeye geçemezsin',
+    'err.ALLIANCE_NAME_REQUIRED': 'İttifak adı gerekli',
+    'err.ALLIANCE_NAME_TOO_SHORT': 'İttifak adı en az 3 karakter',
+    'err.ALLIANCE_LIMIT': 'Maksimum ittifak sayısına ulaşıldı (100). Sonraki turda dene.',
+    'err.ALLIANCE_NAME_TAKEN': 'Bu isimde bir ittifak zaten var',
+    'err.NO_COUNTRY_SELECTED': 'Önce ülke seçmelisin',
+    'err.ALREADY_IN_ALLIANCE': 'Zaten bir ittifaktasın',
+    'err.INAPPROPRIATE_NAME': 'Uygunsuz isim — lütfen başka bir isim seç',
+    'err.ALLIANCE_NOT_FOUND': 'İttifak bulunamadı',
+    'err.ALLIANCE_FULL': 'İttifak dolu (maks 50 üye)',
+    'err.NOT_IN_ALLIANCE': 'İttifakta değilsin',
+    'err.INVALID_COMMAND': 'Geçersiz komut',
+    'err.UNAUTHORIZED': 'Yetkin yok',
+    'err.TARGET_NOT_FOUND': 'Hedef ülke bulunamadı',
+    'err.CANT_ATTACK_SELF': 'Kendi ülkeni vuramazsın',
+    'err.YOUR_COUNTRY_ELIMINATED': 'Ülken elenmiş — saldıramazsın',
+    'err.NO_BULLETS': 'Mermin yok! Pazardan mermi al.',
+    'err.ROUND_INACTIVE': 'Tur aktif değil — yeni tur bekleniyor',
+    'err.NICKNAME_TOO_SHORT': 'Nickname en az 3 karakter olmalı',
+    'err.NICKNAME_INAPPROPRIATE': 'Uygunsuz nickname — başka bir isim seç',
+    'err.NICKNAME_INVALID_CHARS': 'Nickname sadece harf, rakam, _, - içerebilir',
+    'err.NICKNAME_TAKEN': 'Bu nickname zaten alınmış',
+    'err.RADAR_MAX': 'Radar zaten maksimum seviyede (10)',
+    'err.INVALID_RESOURCE': 'Geçersiz kaynak',
+    'err.RATE_LIMITED': 'Çok fazla istek. Lütfen yavaşla.',
+    'err.ATTACK_COOLDOWN': 'Çok hızlı saldırı — biraz yavaşla.',
+    'err.INSUFFICIENT_BULLETS': 'Yetersiz mermi',
+    'err.ROUND_ALREADY_ENDED': 'Tur zaten bitmiş',
+    'err.ROUND_ALREADY_ACTIVE': 'Zaten aktif tur var',
+    'err.ERROR': 'Hata oluştu',
+  },
+  en: {
+    'wallet.connect': 'CONNECT WALLET',
+    'wallet.disconnect': '⏏ DISCONNECT',
+    'wallet.copy': '📋 COPY ADDRESS',
+    'wallet.explorer': '🔍 VIEW ON EXPLORER',
+    'wallet.nickname': '👤 CHANGE NICKNAME',
+    'nav.controls': 'CONTROL PANEL',
+    'nav.map': 'MAP',
+    'nav.countries': 'COUNTRIES',
+    'nav.alliance': 'ALLIANCES',
+    'nav.stats': 'STATS',
+    'nav.market': 'MARKET',
+    'nav.rank': 'RANKING',
+    'nav.help': '❓ HOW TO PLAY',
+    'nav.feedback': 'Feedback / Bug report',
+    'nav.sound': 'Toggle sound',
+    'nav.nickname': 'ADD NAME',
+    'mob.map': 'MAP',
+    'mob.war': 'WAR',
+    'mob.alliance': 'ALLIANCE',
+    'mob.market': 'MARKET',
+    'mob.stats': 'STATS',
+    'panel.controls': 'CONTROL PANEL',
+    'panel.country': 'COUNTRY OVERVIEW',
+    'panel.market': 'BUY AMMO',
+    'panel.alliance': 'ALLIANCE MGMT',
+    'panel.allianceChat': 'ALLIANCE CHAT',
+    'panel.leaderboard': 'LEADERBOARD',
+    'panel.mystats': 'MY STATS',
+    'panel.history': 'ATTACK HISTORY',
+    'panel.activity': 'WAR ACTIVITY',
+    'panel.radar': 'RADAR SYSTEM',
+    'panel.resources': 'RESOURCE CONTROL',
+    'panel.news': '🔴 GLOBAL NEWS',
+    'btn.attack': '⚡ ATTACK',
+    'btn.attackTarget': '⚡ ATTACK {target}',
+    'btn.attacking': '🔴 FIRING...',
+    'btn.noBullets': '🔫 NO AMMO — BUY FROM MARKET',
+    'btn.selectTarget': 'SELECT TARGET ▾',
+    'btn.stopBulk': '⏹ STOP',
+    'btn.allianceCreate': 'CREATE',
+    'btn.allianceJoin': 'JOIN',
+    'btn.allianceMembers': 'MEMBERS',
+    'btn.allianceLeave': '✕ LEAVE',
+    'btn.radio': '📻 RADIO',
+    'btn.buy': 'BUY',
+    'btn.produceAll': 'PRODUCE ALL',
+    'btn.upgradeRadar': 'UPGRADE (5 AMMO)',
+    'btn.cancel': 'CANCEL',
+    'btn.save': '✅ SAVE',
+    'btn.close': '✕ CLOSE',
+    'btn.warJoin': 'JOIN WAR',
+    'stat.bullets': '🔫 My Ammo',
+    'stat.attacks': '⚔️ My Attacks',
+    'stat.contrib': '📊 Contribution',
+    'stat.country': 'COUNTRY',
+    'stat.score': 'CONTRIB SCORE',
+    'stat.kills': 'KILLS',
+    'stat.deaths': 'DEATHS',
+    'stat.rank': 'RANK',
+    'stat.next': 'NEXT',
+    'stat.rankMax': '🏆 Highest rank!',
+    'stat.notSelected': '— NOT SELECTED —',
+    'buff.damage': 'DAMAGE',
+    'buff.shield': 'SHIELD',
+    'buff.contrib': 'CONTRIB',
+    'buff.radar': 'RADAR',
+    'empty.attacks': 'No attacks yet',
+    'empty.activity': 'No war activity yet',
+    'empty.leaderboard': 'No countries in game yet',
+    'empty.chat': 'Alliance chat empty — write the first message',
+    'empty.radar': 'No activity detected yet',
+    'empty.news': '📡 Awaiting war — attacks will flow here...',
+    'toast.connected': 'Wallet connected! Select a country.',
+    'toast.welcome': 'Welcome Commander!',
+    'toast.targetLocked': '🎯 Target locked: {country}',
+    'toast.attackOk': '⚡ Hit {country}! -{dmg} HP',
+    'toast.allianceCreated': '🛡️ Alliance created',
+    'toast.allianceJoined': '🛡️ Joined alliance',
+    'toast.allianceLeft': '✕ Left alliance',
+    'toast.roundStart': '🎯 ROUND {n} STARTED!',
+    'toast.soundOn': '🔊 Sound on',
+    'toast.soundOff': '🔇 Sound off',
+    'toast.disconnected': '⏏ Disconnected',
+    'toast.logoutFull': '⏏ Disconnect successful — MetaMask permission revoked',
+    'toast.copied': '📋 Address copied',
+    'toast.linkCopied': '🔗 Link copied: {code}',
+    'toast.nicknameSet': '✅ Nickname: {nick}',
+    'toast.feedbackCopied': '📋 Copied to clipboard! Paste it to Twitter/Discord/email.',
+    'toast.bulkStarted': '⚔️ {n} attacks started — {country}',
+    'toast.bulkDone': '✅ {ok}/{total} attacks completed',
+    'toast.bulkCancelled': '⏹ Stopped — {ok}/{total} attacks done',
+    'toast.bulkBulletEnd': '⚠️ Ammo depleted — {ok}/{total} attacks done',
+    'toast.bulkOnlyHave': '⚠️ Only {n} ammo, will fire {n}',
+    'toast.connectFirst': 'Connect wallet first!',
+    'toast.selectCountryFirst': 'Select a country first!',
+    'toast.selectTargetFirst': 'Select a target from the map!',
+    'toast.metamaskMissing': 'MetaMask not found! Install from metamask.io',
+    'toast.connectionCancelled': 'Connection cancelled.',
+    'toast.serverError': 'Server error ({code})',
+    'toast.connectionError': 'Connection error: {msg}',
+    'toast.serverDown': 'Cannot reach server. Retrying...',
+    'toast.serverOffline': '⚠️ Server connection lost — retrying...',
+    'toast.serverBack': '✅ Server connection restored',
+    'toast.attackFailed': 'Attack failed.',
+    'toast.txCancelled': 'Transaction cancelled.',
+    'toast.txFailed': 'Transaction failed: {msg}',
+    'toast.tooFast': 'Too fast — slow down',
+    'toast.bulkAlreadyRunning': 'Bulk attack already running!',
+    'toast.insufBullets': 'Insufficient ammo!',
+    'toast.insufBulletsMarket': 'Not enough ammo! Buy from market.',
+    'toast.feedbackEmpty': 'Please write your message',
+    'toast.feedbackShort': 'Message too short',
+    'toast.nicknameEmpty': 'Cannot be empty',
+    'toast.shareNoCountry': 'Select a country first',
+    'err.INVALID_WALLET': 'Invalid wallet',
+    'err.COUNTRY_NOT_FOUND': 'Country not found',
+    'err.COUNTRY_ELIMINATED': 'Country eliminated',
+    'err.CANT_CHANGE_COUNTRY': 'Cannot change country until yours is eliminated',
+    'err.ALLIANCE_NAME_REQUIRED': 'Alliance name required',
+    'err.ALLIANCE_NAME_TOO_SHORT': 'Alliance name must be at least 3 characters',
+    'err.ALLIANCE_LIMIT': 'Max alliance count reached (100). Try next round.',
+    'err.ALLIANCE_NAME_TAKEN': 'Alliance name already taken',
+    'err.NO_COUNTRY_SELECTED': 'Select a country first',
+    'err.ALREADY_IN_ALLIANCE': 'Already in an alliance',
+    'err.INAPPROPRIATE_NAME': 'Inappropriate name — please choose another',
+    'err.ALLIANCE_NOT_FOUND': 'Alliance not found',
+    'err.ALLIANCE_FULL': 'Alliance full (max 50 members)',
+    'err.NOT_IN_ALLIANCE': 'Not in an alliance',
+    'err.INVALID_COMMAND': 'Invalid command',
+    'err.UNAUTHORIZED': 'Unauthorized',
+    'err.TARGET_NOT_FOUND': 'Target country not found',
+    'err.CANT_ATTACK_SELF': 'Cannot attack your own country',
+    'err.YOUR_COUNTRY_ELIMINATED': 'Your country eliminated — cannot attack',
+    'err.NO_BULLETS': 'No ammo! Buy from market.',
+    'err.ROUND_INACTIVE': 'Round inactive — waiting for new round',
+    'err.NICKNAME_TOO_SHORT': 'Nickname must be at least 3 characters',
+    'err.NICKNAME_INAPPROPRIATE': 'Inappropriate nickname — choose another',
+    'err.NICKNAME_INVALID_CHARS': 'Nickname only allows letters, digits, _, -',
+    'err.NICKNAME_TAKEN': 'Nickname already taken',
+    'err.RADAR_MAX': 'Radar already at max level (10)',
+    'err.INVALID_RESOURCE': 'Invalid resource',
+    'err.RATE_LIMITED': 'Too many requests. Please slow down.',
+    'err.ATTACK_COOLDOWN': 'Attack too fast — slow down.',
+    'err.INSUFFICIENT_BULLETS': 'Insufficient ammo',
+    'err.ROUND_ALREADY_ENDED': 'Round already ended',
+    'err.ROUND_ALREADY_ACTIVE': 'Active round already exists',
+    'err.ERROR': 'An error occurred',
+  },
+  ru: {
+    'wallet.connect': 'ПОДКЛЮЧИТЬ',
+    'wallet.disconnect': '⏏ ОТКЛЮЧИТЬ',
+    'wallet.copy': '📋 КОПИРОВАТЬ АДРЕС',
+    'wallet.explorer': '🔍 СМОТРЕТЬ В EXPLORER',
+    'wallet.nickname': '👤 СМЕНИТЬ НИК',
+    'nav.controls': 'УПРАВЛЕНИЕ',
+    'nav.map': 'КАРТА',
+    'nav.countries': 'СТРАНЫ',
+    'nav.alliance': 'АЛЬЯНСЫ',
+    'nav.stats': 'СТАТИСТИКА',
+    'nav.market': 'РЫНОК',
+    'nav.rank': 'РЕЙТИНГ',
+    'nav.help': '❓ КАК ИГРАТЬ',
+    'nav.feedback': 'Отзыв / отчёт об ошибке',
+    'nav.sound': 'Звук вкл/выкл',
+    'nav.nickname': 'ДОБАВИТЬ ИМЯ',
+    'mob.map': 'КАРТА',
+    'mob.war': 'БОЙ',
+    'mob.alliance': 'АЛЬЯНС',
+    'mob.market': 'РЫНОК',
+    'mob.stats': 'СТАТ',
+    'panel.controls': 'УПРАВЛЕНИЕ',
+    'panel.country': 'ОБЗОР СТРАНЫ',
+    'panel.market': 'КУПИТЬ ПАТРОНЫ',
+    'panel.alliance': 'УПРАВЛЕНИЕ АЛЬЯНСОМ',
+    'panel.allianceChat': 'ЧАТ АЛЬЯНСА',
+    'panel.leaderboard': 'ТАБЛИЦА ЛИДЕРОВ',
+    'panel.mystats': 'МОЯ СТАТИСТИКА',
+    'panel.history': 'ИСТОРИЯ АТАК',
+    'panel.activity': 'ВОЕННАЯ АКТИВНОСТЬ',
+    'panel.radar': 'СИСТЕМА РАДАРА',
+    'panel.resources': 'РЕСУРСЫ',
+    'panel.news': '🔴 МИРОВЫЕ НОВОСТИ',
+    'btn.attack': '⚡ АТАКОВАТЬ',
+    'btn.attackTarget': '⚡ АТАКОВАТЬ {target}',
+    'btn.attacking': '🔴 ОГОНЬ...',
+    'btn.noBullets': '🔫 НЕТ ПАТРОНОВ — КУПИТЕ',
+    'btn.selectTarget': 'ВЫБРАТЬ ЦЕЛЬ ▾',
+    'btn.stopBulk': '⏹ СТОП',
+    'btn.allianceCreate': 'СОЗДАТЬ',
+    'btn.allianceJoin': 'ВСТУПИТЬ',
+    'btn.allianceMembers': 'СОСТАВ',
+    'btn.allianceLeave': '✕ ВЫЙТИ',
+    'btn.radio': '📻 РАДИО',
+    'btn.buy': 'КУПИТЬ',
+    'btn.produceAll': 'ПРОИЗВЕСТИ ВСЁ',
+    'btn.upgradeRadar': 'УЛУЧШИТЬ (5 ПАТР.)',
+    'btn.cancel': 'ОТМЕНА',
+    'btn.save': '✅ СОХРАНИТЬ',
+    'btn.close': '✕ ЗАКРЫТЬ',
+    'btn.warJoin': 'ВСТУПИТЬ В БОЙ',
+    'stat.bullets': '🔫 Патроны',
+    'stat.attacks': '⚔️ Атаки',
+    'stat.contrib': '📊 Вклад',
+    'stat.country': 'СТРАНА',
+    'stat.score': 'ОЧКИ ВКЛАДА',
+    'stat.kills': 'УБИЙСТВА',
+    'stat.deaths': 'СМЕРТИ',
+    'stat.rank': 'ЗВАНИЕ',
+    'stat.next': 'СЛЕДУЮЩИЙ',
+    'stat.rankMax': '🏆 Высшее звание!',
+    'stat.notSelected': '— НЕ ВЫБРАНО —',
+    'buff.damage': 'УРОН',
+    'buff.shield': 'ЩИТ',
+    'buff.contrib': 'ВКЛАД',
+    'buff.radar': 'РАДАР',
+    'empty.attacks': 'Атак пока нет',
+    'empty.activity': 'Военной активности пока нет',
+    'empty.leaderboard': 'В игре пока нет стран',
+    'empty.chat': 'Чат пуст — напишите первое сообщение',
+    'empty.radar': 'Активность не обнаружена',
+    'empty.news': '📡 Ожидание боя — атаки появятся здесь...',
+    'toast.connected': 'Кошелёк подключён! Выберите страну.',
+    'toast.welcome': 'Добро пожаловать, Командир!',
+    'toast.targetLocked': '🎯 Цель захвачена: {country}',
+    'toast.attackOk': '⚡ Попадание {country}! -{dmg} HP',
+    'toast.allianceCreated': '🛡️ Альянс создан',
+    'toast.allianceJoined': '🛡️ Вы вступили в альянс',
+    'toast.allianceLeft': '✕ Вы покинули альянс',
+    'toast.roundStart': '🎯 РАУНД {n} НАЧАЛСЯ!',
+    'toast.soundOn': '🔊 Звук включён',
+    'toast.soundOff': '🔇 Звук выключен',
+    'toast.disconnected': '⏏ Отключено',
+    'toast.logoutFull': '⏏ Успешно — разрешение MetaMask отозвано',
+    'toast.copied': '📋 Адрес скопирован',
+    'toast.linkCopied': '🔗 Ссылка скопирована: {code}',
+    'toast.nicknameSet': '✅ Ник: {nick}',
+    'toast.feedbackCopied': '📋 Скопировано в буфер обмена!',
+    'toast.bulkStarted': '⚔️ Запущено {n} атак — {country}',
+    'toast.bulkDone': '✅ Готово {ok}/{total} атак',
+    'toast.bulkCancelled': '⏹ Остановлено — {ok}/{total} атак',
+    'toast.bulkBulletEnd': '⚠️ Патроны кончились — {ok}/{total}',
+    'toast.bulkOnlyHave': '⚠️ Только {n} патронов, выпустим {n}',
+    'toast.connectFirst': 'Сначала подключите кошелёк!',
+    'toast.selectCountryFirst': 'Сначала выберите страну!',
+    'toast.selectTargetFirst': 'Выберите цель на карте!',
+    'toast.metamaskMissing': 'MetaMask не найден! Установите с metamask.io',
+    'toast.connectionCancelled': 'Подключение отменено.',
+    'toast.serverError': 'Ошибка сервера ({code})',
+    'toast.connectionError': 'Ошибка соединения: {msg}',
+    'toast.serverDown': 'Сервер недоступен. Повтор...',
+    'toast.serverOffline': '⚠️ Соединение потеряно — повтор...',
+    'toast.serverBack': '✅ Соединение восстановлено',
+    'toast.attackFailed': 'Атака не удалась.',
+    'toast.txCancelled': 'Транзакция отменена.',
+    'toast.txFailed': 'Транзакция не удалась: {msg}',
+    'toast.tooFast': 'Слишком быстро — помедленнее',
+    'toast.bulkAlreadyRunning': 'Массовая атака уже идёт!',
+    'toast.insufBullets': 'Недостаточно патронов!',
+    'toast.insufBulletsMarket': 'Мало патронов! Купите на рынке.',
+    'toast.feedbackEmpty': 'Пожалуйста, напишите сообщение',
+    'toast.feedbackShort': 'Сообщение слишком короткое',
+    'toast.nicknameEmpty': 'Не может быть пустым',
+    'toast.shareNoCountry': 'Сначала выберите страну',
+    'err.INVALID_WALLET': 'Неверный кошелёк',
+    'err.COUNTRY_NOT_FOUND': 'Страна не найдена',
+    'err.COUNTRY_ELIMINATED': 'Страна устранена',
+    'err.CANT_CHANGE_COUNTRY': 'Нельзя сменить страну, пока ваша жива',
+    'err.ALLIANCE_NAME_REQUIRED': 'Требуется название альянса',
+    'err.ALLIANCE_NAME_TOO_SHORT': 'Название минимум 3 символа',
+    'err.ALLIANCE_LIMIT': 'Достигнут лимит альянсов (100).',
+    'err.ALLIANCE_NAME_TAKEN': 'Такое название уже занято',
+    'err.NO_COUNTRY_SELECTED': 'Сначала выберите страну',
+    'err.ALREADY_IN_ALLIANCE': 'Вы уже в альянсе',
+    'err.INAPPROPRIATE_NAME': 'Неприемлемое имя — выберите другое',
+    'err.ALLIANCE_NOT_FOUND': 'Альянс не найден',
+    'err.ALLIANCE_FULL': 'Альянс заполнен (макс 50)',
+    'err.NOT_IN_ALLIANCE': 'Вы не в альянсе',
+    'err.INVALID_COMMAND': 'Неверная команда',
+    'err.UNAUTHORIZED': 'Нет доступа',
+    'err.TARGET_NOT_FOUND': 'Цель не найдена',
+    'err.CANT_ATTACK_SELF': 'Нельзя атаковать свою страну',
+    'err.YOUR_COUNTRY_ELIMINATED': 'Ваша страна устранена',
+    'err.NO_BULLETS': 'Нет патронов! Купите.',
+    'err.ROUND_INACTIVE': 'Раунд неактивен — ждите следующего',
+    'err.NICKNAME_TOO_SHORT': 'Ник минимум 3 символа',
+    'err.NICKNAME_INAPPROPRIATE': 'Неприемлемый ник — выберите другой',
+    'err.NICKNAME_INVALID_CHARS': 'Только буквы, цифры, _, -',
+    'err.NICKNAME_TAKEN': 'Ник уже занят',
+    'err.RADAR_MAX': 'Радар на максимуме (10)',
+    'err.INVALID_RESOURCE': 'Неверный ресурс',
+    'err.RATE_LIMITED': 'Слишком много запросов.',
+    'err.ATTACK_COOLDOWN': 'Атака слишком частая — помедленнее.',
+    'err.INSUFFICIENT_BULLETS': 'Недостаточно патронов',
+    'err.ROUND_ALREADY_ENDED': 'Раунд уже закончен',
+    'err.ROUND_ALREADY_ACTIVE': 'Раунд уже активен',
+    'err.ERROR': 'Произошла ошибка',
+  }
+};
+
+let _lang = (function(){
+  try { return localStorage.getItem('abswar-lang') || (navigator.language||'').slice(0,2) || 'tr'; } catch(e) { return 'tr'; }
+})();
+if (!I18N[_lang]) _lang = 'tr';
+
+function t(key, vars) {
+  const dict = I18N[_lang] || I18N.tr;
+  let s = dict[key] || I18N.tr[key] || key;
+  if (vars) {
+    for (const k in vars) s = s.replaceAll(`{${k}}`, vars[k]);
+  }
+  return s;
+}
+
+// Backend error code → kullanıcı mesajı
+function tErr(payload) {
+  if (!payload) return t('err.ERROR');
+  // {code, error} formatı varsa code'u kullan
+  if (payload.code && I18N[_lang] && I18N[_lang]['err.'+payload.code]) {
+    return t('err.'+payload.code);
+  }
+  // Fallback: backend'in TR error mesajı
+  return payload.error || t('err.ERROR');
+}
+
+function setLang(lang) {
+  if (!I18N[lang]) return;
+  _lang = lang;
+  try { localStorage.setItem('abswar-lang', lang); } catch(e){}
+  applyI18nToDOM();
+  // Dil butonu güncelle
+  const btn = document.getElementById('langBtn');
+  if (btn) btn.textContent = lang === 'tr' ? '🇹🇷 TR' : lang === 'en' ? '🇬🇧 EN' : '🇷🇺 RU';
+  if (typeof showToast === 'function') showToast(`✓ ${lang.toUpperCase()}`, 'info');
+}
+
+function cycleLang() {
+  const next = _lang === 'tr' ? 'en' : _lang === 'en' ? 'ru' : 'tr';
+  setLang(next);
+}
+
+function applyI18nToDOM() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    const txt = t(key);
+    // <span data-i18n="..."> ise innerHTML, başka türevse textContent
+    if (el.children.length === 0) el.textContent = txt;
+    else {
+      // İçinde başka elementler varsa, sadece text node'unu değiştir
+      const tn = [...el.childNodes].find(n => n.nodeType === 3);
+      if (tn) tn.textContent = txt;
+      else el.textContent = txt;
+    }
+  });
+  document.querySelectorAll('[data-i18n-title]').forEach(el => {
+    el.title = t(el.getAttribute('data-i18n-title'));
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    el.placeholder = t(el.getAttribute('data-i18n-placeholder'));
+  });
+  // Re-render dinamik metinler
+  if (typeof renderResources === 'function') renderResources();
 }
 
 /* ── MOBİL SEKME GEÇİŞİ ── */
@@ -3463,7 +3989,7 @@ function copyWalletAddress() {
   if (!wallet) return;
   try {
     navigator.clipboard.writeText(wallet).then(()=> {
-      showToast('📋 Adres kopyalandı','success');
+      showToast(t('toast.copied'),'success');
     });
   } catch(e) {
     prompt('Adresi kopyala:', wallet);
@@ -3525,9 +4051,9 @@ async function disconnectWallet() {
   }
 
   if (revoked) {
-    showToast('⏏ Çıkış başarılı — MetaMask izni de iptal edildi','success');
+    showToast(t('toast.logoutFull'),'success');
   } else {
-    showToast('⏏ Çıkış yapıldı','info');
+    showToast(t('toast.disconnected'),'info');
     // Tam çıkış için kullanıcıyı bilgilendir
     setTimeout(() => {
       showToast('💡 MetaMask hâlâ siteye izinli. Tam çıkış için: MetaMask → ⋮ → "Bağlı siteler" → kaldır','info');
@@ -3559,8 +4085,8 @@ document.getElementById('feedbackInput').addEventListener('input', function() {
 
 function submitFeedback() {
   const text = document.getElementById('feedbackInput').value.trim();
-  if (!text) { showToast('Lütfen mesajını yaz','error'); return; }
-  if (text.length < 5) { showToast('Mesaj çok kısa','error'); return; }
+  if (!text) { showToast(t('toast.feedbackEmpty'),'error'); return; }
+  if (text.length < 5) { showToast(t('toast.feedbackShort'),'error'); return; }
 
   const labels = { bug:'🐛 BUG', idea:'💡 ÖNERİ', praise:'⭐ BEĞENİ', other:'❓ DİĞER' };
   const browserInfo = `${navigator.userAgent.split(' ').slice(-2).join(' ')}`;
@@ -3654,6 +4180,8 @@ renderLabels();
 renderResources();
 pollState();
 _applyUrlParams();
+// Dil ayarını uygula
+setLang(_lang);
 setInterval(pollState,15000);
 </script>
 </body>
