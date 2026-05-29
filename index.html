@@ -510,7 +510,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   <!-- Radar badge -->
   <div style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.75);border:1px solid rgba(0,200,83,0.3);padding:5px 8px;z-index:10;text-align:center;min-width:90px">
     <div style="font-family:var(--hud);font-size:7px;color:var(--dim);letter-spacing:2px">RADAR SEVİYE <span id="radarLevel" style="color:var(--green)">3</span></div>
-    <button id="radarUpgradeBtn" onclick="upgradeRadar()" style="margin-top:3px;padding:3px 8px;background:var(--green);color:#000;font-family:var(--hud);font-size:7px;border:none;cursor:pointer;width:100%">YÜKSELT (0.01 ETH)</button>
+    <button id="radarUpgradeBtn" onclick="upgradeRadar()" style="margin-top:3px;padding:3px 8px;background:var(--green);color:#000;font-family:var(--hud);font-size:7px;border:none;cursor:pointer;width:100%">YÜKSELT (5 MERMİ)</button>
   </div>
 </div>
 
@@ -1215,6 +1215,7 @@ document.getElementById('nicknameModal').addEventListener('click', function(e){ 
 async function saveNickname() {
   const nick = document.getElementById('nicknameInput').value.trim();
   if (!nick) { showToast('Boş bırakılamaz','error'); return; }
+  if (!wallet) { showToast('Önce cüzdan bağla','error'); return; }
   try {
     const res = await fetch(API+'/api/player/nickname',{
       method:'POST',
@@ -1222,22 +1223,35 @@ async function saveNickname() {
       body:JSON.stringify({wallet, nickname:nick}),
       signal: AbortSignal.timeout(8000)
     });
-    const data = await res.json();
-    if (data.error) { showToast(data.error,'error'); return; }
+    let data = {};
+    try { data = await res.json(); } catch(_){}
+    if (!res.ok || data.error) {
+      // Backend hata mesajı gönderdiyse onu, yoksa HTTP kodunu göster
+      showToast(data.error || `Sunucu hatası (${res.status})`,'error');
+      return;
+    }
     myNickname = nick;
     updateNicknameUI(nick);
     showToast(`✅ Nickname: ${nick}`,'success');
     closeNicknameModal();
   } catch(e) {
-    showToast('Bağlantı hatası','error');
+    showToast('Bağlantı hatası: ' + (e.message||'').slice(0,40),'error');
   }
 }
 
 function updateNicknameUI(nick) {
   const btn = document.getElementById('nicknameBtn');
   const lbl = document.getElementById('nicknameLabel');
-  if (btn) btn.style.display = wallet ? 'inline-block' : 'none';
-  if (lbl) lbl.textContent = nick || 'İSİM EKLE';
+  if (btn) {
+    btn.style.display = wallet ? 'inline-block' : 'none';
+    // Nickname varsa farklı renk: yeşil yerine altın (öne çıksın)
+    btn.style.color = nick ? 'var(--gold)' : 'var(--green)';
+    btn.style.borderColor = nick ? 'rgba(245,200,66,0.4)' : 'var(--border)';
+    btn.title = nick ? `Nickname: ${nick} (değiştirmek için tıkla)` : 'Nickname ayarla';
+  }
+  if (lbl) {
+    lbl.textContent = nick || 'İSİM EKLE';
+  }
 }
 
 /* ── HOŞ GELDİN OVERLAY ── */
@@ -1377,23 +1391,44 @@ function _applyRadarVisual(level) {
   }
 }
 
-function upgradeRadar() {
+async function upgradeRadar() {
   if (radarLevel >= RADAR_MAX) {
     showToast('📡 Radar zaten maksimum seviyede!','info');
     return;
   }
   if (!wallet) { showToast('Önce cüzdan bağla!','error'); return; }
-  radarLevel++;
-  document.getElementById('radarLevel').textContent = radarLevel;
-  _applyRadarVisual(radarLevel);
-  const btn = document.getElementById('radarUpgradeBtn');
-  if (radarLevel >= RADAR_MAX) {
-    btn.textContent = 'MAKSİMUM';
-    btn.disabled = true;
-    btn.style.opacity = '0.5';
+  if (myBulletsCount < 5) {
+    showToast('📡 Yetersiz mermi! Yükseltme 5 mermi gerekir.','error');
+    return;
   }
-  showToast(`📡 Radar Seviye ${radarLevel} — tarama hızı arttı!`,'success');
-  if (typeof addChatSystem === 'function') addChatSystem(`📡 Radar Seviye ${radarLevel} → tarama hızı ${Math.max(3, 13-radarLevel)}sn`);
+  try {
+    const res = await fetch(API+'/api/player/radar-upgrade',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({wallet}),
+      signal: AbortSignal.timeout(8000)
+    });
+    let data = {};
+    try { data = await res.json(); } catch(_){}
+    if (!res.ok || data.error) {
+      showToast(data.error || `Sunucu hatası (${res.status})`,'error');
+      return;
+    }
+    radarLevel = data.player.radar_level || (radarLevel+1);
+    document.getElementById('radarLevel').textContent = radarLevel;
+    _applyRadarVisual(radarLevel);
+    const btn = document.getElementById('radarUpgradeBtn');
+    if (radarLevel >= RADAR_MAX) {
+      btn.textContent = 'MAKSİMUM';
+      btn.disabled = true;
+      btn.style.opacity = '0.5';
+    }
+    if (data.player) updatePlayerUI(data.player);
+    playSound && playSound('click');
+    showToast(`📡 Radar Seviye ${radarLevel} (-5 mermi)`,'success');
+  } catch(e) {
+    showToast('Yükseltme başarısız: ' + (e.message||'').slice(0,40),'error');
+  }
 }
 
 /* ── KAYNAK KONTROLÜ ── */
@@ -2481,7 +2516,7 @@ async function radioCommand(cmd) {
   try {
     await fetch(API+'/api/alliance/radio',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet,command:cmd})});
     showToast(`📻 Telsiz yayını: ${labels[cmd]||cmd}`,'success');
-    addChatSystem(`📻 TELSİZ KOMUTU: ${labels[cmd]||cmd}`);
+    // Sohbet mesajını backend socket üzerinden alacağız — burada eklemiyoruz (yoksa çift olur)
     closeRadioModal();
   } catch(e) { showToast('Telsiz yayını başarısız.','error'); }
 }
@@ -3002,9 +3037,24 @@ ioScript.onload=()=>{
   socket.on('country:eliminated',(d)=>{ playSound('eliminated'); showToast(`💀 ${CD[d.country]?.f||''} ${CD[d.country]?.n||d.country} ELİMİNE EDİLDİ!`,'error'); });
   socket.on('game:over',(d)=>{ playSound('victory'); showToast(`🏆 OYUN BİTTİ! Kazanan: ${CD[d.winner]?.f||''} ${CD[d.winner]?.n||d.winner}`,'success'); });
   socket.on('alliance:feed',(d)=>{
+    // Kendi gönderdiğimiz mesajı atla (zaten yerel olarak gösterdik — radioCommand hariç çünkü o yerel eklemiyor)
+    const isSelf = wallet && d.wallet && d.wallet.toLowerCase() === wallet.toLowerCase();
+    // Telsiz komutları (büyük harfli sabit komutlar) — kendi telsizimi de göster (yerel eklemedik)
+    const isRadioCmd = d.command && /^[A-Z_]+$/.test(d.command);
+    if (isSelf && !isRadioCmd) return;
+
     const row=document.createElement('div'); row.className='chat-msg anim-new';
     const cc=CD[d.country]||{};
-    row.innerHTML=`<div class="chat-who"><span style="font-size:11px">${cc.f||'🏳️'}</span><span class="chat-name">${(d.wallet||'???').slice(0,6)}</span><span class="chat-t">şimdi</span></div><div class="chat-txt">${d.command||d.message||''}</div>`;
+    // Nickname'i göstermek için: backend'den geliyorsa nickname, yoksa wallet kısa
+    const senderName = d.nickname || (d.wallet||'???').slice(0,6);
+    // Telsiz komutu mu, normal mesaj mı?
+    let displayText = d.command || d.message || '';
+    if (isRadioCmd) {
+      const labels = {ATTACK_NOW:'⚔️ ŞİMDİ SALDIR',DEFEND:'🛡️ SAVUN',REGROUP:'🔄 YENİDEN TOPLAN',RETREAT:'🏃 GERİ ÇEKİL',FOCUS_FIRE:'🎯 ODAKLI ATEŞ'};
+      displayText = `📻 ${labels[d.command] || d.command}`;
+      row.style.background='rgba(245,200,66,0.06)';
+    }
+    row.innerHTML=`<div class="chat-who"><span style="font-size:11px">${cc.f||'🏳️'}</span><span class="chat-name">${senderName}</span><span class="chat-t">şimdi</span></div><div class="chat-txt">${displayText}</div>`;
     const body=document.getElementById('chatBody');
     const empty = document.getElementById('chatEmpty');
     if (empty) empty.style.display = 'none';
@@ -3109,10 +3159,9 @@ function openExplorer() {
   closeWalletMenu();
 }
 
-function disconnectWallet() {
-  if (!confirm('Çıkış yapmak istediğinden emin misin?\n\nNot: MetaMask bağlantısı sayfa düzeyinde kesilir. Cüzdanını tarayıcı izinlerinden de kaldırmak için MetaMask uzantısını kullan.')) {
-    return;
-  }
+async function disconnectWallet() {
+  if (!confirm('Çıkış yapmak istediğinden emin misin?')) return;
+
   // Tam session sıfırla
   wallet = null;
   myCountry = null;
@@ -3134,16 +3183,37 @@ function disconnectWallet() {
   document.getElementById('ysScore').textContent = '0';
   const nb = document.getElementById('nicknameBtn');
   if (nb) nb.style.display = 'none';
-  // İttifak UI sıfırla
   if (typeof _updateAllianceUI === 'function') _updateAllianceUI(null);
-  // Saldırı butonu disable
   const atk = document.getElementById('attackBtn');
   if (atk) { atk.disabled = true; atk.style.opacity = '0.4'; atk.textContent = '⚡ SALDIRI BAŞLAT'; }
-  // Bulk butonlar disable
   document.querySelectorAll('.bulk-atk-btn').forEach(b => b.disabled = true);
 
   closeWalletMenu();
-  showToast('⏏ Çıkış yapıldı','info');
+
+  // EIP-2255: site izinlerini iptal et (cüzdanın desteklediği bir özellik)
+  // Tüm cüzdanlar desteklemez ama destekleyenler tam logout sağlar
+  let revoked = false;
+  if (window.ethereum) {
+    try {
+      await window.ethereum.request({
+        method: 'wallet_revokePermissions',
+        params: [{ eth_accounts: {} }]
+      });
+      revoked = true;
+    } catch(e) {
+      // Cüzdan desteklemiyorsa veya iptal ettiyse — sessizce devam
+    }
+  }
+
+  if (revoked) {
+    showToast('⏏ Çıkış başarılı — MetaMask izni de iptal edildi','success');
+  } else {
+    showToast('⏏ Çıkış yapıldı','info');
+    // Tam çıkış için kullanıcıyı bilgilendir
+    setTimeout(() => {
+      showToast('💡 MetaMask hâlâ siteye izinli. Tam çıkış için: MetaMask → ⋮ → "Bağlı siteler" → kaldır','info');
+    }, 1500);
+  }
 }
 
 /* ── GERİ BİLDİRİM ── */
