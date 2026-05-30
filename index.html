@@ -376,6 +376,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     <button onclick="openHelp()" title="Nasıl Oynanır" style="background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer" data-i18n="nav.help">❓ NASIL OYNANIR</button>
     <span style="font-family:var(--mono);font-size:11px;color:var(--red)" id="ethBal">0.000 ETH</span>
     <button id="nicknameBtn" onclick="openNicknameModal()" title="Nickname ayarla" style="display:none;background:transparent;border:1px solid var(--border);color:var(--green);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer">👤 <span id="nicknameLabel" data-i18n="nav.nickname">İSİM EKLE</span></button>
+    <button id="adminBtn" onclick="openAdminPanel()" title="Admin Paneli" style="display:none;background:linear-gradient(180deg,rgba(245,200,66,0.15),rgba(245,200,66,0.05));border:1px solid var(--gold);color:var(--gold);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer;letter-spacing:1px">⚙️ ADMIN</button>
     <div style="position:relative">
       <button class="btn-wallet" id="walletBtn" onclick="handleWalletBtn(event)" data-i18n="wallet.connect">CÜZDAN BAĞLA</button>
       <div id="walletMenu" style="display:none;position:absolute;top:calc(100% + 4px);right:0;min-width:200px;background:var(--bg1);border:1px solid var(--border);box-shadow:0 6px 20px rgba(0,0,0,0.6);z-index:1500;font-family:var(--hud)">
@@ -972,6 +973,46 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   </div>
 </div>
 
+<!-- ADMIN PANELİ MODALI (sadece owner) -->
+<div class="modal" id="adminModal">
+  <div class="modal-box" style="width:440px;max-width:94vw">
+    <button class="modal-close" onclick="closeAdminPanel()">✕ KAPAT</button>
+    <div class="modal-title" style="color:var(--gold)">⚙️ ADMIN PANELİ</div>
+    <div class="modal-sub">Sadece sen (owner) görebilirsin. Dikkatli kullan.</div>
+
+    <!-- Tur durumu özeti -->
+    <div id="adminRoundInfo" style="margin-top:14px;padding:10px;background:var(--bg2);border:1px solid var(--border);font-family:var(--mono);font-size:11px;color:var(--dim);text-align:left">
+      Tur bilgisi yükleniyor...
+    </div>
+
+    <!-- Token alanı -->
+    <div style="margin-top:14px;text-align:left">
+      <label style="font-family:var(--hud);font-size:10px;color:var(--dim);letter-spacing:1px">ADMIN TOKEN</label>
+      <input id="adminTokenInput" type="password" placeholder="Railway ADMIN_TOKEN" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:12px;padding:9px;outline:none;margin-top:4px">
+      <div style="margin-top:4px;font-size:9px;color:var(--dim)">Bir kez gir, tarayıcı hatırlar. Railway → backend → Variables → ADMIN_TOKEN</div>
+    </div>
+
+    <!-- İşlemler -->
+    <div style="margin-top:16px;display:flex;flex-direction:column;gap:8px;text-align:left">
+      <button class="btn-sm" onclick="adminAction('round/start')" style="width:100%;padding:11px;background:rgba(72,187,120,0.12);border:1px solid var(--green);color:var(--green);font-family:var(--hud);font-size:11px;cursor:pointer;text-align:left">
+        🔄 YENİ TUR BAŞLAT <span style="color:var(--dim);font-size:9px">— Tüm HP'leri 1000'e sıfırlar (şişmiş canları düzeltir)</span>
+      </button>
+      <button class="btn-sm" onclick="adminAction('round/end')" style="width:100%;padding:11px;background:rgba(245,200,66,0.1);border:1px solid var(--gold);color:var(--gold);font-family:var(--hud);font-size:11px;cursor:pointer;text-align:left">
+        ⏹ TURU BİTİR <span style="color:var(--dim);font-size:9px">— Mevcut turu kapatır, kazananları belirler</span>
+      </button>
+      <button class="btn-sm" onclick="adminShowWinners()" style="width:100%;padding:11px;background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--hud);font-size:11px;cursor:pointer;text-align:left">
+        🏆 KAZANANLARI GÖR <span style="color:var(--dim);font-size:9px">— İlk 3 ülke ve ödül payları</span>
+      </button>
+      <button class="btn-sm" onclick="adminConfirmReset()" style="width:100%;padding:11px;background:rgba(245,66,66,0.1);border:1px solid var(--red);color:var(--red);font-family:var(--hud);font-size:11px;cursor:pointer;text-align:left">
+        ⚠️ TAM RESET <span style="color:var(--dim);font-size:9px">— HER ŞEYİ siler (oyuncular, ittifaklar, HP)</span>
+      </button>
+    </div>
+
+    <!-- Sonuç alanı -->
+    <div id="adminResult" style="margin-top:14px;font-family:var(--mono);font-size:11px;text-align:left"></div>
+  </div>
+</div>
+
 <!-- TUR BİTTİ MODALI -->
 <div class="modal" id="roundEndModal">
   <div class="modal-box" style="width:560px;max-width:92vw;max-height:88vh;overflow-y:auto">
@@ -1375,6 +1416,11 @@ async function saveNickname() {
 function updateNicknameUI(nick) {
   const btn = document.getElementById('nicknameBtn');
   const lbl = document.getElementById('nicknameLabel');
+  // Admin butonu — sadece owner cüzdanına göster
+  const adminBtn = document.getElementById('adminBtn');
+  if (adminBtn) {
+    adminBtn.style.display = (wallet && wallet.toLowerCase() === OWNER_WALLET) ? 'inline-block' : 'none';
+  }
   if (btn) {
     btn.style.display = wallet ? 'inline-block' : 'none';
     // Nickname varsa farklı renk: yeşil yerine altın (öne çıksın)
@@ -1493,6 +1539,119 @@ async function startNextRound() {
     closeRoundEndModal();
     pollState();
   } catch(e) { showToast('Sunucuya ulaşılamadı.','error'); }
+}
+
+/* ── ADMIN PANELİ ── */
+function openAdminPanel() {
+  // Güvenlik: sadece owner
+  if (!wallet || wallet.toLowerCase() !== OWNER_WALLET) {
+    showToast('Bu panel sadece owner içindir.','error');
+    return;
+  }
+  // Kayıtlı token'ı yükle
+  const saved = localStorage.getItem('abswar-admin-token');
+  if (saved) document.getElementById('adminTokenInput').value = saved;
+  document.getElementById('adminResult').innerHTML = '';
+  document.getElementById('adminModal').classList.add('show');
+  refreshAdminRoundInfo();
+}
+
+function closeAdminPanel() {
+  document.getElementById('adminModal').classList.remove('show');
+}
+
+async function refreshAdminRoundInfo() {
+  const box = document.getElementById('adminRoundInfo');
+  try {
+    const r = await fetch(API+'/api/round/status').then(r=>r.json());
+    const statusMap = { active:'🟢 Aktif', ended:'🔴 Bitti', waiting:'🟡 Bekliyor' };
+    let timeLeft = '';
+    if (r.remainingMs > 0) {
+      const d = Math.floor(r.remainingMs/86400000);
+      const h = Math.floor((r.remainingMs%86400000)/3600000);
+      timeLeft = ` · Kalan: ${d}g ${h}s`;
+    }
+    box.innerHTML = `Tur #${r.number||r.roundNumber||'?'} · ${statusMap[r.status]||r.status||'?'}${timeLeft}`;
+  } catch(e) {
+    box.innerHTML = 'Tur bilgisi alınamadı';
+  }
+}
+
+function _getAdminToken() {
+  const token = document.getElementById('adminTokenInput').value.trim();
+  if (!token) {
+    showToast('Önce ADMIN_TOKEN gir','error');
+    return null;
+  }
+  // Tarayıcıda sakla (bir daha girme)
+  localStorage.setItem('abswar-admin-token', token);
+  return token;
+}
+
+async function adminAction(path) {
+  const token = _getAdminToken();
+  if (!token) return;
+  const result = document.getElementById('adminResult');
+  result.innerHTML = '<span style="color:var(--dim)">İşleniyor...</span>';
+  try {
+    const res = await fetch(API+'/api/admin/'+path,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-admin-token':token}
+    });
+    const data = await res.json();
+    if (!res.ok || data.error) {
+      result.innerHTML = `<span style="color:var(--red)">❌ ${tErr(data)||('HTTP '+res.status)}</span>`;
+      if (res.status === 403) result.innerHTML += '<br><span style="color:var(--dim);font-size:10px">Token yanlış. Railway → backend → Variables → ADMIN_TOKEN değerini kontrol et.</span>';
+      return;
+    }
+    result.innerHTML = `<span style="color:var(--green)">✅ Başarılı!</span>`;
+    if (path === 'round/start') {
+      result.innerHTML += '<br><span style="color:var(--dim);font-size:10px">Tüm ülke HP\'leri 1000\'e sıfırlandı.</span>';
+      showToast('🎯 Yeni tur başladı — HP\'ler sıfırlandı!','success');
+    } else if (path === 'round/end') {
+      showToast('⏹ Tur bitirildi','info');
+    }
+    refreshAdminRoundInfo();
+    pollState();
+  } catch(e) {
+    result.innerHTML = `<span style="color:var(--red)">❌ Sunucuya ulaşılamadı</span>`;
+  }
+}
+
+async function adminShowWinners() {
+  const token = _getAdminToken();
+  if (!token) return;
+  const result = document.getElementById('adminResult');
+  result.innerHTML = '<span style="color:var(--dim)">Yükleniyor...</span>';
+  try {
+    const res = await fetch(API+'/api/admin/round/winners',{
+      headers:{'x-admin-token':token}
+    });
+    const data = await res.json();
+    if (!res.ok || data.error) {
+      result.innerHTML = `<span style="color:var(--red)">❌ ${tErr(data)||('HTTP '+res.status)}</span>`;
+      return;
+    }
+    const winners = data.winners || [];
+    if (winners.length === 0) {
+      result.innerHTML = '<span style="color:var(--dim)">Henüz kazanan yok (tur aktif veya boş)</span>';
+      return;
+    }
+    const colors = ['#f5c842','#c0c0c0','#cd7f32'];
+    result.innerHTML = '<div style="color:var(--gold);margin-bottom:6px">🏆 KAZANANLAR:</div>' +
+      winners.map((w,i)=>`<div style="padding:5px 0;border-bottom:1px solid var(--border)">
+        ${i+1}. ${w.flag||''} ${w.country} · <b style="color:${colors[i]||'#fff'}">%${w.sharePct}</b>
+        ${w.topPlayer ? `<br><span style="color:var(--dim);font-size:10px">→ ${w.topPlayer.slice(0,10)}...</span>` : '<br><span style="color:var(--dim);font-size:10px">(o ülkeden oyuncu yok)</span>'}
+      </div>`).join('');
+  } catch(e) {
+    result.innerHTML = `<span style="color:var(--red)">❌ Sunucuya ulaşılamadı</span>`;
+  }
+}
+
+function adminConfirmReset() {
+  if (!confirm('⚠️ DİKKAT!\n\nBu işlem TÜM oyuncuları, ittifakları, HP\'leri ve hediye sayacını SİLER. Geri alınamaz!\n\nEmin misin?')) return;
+  if (!confirm('Son kez soruyorum — GERÇEKTEN her şeyi sıfırlamak istiyor musun?')) return;
+  adminAction('reset');
 }
 
 /* ── RADAR SİSTEMİ ── */
