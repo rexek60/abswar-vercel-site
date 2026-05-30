@@ -324,6 +324,9 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   </svg>
   <div style="font-family:var(--hud);font-size:36px;letter-spacing:8px;color:#fff;font-weight:900;margin-bottom:6px">ABSWAR</div>
   <div style="font-family:var(--hud);font-size:11px;letter-spacing:4px;color:var(--green);margin-bottom:24px" data-i18n="welcome.subtitle">KÜRESEL SAVAŞ MMO · ABSTRACT TESTNET</div>
+  <div id="giftBadge" style="display:none;background:linear-gradient(180deg,rgba(245,200,66,0.15),rgba(245,200,66,0.05));border:1px solid rgba(245,200,66,0.4);border-radius:6px;padding:8px 16px;margin-bottom:20px;font-family:var(--hud);font-size:11px;color:var(--gold);letter-spacing:1px">
+    🎁 <span id="giftBadgeText">İlk 100 oyuncuya +100 bonus mermi!</span>
+  </div>
   <div style="font-family:var(--ui);font-size:14px;color:var(--text);max-width:480px;line-height:1.6;margin-bottom:28px" data-i18n="welcome.body">
     119 ülkeden birini seç, ittifak kur, savaş alanına gir. Web3 cüzdanınla bağlan, mermi al, hedeflerini eli yenmesi için saldır.
   </div>
@@ -848,60 +851,60 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     <div style="display:flex;flex-direction:column;gap:14px;text-align:left;font-family:var(--ui);font-size:13px;color:var(--text);line-height:1.55;margin-top:10px">
 
       <div style="border-left:3px solid var(--red);padding-left:12px">
-        <div style="font-family:var(--hud);font-size:11px;color:var(--red);letter-spacing:2px;margin-bottom:4px">1 · CÜZDAN BAĞLA</div>
-        Sağ üstteki "CÜZDAN BAĞLA" butonuna bas. MetaMask açılır, Abstract Testnet ağına geçer.
+        <div style="font-family:var(--hud);font-size:11px;color:var(--red);letter-spacing:2px;margin-bottom:4px" data-i18n="help.step1">1 · CÜZDAN BAĞLA</div>
+        <span data-i18n-html="help.b1">Sağ üstteki "CÜZDAN BAĞLA" butonuna bas. MetaMask açılır, Abstract Testnet ağına geçer.</span>
       </div>
 
       <div style="border-left:3px solid var(--gold);padding-left:12px">
-        <div style="font-family:var(--hud);font-size:11px;color:var(--gold);letter-spacing:2px;margin-bottom:4px">2 · ÜLKE SEÇ</div>
-        Bağlanınca ülke seçim penceresi açılır. Arama kutusunu kullanarak 119 ülke arasından seç. <b style="color:var(--red)">Ülken elenene kadar değiştiremezsin.</b>
+        <div style="font-family:var(--hud);font-size:11px;color:var(--gold);letter-spacing:2px;margin-bottom:4px" data-i18n="help.step2">2 · ÜLKE SEÇ</div>
+        <span data-i18n-html="help.b2">Bağlanınca ülke seçim penceresi açılır. Arama kutusunu kullanarak 119 ülke arasından seç. <b style="color:var(--red)">Ülken elenene kadar değiştiremezsin.</b></span>
       </div>
 
       <div style="border-left:3px solid var(--cyan);padding-left:12px">
-        <div style="font-family:var(--hud);font-size:11px;color:var(--cyan);letter-spacing:2px;margin-bottom:4px">3 · MERMİ AL</div>
-        "MERMİ SATIN AL" panelinden paket seç. Mermi satın alma <b>blockchain işlemidir</b> — MetaMask onayı gerekir, gas ödenir.<br><br>
+        <div style="font-family:var(--hud);font-size:11px;color:var(--cyan);letter-spacing:2px;margin-bottom:4px" data-i18n="help.step3">3 · MERMİ AL</div>
+        <span data-i18n-html="help.b3">"MERMİ SATIN AL" panelinden paket seç. Mermi satın alma <b>blockchain işlemidir</b> — MetaMask onayı gerekir, gas ödenir.<br><br>
         <span style="color:var(--dim);font-size:11px">
           Temel: 0.001 ETH → 100 mermi<br>
           Gelişmiş: 0.01 ETH → 1.000 mermi<br>
           Prim: 0.1 ETH → 10.000 mermi<br>
           Efsanevi: 1.0 ETH → 100.000 mermi
-        </span>
+        </span></span>
       </div>
 
       <div style="border-left:3px solid var(--green);padding-left:12px">
-        <div style="font-family:var(--hud);font-size:11px;color:var(--green);letter-spacing:2px;margin-bottom:4px">4 · SALDIR</div>
-        Haritada hedef ülkeye tıkla → kırmızı vurgu çıkar → "SALDIRI BAŞLAT" butonuna bas. Her saldırı 1 mermi harcar, hedefin HP'sini düşürür, kendi HP'ne ekler. Saldırılar ücretsizdir (on-chain değil — hızlı).
+        <div style="font-family:var(--hud);font-size:11px;color:var(--green);letter-spacing:2px;margin-bottom:4px" data-i18n="help.step4">4 · SALDIR</div>
+        <span data-i18n-html="help.b4">Haritada hedef ülkeye tıkla → kırmızı vurgu çıkar → "SALDIRI BAŞLAT" butonuna bas. Her saldırı 1 mermi harcar, hedefin HP'sini düşürür, kendi HP'ne ekler. Saldırılar ücretsizdir (on-chain değil — hızlı).</span>
       </div>
 
       <div style="border-left:3px solid #b366ff;padding-left:12px">
-        <div style="font-family:var(--hud);font-size:11px;color:#b366ff;letter-spacing:2px;margin-bottom:4px">5 · İTTİFAK KUR</div>
-        "İTTİFAK KUR" ile kendi ittifakını başlat veya "İTTİFAKA KATIL" ile mevcut bir ittifağa gir. Telsiz komutlarıyla müttefiklere sinyal gönder.
+        <div style="font-family:var(--hud);font-size:11px;color:#b366ff;letter-spacing:2px;margin-bottom:4px" data-i18n="help.step5">5 · İTTİFAK KUR</div>
+        <span data-i18n-html="help.b5">"İTTİFAK KUR" ile kendi ittifakını başlat veya "İTTİFAKA KATIL" ile mevcut bir ittifağa gir. Telsiz komutlarıyla müttefiklere sinyal gönder.</span>
       </div>
 
       <div style="border-left:3px solid #f5c842;padding-left:12px">
-        <div style="font-family:var(--hud);font-size:11px;color:#f5c842;letter-spacing:2px;margin-bottom:4px">6 · KAYNAK SİSTEMİ</div>
-        Her kaynak farklı işe yarar (1 mermi → +10 seviye):<br>
+        <div style="font-family:var(--hud);font-size:11px;color:#f5c842;letter-spacing:2px;margin-bottom:4px" data-i18n="help.step6">6 · KAYNAK SİSTEMİ</div>
+        <span data-i18n-html="help.b6">Her kaynak farklı işe yarar (1 mermi → +10 seviye):<br>
         <span style="color:var(--dim);font-size:11px">
         🛢️ <b>Petrol</b> — %100'e ulaşırsa <b>+10 mermi</b> (sıfırlanır)<br>
         ⚙️ <b>Metal</b> — Her seviye için <b>+%1 ekstra hasar</b> (max %10)<br>
         ☢️ <b>Uranyum</b> — Her seviye için <b>+%1 kalkan</b> (savunma)<br>
         ⚡ <b>Enerji</b> — %100'e ulaşırsa ülkene <b>+50 HP</b> (sıfırlanır)
-        </span>
+        </span></span>
       </div>
 
       <div style="border-left:3px solid #ff6b7a;padding-left:12px">
-        <div style="font-family:var(--hud);font-size:11px;color:#ff6b7a;letter-spacing:2px;margin-bottom:4px">7 · RÜTBE SİSTEMİ</div>
-        Katkı puanına göre rütben yükselir. Her rütbe <b>katkı bonusu</b> verir — saldırı başına daha çok puan kazanırsın:<br>
+        <div style="font-family:var(--hud);font-size:11px;color:#ff6b7a;letter-spacing:2px;margin-bottom:4px" data-i18n="help.step7">7 · RÜTBE SİSTEMİ</div>
+        <span data-i18n-html="help.b7">Katkı puanına göre rütben yükselir. Her rütbe <b>katkı bonusu</b> verir — saldırı başına daha çok puan kazanırsın:<br>
         <span style="color:var(--dim);font-size:11px;line-height:1.7">
         🪖 Asker (0) · 🎖 Onbaşı (50, +%5) · 🎖🎖 Çavuş (200, +%10)<br>
         ⭐ Teğmen (500, +%15) · ⭐⭐ Yüzbaşı (1.500, +%20)<br>
         ⭐⭐⭐ Binbaşı (5.000, +%25) · ⭐⭐⭐⭐ General (15.000, +%30)
-        </span>
+        </span></span>
       </div>
 
       <div style="border-left:3px solid var(--dim);padding-left:12px">
-        <div style="font-family:var(--hud);font-size:11px;color:var(--dim);letter-spacing:2px;margin-bottom:4px">8 · HARİTA RENKLERİ</div>
-        Yeşil = sağlam · Sarı = hasarlı · Turuncu = kritik · Kırmızı = ölmek üzere · Gri = elenen.
+        <div style="font-family:var(--hud);font-size:11px;color:var(--dim);letter-spacing:2px;margin-bottom:4px" data-i18n="help.step8">8 · HARİTA RENKLERİ</div>
+        <span data-i18n-html="help.b8">Yeşil = sağlam · Sarı = hasarlı · Turuncu = kritik · Kırmızı = ölmek üzere · Gri = elenen.</span>
       </div>
 
       <div style="border-left:3px solid #66b3ff;padding-left:12px">
@@ -2116,6 +2119,13 @@ async function registerPlayer() {
       setTimeout(()=>openModal('nation'),700);
     }
     updatePlayerUI(p);
+    // İlk 100 kullanıcı hediye mermi bildirimi
+    if (data.gift) {
+      setTimeout(()=>{
+        showToast(t('toast.giftReceived', { amount: data.gift.amount, rank: data.gift.rank }),'success');
+        playSound && playSound('purchase');
+      }, 1400);
+    }
   } catch(e) {
     setBackendStatus(false);
     showToast(t('toast.serverDown'),'error');
@@ -2771,6 +2781,19 @@ async function pollState() {
     setBackendStatus(true);
     if (data?.countries) updateLeaderboard(data.countries);
     if (data?.onlinePlayers!=null) document.getElementById('onlineCount').textContent=Number(data.onlinePlayers).toLocaleString('tr-TR');
+    // Hediye mermi rozeti (welcome ekranı)
+    if (data?.giftSlotsLeft != null) {
+      const badge = document.getElementById('giftBadge');
+      const badgeText = document.getElementById('giftBadgeText');
+      if (badge && badgeText) {
+        if (data.giftSlotsLeft > 0) {
+          badge.style.display = 'inline-block';
+          badgeText.textContent = t('gift.badge', { n: data.giftSlotsLeft });
+        } else {
+          badge.style.display = 'none';
+        }
+      }
+    }
     if (data?.round) setRoundFromState(data.round);
 
     // İlk yüklemede son saldırılarla radar + ticker'ı doldur
@@ -3383,6 +3406,9 @@ const I18N = {
     // Toast — pozitif
     'toast.connected': 'Cüzdan bağlandı! Ülke seçin.',
     'toast.welcome': 'Hoş geldin Komutan!',
+    'toast.giftReceived': '🎁 İlk 100 oyuncudan birisin! (#{rank}) +{amount} bonus mermi hediye!',
+    'gift.badge': 'İlk 100 oyuncuya +100 bonus mermi! ({n} kaldı)',
+    'gift.ended': '',
     'toast.targetLocked': '🎯 {country} hedef kilitlendi',
     'toast.attackOk': '⚡ {country} vuruldu! -{dmg} HP',
     'toast.allianceCreated': '🛡️ İttifak kuruldu',
@@ -3493,6 +3519,14 @@ const I18N = {
     'help.step8': '8 · HARİTA RENKLERİ',
     'help.step8.body': 'Yeşil = sağlam · Sarı = hasarlı · Turuncu = kritik · Kırmızı = ölmek üzere · Gri = elenen.',
     'help.shortcuts': '⌨ KLAVYE KISAYOLLARI',
+    'help.b1': 'Sağ üstteki "CÜZDAN BAĞLA" butonuna bas. MetaMask açılır, Abstract Testnet ağına geçer.',
+    'help.b2': 'Bağlanınca ülke seçim penceresi açılır. Arama kutusunu kullanarak 119 ülke arasından seç. <b style="color:var(--red)">Ülken elenene kadar değiştiremezsin.</b>',
+    'help.b3': '"MERMİ SATIN AL" panelinden paket seç. Mermi satın alma <b>blockchain işlemidir</b> — MetaMask onayı gerekir, gas ödenir.<br><br><span style="color:var(--dim);font-size:11px">Temel: 0.001 ETH → 100 mermi<br>Gelişmiş: 0.01 ETH → 1.000 mermi<br>Prim: 0.1 ETH → 10.000 mermi<br>Efsanevi: 1.0 ETH → 100.000 mermi</span>',
+    'help.b4': 'Haritada hedef ülkeye tıkla → kırmızı vurgu çıkar → "SALDIRI BAŞLAT" butonuna bas. Her saldırı 1 mermi harcar, hedefin HP\'sini düşürür, kendi HP\'ne ekler. Saldırılar ücretsizdir (on-chain değil — hızlı).',
+    'help.b5': '"İTTİFAK KUR" ile kendi ittifakını başlat veya "İTTİFAKA KATIL" ile mevcut bir ittifağa gir. Telsiz komutlarıyla müttefiklere sinyal gönder.',
+    'help.b6': 'Her kaynak farklı işe yarar (1 mermi → +10 seviye):<br><span style="color:var(--dim);font-size:11px">🛢️ <b>Petrol</b> — %100\'e ulaşırsa <b>+10 mermi</b> (sıfırlanır)<br>⚙️ <b>Metal</b> — Her seviye için <b>+%1 ekstra hasar</b> (max %10)<br>☢️ <b>Uranyum</b> — Her seviye için <b>+%1 kalkan</b> (savunma)<br>⚡ <b>Enerji</b> — %100\'e ulaşırsa ülkene <b>+50 HP</b> (sıfırlanır)</span>',
+    'help.b7': 'Katkı puanına göre rütben yükselir. Her rütbe <b>katkı bonusu</b> verir — saldırı başına daha çok puan kazanırsın:<br><span style="color:var(--dim);font-size:11px;line-height:1.7">🪖 Asker (0) · 🎖 Onbaşı (50, +%5) · 🎖🎖 Çavuş (200, +%10)<br>⭐ Teğmen (500, +%15) · ⭐⭐ Yüzbaşı (1.500, +%20)<br>⭐⭐⭐ Binbaşı (5.000, +%25) · ⭐⭐⭐⭐ General (15.000, +%30)</span>',
+    'help.b8': 'Yeşil = sağlam · Sarı = hasarlı · Turuncu = kritik · Kırmızı = ölmek üzere · Gri = elenen.',
     'help.testnet': '⚠️ NOT: Oyun şu an Abstract Testnet\'te — gerçek para değil, test ETH. Mainnet\'e geçiş audit sonrası yapılır.',
     // İttifak butonları (büyük)
     'btn.allianceCreateBig': '+ İTTİFAK KUR',
@@ -3624,6 +3658,9 @@ const I18N = {
     'empty.news': '📡 Awaiting war — attacks will flow here...',
     'toast.connected': 'Wallet connected! Select a country.',
     'toast.welcome': 'Welcome Commander!',
+    'toast.giftReceived': '🎁 You are one of the first 100 players! (#{rank}) +{amount} bonus ammo gifted!',
+    'gift.badge': 'First 100 players get +100 bonus ammo! ({n} left)',
+    'gift.ended': '',
     'toast.targetLocked': '🎯 Target locked: {country}',
     'toast.attackOk': '⚡ Hit {country}! -{dmg} HP',
     'toast.allianceCreated': '🛡️ Alliance created',
@@ -3730,6 +3767,14 @@ const I18N = {
     'help.step8': '8 · MAP COLORS',
     'help.step8.body': 'Green = healthy · Yellow = damaged · Orange = critical · Red = dying · Gray = eliminated.',
     'help.shortcuts': '⌨ KEYBOARD SHORTCUTS',
+    'help.b1': 'Click "CONNECT WALLET" top right. MetaMask opens and switches to Abstract Testnet.',
+    'help.b2': 'Once connected, the country picker opens. Use the search box to choose from 119 countries. <b style="color:var(--red)">You cannot change until yours is eliminated.</b>',
+    'help.b3': 'Pick a pack from "BUY AMMO". Buying ammo is an <b>on-chain transaction</b> — MetaMask approval and gas required.<br><br><span style="color:var(--dim);font-size:11px">Basic: 0.001 ETH → 100 ammo<br>Advanced: 0.01 ETH → 1,000 ammo<br>Premium: 0.1 ETH → 10,000 ammo<br>Legendary: 1.0 ETH → 100,000 ammo</span>',
+    'help.b4': 'Click a target country on the map → red highlight appears → press "ATTACK". Each attack costs 1 ammo, lowers the target HP and adds to yours. Attacks are free (off-chain — fast).',
+    'help.b5': 'Use "CREATE ALLIANCE" to start your own or "JOIN ALLIANCE" to enter an existing one. Signal allies with radio commands.',
+    'help.b6': 'Each resource has a different effect (1 ammo → +10 level):<br><span style="color:var(--dim);font-size:11px">🛢️ <b>Oil</b> — at 100% gives <b>+10 ammo</b> (resets)<br>⚙️ <b>Metal</b> — each level <b>+1% extra damage</b> (max 10%)<br>☢️ <b>Uranium</b> — each level <b>+1% shield</b> (defense)<br>⚡ <b>Energy</b> — at 100% gives your country <b>+50 HP</b> (resets)</span>',
+    'help.b7': 'Your rank rises with contribution. Each rank gives a <b>contribution bonus</b> — more points per attack:<br><span style="color:var(--dim);font-size:11px;line-height:1.7">🪖 Soldier (0) · 🎖 Corporal (50, +5%) · 🎖🎖 Sergeant (200, +10%)<br>⭐ Lieutenant (500, +15%) · ⭐⭐ Captain (1,500, +20%)<br>⭐⭐⭐ Major (5,000, +25%) · ⭐⭐⭐⭐ General (15,000, +30%)</span>',
+    'help.b8': 'Green = healthy · Yellow = damaged · Orange = critical · Red = dying · Gray = eliminated.',
     'help.testnet': '⚠️ NOTE: Currently on Abstract Testnet — not real money, test ETH. Mainnet launch after audit.',
     'btn.allianceCreateBig': '+ CREATE ALLIANCE',
     'btn.allianceJoinBig': 'JOIN ALLIANCE',
@@ -3852,6 +3897,9 @@ const I18N = {
     'empty.news': '📡 Ожидание боя — атаки появятся здесь...',
     'toast.connected': 'Кошелёк подключён! Выберите страну.',
     'toast.welcome': 'Добро пожаловать, Командир!',
+    'toast.giftReceived': '🎁 Вы один из первых 100 игроков! (#{rank}) +{amount} бонусных патронов!',
+    'gift.badge': 'Первым 100 игрокам +100 бонусных патронов! (осталось {n})',
+    'gift.ended': '',
     'toast.targetLocked': '🎯 Цель захвачена: {country}',
     'toast.attackOk': '⚡ Попадание {country}! -{dmg} HP',
     'toast.allianceCreated': '🛡️ Альянс создан',
@@ -3957,6 +4005,14 @@ const I18N = {
     'help.step8': '8 · ЦВЕТА КАРТЫ',
     'help.step8.body': 'Зелёный = здоровый · Жёлтый = ранен · Оранжевый = критичен · Красный = умирает · Серый = устранён.',
     'help.shortcuts': '⌨ ГОРЯЧИЕ КЛАВИШИ',
+    'help.b1': 'Нажмите "ПОДКЛЮЧИТЬ" справа вверху. MetaMask откроется и переключится на Abstract Testnet.',
+    'help.b2': 'После подключения откроется выбор страны. Используйте поиск для выбора из 119 стран. <b style="color:var(--red)">Нельзя сменить, пока ваша жива.</b>',
+    'help.b3': 'Выберите пакет в "КУПИТЬ ПАТРОНЫ". Покупка — это <b>on-chain транзакция</b>: нужно подтверждение MetaMask и газ.<br><br><span style="color:var(--dim);font-size:11px">Базовый: 0.001 ETH → 100 патронов<br>Продвинутый: 0.01 ETH → 1 000<br>Премиум: 0.1 ETH → 10 000<br>Легендарный: 1.0 ETH → 100 000</span>',
+    'help.b4': 'Кликните страну-цель на карте → появится красная подсветка → нажмите "АТАКОВАТЬ". Каждая атака стоит 1 патрон, снижает HP цели и добавляет к вашему. Атаки бесплатны (off-chain — быстро).',
+    'help.b5': 'Используйте "СОЗДАТЬ АЛЬЯНС" или "ВСТУПИТЬ В АЛЬЯНС". Подавайте сигналы союзникам радио-командами.',
+    'help.b6': 'У каждого ресурса свой эффект (1 патрон → +10 уровень):<br><span style="color:var(--dim);font-size:11px">🛢️ <b>Нефть</b> — при 100% даёт <b>+10 патронов</b> (сброс)<br>⚙️ <b>Металл</b> — каждый уровень <b>+1% урона</b> (макс 10%)<br>☢️ <b>Уран</b> — каждый уровень <b>+1% щит</b> (защита)<br>⚡ <b>Энергия</b> — при 100% даёт стране <b>+50 HP</b> (сброс)</span>',
+    'help.b7': 'Звание растёт с вкладом. Каждое звание даёт <b>бонус к вкладу</b> — больше очков за атаку:<br><span style="color:var(--dim);font-size:11px;line-height:1.7">🪖 Солдат (0) · 🎖 Ефрейтор (50, +5%) · 🎖🎖 Сержант (200, +10%)<br>⭐ Лейтенант (500, +15%) · ⭐⭐ Капитан (1 500, +20%)<br>⭐⭐⭐ Майор (5 000, +25%) · ⭐⭐⭐⭐ Генерал (15 000, +30%)</span>',
+    'help.b8': 'Зелёный = здоровый · Жёлтый = ранен · Оранжевый = критичен · Красный = умирает · Серый = устранён.',
     'help.testnet': '⚠️ ВНИМАНИЕ: Игра в Abstract Testnet — не реальные деньги, test ETH. Mainnet после аудита.',
     'btn.allianceCreateBig': '+ СОЗДАТЬ АЛЬЯНС',
     'btn.allianceJoinBig': 'ВСТУПИТЬ В АЛЬЯНС',
@@ -4059,6 +4115,10 @@ function applyI18nToDOM() {
       if (tn) tn.textContent = txt;
       else el.textContent = txt;
     }
+  });
+  // HTML içeren çeviriler (bold, br vs.)
+  document.querySelectorAll('[data-i18n-html]').forEach(el => {
+    el.innerHTML = t(el.getAttribute('data-i18n-html'));
   });
   document.querySelectorAll('[data-i18n-title]').forEach(el => {
     el.title = t(el.getAttribute('data-i18n-title'));
