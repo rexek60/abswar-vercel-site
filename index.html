@@ -398,7 +398,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 <div class="cell" id="panel-kontrol" style="grid-column:1;grid-row:1">
   <div style="padding:8px 10px;border-bottom:1px solid var(--border);flex-shrink:0">
     <div style="display:flex;align-items:center"><span class="ldot"></span><span style="font-family:var(--hud);font-size:11px;font-weight:700;color:var(--red);letter-spacing:3px" data-i18n="live.war">CANLI SAVAŞ</span></div>
-    <div style="font-size:8px;color:var(--dim);letter-spacing:2px;margin-top:2px">SEZON 1: İLK ÇÖKÜŞ</div>
+    <div style="font-size:8px;color:var(--dim);letter-spacing:2px;margin-top:2px" data-i18n="season.name">SEZON 1: İLK ÇÖKÜŞ</div>
   </div>
   <div style="padding:6px 10px;border-bottom:1px solid var(--border);flex-shrink:0">
     <div class="sl">KALAN SÜRE</div>
@@ -408,7 +408,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   <div style="flex:1;overflow-y:auto" id="activityList">
     <div style="padding:20px;text-align:center;color:var(--dim);font-size:10px" id="activityEmpty" data-i18n="empty.activity">Henüz savaş faaliyeti yok</div>
   </div>
-  <button class="btn-sm btn-out" style="margin:8px;width:calc(100% - 16px)" onclick="openModal('target')">HEDEF SEÇ</button>
+  <button class="btn-sm btn-out" style="margin:8px;width:calc(100% - 16px)" onclick="openModal('target')" data-i18n="btn.selectTargetSide">HEDEF SEÇ</button>
 </div>
 
 <!-- MAP -->
@@ -657,10 +657,10 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   </div>
   <div class="sh" style="flex-shrink:0" data-i18n="panel.market">MERMİ SATIN AL</div>
   <div style="flex:1;overflow-y:auto">
-    <div class="ammo-row"><span style="font-size:16px">🔹</span><div class="ammo-info"><div class="ammo-name">TEMEL CEPHANE</div><div class="ammo-sub">100 mermi</div></div><span class="ammo-price">0.001 ETH</span><button class="btn-sm btn-red" id="b1" onclick="buyAmmo(100)">SATIN AL</button></div>
-    <div class="ammo-row"><span style="font-size:16px">🔶</span><div class="ammo-info"><div class="ammo-name">GELİŞMİŞ CEPHANE</div><div class="ammo-sub">1,000 mermi</div></div><span class="ammo-price">0.01 ETH</span><button class="btn-sm btn-red" id="b2" onclick="buyAmmo(500)">SATIN AL</button></div>
-    <div class="ammo-row"><span style="font-size:16px">🔴</span><div class="ammo-info"><div class="ammo-name">PRİM CEPHANE</div><div class="ammo-sub">10,000 mermi</div></div><span class="ammo-price">0.1 ETH</span><button class="btn-sm btn-red" id="b3" onclick="buyAmmo(2000)">SATIN AL</button></div>
-    <div class="ammo-row"><span style="font-size:16px">💎</span><div class="ammo-info"><div class="ammo-name">EFSANEVİ CEPHANE</div><div class="ammo-sub">100,000 mermi</div></div><span class="ammo-price">1.0 ETH</span><button class="btn-sm btn-red" id="b4" onclick="buyAmmo(9999)">SATIN AL</button></div>
+    <div class="ammo-row"><span style="font-size:16px">🔹</span><div class="ammo-info"><div class="ammo-name" data-i18n="pack.basicName">TEMEL CEPHANE</div><div class="ammo-sub"><span data-i18n="pack.ammoCount100">100 mermi</span></div></div><span class="ammo-price">0.001 ETH</span><button class="btn-sm btn-red" id="b1" onclick="buyAmmo(100)" data-i18n="btn.buy">SATIN AL</button></div>
+    <div class="ammo-row"><span style="font-size:16px">🔶</span><div class="ammo-info"><div class="ammo-name" data-i18n="pack.advancedName">GELİŞMİŞ CEPHANE</div><div class="ammo-sub"><span data-i18n="pack.ammoCount1000">1,000 mermi</span></div></div><span class="ammo-price">0.01 ETH</span><button class="btn-sm btn-red" id="b2" onclick="buyAmmo(500)" data-i18n="btn.buy">SATIN AL</button></div>
+    <div class="ammo-row"><span style="font-size:16px">🔴</span><div class="ammo-info"><div class="ammo-name" data-i18n="pack.premiumName">PRİM CEPHANE</div><div class="ammo-sub"><span data-i18n="pack.ammoCount10000">10,000 mermi</span></div></div><span class="ammo-price">0.1 ETH</span><button class="btn-sm btn-red" id="b3" onclick="buyAmmo(2000)" data-i18n="btn.buy">SATIN AL</button></div>
+    <div class="ammo-row"><span style="font-size:16px">💎</span><div class="ammo-info"><div class="ammo-name" data-i18n="pack.legendaryName">EFSANEVİ CEPHANE</div><div class="ammo-sub"><span data-i18n="pack.ammoCount100000">100,000 mermi</span></div></div><span class="ammo-price">1.0 ETH</span><button class="btn-sm btn-red" id="b4" onclick="buyAmmo(9999)" data-i18n="btn.buy">SATIN AL</button></div>
   </div>
 </div>
 
@@ -707,7 +707,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 
 <!-- Alliance Chat -->
 <div class="cell" id="panel-ittifak" style="grid-column:2;grid-row:2">
-  <div class="sh"><span data-i18n="panel.allianceChat">İTTİFAK SOHBETİ</span> <span style="font-family:var(--mono);font-size:8px;color:var(--green)" id="allianceTag">İTTİFAK YOK</span> <span id="allianceMeta" style="font-family:var(--mono);font-size:8px;color:var(--dim);margin-left:6px"></span></div>
+  <div class="sh"><span data-i18n="panel.allianceChat">İTTİFAK SOHBETİ</span> <span style="font-family:var(--mono);font-size:8px;color:var(--green)" id="allianceTag" data-i18n="alliance.none">İTTİFAK YOK</span> <span id="allianceMeta" style="font-family:var(--mono);font-size:8px;color:var(--dim);margin-left:6px"></span></div>
   <div id="allianceBtnRow" style="display:flex;gap:4px;padding:5px 8px;border-bottom:1px solid var(--border);flex-shrink:0">
     <button class="btn-sm btn-red" style="flex:1" onclick="openAllianceModal('create')" data-i18n="btn.allianceCreateBig">+ İTTİFAK KUR</button>
     <button class="btn-sm btn-out" style="flex:1" onclick="openAllianceModal('join')">İTTİFAKA KATIL</button>
@@ -747,7 +747,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
       <circle cx="60" cy="60" r="3" fill="#00c853"/>
     </svg>
     <div style="flex:1;overflow-y:auto">
-      <div class="sl" style="margin-bottom:5px">TESPİT EDİLEN FAALİYET <span id="radarCount" style="font-size:9px;color:var(--dim);margin-left:4px">(0)</span></div>
+      <div class="sl" style="margin-bottom:5px"><span data-i18n="panel.radarDetect">TESPİT EDİLEN FAALİYET</span> <span id="radarCount" style="font-size:9px;color:var(--dim);margin-left:4px">(0)</span></div>
       <div id="radarDetections">
         <div style="padding:14px 4px;text-align:center;color:var(--dim);font-size:9px" id="radarEmpty" data-i18n="empty.radar">Henüz faaliyet tespit edilmedi</div>
       </div>
@@ -788,11 +788,11 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   <div class="ticker-lbl" data-i18n="panel.news">🔴 KÜRESEL HABERLER</div>
   <div class="ticker-scroll">
     <div class="ticker-inner" id="tickerInner">
-      <span style="color:var(--dim)">📡 Savaş bekleniyor — saldırılar burada akacak...</span>
+      <span style="color:var(--dim)" data-i18n="empty.news">📡 Savaş bekleniyor — saldırılar burada akacak...</span>
     </div>
   </div>
-  <div class="ticker-online">ÇEVRİMİÇİ: <span id="onlineCount">0</span></div>
-  <button class="btn-join" onclick="connectWallet()">SAVAŞA KATIL</button>
+  <div class="ticker-online"><span data-i18n="stat.online">ÇEVRİMİÇİ</span>: <span id="onlineCount">0</span></div>
+  <button class="btn-join" onclick="connectWallet()" data-i18n="btn.joinWar">SAVAŞA KATIL</button>
 </div>
 
 <!-- MODAL -->
@@ -1736,20 +1736,25 @@ const RESOURCES = [
 function renderResources() {
   const list = document.getElementById('resourceList');
   if (!list) return;
+  // id → çeviri anahtarı eşleştirmesi
+  const nameKey = { oil:'res.oil', metal:'res.metal', uranium:'res.uranium', energy:'res.energy' };
+  const descKey = { oil:'res.oilDesc', metal:'res.metalDesc', uranium:'res.uraniumDesc', energy:'res.energyDesc' };
   list.innerHTML = '';
   RESOURCES.forEach(r => {
+    const rName = t(nameKey[r.id]) || r.name;
+    const rDesc = t(descKey[r.id]) || r.effect;
     const row = document.createElement('div');
     row.className = 'res-row';
     row.style.cursor = 'pointer';
-    row.title = `Üretmek için tıkla (1 mermi) — ${r.effect}`;
+    row.title = `${rDesc}`;
     row.onclick = ()=>produceResource(r.id);
     row.innerHTML = `
       <div class="res-hdr">
-        <span class="res-name">${r.icon} ${r.name}</span>
+        <span class="res-name">${r.icon} ${rName}</span>
         <span class="res-pct">${r.val.toFixed(0)}%</span>
       </div>
       <div class="res-bar"><div class="res-fill" style="width:${r.val}%;background:${r.grad}"></div></div>
-      <div class="res-chg" style="font-size:8px;color:var(--dim);margin-top:2px">${r.effect}</div>`;
+      <div class="res-chg" style="font-size:8px;color:var(--dim);margin-top:2px">${rDesc}</div>`;
     list.appendChild(row);
   });
 }
@@ -3525,6 +3530,34 @@ const I18N = {
     'live.short': 'CANLI',
     'panel.radar': 'RADAR SİSTEMİ',
     'panel.resources': 'KAYNAK KONTROLÜ',
+    'season.name': 'SEZON 1: İLK ÇÖKÜŞ',
+    'pack.ammoCount100': '100 mermi',
+    'pack.ammoCount1000': '1,000 mermi',
+    'pack.ammoCount10000': '10,000 mermi',
+    'pack.ammoCount100000': '100,000 mermi',
+    'pack.ammoUnit': 'mermi',
+    'pack.basicName': 'TEMEL CEPHANE',
+    'pack.advancedName': 'GELİŞMİŞ CEPHANE',
+    'pack.premiumName': 'PRİM CEPHANE',
+    'pack.legendaryName': 'EFSANEVİ CEPHANE',
+    'btn.buy': 'SATIN AL',
+    'btn.selectTargetSide': 'HEDEF SEÇ',
+    'alliance.none': 'İTTİFAK YOK',
+    'panel.radarDetect': 'TESPİT EDİLEN FAALİYET',
+    'radar.noActivity': 'Aktivite tespit edilmedi',
+    'radar.upgradeBtn': '⬆ YÜKSELT (5 MERMİ)',
+    'res.oil': 'PETROL',
+    'res.metal': 'METAL',
+    'res.uranium': 'URANYUM',
+    'res.energy': 'ENERJİ',
+    'res.oilDesc': '%100 → +10 mermi',
+    'res.metalDesc': 'Seviye×%1 ekstra hasar',
+    'res.uraniumDesc': 'Seviye×%1 kalkan (savunma)',
+    'res.energyDesc': '%100 → ülkene +50 HP',
+    'stat.online': 'ÇEVRİMİÇİ',
+    'btn.joinWar': 'SAVAŞA KATIL',
+    'stat.country': 'ÜLKE',
+    'news.label': 'DÜNYA HABERLERİ',
     'panel.news': '🔴 KÜRESEL HABERLER',
     // Buton ve eylemler
     'btn.attack': '⚡ SALDIRI BAŞLAT',
@@ -3784,6 +3817,34 @@ const I18N = {
     'live.short': 'LIVE',
     'panel.radar': 'RADAR SYSTEM',
     'panel.resources': 'RESOURCE CONTROL',
+    'season.name': 'SEASON 1: FIRST COLLAPSE',
+    'pack.ammoCount100': '100 ammo',
+    'pack.ammoCount1000': '1,000 ammo',
+    'pack.ammoCount10000': '10,000 ammo',
+    'pack.ammoCount100000': '100,000 ammo',
+    'pack.ammoUnit': 'ammo',
+    'pack.basicName': 'BASIC AMMO',
+    'pack.advancedName': 'ADVANCED AMMO',
+    'pack.premiumName': 'PREMIUM AMMO',
+    'pack.legendaryName': 'LEGENDARY AMMO',
+    'btn.buy': 'BUY',
+    'btn.selectTargetSide': 'SELECT TARGET',
+    'alliance.none': 'NO ALLIANCE',
+    'panel.radarDetect': 'DETECTED ACTIVITY',
+    'radar.noActivity': 'No activity detected',
+    'radar.upgradeBtn': '⬆ UPGRADE (5 AMMO)',
+    'res.oil': 'OIL',
+    'res.metal': 'METAL',
+    'res.uranium': 'URANIUM',
+    'res.energy': 'ENERGY',
+    'res.oilDesc': '100% → +10 ammo',
+    'res.metalDesc': 'Level×1% extra damage',
+    'res.uraniumDesc': 'Level×1% shield (defense)',
+    'res.energyDesc': '100% → +50 HP to your country',
+    'stat.online': 'ONLINE',
+    'btn.joinWar': 'JOIN WAR',
+    'stat.country': 'COUNTRY',
+    'news.label': 'WORLD NEWS',
     'panel.news': '🔴 GLOBAL NEWS',
     'btn.attack': '⚡ ATTACK',
     'btn.attackTarget': '⚡ ATTACK {target}',
@@ -4025,6 +4086,34 @@ const I18N = {
     'live.short': 'LIVE',
     'panel.radar': 'СИСТЕМА РАДАРА',
     'panel.resources': 'РЕСУРСЫ',
+    'season.name': 'СЕЗОН 1: ПЕРВЫЙ КРАХ',
+    'pack.ammoCount100': '100 патронов',
+    'pack.ammoCount1000': '1,000 патронов',
+    'pack.ammoCount10000': '10,000 патронов',
+    'pack.ammoCount100000': '100,000 патронов',
+    'pack.ammoUnit': 'патронов',
+    'pack.basicName': 'БАЗОВЫЙ БОЕЗАПАС',
+    'pack.advancedName': 'ПРОДВИНУТЫЙ БОЕЗАПАС',
+    'pack.premiumName': 'ПРЕМИУМ БОЕЗАПАС',
+    'pack.legendaryName': 'ЛЕГЕНДАРНЫЙ БОЕЗАПАС',
+    'btn.buy': 'КУПИТЬ',
+    'btn.selectTargetSide': 'ВЫБРАТЬ ЦЕЛЬ',
+    'alliance.none': 'НЕТ АЛЬЯНСА',
+    'panel.radarDetect': 'ОБНАРУЖЕННАЯ АКТИВНОСТЬ',
+    'radar.noActivity': 'Активность не обнаружена',
+    'radar.upgradeBtn': '⬆ УЛУЧШИТЬ (5 ПАТР.)',
+    'res.oil': 'НЕФТЬ',
+    'res.metal': 'МЕТАЛЛ',
+    'res.uranium': 'УРАН',
+    'res.energy': 'ЭНЕРГИЯ',
+    'res.oilDesc': '100% → +10 патронов',
+    'res.metalDesc': 'Уровень×1% доп. урон',
+    'res.uraniumDesc': 'Уровень×1% щит (защита)',
+    'res.energyDesc': '100% → +50 HP вашей стране',
+    'stat.online': 'ОНЛАЙН',
+    'btn.joinWar': 'ВСТУПИТЬ В ВОЙНУ',
+    'stat.country': 'СТРАНА',
+    'news.label': 'МИРОВЫЕ НОВОСТИ',
     'panel.news': '🔴 МИРОВЫЕ НОВОСТИ',
     'btn.attack': '⚡ АТАКОВАТЬ',
     'btn.attackTarget': '⚡ АТАКОВАТЬ {target}',
