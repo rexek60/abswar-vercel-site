@@ -396,14 +396,14 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 <!-- LEFT SIDEBAR -->
 <div class="cell" id="panel-kontrol" style="grid-column:1;grid-row:1">
   <div style="padding:8px 10px;border-bottom:1px solid var(--border);flex-shrink:0">
-    <div style="display:flex;align-items:center"><span class="ldot"></span><span style="font-family:var(--hud);font-size:11px;font-weight:700;color:var(--red);letter-spacing:3px">CANLI SAVAŞ</span></div>
+    <div style="display:flex;align-items:center"><span class="ldot"></span><span style="font-family:var(--hud);font-size:11px;font-weight:700;color:var(--red);letter-spacing:3px" data-i18n="live.war">CANLI SAVAŞ</span></div>
     <div style="font-size:8px;color:var(--dim);letter-spacing:2px;margin-top:2px">SEZON 1: İLK ÇÖKÜŞ</div>
   </div>
   <div style="padding:6px 10px;border-bottom:1px solid var(--border);flex-shrink:0">
     <div class="sl">KALAN SÜRE</div>
     <div style="font-family:var(--mono);font-size:14px;color:var(--red);letter-spacing:2px;margin-top:3px" id="timerVal">23G 14S 42D 18S</div>
   </div>
-  <div class="sh" style="flex-shrink:0">SAVAŞ FAALİYETİ <span id="activityCount" style="font-size:9px;color:var(--dim);margin-left:6px">(0)</span></div>
+  <div class="sh" style="flex-shrink:0"><span data-i18n="panel.activity">SAVAŞ FAALİYETİ</span> <span id="activityCount" style="font-size:9px;color:var(--dim);margin-left:6px">(0)</span></div>
   <div style="flex:1;overflow-y:auto" id="activityList">
     <div style="padding:20px;text-align:center;color:var(--dim);font-size:10px" id="activityEmpty" data-i18n="empty.activity">Henüz savaş faaliyeti yok</div>
   </div>
@@ -593,7 +593,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   <!-- Map bottom bar -->
   <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(7,11,14,0.92);border-top:1px solid var(--border);display:flex;align-items:center;gap:10px;padding:5px 10px;z-index:10">
     <span style="font-family:var(--mono);font-size:8px;color:var(--dim)">HARİTA: 119 ÜLKE</span>
-    <span class="gdot"></span><span style="font-family:var(--mono);font-size:8px;color:var(--green)">CANLI</span>
+    <span class="gdot"></span><span style="font-family:var(--mono);font-size:8px;color:var(--green)" data-i18n="live.short">CANLI</span>
     <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
       <button id="attackBtn" onclick="attackTarget()" disabled
         style="padding:5px 18px;background:var(--red);color:white;font-family:var(--hud);font-size:9px;letter-spacing:2px;border:none;cursor:pointer;opacity:0.4;border-radius:1px;transition:all .15s">
@@ -683,7 +683,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     <div class="lb-row"><span class="lb-num">10</span><span style="font-size:13px">🇬🇧</span><span class="lb-name">Bir. Krallık</span><span class="lb-hp">1000 HP</span></div>
   </div>
   <button class="btn-sm btn-out" style="margin:6px;width:calc(100%-12px)">TAM SIRALAMAYI GÖR</button>
-  <div class="sh" style="flex-shrink:0">İSTATİSTİKLERİN</div>
+  <div class="sh" style="flex-shrink:0" data-i18n="panel.mystats">İSTATİSTİKLERİN</div>
   <div>
     <div class="ys-row"><span class="ys-l" data-i18n="stat.kills">ÖLDÜRME</span><span class="ys-v red" id="ysKills">0</span></div>
     <div class="ys-row"><span class="ys-l" data-i18n="stat.deaths">ÖLÜM</span><span class="ys-v" id="ysDeaths">0</span></div>
@@ -2032,13 +2032,10 @@ function drawAttackLine(fromCode, toCode) {
   if (_activeAnimations >= MAX_CONCURRENT_ANIMATIONS) return;
   // Performans modunda animasyonları azalt (her 3'te 1 göster)
   if (_performanceMode && Math.random() > 0.33) {
-    // Ses yine çal, ama görsel atla
-    playSound('shoot');
-    return;
+    return; // Görsel atla (ses çağıran taraf hallediyor)
   }
 
   _activeAnimations++;
-  playSound('shoot');
 
   const g = document.getElementById('attackLines');
 
@@ -2263,6 +2260,7 @@ async function attackTarget() {
       }
     } else {
       const dmg = data.damage||1;
+      playSound('shoot');  // Ses her başarılı saldırıda çalsın (animasyon limitinden bağımsız)
       showToast(`⚡ ${CD[targetCountry]?.f||''} ${targetCountry} vuruldu! -${dmg} HP`,'success');
       addAttackHistory(targetCountry, dmg);
       addActivity(myCountry, targetCountry);
@@ -2373,6 +2371,7 @@ async function bulkAttack(n) {
         cooldownStreak = 0;
         // İlk birkaç saldırı animasyonu göster, sonra atla (performans için)
         if (successCount <= 8 || successCount % 10 === 0) {
+          playSound('shoot');  // Sesi de animasyonla birlikte (ilk 8 + her 10'da bir)
           drawAttackLine(myCountry, targetCountry);
           addAttackHistory(targetCountry, 1);
           if (data.newHp !== undefined) updateHP(targetCountry, data.newHp);
@@ -3229,6 +3228,12 @@ ioScript.onload=()=>{
   socket.on('war:attack',(d)=>{
     const from=d.attackerCountry||d.from||'', to=d.targetCountry||d.to||'';
     if(from&&to){
+      // Başkalarının saldırıları için ses (kendiminki attackTarget'ta çalınıyor)
+      const isMine = from === myCountry;
+      if (!isMine) {
+        // Çok saldırı varken ses spam'ini önle — rastgele %40 çal
+        if (Math.random() < 0.4) playSound('shoot');
+      }
       addActivity(from,to);
       drawAttackLine(from,to);
       addRadarDetection(from, to, d.damage||1);
@@ -3357,6 +3362,8 @@ const I18N = {
     'panel.mystats': 'İSTATİSTİKLERİM',
     'panel.history': 'SALDIRI TARİHİ',
     'panel.activity': 'SAVAŞ FAALİYETİ',
+    'live.war': 'CANLI SAVAŞ',
+    'live.short': 'CANLI',
     'panel.radar': 'RADAR SİSTEMİ',
     'panel.resources': 'KAYNAK KONTROLÜ',
     'panel.news': '🔴 KÜRESEL HABERLER',
@@ -3614,6 +3621,8 @@ const I18N = {
     'panel.mystats': 'MY STATS',
     'panel.history': 'ATTACK HISTORY',
     'panel.activity': 'WAR ACTIVITY',
+    'live.war': 'LIVE WAR',
+    'live.short': 'LIVE',
     'panel.radar': 'RADAR SYSTEM',
     'panel.resources': 'RESOURCE CONTROL',
     'panel.news': '🔴 GLOBAL NEWS',
@@ -3853,6 +3862,8 @@ const I18N = {
     'panel.mystats': 'МОЯ СТАТИСТИКА',
     'panel.history': 'ИСТОРИЯ АТАК',
     'panel.activity': 'ВОЕННАЯ АКТИВНОСТЬ',
+    'live.war': 'ЖИВАЯ ВОЙНА',
+    'live.short': 'LIVE',
     'panel.radar': 'СИСТЕМА РАДАРА',
     'panel.resources': 'РЕСУРСЫ',
     'panel.news': '🔴 МИРОВЫЕ НОВОСТИ',
