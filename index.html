@@ -3266,7 +3266,79 @@ function _noise(ctx, opts) {
   src.start(t0);
 }
 
+// ════════════════════════════════════════════════
+// GERÇEK SES DOSYASI SİSTEMİ
+// sounds/ klasöründeki .mp3 dosyalarını çalar.
+// Dosya yoksa otomatik olarak sentezlenmiş sese düşer (fallback).
+// ════════════════════════════════════════════════
+const SOUND_FILES = {
+  shoot:      'sounds/shoot.mp3',
+  hit:        'sounds/hit.mp3',
+  purchase:   'sounds/purchase.mp3',
+  eliminated: 'sounds/eliminated.mp3',
+  victory:    'sounds/victory.mp3',
+  click:      'sounds/click.mp3',
+  error:      'sounds/error.mp3',
+};
+const _soundBuffers = {};   // çözülmüş AudioBuffer önbelleği
+const _soundFailed = {};    // yüklenemeyen dosyalar (bir daha denenmesin)
+let _soundVolume = 0.7;
+
+// Dosyayı yükle ve decode et (bir kez)
+async function _loadSoundFile(kind, ctx) {
+  if (_soundBuffers[kind]) return _soundBuffers[kind];
+  if (_soundFailed[kind]) return null;
+  const url = SOUND_FILES[kind];
+  if (!url) { _soundFailed[kind] = true; return null; }
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const arr = await res.arrayBuffer();
+    const buf = await ctx.decodeAudioData(arr);
+    _soundBuffers[kind] = buf;
+    return buf;
+  } catch (e) {
+    // Dosya yok veya bozuk → sentez kullanılacak
+    _soundFailed[kind] = true;
+    return null;
+  }
+}
+
+// Yüklenmiş buffer'ı çal
+function _playBuffer(buf, ctx) {
+  const src = ctx.createBufferSource();
+  src.buffer = buf;
+  const g = ctx.createGain();
+  g.gain.value = _soundVolume;
+  src.connect(g).connect(ctx.destination);
+  src.start();
+}
+
 function playSound(kind) {
+  if (!_soundEnabled) return;
+  const ctx = getAudioCtx();
+  if (!ctx) return;
+  _initAudioGraph(ctx);
+
+  // 1) Gerçek dosya zaten yüklüyse onu çal
+  if (_soundBuffers[kind]) {
+    _playBuffer(_soundBuffers[kind], ctx);
+    return;
+  }
+  // 2) Daha önce denenip başarısız olmadıysa, yüklemeyi dene (async)
+  if (!_soundFailed[kind] && SOUND_FILES[kind]) {
+    _loadSoundFile(kind, ctx).then(buf => {
+      if (buf) _playBuffer(buf, ctx);
+      else _playSynthSound(kind); // dosya yoksa sentez
+    });
+    return;
+  }
+  // 3) Dosya yok → sentezlenmiş sese düş
+  _playSynthSound(kind);
+}
+
+// Eski sentezlenmiş ses motoru (fallback)
+function _playSynthSound(kind) {
   if (!_soundEnabled) return;
   const ctx = getAudioCtx();
   if (!ctx) return;
