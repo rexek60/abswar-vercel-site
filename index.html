@@ -2243,8 +2243,19 @@ function drawAttackLine(fromCode, toCode) {
 
 /* ── WALLET ── */
 async function connectWallet() {
-  if (!window.ethereum) { showToast(t('toast.metamaskMissing'),'error'); return; }
-  showLoader('CÜZDANA BAĞLANIYOR...');
+  // Mobil cihaz tespiti
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+  if (!window.ethereum) {
+    if (isMobile) {
+      // Mobilde MetaMask yoksa: uygulamada açma seçeneği sun
+      showMobileWalletHelp();
+    } else {
+      showToast(t('toast.metamaskMissing'),'error');
+    }
+    return;
+  }
+  showLoader(t('loader.connecting'));
   try {
     const accounts = await ethereum.request({method:'eth_requestAccounts'});
     wallet = accounts[0];
@@ -2255,6 +2266,28 @@ async function connectWallet() {
     await registerPlayer();
   } catch(e) { showToast(t('toast.connectionCancelled'),'error'); }
   finally { hideLoader(); }
+}
+
+// Mobilde MetaMask uygulamasına yönlendirme
+function showMobileWalletHelp() {
+  // MetaMask deep link — siteyi MetaMask uygulamasının tarayıcısında açar
+  const host = location.host; // abswar.xyz
+  const mmLink = 'https://metamask.app.link/dapp/' + host;
+  const msg = document.createElement('div');
+  msg.id = 'mobileWalletModal';
+  msg.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;padding:20px';
+  msg.innerHTML = `
+    <div style="background:var(--panel,#0d1117);border:1px solid var(--gold,#f5c842);border-radius:10px;max-width:380px;width:100%;padding:24px;text-align:center;font-family:var(--hud,sans-serif)">
+      <div style="font-size:32px;margin-bottom:10px">🦊</div>
+      <div style="color:var(--gold,#f5c842);font-size:15px;font-weight:700;letter-spacing:1px;margin-bottom:12px" data-i18n="mobileWallet.title">MOBİLDE CÜZDAN BAĞLAMA</div>
+      <div style="color:var(--text,#c9d1d9);font-size:13px;line-height:1.6;margin-bottom:18px" data-i18n="mobileWallet.body">Mobil tarayıcıda cüzdan bağlamak için MetaMask uygulaması gerekir. Aşağıdaki butona basarak oyunu MetaMask uygulamasının içinde aç.</div>
+      <a href="${mmLink}" style="display:block;background:linear-gradient(180deg,#f6851b,#e2761b);color:#fff;text-decoration:none;padding:13px;border-radius:6px;font-size:13px;font-weight:700;letter-spacing:1px;margin-bottom:10px" data-i18n="mobileWallet.openApp">🦊 METAMASK'TA AÇ</a>
+      <div style="color:var(--dim,#8b949e);font-size:11px;line-height:1.5;margin-bottom:14px" data-i18n="mobileWallet.note">MetaMask yüklü değilse, önce App Store / Google Play'den indir.</div>
+      <button onclick="document.getElementById('mobileWalletModal').remove()" style="background:transparent;border:1px solid var(--border,#30363d);color:var(--dim,#8b949e);padding:9px 18px;border-radius:6px;font-size:12px;cursor:pointer" data-i18n="btn.close">KAPAT</button>
+    </div>`;
+  document.body.appendChild(msg);
+  // Çevirileri uygula
+  if (typeof applyI18nToDOM === 'function') applyI18nToDOM();
 }
 
 async function registerPlayer() {
@@ -3577,6 +3610,11 @@ const I18N = {
     'btn.cancel': 'İPTAL',
     'btn.save': '✅ KAYDET',
     'btn.close': '✕ KAPAT',
+    'loader.connecting': 'CÜZDANA BAĞLANIYOR...',
+    'mobileWallet.title': 'MOBİLDE CÜZDAN BAĞLAMA',
+    'mobileWallet.body': 'Mobil tarayıcıda cüzdan bağlamak için MetaMask uygulaması gerekir. Aşağıdaki butona basarak oyunu MetaMask uygulamasının içinde aç.',
+    'mobileWallet.openApp': '🦊 METAMASK\'TA AÇ',
+    'mobileWallet.note': 'MetaMask yüklü değilse, önce App Store / Google Play\'den indir.',
     'btn.warJoin': 'SAVAŞA KATIL',
     // İstat etiketleri
     'stat.bullets': '🔫 Mermilerim',
@@ -3863,6 +3901,11 @@ const I18N = {
     'btn.cancel': 'CANCEL',
     'btn.save': '✅ SAVE',
     'btn.close': '✕ CLOSE',
+    'loader.connecting': 'CONNECTING WALLET...',
+    'mobileWallet.title': 'CONNECT WALLET ON MOBILE',
+    'mobileWallet.body': 'Connecting a wallet on a mobile browser requires the MetaMask app. Tap the button below to open the game inside the MetaMask app browser.',
+    'mobileWallet.openApp': '🦊 OPEN IN METAMASK',
+    'mobileWallet.note': 'If you don\'t have MetaMask, install it first from the App Store / Google Play.',
     'btn.warJoin': 'JOIN WAR',
     'stat.bullets': '🔫 My Ammo',
     'stat.attacks': '⚔️ My Attacks',
@@ -4132,6 +4175,11 @@ const I18N = {
     'btn.cancel': 'ОТМЕНА',
     'btn.save': '✅ СОХРАНИТЬ',
     'btn.close': '✕ ЗАКРЫТЬ',
+    'loader.connecting': 'ПОДКЛЮЧЕНИЕ КОШЕЛЬКА...',
+    'mobileWallet.title': 'ПОДКЛЮЧЕНИЕ КОШЕЛЬКА НА МОБИЛЬНОМ',
+    'mobileWallet.body': 'Для подключения кошелька в мобильном браузере нужно приложение MetaMask. Нажмите кнопку ниже, чтобы открыть игру в браузере приложения MetaMask.',
+    'mobileWallet.openApp': '🦊 ОТКРЫТЬ В METAMASK',
+    'mobileWallet.note': 'Если у вас нет MetaMask, сначала установите его из App Store / Google Play.',
     'btn.warJoin': 'ВСТУПИТЬ В БОЙ',
     'stat.bullets': '🔫 Патроны',
     'stat.attacks': '⚔️ Атаки',
