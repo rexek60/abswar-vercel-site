@@ -3147,6 +3147,23 @@ function _initAudioGraph(ctx) {
   _reverbGain.connect(_masterGain);
 }
 
+// Distortion/saturation eğrisi — gerçek silah/patlama sesleri için "kirlilik"
+// amount yükseldikçe daha agresif. Önbelleklenir (her seste yeniden üretilmez).
+let _distCurveCache = {};
+function _makeDistCurve(amount) {
+  const key = String(amount);
+  if (_distCurveCache[key]) return _distCurveCache[key];
+  const n = 44100;
+  const curve = new Float32Array(n);
+  const k = amount;
+  for (let i = 0; i < n; i++) {
+    const x = (i * 2) / n - 1;
+    curve[i] = ((3 + k) * x * 20 * Math.PI/180) / (Math.PI + k * Math.abs(x));
+  }
+  _distCurveCache[key] = curve;
+  return curve;
+}
+
 function _voice(ctx, opts) {
   // Tek bir osilatör + envelope + filtre + isteğe bağlı reverb
   const { type='sine', f0, f1, t0, dur, peak=0.15, attack=0.005, decay, filter, lpStart, lpEnd, reverbAmt=0.6 } = opts;
@@ -3178,11 +3195,18 @@ function _voice(ctx, opts) {
   }
 
   // Hem dry hem reverb yolu
-  chain.connect(_dryGain);
+  let outNode = chain;
+  if (opts.dist) {
+    const ws = ctx.createWaveShaper();
+    ws.curve = _makeDistCurve(opts.dist);
+    ws.oversample = '2x';
+    outNode = chain.connect(ws);
+  }
+  outNode.connect(_dryGain);
   if (reverbAmt > 0) {
     const sendGain = ctx.createGain();
     sendGain.gain.value = reverbAmt * 0.5;
-    chain.connect(sendGain).connect(_reverbNode);
+    outNode.connect(sendGain).connect(_reverbNode);
   }
 
   osc.start(t0);
@@ -3226,6 +3250,13 @@ function _noise(ctx, opts) {
     }
     node = g.connect(f);
   }
+  // Distortion/saturation — gerçekçi "kirli" patlama dokusu
+  if (opts.dist) {
+    const ws = ctx.createWaveShaper();
+    ws.curve = _makeDistCurve(opts.dist);
+    ws.oversample = '4x';
+    node = node.connect(ws);
+  }
   node.connect(_dryGain);
   if (reverbAmt > 0) {
     const sendGain = ctx.createGain();
@@ -3243,28 +3274,32 @@ function playSound(kind) {
   const t0 = ctx.currentTime;
 
   if (kind === 'shoot') {
-    // KATMANLI SİLAH SESİ: muzzle pop + zoom + tail
-    // 1. Kısa keskin patlama (high noise burst, filtered)
-    _noise(ctx, { t0, dur:0.06, peak:0.18, type:'white', hp:1200, reverbAmt:0.4 });
-    // 2. Mermi vızıltısı (frekans süpürme)
-    _voice(ctx, { type:'sawtooth', f0:1400, f1:280, t0:t0+0.005, dur:0.14, peak:0.09, attack:0.003, decay:0.13, lpStart:3000, lpEnd:600, reverbAmt:0.5 });
-    // 3. Alt patlama tonu (vücut)
-    _voice(ctx, { type:'square', f0:180, f1:60, t0:t0, dur:0.18, peak:0.06, attack:0.002, decay:0.16, filter:400, reverbAmt:0.6 });
-    // 4. Hafif ardıl gürültü (kuyruğun yankısı)
-    _noise(ctx, { t0:t0+0.08, dur:0.18, peak:0.04, type:'pink', filter:1500, reverbAmt:0.9 });
+    // GERÇEKÇİ SİLAH ATEŞİ: keskin transient + gövde + distortion + kuyruk
+    // 1. Anlık keskin patlama (muzzle crack) — çok kısa, distortion'lı yüksek gürültü
+    _noise(ctx, { t0, dur:0.04, peak:0.34, type:'white', hp:1800, reverbAmt:0.25, dist:200 });
+    // 2. Ana gövde patlaması (gunpowder body) — distortion'lı geniş bant gürültü
+    _noise(ctx, { t0, dur:0.10, peak:0.26, type:'white', lpStart:5000, lpEnd:700, reverbAmt:0.4, dist:120 });
+    // 3. Alt vuruş (sub thump — namlu geri tepmesi hissi)
+    _voice(ctx, { type:'square', f0:160, f1:48, t0, dur:0.14, peak:0.10, attack:0.001, decay:0.13, filter:380, reverbAmt:0.5, dist:60 });
+    // 4. Mermi vızıltısı (whizz-by)
+    _voice(ctx, { type:'sawtooth', f0:1600, f1:240, t0:t0+0.008, dur:0.12, peak:0.07, attack:0.002, decay:0.11, lpStart:3500, lpEnd:500, reverbAmt:0.45 });
+    // 5. Yankı kuyruğu (mekan hissi)
+    _noise(ctx, { t0:t0+0.07, dur:0.22, peak:0.05, type:'pink', filter:1400, reverbAmt:0.95 });
   }
   else if (kind === 'hit') {
-    // KATMANLI VURULMA: thump + crack + debris + sub
-    // 1. Düşük frekanslı vuruş (gövde)
-    _voice(ctx, { type:'sine', f0:90, f1:35, t0, dur:0.22, peak:0.32, attack:0.001, decay:0.22, reverbAmt:0.7 });
-    // 2. Orta frekanslı çarpışma (square)
-    _voice(ctx, { type:'square', f0:220, f1:55, t0, dur:0.18, peak:0.14, attack:0.001, decay:0.18, filter:1200, reverbAmt:0.5 });
-    // 3. Yüksek frekans çatırtı (filtered noise)
-    _noise(ctx, { t0, dur:0.12, peak:0.18, lpStart:4000, lpEnd:600, reverbAmt:0.4 });
-    // 4. Debris (yamuk dağınık gürültü)
-    _noise(ctx, { t0:t0+0.05, dur:0.25, peak:0.06, type:'pink', filter:800, reverbAmt:0.8 });
-    // 5. Sub bass kick (deep)
-    _voice(ctx, { type:'sine', f0:55, f1:30, t0:t0+0.003, dur:0.28, peak:0.18, attack:0.002, decay:0.26, reverbAmt:0.3 });
+    // GERÇEKÇİ İSABET/PATLAMA: anlık çarpma + gövde + şarapnel + sub
+    // 1. Anlık keskin çarpma (impact transient) — distortion'lı
+    _noise(ctx, { t0, dur:0.05, peak:0.40, type:'white', hp:900, reverbAmt:0.3, dist:260 });
+    // 2. Patlama gövdesi (explosion body) — distortion'lı, alçalan filtre
+    _noise(ctx, { t0, dur:0.18, peak:0.30, type:'white', lpStart:3500, lpEnd:350, reverbAmt:0.5, dist:160 });
+    // 3. Düşük frekanslı boom (gövde sarsıntısı)
+    _voice(ctx, { type:'sine', f0:95, f1:32, t0, dur:0.26, peak:0.34, attack:0.001, decay:0.25, reverbAmt:0.6, dist:40 });
+    // 4. Orta frekans çarpışma (metalik dağılma)
+    _voice(ctx, { type:'square', f0:240, f1:50, t0, dur:0.16, peak:0.12, attack:0.001, decay:0.16, filter:1100, reverbAmt:0.45, dist:80 });
+    // 5. Şarapnel/debris (dağınık gürültü)
+    _noise(ctx, { t0:t0+0.04, dur:0.30, peak:0.07, type:'pink', filter:700, reverbAmt:0.85 });
+    // 6. Sub bass kick (derin)
+    _voice(ctx, { type:'sine', f0:58, f1:28, t0:t0+0.003, dur:0.32, peak:0.20, attack:0.002, decay:0.30, reverbAmt:0.3 });
   }
   else if (kind === 'click') {
     // UI tıklama — temiz kısa
