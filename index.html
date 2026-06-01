@@ -3306,12 +3306,18 @@ async function _loadSoundFile(kind, ctx) {
 
 // Yüklenmiş buffer'ı çal
 function _playBuffer(buf, ctx) {
-  const src = ctx.createBufferSource();
-  src.buffer = buf;
-  const g = ctx.createGain();
-  g.gain.value = _soundVolume;
-  src.connect(g).connect(ctx.destination);
-  src.start();
+  try {
+    if (ctx.state === 'suspended') ctx.resume();
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    const g = ctx.createGain();
+    g.gain.value = _soundVolume;
+    src.connect(g).connect(ctx.destination);
+    src.start();
+    console.log('[ABSWAR ses] dosya çalındı ✓ (ctx:', ctx.state + ', süre:', buf.duration.toFixed(2) + 's)');
+  } catch(e) {
+    console.log('[ABSWAR ses] çalma hatası:', e.message);
+  }
 }
 
 function playSound(kind) {
