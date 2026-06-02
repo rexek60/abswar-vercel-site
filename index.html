@@ -853,7 +853,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 
       <div style="border-left:3px solid var(--red);padding-left:12px">
         <div style="font-family:var(--hud);font-size:11px;color:var(--red);letter-spacing:2px;margin-bottom:4px" data-i18n="help.step1">1 · CÜZDAN BAĞLA</div>
-        <span data-i18n-html="help.b1">Sağ üstteki "CÜZDAN BAĞLA" butonuna bas. MetaMask açılır, Abstract Testnet ağına geçer.</span>
+        <span data-i18n-html="help.b1">Sağ üstteki "CÜZDAN BAĞLA" butonuna bas. Abstract Global Wallet giriş penceresi açılır.</span>
       </div>
 
       <div style="border-left:3px solid var(--gold);padding-left:12px">
@@ -863,7 +863,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 
       <div style="border-left:3px solid var(--cyan);padding-left:12px">
         <div style="font-family:var(--hud);font-size:11px;color:var(--cyan);letter-spacing:2px;margin-bottom:4px" data-i18n="help.step3">3 · MERMİ AL</div>
-        <span data-i18n-html="help.b3">"MERMİ SATIN AL" panelinden paket seç. Mermi satın alma <b>blockchain işlemidir</b> — MetaMask onayı gerekir, gas ödenir.<br><br>
+        <span data-i18n-html="help.b3">"MERMİ SATIN AL" panelinden paket seç. Mermi satın alma <b>blockchain işlemidir</b> — Abstract Global Wallet onayı gerekir, gas ödenir.<br><br>
         <span style="color:var(--dim);font-size:11px">
           Temel: 0.001 ETH → 100 mermi<br>
           Gelişmiş: 0.01 ETH → 1.000 mermi<br>
@@ -1023,7 +1023,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     <div id="rendAdmin" style="margin-top:18px;display:none">
       <div style="background:rgba(245,200,66,0.08);border:1px solid rgba(245,200,66,0.3);padding:12px;font-size:12px;color:var(--text);line-height:1.5">
         <b style="color:var(--gold)">ADMIN PANELİ</b><br>
-        Bu adresleri Remix'te <code>payReward(adres, miktar)</code> ile öde. Miktarlar ödül havuzu (%70) baz alınarak hesaplanmıştır. Her ödemeyi MetaMask'tan onaylaman gerekir.
+        Bu adresleri <code>payReward(adres, miktar)</code> ile öde. Miktarlar ödül havuzu (%70) baz alınarak hesaplanmıştır. Her ödemeyi cüzdanından onaylaman gerekir.
       </div>
       <div id="rendPayouts" style="margin-top:10px;font-family:var(--mono);font-size:11px;color:var(--text)"></div>
       <button onclick="startNextRound()" class="btn-sm btn-red" style="margin-top:14px;width:100%;padding:10px" data-i18n="re.startNew">
@@ -1062,6 +1062,8 @@ const CHAINS = {
   }
 };
 const ACTIVE_CHAIN = CHAINS[APP_NETWORK] || CHAINS.mainnet;
+window.ABSWAR_APP_NETWORK = APP_NETWORK;
+window.abswarAgw = { ready:false, address:null };
 const AUTH_SESSION_KEY = `abswar-auth:${APP_NETWORK}`;
 let authToken = null;
 let authTokenExpiresAt = 0;
@@ -1124,10 +1126,8 @@ async function ensureAuthSession(force=false) {
   if (!challengeRes.ok || challenge.error) throw new Error(tErr(challenge) || challenge.error || 'Auth challenge failed');
 
   showToast('Cuzdan imzasi bekleniyor...','info');
-  const signature = await ethereum.request({
-    method:'personal_sign',
-    params:[challenge.message, wallet]
-  });
+  const agw = await waitForAbstractWallet(true);
+  const signature = await agw.signMessage(challenge.message);
 
   const verifyRes = await fetch(API+'/api/auth/verify', {
     method:'POST',
@@ -2362,53 +2362,42 @@ function drawAttackLine(fromCode, toCode) {
 }
 
 /* ── WALLET ── */
-async function connectWallet() {
-  // Mobil cihaz tespiti
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+let agwConnectInProgress = false;
 
-  if (!window.ethereum) {
-    if (isMobile) {
-      // Mobilde MetaMask yoksa: uygulamada açma seçeneği sun
-      showMobileWalletHelp();
-    } else {
-      showToast(t('toast.metamaskMissing'),'error');
+async function waitForAbstractWallet(requireAccount=false) {
+  for (let attempt = 0; attempt < 100; attempt++) {
+    const agw = window.abswarAgw;
+    if (agw?.ready && (!requireAccount || (agw.address && agw.signMessage && agw.sendTransaction))) {
+      return agw;
     }
-    return;
+    await new Promise(resolve => setTimeout(resolve, 100));
   }
+  throw new Error('Abstract Global Wallet yuklenemedi');
+}
+
+function applyConnectedWallet(address) {
+  wallet = address;
+  const btn = document.getElementById('walletBtn');
+  btn.textContent = wallet.slice(0,6)+'...'+wallet.slice(-4);
+  btn.className = 'btn-wallet connected';
+}
+
+async function connectWallet() {
   showLoader(t('loader.connecting'));
+  agwConnectInProgress = true;
   try {
-    const accounts = await ethereum.request({method:'eth_requestAccounts'});
-    wallet = accounts[0];
+    const agw = await waitForAbstractWallet();
+    await agw.login();
+    const connectedAgw = await waitForAbstractWallet(true);
+    applyConnectedWallet(connectedAgw.address);
     await ensureAuthSession();
-    const btn = document.getElementById('walletBtn');
-    btn.textContent = wallet.slice(0,6)+'...'+wallet.slice(-4);
-    btn.className = 'btn-wallet connected';
     dismissWelcome();
     await registerPlayer();
   } catch(e) { showToast(t('toast.connectionCancelled'),'error'); }
-  finally { hideLoader(); }
-}
-
-// Mobilde MetaMask uygulamasına yönlendirme
-function showMobileWalletHelp() {
-  // MetaMask deep link — siteyi MetaMask uygulamasının tarayıcısında açar
-  const host = location.host; // abswar.xyz
-  const mmLink = 'https://metamask.app.link/dapp/' + host;
-  const msg = document.createElement('div');
-  msg.id = 'mobileWalletModal';
-  msg.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;padding:20px';
-  msg.innerHTML = `
-    <div style="background:var(--panel,#0d1117);border:1px solid var(--gold,#f5c842);border-radius:10px;max-width:380px;width:100%;padding:24px;text-align:center;font-family:var(--hud,sans-serif)">
-      <div style="font-size:32px;margin-bottom:10px">🦊</div>
-      <div style="color:var(--gold,#f5c842);font-size:15px;font-weight:700;letter-spacing:1px;margin-bottom:12px" data-i18n="mobileWallet.title">MOBİLDE CÜZDAN BAĞLAMA</div>
-      <div style="color:var(--text,#c9d1d9);font-size:13px;line-height:1.6;margin-bottom:18px" data-i18n="mobileWallet.body">Mobil tarayıcıda cüzdan bağlamak için MetaMask uygulaması gerekir. Aşağıdaki butona basarak oyunu MetaMask uygulamasının içinde aç.</div>
-      <a href="${mmLink}" style="display:block;background:linear-gradient(180deg,#f6851b,#e2761b);color:#fff;text-decoration:none;padding:13px;border-radius:6px;font-size:13px;font-weight:700;letter-spacing:1px;margin-bottom:10px" data-i18n="mobileWallet.openApp">🦊 METAMASK'TA AÇ</a>
-      <div style="color:var(--dim,#8b949e);font-size:11px;line-height:1.5;margin-bottom:14px" data-i18n="mobileWallet.note">MetaMask yüklü değilse, önce App Store / Google Play'den indir.</div>
-      <button onclick="document.getElementById('mobileWalletModal').remove()" style="background:transparent;border:1px solid var(--border,#30363d);color:var(--dim,#8b949e);padding:9px 18px;border-radius:6px;font-size:12px;cursor:pointer" data-i18n="btn.close">KAPAT</button>
-    </div>`;
-  document.body.appendChild(msg);
-  // Çevirileri uygula
-  if (typeof applyI18nToDOM === 'function') applyI18nToDOM();
+  finally {
+    agwConnectInProgress = false;
+    hideLoader();
+  }
 }
 
 async function registerPlayer() {
@@ -2766,8 +2755,6 @@ function addActivity(from, to) {
 
 /* ── BUY AMMO (Smart Contract) ── */
 const CONTRACT_ADDRESS = ACTIVE_CHAIN.contractAddress;
-const ABSTRACT_CHAIN_ID = ACTIVE_CHAIN.chainIdHex;
-
 // buyAmmo() fonksiyonunun keccak imzası (ilk 4 byte)
 const BUY_AMMO_SELECTOR = '0x499eb3de';
 
@@ -2790,7 +2777,6 @@ function ethToWeiHex(ethStr) {
 
 async function buyAmmo(pack) {
   if (!wallet) { showToast(t('toast.connectFirst'),'error'); return; }
-  if (!window.ethereum) { showToast(t('toast.metamaskMissing'),'error'); return; }
   if (!CONTRACT_ADDRESS) { showToast('Kontrat adresi ayarli degil.','error'); return; }
 
   const ethAmount = AMMO_PRICE_ETH[pack];
@@ -2798,46 +2784,14 @@ async function buyAmmo(pack) {
 
   showLoader(`${pack.toLocaleString('tr-TR')} MERMİ SATIN ALINIYOR...`);
   try {
-    // 1. Doğru ağda mıyız kontrol et
-    const chainId = await ethereum.request({ method: 'eth_chainId' });
-    if (chainId !== ABSTRACT_CHAIN_ID) {
-      showToast(`${ACTIVE_CHAIN.label} agina geciliyor...`,'info');
-      try {
-        await ethereum.request({
-          method: 'wallet_switchEthereumChain',
-          params: [{ chainId: ABSTRACT_CHAIN_ID }]
-        });
-      } catch (switchErr) {
-        if (switchErr.code === 4902) {
-          await ethereum.request({
-            method: 'wallet_addEthereumChain',
-            params: [{
-              chainId: ABSTRACT_CHAIN_ID,
-              chainName: ACTIVE_CHAIN.label,
-              nativeCurrency: { name:'ETH', symbol:'ETH', decimals:18 },
-              rpcUrls: ACTIVE_CHAIN.rpcUrls,
-              blockExplorerUrls: [ACTIVE_CHAIN.explorerUrl]
-            }]
-          });
-        } else {
-          showToast('Ağ değiştirilemedi.','error');
-          return;
-        }
-      }
-    }
-
-    // 2. Contract'a buyAmmo() çağrısı + ETH gönder
+    const agw = await waitForAbstractWallet(true);
     const valueHex = ethToWeiHex(ethAmount);
     showToast(`💳 ${ethAmount} ETH ödeme onayı bekleniyor...`,'info');
 
-    const txHash = await ethereum.request({
-      method: 'eth_sendTransaction',
-      params: [{
-        from:  wallet,
-        to:    CONTRACT_ADDRESS,
-        value: valueHex,
-        data:  BUY_AMMO_SELECTOR
-      }]
+    const txHash = await agw.sendTransaction({
+      to: CONTRACT_ADDRESS,
+      value: BigInt(valueHex),
+      data: BUY_AMMO_SELECTOR
     });
 
     showToast(`✅ İşlem gönderildi! ${pack.toLocaleString('tr-TR')} mermi alınıyor...`,'success');
@@ -3761,50 +3715,33 @@ ioScript.onload=()=>{
 };
 document.head.appendChild(ioScript);
 
-/* ── METAMASK EVENTS ── */
-if(window.ethereum){
-  ethereum.on('accountsChanged',(accounts)=>{
-    if(!accounts.length){
-      // Bağlantı kesildi — tüm session'ı temizle
-      clearAuthSession();
-      wallet = null;
-      myCountry = null;
-      targetCountry = null;
-      document.getElementById('walletBtn').textContent='CÜZDAN BAĞLA';
-      document.getElementById('walletBtn').className='btn-wallet';
-      document.getElementById('myBullets').textContent = '0';
-      document.getElementById('myContrib').textContent = '0';
-      document.getElementById('ethBal').textContent = '0.000 ETH';
-      showToast('🔌 '+t('toast.disconnected'),'error');
-    } else {
-      // Hesap değişti — yeni wallet ile yeniden başla
-      const newWallet = accounts[0];
-      if (wallet && wallet.toLowerCase() !== newWallet.toLowerCase()) {
-        // Eski state'i sıfırla
-        clearAuthSession();
-        myCountry = null;
-        targetCountry = null;
-        document.getElementById('myBullets').textContent = '0';
-        document.getElementById('myContrib').textContent = '0';
-        showToast('🔄 Cüzdan değişti, yeni profil yükleniyor...','info');
-      }
-      wallet = newWallet;
-      document.getElementById('walletBtn').textContent=wallet.slice(0,6)+'...'+wallet.slice(-4);
-      registerPlayer();
+/* ── ABSTRACT GLOBAL WALLET EVENTS ── */
+window.addEventListener('abswar:agw-account', async event => {
+  const newWallet = event.detail?.address || null;
+  if (!newWallet) return;
+  if (wallet && wallet.toLowerCase() === newWallet.toLowerCase()) return;
+  clearAuthSession();
+  myCountry = null;
+  targetCountry = null;
+  document.getElementById('myBullets').textContent = '0';
+  document.getElementById('myContrib').textContent = '0';
+  applyConnectedWallet(newWallet);
+  if (!agwConnectInProgress) {
+    try {
+      await ensureAuthSession();
+      dismissWelcome();
+      await registerPlayer();
+    } catch(e) {
+      showToast(t('toast.connectionCancelled'),'error');
     }
-  });
-  // Ağ değişimi — sayfayı yenile (en güvenli)
-  ethereum.on('chainChanged',()=>{
-    showToast('🔗 Ağ değişti, sayfa yenileniyor...','info');
-    setTimeout(()=>location.reload(),800);
-  });
-}
+  }
+});
 
 /* ── DİL SİSTEMİ (TR / EN / RU) ── */
 const I18N = {
   tr: {
     // Genel
-    'wallet.connect': 'CÜZDAN BAĞLA',
+    'wallet.connect': 'ABSTRACT İLE BAĞLAN',
     'wallet.disconnect': '⏏ ÇIKIŞ YAP',
     'wallet.copy': '📋 ADRESİ KOPYALA',
     'wallet.explorer': '🔍 EXPLORER\'DA GÖR',
@@ -3889,9 +3826,9 @@ const I18N = {
     'btn.close': '✕ KAPAT',
     'loader.connecting': 'CÜZDANA BAĞLANIYOR...',
     'mobileWallet.title': 'MOBİLDE CÜZDAN BAĞLAMA',
-    'mobileWallet.body': 'Mobil tarayıcıda cüzdan bağlamak için MetaMask uygulaması gerekir. Aşağıdaki butona basarak oyunu MetaMask uygulamasının içinde aç.',
-    'mobileWallet.openApp': '🦊 METAMASK\'TA AÇ',
-    'mobileWallet.note': 'MetaMask yüklü değilse, önce App Store / Google Play\'den indir.',
+    'mobileWallet.body': 'Abstract Global Wallet giriş penceresinden devam et.',
+    'mobileWallet.openApp': 'ABSTRACT WALLET İLE DEVAM ET',
+    'mobileWallet.note': 'Ek bir tarayıcı cüzdanı kurman gerekmez.',
     'btn.warJoin': 'SAVAŞA KATIL',
     // İstat etiketleri
     'stat.bullets': '🔫 Mermilerim',
@@ -3932,7 +3869,7 @@ const I18N = {
     'toast.soundOn': '🔊 Ses açık',
     'toast.soundOff': '🔇 Ses kapalı',
     'toast.disconnected': '⏏ Çıkış yapıldı',
-    'toast.logoutFull': '⏏ Çıkış başarılı — MetaMask izni de iptal edildi',
+    'toast.logoutFull': '⏏ Abstract Global Wallet oturumu kapatıldı',
     'toast.copied': '📋 Adres kopyalandı',
     'toast.linkCopied': '🔗 Link kopyalandı: {code}',
     'toast.nicknameSet': '✅ Nickname: {nick}',
@@ -3946,7 +3883,7 @@ const I18N = {
     'toast.connectFirst': 'Önce cüzdan bağla!',
     'toast.selectCountryFirst': 'Önce ülke seç!',
     'toast.selectTargetFirst': 'Haritadan hedef seç!',
-    'toast.metamaskMissing': 'MetaMask bulunamadı! metamask.io kurulu olmalı.',
+    'toast.walletMissing': 'Abstract Global Wallet yüklenemedi.',
     'toast.connectionCancelled': 'Bağlantı iptal edildi.',
     'toast.serverError': 'Sunucu hatası ({code})',
     'toast.connectionError': 'Bağlantı hatası: {msg}',
@@ -4017,11 +3954,11 @@ const I18N = {
     'sub.help': 'ABSWAR\'a hoş geldin Komutan. Adımları takip et:',
     // Yardım modal adımları (kısa, anahtar)
     'help.step1': '1 · CÜZDAN BAĞLA',
-    'help.step1.body': 'Sağ üstteki "CÜZDAN BAĞLA" butonuna bas. MetaMask açılır, Abstract Testnet ağına geçer.',
+    'help.step1.body': 'Sağ üstteki "CÜZDAN BAĞLA" butonuna bas. Abstract Global Wallet giriş penceresi açılır.',
     'help.step2': '2 · ÜLKE SEÇ',
     'help.step2.body': 'Bağlanınca ülke seçim penceresi açılır. 119 ülke arasından seç. Ülken elenene kadar değiştiremezsin.',
     'help.step3': '3 · MERMİ AL',
-    'help.step3.body': '"MERMİ SATIN AL" panelinden paket seç. Bu blockchain işlemidir — MetaMask onayı gerekir.',
+    'help.step3.body': '"MERMİ SATIN AL" panelinden paket seç. Bu blockchain işlemidir — Abstract Global Wallet onayı gerekir.',
     'help.step4': '4 · SALDIR',
     'help.step4.body': 'Haritada hedef ülkeye tıkla, "SALDIRI BAŞLAT" butonuna bas. Her saldırı 1 mermi harcar.',
     'help.step5': '5 · İTTİFAK KUR',
@@ -4033,9 +3970,9 @@ const I18N = {
     'help.step8': '8 · HARİTA RENKLERİ',
     'help.step8.body': 'Yeşil = sağlam · Sarı = hasarlı · Turuncu = kritik · Kırmızı = ölmek üzere · Gri = elenen.',
     'help.shortcuts': '⌨ KLAVYE KISAYOLLARI',
-    'help.b1': 'Sağ üstteki "CÜZDAN BAĞLA" butonuna bas. MetaMask açılır, Abstract Testnet ağına geçer.',
+    'help.b1': 'Sağ üstteki "CÜZDAN BAĞLA" butonuna bas. Abstract Global Wallet giriş penceresi açılır.',
     'help.b2': 'Bağlanınca ülke seçim penceresi açılır. Arama kutusunu kullanarak 119 ülke arasından seç. <b style="color:var(--red)">Ülken elenene kadar değiştiremezsin.</b>',
-    'help.b3': '"MERMİ SATIN AL" panelinden paket seç. Mermi satın alma <b>blockchain işlemidir</b> — MetaMask onayı gerekir, gas ödenir.<br><br><span style="color:var(--dim);font-size:11px">Temel: 0.001 ETH → 100 mermi<br>Gelişmiş: 0.01 ETH → 1.000 mermi<br>Prim: 0.1 ETH → 10.000 mermi<br>Efsanevi: 1.0 ETH → 100.000 mermi</span>',
+    'help.b3': '"MERMİ SATIN AL" panelinden paket seç. Mermi satın alma <b>blockchain işlemidir</b> — Abstract Global Wallet onayı gerekir, gas ödenir.<br><br><span style="color:var(--dim);font-size:11px">Temel: 0.001 ETH → 100 mermi<br>Gelişmiş: 0.01 ETH → 1.000 mermi<br>Prim: 0.1 ETH → 10.000 mermi<br>Efsanevi: 1.0 ETH → 100.000 mermi</span>',
     'help.b4': 'Haritada hedef ülkeye tıkla → kırmızı vurgu çıkar → "SALDIRI BAŞLAT" butonuna bas. Her saldırı 1 mermi harcar, hedefin HP\'sini düşürür, kendi HP\'ne ekler. Saldırılar ücretsizdir (on-chain değil — hızlı).',
     'help.b5': '"İTTİFAK KUR" ile kendi ittifakını başlat veya "İTTİFAKA KATIL" ile mevcut bir ittifağa gir. Telsiz komutlarıyla müttefiklere sinyal gönder.',
     'help.b6': 'Her kaynak farklı işe yarar (1 mermi → +10 seviye):<br><span style="color:var(--dim);font-size:11px">🛢️ <b>Petrol</b> — %100\'e ulaşırsa <b>+10 mermi</b> (sıfırlanır)<br>⚙️ <b>Metal</b> — Her seviye için <b>+%1 ekstra hasar</b> (max %10)<br>☢️ <b>Uranyum</b> — Her seviye için <b>+%1 kalkan</b> (savunma)<br>⚡ <b>Enerji</b> — %100\'e ulaşırsa ülkene <b>+50 HP</b> (sıfırlanır)</span>',
@@ -4072,14 +4009,14 @@ const I18N = {
     // Welcome overlay
     'welcome.subtitle': 'KÜRESEL SAVAŞ MMO · ABSTRACT TESTNET',
     'welcome.body': '119 ülkeden birini seç, ittifak kur, savaş alanına gir. Web3 cüzdanınla bağlan, mermi al, hedeflerini yenmesi için saldır.',
-    'welcome.cta': '🔗 CÜZDAN BAĞLA & SAVAŞA KATIL',
+    'welcome.cta': '🔗 ABSTRACT İLE BAĞLAN & SAVAŞA KATIL',
     'welcome.skip': 'Önce çevreyi gözden geçirmek istiyorum →',
     'welcome.warning': '⚠️ Test ağında çalışır. Gerçek para gerekmez. Test ETH almak için Sepolia faucet kullan, sonra Abstract köprüsünden geçir.',
     // Round end
     're.title': 'TUR {n} BİTTİ',
     're.subtitle': 'Kazananlar ve ödül dağılımı:',
     're.adminPanel': 'ADMIN PANELİ',
-    're.adminInstr': 'Bu adresleri Remix\'te payReward(adres, miktar) ile öde. Her ödemeyi MetaMask\'tan onayla.',
+    're.adminInstr': 'Bu adresleri payReward(adres, miktar) ile öde. Her ödemeyi cüzdanından onayla.',
     're.startNew': '✅ ÖDEMELERİ YAPTIM · YENİ TUR BAŞLAT',
     're.waiting': 'Ödüller admin onayını bekliyor. Yeni tur yakında başlayacak.',
     // Member modal
@@ -4098,7 +4035,7 @@ const I18N = {
     'load.buying': 'MERMİ SATIN ALINIYOR...',
   },
   en: {
-    'wallet.connect': 'CONNECT WALLET',
+    'wallet.connect': 'CONNECT ABSTRACT WALLET',
     'wallet.disconnect': '⏏ DISCONNECT',
     'wallet.copy': '📋 COPY ADDRESS',
     'wallet.explorer': '🔍 VIEW ON EXPLORER',
@@ -4180,9 +4117,9 @@ const I18N = {
     'btn.close': '✕ CLOSE',
     'loader.connecting': 'CONNECTING WALLET...',
     'mobileWallet.title': 'CONNECT WALLET ON MOBILE',
-    'mobileWallet.body': 'Connecting a wallet on a mobile browser requires the MetaMask app. Tap the button below to open the game inside the MetaMask app browser.',
-    'mobileWallet.openApp': '🦊 OPEN IN METAMASK',
-    'mobileWallet.note': 'If you don\'t have MetaMask, install it first from the App Store / Google Play.',
+    'mobileWallet.body': 'Continue with the Abstract Global Wallet login.',
+    'mobileWallet.openApp': 'CONTINUE WITH ABSTRACT WALLET',
+    'mobileWallet.note': 'You do not need to install a browser wallet extension.',
     'btn.warJoin': 'JOIN WAR',
     'stat.bullets': '🔫 My Ammo',
     'stat.attacks': '⚔️ My Attacks',
@@ -4219,7 +4156,7 @@ const I18N = {
     'toast.soundOn': '🔊 Sound on',
     'toast.soundOff': '🔇 Sound off',
     'toast.disconnected': '⏏ Disconnected',
-    'toast.logoutFull': '⏏ Disconnect successful — MetaMask permission revoked',
+    'toast.logoutFull': '⏏ Abstract Global Wallet session closed',
     'toast.copied': '📋 Address copied',
     'toast.linkCopied': '🔗 Link copied: {code}',
     'toast.nicknameSet': '✅ Nickname: {nick}',
@@ -4232,7 +4169,7 @@ const I18N = {
     'toast.connectFirst': 'Connect wallet first!',
     'toast.selectCountryFirst': 'Select a country first!',
     'toast.selectTargetFirst': 'Select a target from the map!',
-    'toast.metamaskMissing': 'MetaMask not found! Install from metamask.io',
+    'toast.walletMissing': 'Abstract Global Wallet could not be loaded.',
     'toast.connectionCancelled': 'Connection cancelled.',
     'toast.serverError': 'Server error ({code})',
     'toast.connectionError': 'Connection error: {msg}',
@@ -4300,11 +4237,11 @@ const I18N = {
     'sub.country': 'Which country will you command?',
     'sub.help': 'Welcome to ABSWAR, Commander. Follow the steps:',
     'help.step1': '1 · CONNECT WALLET',
-    'help.step1.body': 'Click "CONNECT WALLET" top right. MetaMask opens and switches to Abstract Testnet.',
+    'help.step1.body': 'Click "CONNECT WALLET" top right. The Abstract Global Wallet login opens.',
     'help.step2': '2 · PICK COUNTRY',
     'help.step2.body': 'Country picker opens. Choose from 119 countries. You cannot change until yours is eliminated.',
     'help.step3': '3 · BUY AMMO',
-    'help.step3.body': 'Pick a pack from "BUY AMMO". This is an on-chain transaction — MetaMask approval required.',
+    'help.step3.body': 'Pick a pack from "BUY AMMO". This is an on-chain transaction — Abstract Global Wallet approval required.',
     'help.step4': '4 · ATTACK',
     'help.step4.body': 'Click a target on the map, then "ATTACK". Each attack costs 1 ammo.',
     'help.step5': '5 · FORM ALLIANCE',
@@ -4316,9 +4253,9 @@ const I18N = {
     'help.step8': '8 · MAP COLORS',
     'help.step8.body': 'Green = healthy · Yellow = damaged · Orange = critical · Red = dying · Gray = eliminated.',
     'help.shortcuts': '⌨ KEYBOARD SHORTCUTS',
-    'help.b1': 'Click "CONNECT WALLET" top right. MetaMask opens and switches to Abstract Testnet.',
+    'help.b1': 'Click "CONNECT WALLET" top right. The Abstract Global Wallet login opens.',
     'help.b2': 'Once connected, the country picker opens. Use the search box to choose from 119 countries. <b style="color:var(--red)">You cannot change until yours is eliminated.</b>',
-    'help.b3': 'Pick a pack from "BUY AMMO". Buying ammo is an <b>on-chain transaction</b> — MetaMask approval and gas required.<br><br><span style="color:var(--dim);font-size:11px">Basic: 0.001 ETH → 100 ammo<br>Advanced: 0.01 ETH → 1,000 ammo<br>Premium: 0.1 ETH → 10,000 ammo<br>Legendary: 1.0 ETH → 100,000 ammo</span>',
+    'help.b3': 'Pick a pack from "BUY AMMO". Buying ammo is an <b>on-chain transaction</b> — Abstract Global Wallet approval and gas required.<br><br><span style="color:var(--dim);font-size:11px">Basic: 0.001 ETH → 100 ammo<br>Advanced: 0.01 ETH → 1,000 ammo<br>Premium: 0.1 ETH → 10,000 ammo<br>Legendary: 1.0 ETH → 100,000 ammo</span>',
     'help.b4': 'Click a target country on the map → red highlight appears → press "ATTACK". Each attack costs 1 ammo, lowers the target HP and adds to yours. Attacks are free (off-chain — fast).',
     'help.b5': 'Use "CREATE ALLIANCE" to start your own or "JOIN ALLIANCE" to enter an existing one. Signal allies with radio commands.',
     'help.b6': 'Each resource has a different effect (1 ammo → +10 level):<br><span style="color:var(--dim);font-size:11px">🛢️ <b>Oil</b> — at 100% gives <b>+10 ammo</b> (resets)<br>⚙️ <b>Metal</b> — each level <b>+1% extra damage</b> (max 10%)<br>☢️ <b>Uranium</b> — each level <b>+1% shield</b> (defense)<br>⚡ <b>Energy</b> — at 100% gives your country <b>+50 HP</b> (resets)</span>',
@@ -4350,13 +4287,13 @@ const I18N = {
     'pack.bullets': 'ammo',
     'welcome.subtitle': 'GLOBAL WAR MMO · ABSTRACT TESTNET',
     'welcome.body': 'Pick one of 119 countries, form alliances, enter the battlefield. Connect your Web3 wallet, buy ammo, attack to crush your targets.',
-    'welcome.cta': '🔗 CONNECT WALLET & JOIN WAR',
+    'welcome.cta': '🔗 CONNECT ABSTRACT WALLET & JOIN WAR',
     'welcome.skip': 'Let me look around first →',
     'welcome.warning': '⚠️ Runs on testnet. No real money needed. Get test ETH from Sepolia faucet then bridge to Abstract.',
     're.title': 'ROUND {n} ENDED',
     're.subtitle': 'Winners and reward distribution:',
     're.adminPanel': 'ADMIN PANEL',
-    're.adminInstr': 'Pay these addresses via Remix payReward(addr, amount). Approve each tx in MetaMask.',
+    're.adminInstr': 'Pay these addresses via payReward(addr, amount). Approve each transaction in your wallet.',
     're.startNew': '✅ PAYMENTS DONE · START NEW ROUND',
     're.waiting': 'Rewards awaiting admin confirmation. New round starting soon.',
     'mem.title': '👥 ALLIANCE MEMBERS',
@@ -4372,7 +4309,7 @@ const I18N = {
     'load.buying': 'BUYING AMMO...',
   },
   ru: {
-    'wallet.connect': 'ПОДКЛЮЧИТЬ',
+    'wallet.connect': 'ПОДКЛЮЧИТЬ ABSTRACT WALLET',
     'wallet.disconnect': '⏏ ОТКЛЮЧИТЬ',
     'wallet.copy': '📋 КОПИРОВАТЬ АДРЕС',
     'wallet.explorer': '🔍 СМОТРЕТЬ В EXPLORER',
@@ -4454,9 +4391,9 @@ const I18N = {
     'btn.close': '✕ ЗАКРЫТЬ',
     'loader.connecting': 'ПОДКЛЮЧЕНИЕ КОШЕЛЬКА...',
     'mobileWallet.title': 'ПОДКЛЮЧЕНИЕ КОШЕЛЬКА НА МОБИЛЬНОМ',
-    'mobileWallet.body': 'Для подключения кошелька в мобильном браузере нужно приложение MetaMask. Нажмите кнопку ниже, чтобы открыть игру в браузере приложения MetaMask.',
-    'mobileWallet.openApp': '🦊 ОТКРЫТЬ В METAMASK',
-    'mobileWallet.note': 'Если у вас нет MetaMask, сначала установите его из App Store / Google Play.',
+    'mobileWallet.body': 'Продолжите через вход Abstract Global Wallet.',
+    'mobileWallet.openApp': 'ПРОДОЛЖИТЬ С ABSTRACT WALLET',
+    'mobileWallet.note': 'Устанавливать расширение кошелька не требуется.',
     'btn.warJoin': 'ВСТУПИТЬ В БОЙ',
     'stat.bullets': '🔫 Патроны',
     'stat.attacks': '⚔️ Атаки',
@@ -4493,7 +4430,7 @@ const I18N = {
     'toast.soundOn': '🔊 Звук включён',
     'toast.soundOff': '🔇 Звук выключен',
     'toast.disconnected': '⏏ Отключено',
-    'toast.logoutFull': '⏏ Успешно — разрешение MetaMask отозвано',
+    'toast.logoutFull': '⏏ Сессия Abstract Global Wallet закрыта',
     'toast.copied': '📋 Адрес скопирован',
     'toast.linkCopied': '🔗 Ссылка скопирована: {code}',
     'toast.nicknameSet': '✅ Ник: {nick}',
@@ -4506,7 +4443,7 @@ const I18N = {
     'toast.connectFirst': 'Сначала подключите кошелёк!',
     'toast.selectCountryFirst': 'Сначала выберите страну!',
     'toast.selectTargetFirst': 'Выберите цель на карте!',
-    'toast.metamaskMissing': 'MetaMask не найден! Установите с metamask.io',
+    'toast.walletMissing': 'Не удалось загрузить Abstract Global Wallet.',
     'toast.connectionCancelled': 'Подключение отменено.',
     'toast.serverError': 'Ошибка сервера ({code})',
     'toast.connectionError': 'Ошибка соединения: {msg}',
@@ -4573,11 +4510,11 @@ const I18N = {
     'sub.country': 'Какой страной вы будете командовать?',
     'sub.help': 'Добро пожаловать в ABSWAR, Командир. Следуйте шагам:',
     'help.step1': '1 · ПОДКЛЮЧИТЬ КОШЕЛЁК',
-    'help.step1.body': 'Нажмите "ПОДКЛЮЧИТЬ" справа вверху. MetaMask откроется и переключится на Abstract Testnet.',
+    'help.step1.body': 'Нажмите "ПОДКЛЮЧИТЬ" справа вверху. Откроется вход Abstract Global Wallet.',
     'help.step2': '2 · ВЫБРАТЬ СТРАНУ',
     'help.step2.body': 'Откроется выбор страны. Выберите из 119. Нельзя сменить, пока ваша жива.',
     'help.step3': '3 · КУПИТЬ ПАТРОНЫ',
-    'help.step3.body': 'Выберите пакет в "КУПИТЬ ПАТРОНЫ". Это on-chain транзакция — нужно подтверждение MetaMask.',
+    'help.step3.body': 'Выберите пакет в "КУПИТЬ ПАТРОНЫ". Это on-chain транзакция — нужно подтверждение Abstract Global Wallet.',
     'help.step4': '4 · АТАКОВАТЬ',
     'help.step4.body': 'Кликните цель на карте, затем "АТАКОВАТЬ". Каждая атака стоит 1 патрон.',
     'help.step5': '5 · СОЗДАТЬ АЛЬЯНС',
@@ -4589,9 +4526,9 @@ const I18N = {
     'help.step8': '8 · ЦВЕТА КАРТЫ',
     'help.step8.body': 'Зелёный = здоровый · Жёлтый = ранен · Оранжевый = критичен · Красный = умирает · Серый = устранён.',
     'help.shortcuts': '⌨ ГОРЯЧИЕ КЛАВИШИ',
-    'help.b1': 'Нажмите "ПОДКЛЮЧИТЬ" справа вверху. MetaMask откроется и переключится на Abstract Testnet.',
+    'help.b1': 'Нажмите "ПОДКЛЮЧИТЬ" справа вверху. Откроется вход Abstract Global Wallet.',
     'help.b2': 'После подключения откроется выбор страны. Используйте поиск для выбора из 119 стран. <b style="color:var(--red)">Нельзя сменить, пока ваша жива.</b>',
-    'help.b3': 'Выберите пакет в "КУПИТЬ ПАТРОНЫ". Покупка — это <b>on-chain транзакция</b>: нужно подтверждение MetaMask и газ.<br><br><span style="color:var(--dim);font-size:11px">Базовый: 0.001 ETH → 100 патронов<br>Продвинутый: 0.01 ETH → 1 000<br>Премиум: 0.1 ETH → 10 000<br>Легендарный: 1.0 ETH → 100 000</span>',
+    'help.b3': 'Выберите пакет в "КУПИТЬ ПАТРОНЫ". Покупка — это <b>on-chain транзакция</b>: нужно подтверждение Abstract Global Wallet и газ.<br><br><span style="color:var(--dim);font-size:11px">Базовый: 0.001 ETH → 100 патронов<br>Продвинутый: 0.01 ETH → 1 000<br>Премиум: 0.1 ETH → 10 000<br>Легендарный: 1.0 ETH → 100 000</span>',
     'help.b4': 'Кликните страну-цель на карте → появится красная подсветка → нажмите "АТАКОВАТЬ". Каждая атака стоит 1 патрон, снижает HP цели и добавляет к вашему. Атаки бесплатны (off-chain — быстро).',
     'help.b5': 'Используйте "СОЗДАТЬ АЛЬЯНС" или "ВСТУПИТЬ В АЛЬЯНС". Подавайте сигналы союзникам радио-командами.',
     'help.b6': 'У каждого ресурса свой эффект (1 патрон → +10 уровень):<br><span style="color:var(--dim);font-size:11px">🛢️ <b>Нефть</b> — при 100% даёт <b>+10 патронов</b> (сброс)<br>⚙️ <b>Металл</b> — каждый уровень <b>+1% урона</b> (макс 10%)<br>☢️ <b>Уран</b> — каждый уровень <b>+1% щит</b> (защита)<br>⚡ <b>Энергия</b> — при 100% даёт стране <b>+50 HP</b> (сброс)</span>',
@@ -4623,13 +4560,13 @@ const I18N = {
     'pack.bullets': 'патронов',
     'welcome.subtitle': 'ГЛОБАЛЬНАЯ ВОЕННАЯ MMO · ABSTRACT TESTNET',
     'welcome.body': 'Выберите одну из 119 стран, создайте альянс, выходите в бой. Подключите Web3-кошелёк, купите патроны, атакуйте цели.',
-    'welcome.cta': '🔗 ПОДКЛЮЧИТЬ И ВСТУПИТЬ В БОЙ',
+    'welcome.cta': '🔗 ПОДКЛЮЧИТЬ ABSTRACT WALLET',
     'welcome.skip': 'Сначала осмотрюсь →',
     'welcome.warning': '⚠️ Работает в testnet. Реальные деньги не нужны. Возьмите test ETH из Sepolia faucet и переведите в Abstract.',
     're.title': 'РАУНД {n} ЗАВЕРШЁН',
     're.subtitle': 'Победители и распределение наград:',
     're.adminPanel': 'АДМИН-ПАНЕЛЬ',
-    're.adminInstr': 'Оплатите эти адреса через Remix payReward(addr, amount). Подтвердите каждую tx в MetaMask.',
+    're.adminInstr': 'Оплатите эти адреса через payReward(addr, amount). Подтвердите каждую транзакцию в кошельке.',
     're.startNew': '✅ ВЫПЛАЧЕНО · НАЧАТЬ НОВЫЙ РАУНД',
     're.waiting': 'Награды ожидают подтверждения админом. Новый раунд скоро.',
     'mem.title': '👥 СОСТАВ АЛЬЯНСА',
@@ -4659,8 +4596,8 @@ function t(key, vars) {
       'welcome.subtitle': 'GLOBAL WAR MMO · ABSTRACT MAINNET',
       'welcome.warning': '⚠️ Mainnet: real ETH is used. Review wallet confirmations carefully.',
       'help.testnet': '⚠️ MAINNET: Transactions use real ETH. Review wallet confirmations carefully.',
-      'help.step1.body': 'Connect your wallet from the top-right button. MetaMask switches to Abstract mainnet.',
-      'help.b1': 'Connect your wallet from the top-right button. MetaMask switches to Abstract mainnet.'
+      'help.step1.body': 'Connect from the top-right button. The Abstract Global Wallet login opens on mainnet.',
+      'help.b1': 'Connect from the top-right button. The Abstract Global Wallet login opens on mainnet.'
     };
     if (mainnetCopy[key]) s = mainnetCopy[key];
   }
@@ -4937,30 +4874,8 @@ async function disconnectWallet() {
 
   closeWalletMenu();
 
-  // EIP-2255: site izinlerini iptal et (cüzdanın desteklediği bir özellik)
-  // Tüm cüzdanlar desteklemez ama destekleyenler tam logout sağlar
-  let revoked = false;
-  if (window.ethereum) {
-    try {
-      await window.ethereum.request({
-        method: 'wallet_revokePermissions',
-        params: [{ eth_accounts: {} }]
-      });
-      revoked = true;
-    } catch(e) {
-      // Cüzdan desteklemiyorsa veya iptal ettiyse — sessizce devam
-    }
-  }
-
-  if (revoked) {
-    showToast(t('toast.logoutFull'),'success');
-  } else {
-    showToast(t('toast.disconnected'),'info');
-    // Tam çıkış için kullanıcıyı bilgilendir
-    setTimeout(() => {
-      showToast('💡 MetaMask hâlâ siteye izinli. Tam çıkış için: MetaMask → ⋮ → "Bağlı siteler" → kaldır','info');
-    }, 1500);
-  }
+  try { await window.abswarAgw?.logout?.(); } catch(e) {}
+  showToast(t('toast.disconnected'),'info');
 }
 
 /* ── GERİ BİLDİRİM ── */
@@ -5085,6 +5000,123 @@ _applyUrlParams();
 // Dil ayarını uygula
 setLang(_lang);
 setInterval(pollState,15000);
+</script>
+<script>
+let abswarAgwModules = null;
+let abswarAgwConfig = null;
+let abswarAgwConnector = null;
+let abswarAgwClient = null;
+let abswarLastAddress = null;
+let abswarUnwatchAccount = null;
+
+async function loadAbswarAgwModules() {
+  if (abswarAgwModules) return abswarAgwModules;
+  const [core, agwClientModule, connectorModule, viemModule, chainsModule] = await Promise.all([
+    import('https://esm.sh/@wagmi/core@2.22.1?deps=viem@2.52.0'),
+    import('https://esm.sh/@abstract-foundation/agw-client@1.12.3?deps=viem@2.52.0'),
+    import('https://esm.sh/@abstract-foundation/agw-react@1.13.0/dist/esm/abstractWalletConnector?deps=viem@2.52.0,wagmi@2.19.5,@tanstack/react-query@5.100.14,react@18.3.1,react-dom@18.3.1'),
+    import('https://esm.sh/viem@2.52.0'),
+    import('https://esm.sh/viem@2.52.0/chains')
+  ]);
+  const chain = window.ABSWAR_APP_NETWORK === 'testnet' ? chainsModule.abstractTestnet : chainsModule.abstract;
+  abswarAgwModules = { core, agwClientModule, connectorModule, viemModule, chain };
+  return abswarAgwModules;
+}
+
+async function ensureAbswarAgwConfig() {
+  if (abswarAgwConfig) return abswarAgwConfig;
+  const { core, connectorModule, viemModule, chain } = await loadAbswarAgwModules();
+  abswarAgwConfig = core.createConfig({
+    chains: [chain],
+    connectors: [connectorModule.abstractWalletConnector()],
+    transports: {
+      [chain.id]: viemModule.http(undefined, { batch: true })
+    },
+    multiInjectedProviderDiscovery: false
+  });
+  abswarAgwConnector = abswarAgwConfig.connectors.find(connector => connector.id === 'xyz.abs.privy') || abswarAgwConfig.connectors[0];
+  abswarUnwatchAccount = core.watchAccount(abswarAgwConfig, { onChange: () => { refreshAbswarAgwBridge(); } });
+  return abswarAgwConfig;
+}
+
+async function buildAbswarAgwClient() {
+  await ensureAbswarAgwConfig();
+  const { core, agwClientModule, viemModule, chain } = await loadAbswarAgwModules();
+  const account = core.getAccount(abswarAgwConfig);
+  if (!account?.address) {
+    abswarAgwClient = null;
+    return null;
+  }
+  const signerAddress = account.addresses?.[1] || account.address;
+  const signerClient = await core.getConnectorClient(abswarAgwConfig, {
+    account: signerAddress,
+    connector: abswarAgwConnector
+  });
+  abswarAgwClient = await agwClientModule.createAbstractClient({
+    signer: signerClient.account,
+    chain,
+    transport: viemModule.custom(signerClient.transport),
+    isPrivyCrossApp: true,
+    publicTransport: abswarAgwConfig._internal.transports[chain.id]
+  });
+  return abswarAgwClient;
+}
+
+async function refreshAbswarAgwBridge() {
+  const mods = abswarAgwConfig ? await loadAbswarAgwModules() : null;
+  const account = abswarAgwConfig ? mods.core.getAccount(abswarAgwConfig) : null;
+  if (account?.address) {
+    try { await buildAbswarAgwClient(); } catch(e) { abswarAgwClient = null; }
+  } else {
+    abswarAgwClient = null;
+  }
+  const address = account?.address || null;
+  window.abswarAgw = {
+    ready: true,
+    address,
+    login: async () => {
+      await ensureAbswarAgwConfig();
+      const { core } = await loadAbswarAgwModules();
+      await core.connect(abswarAgwConfig, { connector: abswarAgwConnector });
+      await refreshAbswarAgwBridge();
+    },
+    logout: async () => {
+      if (abswarAgwConfig) {
+        const { core } = await loadAbswarAgwModules();
+        await core.disconnect(abswarAgwConfig, { connector: abswarAgwConnector });
+      }
+      await refreshAbswarAgwBridge();
+    },
+    signMessage: async message => {
+      const client = abswarAgwClient || await buildAbswarAgwClient();
+      if (!client) throw new Error('Abstract Global Wallet bagli degil');
+      return client.signMessage({ message });
+    },
+    sendTransaction: async tx => {
+      const client = abswarAgwClient || await buildAbswarAgwClient();
+      if (!client) throw new Error('Abstract Global Wallet bagli degil');
+      return client.sendTransaction(tx);
+    }
+  };
+  if (address !== abswarLastAddress) {
+    abswarLastAddress = address;
+    window.dispatchEvent(new CustomEvent('abswar:agw-account', {
+      detail: { address }
+    }));
+  }
+}
+
+refreshAbswarAgwBridge().catch(error => {
+  console.error('[ABSWAR AGW]', error);
+  window.abswarAgw = {
+    ready: false,
+    address: null,
+    login: async () => { throw error; },
+    logout: async () => {},
+    signMessage: async () => { throw error; },
+    sendTransaction: async () => { throw error; }
+  };
+});
 </script>
 </body>
 </html>
