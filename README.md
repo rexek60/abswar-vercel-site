@@ -14,7 +14,7 @@ Includes:
 - Socket.io realtime listener
 
 Backend:
-https://abswar-clean-backend-production.up.railway.app
+https://api.abswar.xyz
 
 Deploy:
 Upload files to GitHub frontend repo and redeploy on Vercel.

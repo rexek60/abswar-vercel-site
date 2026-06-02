@@ -14,8 +14,8 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="ABSWAR — Küresel Savaş MMO">
 <meta property="og:description" content="Web3 tabanlı cyberpunk savaş MMO. 119 ülke, gerçek zamanlı, smart contract ekonomili.">
-<meta property="og:image" content="https://abswar-ui.vercel.app/og.png">
-<meta property="og:url" content="https://abswar-ui.vercel.app">
+<meta property="og:image" content="https://abswar.xyz/og.png">
+<meta property="og:url" content="https://abswar.xyz">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="ABSWAR — Küresel Savaş MMO">
 <meta name="twitter:description" content="Web3 cyberpunk savaş MMO. 119 ülke. Smart contract ekonomili.">
@@ -1039,7 +1039,136 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 <div class="toast" id="toast"></div>
 
 <script>
-const API = 'https://abswar-clean-backend-production.up.railway.app';
+const API = 'https://api.abswar.xyz';
+const APP_NETWORK = new URLSearchParams(location.search).get('network') === 'mainnet' ? 'mainnet' : 'testnet';
+const CHAINS = {
+  testnet: {
+    label: 'Abstract Testnet',
+    shortLabel: 'ABSTRACT TESTNET',
+    chainIdHex: '0x2b74',
+    rpcUrls: ['https://api.testnet.abs.xyz'],
+    explorerUrl: 'https://sepolia.abscan.org',
+    contractAddress: '0x325b18816734210e9fEbAA0516030A8Ec74bE3d4',
+    warning: 'Test aginda calisir. Gercek para gerekmez.'
+  },
+  mainnet: {
+    label: 'Abstract',
+    shortLabel: 'ABSTRACT MAINNET',
+    chainIdHex: '0xab5',
+    rpcUrls: ['https://api.mainnet.abs.xyz'],
+    explorerUrl: 'https://abscan.org',
+    contractAddress: '',
+    warning: 'Mainnet: gercek ETH kullanilir.'
+  }
+};
+const ACTIVE_CHAIN = CHAINS[APP_NETWORK] || CHAINS.testnet;
+const AUTH_SESSION_KEY = `abswar-auth:${APP_NETWORK}`;
+let authToken = null;
+let authTokenExpiresAt = 0;
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, ch => ({
+    '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+  }[ch]));
+}
+
+function loadAuthSession() {
+  try {
+    const raw = localStorage.getItem(AUTH_SESSION_KEY);
+    if (!raw) return null;
+    const data = JSON.parse(raw);
+    if (!data || !data.token || !data.wallet || !data.expiresAt) return null;
+    if (Date.now() > Number(data.expiresAt) - 60000) return null;
+    return data;
+  } catch(e) {
+    return null;
+  }
+}
+
+function saveAuthSession(data) {
+  authToken = data.token;
+  authTokenExpiresAt = Number(data.expiresAt || 0);
+  try {
+    localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify({
+      token: authToken,
+      wallet: String(data.wallet || wallet || '').toLowerCase(),
+      expiresAt: authTokenExpiresAt
+    }));
+  } catch(e) {}
+}
+
+function clearAuthSession() {
+  authToken = null;
+  authTokenExpiresAt = 0;
+  try { localStorage.removeItem(AUTH_SESSION_KEY); } catch(e) {}
+}
+
+async function ensureAuthSession(force=false) {
+  if (!wallet) throw new Error('Wallet required');
+  const walletLower = wallet.toLowerCase();
+  if (!force && authToken && authTokenExpiresAt > Date.now() + 60000) return true;
+
+  const cached = loadAuthSession();
+  if (!force && cached && cached.wallet === walletLower) {
+    authToken = cached.token;
+    authTokenExpiresAt = Number(cached.expiresAt);
+    return true;
+  }
+
+  const challengeRes = await fetch(API+'/api/auth/challenge', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({ wallet })
+  });
+  const challenge = await challengeRes.json();
+  if (!challengeRes.ok || challenge.error) throw new Error(tErr(challenge) || challenge.error || 'Auth challenge failed');
+
+  showToast('Cuzdan imzasi bekleniyor...','info');
+  const signature = await ethereum.request({
+    method:'personal_sign',
+    params:[challenge.message, wallet]
+  });
+
+  const verifyRes = await fetch(API+'/api/auth/verify', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({ wallet, message:challenge.message, signature })
+  });
+  const verified = await verifyRes.json();
+  if (!verifyRes.ok || verified.error) throw new Error(tErr(verified) || verified.error || 'Auth verify failed');
+
+  saveAuthSession(verified);
+  return true;
+}
+
+function authHeaders(headers={}) {
+  return { ...headers, Authorization:`Bearer ${authToken}` };
+}
+
+async function authFetch(path, options={}, retry=true) {
+  await ensureAuthSession(false);
+  const res = await fetch(API + path, { ...options, headers:authHeaders(options.headers || {}) });
+  if (res.status === 401 && retry) {
+    clearAuthSession();
+    await ensureAuthSession(true);
+    return authFetch(path, options, false);
+  }
+  return res;
+}
+
+async function authJson(path, body, options={}) {
+  const { headers={}, ...rest } = options;
+  return authFetch(path, {
+    method:'POST',
+    ...rest,
+    headers:{'Content-Type':'application/json', ...headers},
+    body:JSON.stringify(body)
+  });
+}
+
+function wait(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 // Gerçek coğrafi harita verisi — 119 ülke (equirectangular, 1000x500)
 const CD = {
@@ -1391,10 +1520,7 @@ async function saveNickname() {
   if (!nick) { showToast(t('toast.nicknameEmpty'),'error'); return; }
   if (!wallet) { showToast('Önce cüzdan bağla','error'); return; }
   try {
-    const res = await fetch(API+'/api/player/nickname',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({wallet, nickname:nick}),
+    const res = await authJson('/api/player/nickname',{wallet, nickname:nick},{
       signal: AbortSignal.timeout(8000)
     });
     let data = {};
@@ -1694,10 +1820,7 @@ async function upgradeRadar() {
     return;
   }
   try {
-    const res = await fetch(API+'/api/player/radar-upgrade',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({wallet}),
+    const res = await authJson('/api/player/radar-upgrade',{wallet},{
       signal: AbortSignal.timeout(8000)
     });
     let data = {};
@@ -1769,10 +1892,7 @@ async function produceResource(id) {
     return;
   }
   try {
-    const res = await fetch(API+'/api/player/produce-resource',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({wallet, resource:id}),
+    const res = await authJson('/api/player/produce-resource',{wallet, resource:id},{
       signal: AbortSignal.timeout(8000)
     });
     let data = {};
@@ -2259,6 +2379,7 @@ async function connectWallet() {
   try {
     const accounts = await ethereum.request({method:'eth_requestAccounts'});
     wallet = accounts[0];
+    await ensureAuthSession();
     const btn = document.getElementById('walletBtn');
     btn.textContent = wallet.slice(0,6)+'...'+wallet.slice(-4);
     btn.className = 'btn-wallet connected';
@@ -2293,10 +2414,7 @@ function showMobileWalletHelp() {
 async function registerPlayer() {
   showLoader('OYUNCU YÜKLENİYOR...');
   try {
-    const res = await fetch(API+'/api/player/connect',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({wallet}),
+    const res = await authJson('/api/player/connect',{wallet},{
       signal:AbortSignal.timeout(8000)
     });
     if (!res.ok) throw new Error('HTTP '+res.status);
@@ -2387,7 +2505,7 @@ function updatePlayerUI(p) {
 async function refreshPlayerState() {
   if (!wallet) return;
   try {
-    const res = await fetch(API+'/api/player/connect',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet})});
+    const res = await authJson('/api/player/connect',{wallet});
     const data = await res.json();
     updatePlayerUI(data.player || data);
   } catch(e) {}
@@ -2398,7 +2516,7 @@ async function chooseCountry(code) {
   if (!wallet) { showToast(t('toast.connectFirst'),'error'); return; }
   showLoader(`ÜLKE SEÇİLİYOR: ${CD[code]?.n||code}...`);
   try {
-    const res = await fetch(API+'/api/player/choose-country',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet,countryCode:code})});
+    const res = await authJson('/api/player/choose-country',{wallet,countryCode:code});
     const data = await res.json();
     if (data.error) { showToast(tErr(data),'error'); return; }
     myCountry = code;
@@ -2433,7 +2551,7 @@ async function attackTarget() {
   const btn = document.getElementById('attackBtn');
   btn.disabled = true; btn.textContent='🔴 ATIYOR...';
   try {
-    const res = await fetch(API+'/api/game/attack',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet,targetCountry})});
+    const res = await authJson('/api/game/attack',{wallet,targetCountry});
     const data = await res.json();
     if (data.error) {
       showToast(tErr(data),'error');
@@ -2541,10 +2659,7 @@ async function bulkAttack(n) {
       break;
     }
     try {
-      const res = await fetch(API+'/api/game/attack',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({wallet, targetCountry}),
+      const res = await authJson('/api/game/attack',{wallet, targetCountry},{
         signal: AbortSignal.timeout(8000)
       });
       const data = await res.json();
@@ -2650,8 +2765,8 @@ function addActivity(from, to) {
 }
 
 /* ── BUY AMMO (Smart Contract) ── */
-const CONTRACT_ADDRESS = '0x325b18816734210e9fEbAA0516030A8Ec74bE3d4';
-const ABSTRACT_CHAIN_ID = '0x2b74'; // 11124 hex
+const CONTRACT_ADDRESS = ACTIVE_CHAIN.contractAddress;
+const ABSTRACT_CHAIN_ID = ACTIVE_CHAIN.chainIdHex;
 
 // buyAmmo() fonksiyonunun keccak imzası (ilk 4 byte)
 const BUY_AMMO_SELECTOR = '0x499eb3de';
@@ -2676,6 +2791,7 @@ function ethToWeiHex(ethStr) {
 async function buyAmmo(pack) {
   if (!wallet) { showToast(t('toast.connectFirst'),'error'); return; }
   if (!window.ethereum) { showToast(t('toast.metamaskMissing'),'error'); return; }
+  if (!CONTRACT_ADDRESS) { showToast('Kontrat adresi ayarli degil.','error'); return; }
 
   const ethAmount = AMMO_PRICE_ETH[pack];
   if (!ethAmount) { showToast('Geçersiz paket.','error'); return; }
@@ -2685,7 +2801,7 @@ async function buyAmmo(pack) {
     // 1. Doğru ağda mıyız kontrol et
     const chainId = await ethereum.request({ method: 'eth_chainId' });
     if (chainId !== ABSTRACT_CHAIN_ID) {
-      showToast('Abstract Testnet ağına geçiliyor...','info');
+      showToast(`${ACTIVE_CHAIN.label} agina geciliyor...`,'info');
       try {
         await ethereum.request({
           method: 'wallet_switchEthereumChain',
@@ -2697,10 +2813,10 @@ async function buyAmmo(pack) {
             method: 'wallet_addEthereumChain',
             params: [{
               chainId: ABSTRACT_CHAIN_ID,
-              chainName: 'Abstract Sepolia Testnet',
+              chainName: ACTIVE_CHAIN.label,
               nativeCurrency: { name:'ETH', symbol:'ETH', decimals:18 },
-              rpcUrls: ['https://api.testnet.abs.xyz'],
-              blockExplorerUrls: ['https://explorer.testnet.abs.xyz']
+              rpcUrls: ACTIVE_CHAIN.rpcUrls,
+              blockExplorerUrls: [ACTIVE_CHAIN.explorerUrl]
             }]
           });
         } else {
@@ -2728,10 +2844,8 @@ async function buyAmmo(pack) {
     playSound('purchase');
 
     // 3. Backend'e de bildir (oyun içi kayıt) + bakiyeyi al
-    fetch(API+'/api/market/buy-demo',{
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ wallet, pack, txHash })
-    }).then(r=>r.json()).then(d=>{ if(d.player) updatePlayerUI(d.player); }).catch(()=>{});
+    const receipt = await confirmAmmoPurchase(pack, txHash);
+    if (receipt?.player) updatePlayerUI(receipt.player);
 
     // 4. Sohbete sistem mesajı
     addChatSystem(`💳 ${pack.toLocaleString('tr-TR')} mermi satın alındı (${ethAmount} ETH)`);
@@ -2745,7 +2859,23 @@ async function buyAmmo(pack) {
 }
 
 /* ── CHAT ── */
-function sendChat() {
+async function confirmAmmoPurchase(pack, txHash) {
+  for (let attempt = 0; attempt < 15; attempt++) {
+    if (attempt > 0) {
+      showToast('Blockchain onayi bekleniyor...','info');
+      await wait(3000);
+    }
+    const res = await authJson('/api/market/buy', { wallet, pack, txHash });
+    let data = {};
+    try { data = await res.json(); } catch(e) {}
+    if (res.status === 202) continue;
+    if (!res.ok || data.error) throw new Error(tErr(data) || data.error || ('HTTP '+res.status));
+    return data;
+  }
+  throw new Error('Islem onayi zaman asimina ugradi');
+}
+
+function sendChatLegacy() {
   const inp = document.getElementById('chatInput');
   const msg = inp.value.trim(); if (!msg) return;
   const c = CD[myCountry];
@@ -2758,10 +2888,27 @@ function sendChat() {
   if (empty) empty.style.display = 'none';
   body.insertBefore(row,body.firstChild);
   inp.value='';
-  if (wallet) fetch(API+'/api/alliance/radio',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet,command:msg})}).catch(()=>{});
+  if (wallet) authJson('/api/alliance/radio',{wallet,command:msg}).catch(()=>{});
 }
 
 /* ── ALLIANCE ── */
+function sendChat() {
+  const inp = document.getElementById('chatInput');
+  const msg = inp.value.trim();
+  if (!msg) return;
+  const c = CD[myCountry];
+  const row = document.createElement('div');
+  row.className = 'chat-msg anim-new';
+  const displayName = myNickname || (wallet ? wallet.slice(0,6)+'...' : 'Misafir');
+  row.innerHTML = `<div class="chat-who"><span style="font-size:11px">${c?.f||'🏳️'}</span><span class="chat-name">${escapeHtml(displayName)}</span><span class="chat-t">simdi</span></div><div class="chat-txt">${escapeHtml(msg)}</div>`;
+  const body = document.getElementById('chatBody');
+  const empty = document.getElementById('chatEmpty');
+  if (empty) empty.style.display = 'none';
+  body.insertBefore(row, body.firstChild);
+  inp.value = '';
+  if (wallet) authJson('/api/alliance/radio', { wallet, command:msg }).catch(()=>{});
+}
+
 let myAlliance = null;       // ID
 let myAllianceData = null;   // {id, name, leader, members, ...}
 
@@ -2809,7 +2956,7 @@ async function createAlliance() {
   const name = document.getElementById('allianceName').value.trim();
   if (!name) { showToast('İttifak adı gir!','error'); return; }
   try {
-    const res = await fetch(API+'/api/alliance/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet,name})});
+    const res = await authJson('/api/alliance/create',{wallet,name});
     const data = await res.json();
     if (data.error) { showToast(tErr(data),'error'); return; }
     const a = data.alliance || data;
@@ -2825,7 +2972,7 @@ async function joinAlliance() {
   const id = document.getElementById('allianceId').value.trim();
   if (!id) { showToast('İttifak ID gir!','error'); return; }
   try {
-    const res = await fetch(API+'/api/alliance/join',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet,allianceId:id})});
+    const res = await authJson('/api/alliance/join',{wallet,allianceId:id});
     const data = await res.json();
     if (data.error) { showToast(tErr(data),'error'); return; }
     const a = data.alliance || data;
@@ -2841,7 +2988,7 @@ async function leaveAlliance() {
   if (!myAlliance) return;
   if (!confirm('İttifaktan ayrılmak istediğine emin misin?')) return;
   try {
-    const res = await fetch(API+'/api/alliance/leave',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet})});
+    const res = await authJson('/api/alliance/leave',{wallet});
     const data = await res.json();
     if (data.error) { showToast(tErr(data),'error'); return; }
     myAlliance = null;
@@ -2853,7 +3000,7 @@ async function leaveAlliance() {
 
 function showAllianceMembers() {
   if (!myAllianceData) { showToast('Önce ittifaka katıl','error'); return; }
-  const a = myAllianceData;
+  const a = { ...myAllianceData, name:escapeHtml(myAllianceData.name || myAllianceData.id) };
   const members = a.members || [];
   let html = `<div style="text-align:left;font-family:var(--ui);font-size:12px;color:var(--text);line-height:1.6">`;
   html += `<div style="margin-bottom:10px"><b style="color:var(--green)">İttifak:</b> ${a.name || a.id}</div>`;
@@ -2893,14 +3040,14 @@ async function radioCommand(cmd) {
   if (!wallet) { showToast(t('toast.connectFirst'),'error'); return; }
   const labels = {ATTACK_NOW:'⚔️ ŞİMDİ SALDIR',DEFEND:'🛡️ SAVUN',REGROUP:'🔄 YENİDEN TOPLAN',RETREAT:'🏃 GERİ ÇEKİL',FOCUS_FIRE:'🎯 ODAKLI ATEŞ'};
   try {
-    await fetch(API+'/api/alliance/radio',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet,command:cmd})});
+    await authJson('/api/alliance/radio',{wallet,command:cmd});
     showToast(`📻 Telsiz yayını: ${labels[cmd]||cmd}`,'success');
     // Sohbet mesajını backend socket üzerinden alacağız — burada eklemiyoruz (yoksa çift olur)
     closeRadioModal();
   } catch(e) { showToast('Telsiz yayını başarısız.','error'); }
 }
 
-function addChatSystem(text) {
+function addChatSystemLegacy(text) {
   const row = document.createElement('div');
   row.className='chat-msg anim-new';
   row.style.background='rgba(0,200,83,0.06)';
@@ -2911,6 +3058,21 @@ function addChatSystem(text) {
   body.insertBefore(row,body.firstChild);
   if (body.children.length > 40) body.removeChild(body.lastChild);
 }
+
+function addChatSystem(text) {
+  const row = document.createElement('div');
+  row.className = 'chat-msg anim-new';
+  row.style.background = 'rgba(0,200,83,0.06)';
+  row.innerHTML = `<div class="chat-who"><span style="font-size:11px">📡</span><span class="chat-name" style="color:var(--green)">SISTEM</span><span class="chat-t">simdi</span></div><div class="chat-txt" style="color:var(--green)">${escapeHtml(text)}</div>`;
+  const body = document.getElementById('chatBody');
+  const empty = document.getElementById('chatEmpty');
+  if (empty) empty.style.display = 'none';
+  body.insertBefore(row, body.firstChild);
+  if (body.children.length > 40) body.removeChild(body.lastChild);
+}
+
+sendChatLegacy = sendChat;
+addChatSystemLegacy = addChatSystem;
 
 document.getElementById('allianceModal').addEventListener('click',function(e){if(e.target===this)closeAllianceModal();});
 document.getElementById('radioModal').addEventListener('click',function(e){if(e.target===this)closeRadioModal();});
@@ -3581,9 +3743,9 @@ ioScript.onload=()=>{
     const row=document.createElement('div'); row.className='chat-msg anim-new';
     const cc=CD[d.country]||{};
     // Nickname'i göstermek için: backend'den geliyorsa nickname, yoksa wallet kısa
-    const senderName = d.nickname || (d.wallet||'???').slice(0,6);
+    const senderName = escapeHtml(d.nickname || (d.wallet||'???').slice(0,6));
     // Telsiz komutu mu, normal mesaj mı?
-    let displayText = d.command || d.message || '';
+    let displayText = escapeHtml(d.command || d.message || '');
     if (isRadioCmd) {
       const labels = {ATTACK_NOW:'⚔️ ŞİMDİ SALDIR',DEFEND:'🛡️ SAVUN',REGROUP:'🔄 YENİDEN TOPLAN',RETREAT:'🏃 GERİ ÇEKİL',FOCUS_FIRE:'🎯 ODAKLI ATEŞ'};
       displayText = `📻 ${labels[d.command] || d.command}`;
@@ -3604,6 +3766,7 @@ if(window.ethereum){
   ethereum.on('accountsChanged',(accounts)=>{
     if(!accounts.length){
       // Bağlantı kesildi — tüm session'ı temizle
+      clearAuthSession();
       wallet = null;
       myCountry = null;
       targetCountry = null;
@@ -3618,6 +3781,7 @@ if(window.ethereum){
       const newWallet = accounts[0];
       if (wallet && wallet.toLowerCase() !== newWallet.toLowerCase()) {
         // Eski state'i sıfırla
+        clearAuthSession();
         myCountry = null;
         targetCountry = null;
         document.getElementById('myBullets').textContent = '0';
@@ -4490,6 +4654,16 @@ if (!I18N[_lang]) _lang = 'tr';
 function t(key, vars) {
   const dict = I18N[_lang] || I18N.tr;
   let s = dict[key] || I18N.tr[key] || key;
+  if (APP_NETWORK === 'mainnet') {
+    const mainnetCopy = {
+      'welcome.subtitle': 'GLOBAL WAR MMO · ABSTRACT MAINNET',
+      'welcome.warning': '⚠️ Mainnet: real ETH is used. Review wallet confirmations carefully.',
+      'help.testnet': '⚠️ MAINNET: Transactions use real ETH. Review wallet confirmations carefully.',
+      'help.step1.body': 'Connect your wallet from the top-right button. MetaMask switches to Abstract mainnet.',
+      'help.b1': 'Connect your wallet from the top-right button. MetaMask switches to Abstract mainnet.'
+    };
+    if (mainnetCopy[key]) s = mainnetCopy[key];
+  }
   if (vars) {
     for (const k in vars) s = s.replaceAll(`{${k}}`, vars[k]);
   }
@@ -4726,7 +4900,7 @@ function copyWalletAddress() {
 
 function openExplorer() {
   if (!wallet) return;
-  const url = `https://explorer.testnet.abs.xyz/address/${wallet}`;
+  const url = `${ACTIVE_CHAIN.explorerUrl}/address/${wallet}`;
   window.open(url, '_blank', 'noopener');
   closeWalletMenu();
 }
@@ -4735,6 +4909,7 @@ async function disconnectWallet() {
   if (!confirm('Çıkış yapmak istediğinden emin misin?')) return;
 
   // Tam session sıfırla
+  clearAuthSession();
   wallet = null;
   myCountry = null;
   targetCountry = null;

@@ -22,7 +22,7 @@ Cyberpunk arayüz · 119 ülkeli dünya haritası · Smart contract ekonomisi.
 ═══════════════════════════════════════════════════════════
 
   Frontend  : https://abswar-ui.vercel.app
-  Backend   : https://abswar-clean-backend-production.up.railway.app
+  Backend   : https://api.abswar.xyz
   Contract  : 0x325b18816734210e9fEbAA0516030A8Ec74bE3d4
               (Abstract Testnet — Chain ID 11124)
 

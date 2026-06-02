@@ -15,6 +15,7 @@ pragma solidity ^0.8.20;
 contract AbswarGameV2 {
 
     address public owner;
+    address public pendingOwner;
 
     uint256 public rewardPool;
     uint256 public treasury;
@@ -29,6 +30,7 @@ contract AbswarGameV2 {
     uint256 public totalAmmoSold;
 
     bool public gameActive = true;
+    bool private locked;
 
     event AmmoPurchased(address indexed buyer, uint256 amount, uint256 ethPaid);
     event RevenueSplit(uint256 toReward, uint256 toTreasury, uint256 toOps);
@@ -36,10 +38,20 @@ contract AbswarGameV2 {
     event TreasuryWithdrawn(address indexed to, uint256 amount);
     event OperationsWithdrawn(address indexed to, uint256 amount);
     event GameStatusChanged(bool active);
+    event PriceChanged(uint256 oldPrice, uint256 newPrice);
+    event OwnershipTransferStarted(address indexed currentOwner, address indexed pendingOwner);
+    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
     modifier onlyOwner() {
         require(msg.sender == owner, "Sadece sahip yapabilir");
         _;
+    }
+
+    modifier nonReentrant() {
+        require(!locked, "Reentrancy engellendi");
+        locked = true;
+        _;
+        locked = false;
     }
 
     constructor() {
@@ -49,6 +61,7 @@ contract AbswarGameV2 {
     function buyAmmo() external payable {
         require(gameActive, "Oyun aktif degil");
         require(msg.value > 0, "ETH gondermelisiniz");
+        require(msg.value % ammoPrice == 0, "ETH tutari paket fiyatinin kati olmali");
 
         uint256 amount = msg.value / ammoPrice;
         require(amount > 0, "Yetersiz ETH - en az 1 paket aliniz");
@@ -68,7 +81,7 @@ contract AbswarGameV2 {
         emit RevenueSplit(toReward, toTreasury, toOps);
     }
 
-    function payReward(address winner, uint256 amount) external onlyOwner {
+    function payReward(address winner, uint256 amount) external onlyOwner nonReentrant {
         require(winner != address(0), "Gecersiz adres");
         require(amount <= rewardPool, "Havuzda yeterli ETH yok");
 
@@ -79,7 +92,7 @@ contract AbswarGameV2 {
         emit RewardPaid(winner, amount);
     }
 
-    function withdrawTreasury() external onlyOwner {
+    function withdrawTreasury() external onlyOwner nonReentrant {
         uint256 amount = treasury;
         require(amount > 0, "Cekilecek hazine yok");
 
@@ -90,7 +103,7 @@ contract AbswarGameV2 {
         emit TreasuryWithdrawn(owner, amount);
     }
 
-    function withdrawOperations() external onlyOwner {
+    function withdrawOperations() external onlyOwner nonReentrant {
         uint256 amount = operations;
         require(amount > 0, "Cekilecek operasyon butcesi yok");
 
@@ -108,7 +121,22 @@ contract AbswarGameV2 {
 
     function setPrice(uint256 newPrice) external onlyOwner {
         require(newPrice > 0, "Fiyat sifir olamaz");
+        emit PriceChanged(ammoPrice, newPrice);
         ammoPrice = newPrice;
+    }
+
+    function startOwnershipTransfer(address newOwner) external onlyOwner {
+        require(newOwner != address(0), "Gecersiz adres");
+        pendingOwner = newOwner;
+        emit OwnershipTransferStarted(owner, newOwner);
+    }
+
+    function acceptOwnership() external {
+        require(msg.sender == pendingOwner, "Bekleyen sahip degilsiniz");
+        address previousOwner = owner;
+        owner = pendingOwner;
+        pendingOwner = address(0);
+        emit OwnershipTransferred(previousOwner, owner);
     }
 
     function getAmmo(address player) external view returns (uint256) {
@@ -117,5 +145,9 @@ contract AbswarGameV2 {
 
     function contractBalance() external view returns (uint256) {
         return address(this).balance;
+    }
+
+    receive() external payable {
+        revert("Mermi almak icin buyAmmo kullanin");
     }
 }
