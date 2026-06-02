@@ -1040,7 +1040,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 
 <script>
 const API = 'https://abswar-clean-backend-production.up.railway.app';
-const APP_NETWORK = new URLSearchParams(location.search).get('network') === 'mainnet' ? 'mainnet' : 'testnet';
+const APP_NETWORK = new URLSearchParams(location.search).get('network') === 'testnet' ? 'testnet' : 'mainnet';
 const CHAINS = {
   testnet: {
     label: 'Abstract Testnet',
@@ -1057,11 +1057,11 @@ const CHAINS = {
     chainIdHex: '0xab5',
     rpcUrls: ['https://api.mainnet.abs.xyz'],
     explorerUrl: 'https://abscan.org',
-    contractAddress: '',
+    contractAddress: '0x359859108B1AA0d0B5BA0DbAA1287d6D77a340dd',
     warning: 'Mainnet: gercek ETH kullanilir.'
   }
 };
-const ACTIVE_CHAIN = CHAINS[APP_NETWORK] || CHAINS.testnet;
+const ACTIVE_CHAIN = CHAINS[APP_NETWORK] || CHAINS.mainnet;
 const AUTH_SESSION_KEY = `abswar-auth:${APP_NETWORK}`;
 let authToken = null;
 let authTokenExpiresAt = 0;
