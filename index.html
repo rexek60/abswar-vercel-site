@@ -5181,3 +5181,15 @@ refreshAbswarAgwBridge().catch(error => {
 </script>
 
 </script>
+
+<script>
+  (function(){
+    function rrOpen(){let m=document.getElementById("rewardRulesModal");if(m)m.classList.add("show")}
+    function rrClose(){let m=document.getElementById("rewardRulesModal");if(m)m.classList.remove("show")}
+    window.openRewardRules=rrOpen;window.closeRewardRules=rrClose;
+    function bind(){let b=document.getElementById("rewardRulesBtn");if(b&&!b.dataset.rrBound){b.dataset.rrBound="1";b.addEventListener("click",e=>{e.preventDefault();rrOpen()})}let m=document.getElementById("rewardRulesModal");if(m&&!m.dataset.rrBound){m.dataset.rrBound="1";m.addEventListener("click",e=>{if(e.target===m)rrClose()})}}
+    bind();setInterval(bind,1000);
+  })();
+</script>
+
+</script>
