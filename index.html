@@ -5138,3 +5138,9 @@ refreshAbswarAgwBridge().catch(error => {
 </script>
 </body>
 </html>
+
+    <script>
+      (function u(){let c=ACTIVE_CHAIN.contractAddress,f=x=>(Number(x)/1e18).toFixed(4)+" ETH";fetch(ACTIVE_CHAIN.rpcUrls[0],{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({jsonrpc:"2.0",id:1,method:"eth_getBalance",params:[c,"latest"]})}).then(r=>r.json()).then(j=>{let w=BigInt(j.result||0),p=w*70n/100n,s="ODUL HAVUZU "+f(p)+" / TOPLAM "+f(w),g=document.getElementById("giftBadge");if(g&&!document.getElementById("poolX")){let d=document.createElement("div");d.id="poolX";d.style.cssText="color:var(--gold);font-family:var(--hud);font-size:20px;margin-bottom:18px";g.after(d)}let d=document.getElementById("poolX");if(d)d.textContent=s;let e=document.getElementById("ethBal");if(e&&!document.getElementById("poolN")){let n=document.createElement("span");n.id="poolN";n.style.cssText="color:var(--gold);font-family:var(--hud);font-size:10px;padding:5px";e.before(n)}let n=document.getElementById("poolN");if(n)n.textContent=s;let a=document.getElementById("adminRoundInfo");if(a&&!document.getElementById("poolA")){let b=document.createElement("div");b.id="poolA";b.style.cssText="margin-top:10px;padding:12px;border:1px solid rgba(245,200,66,.35);color:var(--gold);font-family:var(--mono);font-size:11px";a.after(b)}let b=document.getElementById("poolA");if(b)b.textContent=s}).catch(()=>{});setTimeout(u,3e4)})();
+    </script>
+
+    </script>
