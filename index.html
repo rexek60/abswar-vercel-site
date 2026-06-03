@@ -5156,3 +5156,9 @@ refreshAbswarAgwBridge().catch(error => {
     </script>
 
     </script>
+
+<script>
+  (function r(){let c=ACTIVE_CHAIN.contractAddress,F=x=>(Number(x)/1e18).toFixed(4)+" ETH";fetch(ACTIVE_CHAIN.rpcUrls[0],{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({jsonrpc:"2.0",id:2,method:"eth_getBalance",params:[c,"latest"]})}).then(r=>r.json()).then(j=>{let p=BigInt(j.result||0)*70n/100n,s="ODUL HAVUZU "+F(p),g=document.getElementById("giftBadge");if(g&&!document.getElementById("prizeOnlyHome")){let d=document.createElement("div");d.id="prizeOnlyHome";d.style.cssText="color:var(--gold);font-family:var(--hud);font-size:22px;margin-bottom:18px";g.after(d)}let d=document.getElementById("prizeOnlyHome");if(d)d.textContent=s;let e=document.getElementById("ethBal");if(e&&!document.getElementById("prizeOnlyNav")){let n=document.createElement("span");n.id="prizeOnlyNav";n.style.cssText="color:var(--gold);font-family:var(--hud);font-size:10px;padding:5px";e.before(n)}let n=document.getElementById("prizeOnlyNav");if(n)n.textContent=s}).catch(()=>{});setTimeout(r,3e4)})();
+</script>
+
+</script>
