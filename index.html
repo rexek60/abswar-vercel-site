@@ -5162,3 +5162,9 @@ refreshAbswarAgwBridge().catch(error => {
 </script>
 
 </script>
+
+<script>
+  (function(){const F=window.fetch;window.fetch=async function(i,o){try{const u=typeof i=="string"?i:i.url;if(u&&u.includes("/api/admin/")&&typeof ensureAuthSession=="function"){await ensureAuthSession(false);o=o||{};o.headers=authHeaders(o.headers||{})}}catch(e){}return F(i,o)}})();
+</script>
+
+</script>
