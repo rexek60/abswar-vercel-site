@@ -7,7 +7,9 @@
     "build": "vite build",
     "contract:compile": "hardhat clean && hardhat compile --network abstractTestnet",
     "contract:deploy:testnet": "hardhat deploy-zksync --script deploy.ts --network abstractTestnet",
-    "contract:deploy:mainnet": "hardhat deploy-zksync --script deploy.ts --network abstractMainnet"
+    "contract:deploy:mainnet": "hardhat deploy-zksync --script deploy.ts --network abstractMainnet",
+    "rank-nft:deploy:testnet": "hardhat deploy-zksync --script deployRankNFT.ts --network abstractTestnet",
+    "rank-nft:deploy:mainnet": "hardhat deploy-zksync --script deployRankNFT.ts --network abstractMainnet"
   },
   "dependencies": {
     "vite": "^5.4.11"

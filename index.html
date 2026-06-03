@@ -323,7 +323,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     </circle>
   </svg>
   <div style="font-family:var(--hud);font-size:36px;letter-spacing:8px;color:#fff;font-weight:900;margin-bottom:6px">ABSWAR</div>
-  <div style="font-family:var(--hud);font-size:11px;letter-spacing:4px;color:var(--green);margin-bottom:24px" data-i18n="welcome.subtitle">KÜRESEL SAVAŞ MMO · ABSTRACT TESTNET</div>
+  <div style="font-family:var(--hud);font-size:11px;letter-spacing:4px;color:var(--green);margin-bottom:24px" data-i18n="welcome.subtitle">KÜRESEL SAVAŞ MMO · ABSTRACT MAINNET</div>
   <div id="giftBadge" style="display:none;background:linear-gradient(180deg,rgba(245,200,66,0.15),rgba(245,200,66,0.05));border:1px solid rgba(245,200,66,0.4);border-radius:6px;padding:8px 16px;margin-bottom:20px;font-family:var(--hud);font-size:11px;color:var(--gold);letter-spacing:1px">
     🎁 <span id="giftBadgeText">İlk 100 oyuncuya +100 bonus mermi!</span>
   </div>
@@ -983,6 +983,10 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     <!-- Tur durumu özeti -->
     <div id="adminRoundInfo" style="margin-top:14px;padding:10px;background:var(--bg2);border:1px solid var(--border);font-family:var(--mono);font-size:11px;color:var(--dim);text-align:left">
       Tur bilgisi yükleniyor...
+    </div>
+
+    <div id="adminEconomyInfo" style="margin-top:10px;padding:12px;background:linear-gradient(180deg,rgba(245,200,66,0.10),rgba(245,200,66,0.03));border:1px solid rgba(245,200,66,0.35);font-family:var(--mono);font-size:11px;color:var(--text);text-align:left;line-height:1.7">
+      Ekonomi bilgisi yukleniyor...
     </div>
 
     <!-- Token alanı -->
@@ -1655,9 +1659,10 @@ async function startNextRound() {
   const token = prompt('ADMIN_TOKEN gir (Railway loglarından):');
   if (!token) return;
   try {
+    await ensureAuthSession(false);
     const res = await fetch(API+'/api/admin/round/start',{
       method:'POST',
-      headers:{'Content-Type':'application/json','x-admin-token':token}
+      headers:authHeaders({'Content-Type':'application/json','x-admin-token':token})
     });
     const data = await res.json();
     if (data.error) { showToast(tErr(data),'error'); return; }
@@ -1686,10 +1691,45 @@ function closeAdminPanel() {
   document.getElementById('adminModal').classList.remove('show');
 }
 
+function formatEthAmount(value) {
+  const n = Number(value || 0);
+  if (!Number.isFinite(n) || n <= 0) return '0.000 ETH';
+  const opts = n >= 1
+    ? { maximumFractionDigits:3 }
+    : { minimumFractionDigits:3, maximumFractionDigits:6 };
+  return n.toLocaleString('tr-TR', opts) + ' ETH';
+}
+
+function updateEconomyUI(economy) {
+  if (!economy) return;
+  const rewardEth = formatEthAmount(economy.rewardPoolEth || 0);
+  const totalEth = formatEthAmount(economy.totalEth || 0);
+  const purchaseCount = Number(economy.purchaseCount || 0).toLocaleString('tr-TR');
+  const totalBullets = Number(economy.totalBullets || 0).toLocaleString('tr-TR');
+
+  const welcomeReward = document.getElementById('welcomeRewardPoolEth');
+  if (welcomeReward) welcomeReward.textContent = rewardEth;
+  const welcomeDeposited = document.getElementById('welcomeDepositedEth');
+  if (welcomeDeposited) welcomeDeposited.textContent = `Toplam yatirilan: ${totalEth}`;
+  const navReward = document.getElementById('navRewardPoolEth');
+  if (navReward) navReward.textContent = rewardEth;
+
+  const adminBox = document.getElementById('adminEconomyInfo');
+  if (adminBox) {
+    adminBox.innerHTML = `
+      <div style="font-family:var(--hud);font-size:10px;color:var(--gold);letter-spacing:1px;margin-bottom:4px">EKONOMI OZETI</div>
+      <div>Toplam yatirilan ETH: <b style="color:var(--gold)">${totalEth}</b></div>
+      <div>Toplam odul havuzu (%70): <b style="color:var(--green)">${rewardEth}</b></div>
+      <div style="color:var(--dim)">Satin alma: ${purchaseCount} islem · Satilan mermi: ${totalBullets}</div>
+    `;
+  }
+}
+
 async function refreshAdminRoundInfo() {
   const box = document.getElementById('adminRoundInfo');
   try {
-    const r = await fetch(API+'/api/round/status').then(r=>r.json());
+    const payload = await fetch(API+'/api/round/status').then(r=>r.json());
+    const r = payload.round || payload;
     const statusMap = { active:'🟢 Aktif', ended:'🔴 Bitti', waiting:'🟡 Bekliyor' };
     let timeLeft = '';
     if (r.remainingMs > 0) {
@@ -1698,6 +1738,8 @@ async function refreshAdminRoundInfo() {
       timeLeft = ` · Kalan: ${d}g ${h}s`;
     }
     box.innerHTML = `Tur #${r.number||r.roundNumber||'?'} · ${statusMap[r.status]||r.status||'?'}${timeLeft}`;
+    const state = await fetch(API+'/api/game/state').then(r=>r.json());
+    if (state?.economy) updateEconomyUI(state.economy);
   } catch(e) {
     box.innerHTML = 'Tur bilgisi alınamadı';
   }
@@ -1720,9 +1762,10 @@ async function adminAction(path) {
   const result = document.getElementById('adminResult');
   result.innerHTML = '<span style="color:var(--dim)">İşleniyor...</span>';
   try {
+    await ensureAuthSession(false);
     const res = await fetch(API+'/api/admin/'+path,{
       method:'POST',
-      headers:{'Content-Type':'application/json','x-admin-token':token}
+      headers:authHeaders({'Content-Type':'application/json','x-admin-token':token})
     });
     const data = await res.json();
     if (!res.ok || data.error) {
@@ -1750,8 +1793,9 @@ async function adminShowWinners() {
   const result = document.getElementById('adminResult');
   result.innerHTML = '<span style="color:var(--dim)">Yükleniyor...</span>';
   try {
+    await ensureAuthSession(false);
     const res = await fetch(API+'/api/admin/round/winners',{
-      headers:{'x-admin-token':token}
+      headers:authHeaders({'x-admin-token':token})
     });
     const data = await res.json();
     if (!res.ok || data.error) {
@@ -2380,6 +2424,37 @@ function applyConnectedWallet(address) {
   const btn = document.getElementById('walletBtn');
   btn.textContent = wallet.slice(0,6)+'...'+wallet.slice(-4);
   btn.className = 'btn-wallet connected';
+  updateWalletBalance(address);
+}
+
+function formatEthBalanceFromWeiHex(balanceHex) {
+  const wei = BigInt(balanceHex || '0x0');
+  const whole = wei / 1000000000000000000n;
+  const fraction = (wei % 1000000000000000000n).toString().padStart(18, '0').slice(0, 3);
+  return `${whole}.${fraction} ETH`;
+}
+
+async function updateWalletBalance(address=wallet) {
+  const el = document.getElementById('ethBal');
+  if (!el) return;
+  if (!address) {
+    el.textContent = '0.000 ETH';
+    return;
+  }
+  try {
+    const res = await fetch(ACTIVE_CHAIN.rpcUrls[0], {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        jsonrpc:'2.0',
+        id:Date.now(),
+        method:'eth_getBalance',
+        params:[address, 'latest']
+      })
+    });
+    const data = await res.json();
+    if (data?.result) el.textContent = formatEthBalanceFromWeiHex(data.result);
+  } catch(e) {}
 }
 
 async function connectWallet() {
@@ -2796,17 +2871,21 @@ async function buyAmmo(pack) {
 
     showToast(`✅ İşlem gönderildi! ${pack.toLocaleString('tr-TR')} mermi alınıyor...`,'success');
     playSound('purchase');
+    localStorage.setItem(`abswar-last-purchase:${APP_NETWORK}`, JSON.stringify({ pack, txHash, wallet, createdAt:Date.now() }));
 
     // 3. Backend'e de bildir (oyun içi kayıt) + bakiyeyi al
     const receipt = await confirmAmmoPurchase(pack, txHash);
     if (receipt?.player) updatePlayerUI(receipt.player);
+    localStorage.removeItem(`abswar-last-purchase:${APP_NETWORK}`);
+    await updateWalletBalance();
 
     // 4. Sohbete sistem mesajı
     addChatSystem(`💳 ${pack.toLocaleString('tr-TR')} mermi satın alındı (${ethAmount} ETH)`);
 
   } catch(e) {
     if (e.code === 4001) showToast(t('toast.txCancelled'),'error');
-    else showToast('İşlem başarısız: ' + (e.message||'').slice(0,40),'error');
+    else showToast('Islem gonderildiyse mermi biraz gec yazilabilir. Hata: ' + (e.message||'').slice(0,40),'error');
+    await updateWalletBalance();
   } finally {
     hideLoader();
   }
@@ -3093,6 +3172,7 @@ async function pollState() {
     setBackendStatus(true);
     if (data?.countries) updateLeaderboard(data.countries);
     if (data?.onlinePlayers!=null) document.getElementById('onlineCount').textContent=Number(data.onlinePlayers).toLocaleString('tr-TR');
+    if (data?.economy) updateEconomyUI(data.economy);
     // Hediye mermi rozeti (welcome ekranı)
     if (data?.giftSlotsLeft != null) {
       const badge = document.getElementById('giftBadge');
@@ -4007,7 +4087,7 @@ const I18N = {
     'pack.legendary': 'EFSANEVİ',
     'pack.bullets': 'mermi',
     // Welcome overlay
-    'welcome.subtitle': 'KÜRESEL SAVAŞ MMO · ABSTRACT TESTNET',
+    'welcome.subtitle': 'KÜRESEL SAVAŞ MMO · ABSTRACT MAINNET',
     'welcome.body': '119 ülkeden birini seç, ittifak kur, savaş alanına gir. Web3 cüzdanınla bağlan, mermi al, hedeflerini yenmesi için saldır.',
     'welcome.cta': '🔗 ABSTRACT İLE BAĞLAN & SAVAŞA KATIL',
     'welcome.skip': 'Önce çevreyi gözden geçirmek istiyorum →',
@@ -4285,7 +4365,7 @@ const I18N = {
     'pack.premium': 'PREMIUM',
     'pack.legendary': 'LEGENDARY',
     'pack.bullets': 'ammo',
-    'welcome.subtitle': 'GLOBAL WAR MMO · ABSTRACT TESTNET',
+    'welcome.subtitle': 'GLOBAL WAR MMO · ABSTRACT MAINNET',
     'welcome.body': 'Pick one of 119 countries, form alliances, enter the battlefield. Connect your Web3 wallet, buy ammo, attack to crush your targets.',
     'welcome.cta': '🔗 CONNECT ABSTRACT WALLET & JOIN WAR',
     'welcome.skip': 'Let me look around first →',
@@ -5003,99 +5083,106 @@ setInterval(pollState,15000);
 </script>
 <script>
 let abswarAgwModules = null;
-let abswarAgwConfig = null;
-let abswarAgwConnector = null;
-let abswarAgwClient = null;
+let abswarAgwProvider = null;
+let abswarDisposeProvider = null;
 let abswarLastAddress = null;
-let abswarUnwatchAccount = null;
+let abswarProviderEventsBound = false;
 
 async function loadAbswarAgwModules() {
   if (abswarAgwModules) return abswarAgwModules;
-  const [core, agwClientModule, connectorModule, viemModule, chainsModule] = await Promise.all([
-    import('https://esm.sh/@wagmi/core@2.22.1?deps=viem@2.52.0'),
-    import('https://esm.sh/@abstract-foundation/agw-client@1.12.3?deps=viem@2.52.0'),
-    import('https://esm.sh/@abstract-foundation/agw-react@1.13.0/dist/esm/abstractWalletConnector?deps=viem@2.52.0,wagmi@2.19.5,@tanstack/react-query@5.100.14,react@18.3.1,react-dom@18.3.1'),
+  const [agwWebModule, viemModule, chainsModule] = await Promise.all([
+    import('https://esm.sh/@abstract-foundation/agw-web@1.10.0?deps=viem@2.52.0,@privy-io/cross-app-connect@0.2.2'),
     import('https://esm.sh/viem@2.52.0'),
     import('https://esm.sh/viem@2.52.0/chains')
   ]);
   const chain = window.ABSWAR_APP_NETWORK === 'testnet' ? chainsModule.abstractTestnet : chainsModule.abstract;
-  abswarAgwModules = { core, agwClientModule, connectorModule, viemModule, chain };
+  abswarAgwModules = { agwWebModule, viemModule, chain };
   return abswarAgwModules;
 }
 
-async function ensureAbswarAgwConfig() {
-  if (abswarAgwConfig) return abswarAgwConfig;
-  const { core, connectorModule, viemModule, chain } = await loadAbswarAgwModules();
-  abswarAgwConfig = core.createConfig({
-    chains: [chain],
-    connectors: [connectorModule.abstractWalletConnector()],
-    transports: {
-      [chain.id]: viemModule.http(undefined, { batch: true })
-    },
-    multiInjectedProviderDiscovery: false
-  });
-  abswarAgwConnector = abswarAgwConfig.connectors.find(connector => connector.id === 'xyz.abs.privy') || abswarAgwConfig.connectors[0];
-  abswarUnwatchAccount = core.watchAccount(abswarAgwConfig, { onChange: () => { refreshAbswarAgwBridge(); } });
-  return abswarAgwConfig;
+function bindAbswarProviderEvents() {
+  if (!abswarAgwProvider || abswarProviderEventsBound) return;
+  abswarProviderEventsBound = true;
+  const refresh = () => { refreshAbswarAgwBridge().catch(error => console.error('[ABSWAR AGW]', error)); };
+  abswarAgwProvider.on?.('accountsChanged', refresh);
+  abswarAgwProvider.on?.('chainChanged', refresh);
 }
 
-async function buildAbswarAgwClient() {
-  await ensureAbswarAgwConfig();
-  const { core, agwClientModule, viemModule, chain } = await loadAbswarAgwModules();
-  const account = core.getAccount(abswarAgwConfig);
-  if (!account?.address) {
-    abswarAgwClient = null;
+async function ensureAbswarAgwProvider() {
+  if (abswarAgwProvider) return abswarAgwProvider;
+  const { agwWebModule, chain } = await loadAbswarAgwModules();
+  const provider = await new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      window.removeEventListener('eip6963:announceProvider', onProvider);
+      reject(new Error('Abstract Global Wallet saglayicisi bulunamadi'));
+    }, 5000);
+    function onProvider(event) {
+      if (event.detail?.info?.rdns !== 'xyz.abs.privy') return;
+      clearTimeout(timeout);
+      window.removeEventListener('eip6963:announceProvider', onProvider);
+      resolve(event.detail.provider);
+    }
+    window.addEventListener('eip6963:announceProvider', onProvider);
+    abswarDisposeProvider = agwWebModule.initAbstractGlobalWallet({ chain });
+    window.dispatchEvent(new Event('eip6963:requestProvider'));
+  });
+  abswarAgwProvider = provider;
+  bindAbswarProviderEvents();
+  return abswarAgwProvider;
+}
+
+async function readAbswarAgwAddress() {
+  if (!abswarAgwProvider) return null;
+  try {
+    const accounts = await abswarAgwProvider.request({ method:'eth_accounts' });
+    return accounts?.[0] || null;
+  } catch(e) {
     return null;
   }
-  const signerAddress = account.addresses?.[1] || account.address;
-  const signerClient = await core.getConnectorClient(abswarAgwConfig, {
-    account: signerAddress,
-    connector: abswarAgwConnector
-  });
-  abswarAgwClient = await agwClientModule.createAbstractClient({
-    signer: signerClient.account,
-    chain,
-    transport: viemModule.custom(signerClient.transport),
-    isPrivyCrossApp: true,
-    publicTransport: abswarAgwConfig._internal.transports[chain.id]
-  });
-  return abswarAgwClient;
 }
 
-async function refreshAbswarAgwBridge() {
-  const mods = abswarAgwConfig ? await loadAbswarAgwModules() : null;
-  const account = abswarAgwConfig ? mods.core.getAccount(abswarAgwConfig) : null;
-  if (account?.address) {
-    try { await buildAbswarAgwClient(); } catch(e) { abswarAgwClient = null; }
-  } else {
-    abswarAgwClient = null;
-  }
-  const address = account?.address || null;
+async function refreshAbswarAgwBridge(address) {
+  if (address === undefined) address = await readAbswarAgwAddress();
   window.abswarAgw = {
     ready: true,
     address,
     login: async () => {
-      await ensureAbswarAgwConfig();
-      const { core } = await loadAbswarAgwModules();
-      await core.connect(abswarAgwConfig, { connector: abswarAgwConnector });
-      await refreshAbswarAgwBridge();
+      const provider = await ensureAbswarAgwProvider();
+      const accounts = await provider.request({ method:'eth_requestAccounts' });
+      await refreshAbswarAgwBridge(accounts?.[0] || null);
     },
     logout: async () => {
-      if (abswarAgwConfig) {
-        const { core } = await loadAbswarAgwModules();
-        await core.disconnect(abswarAgwConfig, { connector: abswarAgwConnector });
-      }
-      await refreshAbswarAgwBridge();
+      try {
+        await abswarAgwProvider?.request({
+          method:'wallet_revokePermissions',
+          params:[{ eth_accounts:{} }]
+        });
+      } catch(e) {}
+      await refreshAbswarAgwBridge(null);
     },
     signMessage: async message => {
-      const client = abswarAgwClient || await buildAbswarAgwClient();
-      if (!client) throw new Error('Abstract Global Wallet bagli degil');
-      return client.signMessage({ message });
+      const provider = await ensureAbswarAgwProvider();
+      const { stringToHex } = await loadAbswarAgwModules().then(modules => modules.viemModule);
+      const account = window.abswarAgw.address || await readAbswarAgwAddress();
+      if (!account) throw new Error('Abstract Global Wallet bagli degil');
+      return provider.request({
+        method:'personal_sign',
+        params:[stringToHex(message), account]
+      });
     },
     sendTransaction: async tx => {
-      const client = abswarAgwClient || await buildAbswarAgwClient();
-      if (!client) throw new Error('Abstract Global Wallet bagli degil');
-      return client.sendTransaction(tx);
+      const provider = await ensureAbswarAgwProvider();
+      const { toHex } = await loadAbswarAgwModules().then(modules => modules.viemModule);
+      const account = window.abswarAgw.address || await readAbswarAgwAddress();
+      if (!account) throw new Error('Abstract Global Wallet bagli degil');
+      return provider.request({
+        method:'eth_sendTransaction',
+        params:[{
+          ...tx,
+          from:account,
+          value:typeof tx.value === 'bigint' ? toHex(tx.value) : tx.value
+        }]
+      });
     }
   };
   if (address !== abswarLastAddress) {
@@ -5119,77 +5206,192 @@ refreshAbswarAgwBridge().catch(error => {
 });
 </script>
 <script>
-  let awm,awp,awl;
-  async function lm(){if(awm)return awm;const[w,v,c]=await Promise.all([import('https://esm.sh/@abstract-foundation/agw-web@1.10.0?deps=viem@2.52.0,@privy-io/cross-app-connect@0.2.2'),import('https://esm.sh/viem@2.52.0'),import('https://esm.sh/viem@2.52.0/chains')]);awm={w,v,c:window.ABSWAR_APP_NETWORK==='testnet'?c.abstractTestnet:c.abstract};return awm}
-  async function ep(){if(awp)return awp;const{w,c}=await lm();awp=await new Promise((r,j)=>{const t=setTimeout(()=>j(new Error('Abstract Global Wallet saglayicisi bulunamadi')),5000);function f(e){if(e.detail?.info?.rdns!=='xyz.abs.privy')return;clearTimeout(t);removeEventListener('eip6963:announceProvider',f);r(e.detail.provider)}addEventListener('eip6963:announceProvider',f);w.initAbstractGlobalWallet({chain:c});dispatchEvent(new Event('eip6963:requestProvider'))});return awp}
-  async function ra(){if(!awp)return null;try{return(await awp.request({method:'eth_accounts'}))?.[0]||null}catch(e){return null}}
-  async function rb(a){if(a===undefined)a=await ra();window.abswarAgw={ready:true,address:a,login:async()=>{const p=await ep(),x=await p.request({method:'eth_requestAccounts'});await rb(x?.[0]||null)},logout:async()=>{await rb(null)},signMessage:async m=>{const p=await ep(),{stringToHex:h}=await lm().then(x=>x.v),x=window.abswarAgw.address||await ra();if(!x)throw new Error('Abstract Global Wallet bagli degil');return p.request({method:'personal_sign',params:[h(m),x]})},sendTransaction:async t=>{const p=await ep(),{toHex:h}=await lm().then(x=>x.v),x=window.abswarAgw.address||await ra();if(!x)throw new Error('Abstract Global Wallet bagli degil');return p.request({method:'eth_sendTransaction',params:[{...t,from:x,value:typeof t.value==='bigint'?h(t.value):t.value}]})}};if(a!==awl){awl=a;dispatchEvent(new CustomEvent('abswar:agw-account',{detail:{address:a}}))}}
-  rb().catch(e=>console.error('[ABSWAR AGW]',e));
-  </script>
+let awm,awp,awl;
+async function lm(){if(awm)return awm;const[w,v,c]=await Promise.all([import('https://esm.sh/@abstract-foundation/agw-web@1.10.0?deps=viem@2.52.0,@privy-io/cross-app-connect@0.2.2'),import('https://esm.sh/viem@2.52.0'),import('https://esm.sh/viem@2.52.0/chains')]);awm={w,v,c:window.ABSWAR_APP_NETWORK==='testnet'?c.abstractTestnet:c.abstract};return awm}
+async function ep(){if(awp)return awp;const{w,c}=await lm();awp=await new Promise((r,j)=>{const t=setTimeout(()=>j(new Error('Abstract Global Wallet saglayicisi bulunamadi')),5000);function f(e){if(e.detail?.info?.rdns!=='xyz.abs.privy')return;clearTimeout(t);removeEventListener('eip6963:announceProvider',f);r(e.detail.provider)}addEventListener('eip6963:announceProvider',f);w.initAbstractGlobalWallet({chain:c});dispatchEvent(new Event('eip6963:requestProvider'))});return awp}
+async function ra(){if(!awp)return null;try{return(await awp.request({method:'eth_accounts'}))?.[0]||null}catch(e){return null}}
+async function rb(a){if(a===undefined)a=await ra();window.abswarAgw={ready:true,address:a,login:async()=>{const p=await ep(),x=await p.request({method:'eth_requestAccounts'});await rb(x?.[0]||null)},logout:async()=>{await rb(null)},signMessage:async m=>{const p=await ep(),{stringToHex:h}=await lm().then(x=>x.v),x=window.abswarAgw.address||await ra();if(!x)throw new Error('Abstract Global Wallet bagli degil');return p.request({method:'personal_sign',params:[h(m),x]})},sendTransaction:async t=>{const p=await ep(),{toHex:h}=await lm().then(x=>x.v),x=window.abswarAgw.address||await ra();if(!x)throw new Error('Abstract Global Wallet bagli degil');return p.request({method:'eth_sendTransaction',params:[{...t,from:x,value:typeof t.value==='bigint'?h(t.value):t.value}]})}};if(a!==awl){awl=a;dispatchEvent(new CustomEvent('abswar:agw-account',{detail:{address:a}}))}}
+rb().catch(e=>console.error('[ABSWAR AGW]',e));
+</script>
 <script>
 (function(){
-  function f(h){const q=1000000000000000000n,w=BigInt(h||'0x0');return (w/q)+'.'+(w%q).toString().padStart(18,'0').slice(0,3)+' ETH'}
-  window.updateWalletBalance=async function(a){try{a=a||wallet;const e=document.getElementById('ethBal');if(!e)return;if(!a){e.textContent='0.000 ETH';return}const r=await fetch(ACTIVE_CHAIN.rpcUrls[0],{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:Date.now(),method:'eth_getBalance',params:[a,'latest']})});const j=await r.json();if(j&&j.result)e.textContent=f(j.result)}catch(_){}};
-  const st=document.createElement('style');st.textContent='#ethBal{display:inline-flex!important}';document.head.appendChild(st);
-  if(typeof applyConnectedWallet==='function'){const p=applyConnectedWallet;applyConnectedWallet=function(a){p(a);updateWalletBalance(a)}}
-  if(typeof buyAmmo==='function'){const b=buyAmmo;buyAmmo=async function(p){await b(p);await updateWalletBalance()}}
-  addEventListener('abswar:agw-account',e=>setTimeout(()=>updateWalletBalance(e.detail&&e.detail.address),500));
+const SEL="0x66666aa9",Q=1000000000000000000n;
+function F(w){let a=w/Q,b=(w%Q).toString().padStart(18,"0").slice(0,4).replace(/0+$/,"");return a+(b?"."+b:"")+" ETH"}
+async function P(){
+  let j=await fetch(ACTIVE_CHAIN.rpcUrls[0],{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({jsonrpc:"2.0",id:Date.now(),method:"eth_call",params:[{to:ACTIVE_CHAIN.contractAddress,data:SEL},"latest"]})}).then(r=>r.json());
+  return BigInt(j.result||"0x0");
+}
+function U(){
+  let l=document.querySelector(".logo-sub");
+  if(l&&!document.getElementById("betaBadge")){
+    let b=document.createElement("span");
+    b.id="betaBadge";b.textContent="BETA";
+    b.style.cssText="border:1px solid rgba(245,200,66,.55);color:var(--gold);font-family:var(--hud);font-size:9px;padding:3px 6px;margin-left:6px;letter-spacing:1px";
+    l.after(b);
+  }
+  let h=document.querySelector("[data-i18n='nav.help']");
+  if(h&&!document.getElementById("rewardRulesBtn")){
+    let b=document.createElement("button");
+    b.id="rewardRulesBtn";b.textContent="ODUL KURALLARI";b.onclick=openRewardRules;
+    b.style.cssText="background:transparent;border:1px solid rgba(245,200,66,.45);color:var(--gold);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer";
+    h.after(b);
+  }
+  if(!document.getElementById("rewardRulesModal")){
+    let m=document.createElement("div");
+    m.id="rewardRulesModal";m.className="modal";
+    m.innerHTML='<div class="modal-box" style="width:520px;max-width:92vw;text-align:left"><button class="modal-close" onclick="closeRewardRules()">KAPAT</button><div class="modal-title" style="color:var(--gold)">ODUL KURALLARI</div><div style="font-family:var(--ui);font-size:13px;line-height:1.7;color:var(--text)"><p><b>Odul havuzu:</b> Mermi alimlarindan kontratta ayrilan odul bakiyesidir.</p><p><b>Tur suresi:</b> 7 gun. Tur bitince en yuksek HP sahibi ilk 3 ulke kazanir.</p><p><b>Dagilim:</b> 1. ulke %60, 2. ulke %25, 3. ulke %15.</p><p><b>Odeme:</b> Kazanan ulkelerin en yuksek katkili oyuncularina admin tarafindan kontrattaki <code>payReward</code> ile odenir.</p><p style="color:var(--gold)"><b>Mainnet:</b> Islemler gercek ETH ile yapilir. Cuzdan onay ekranini her zaman kontrol et.</p><p style="color:var(--dim);font-size:11px">Guvenlik notu: Odeme dogrulamasi aktif; resmi bagimsiz audit raporu ayri bir surectir.</p></div></div>';
+    m.addEventListener("click",e=>{if(e.target===m)closeRewardRules()});
+    document.body.appendChild(m);
+  }
+  let w=document.querySelector("[data-i18n='welcome.warning']");
+  if(w)w.textContent="Mainnet: gercek ETH kullanilir. Cuzdan onaylarini dikkatli kontrol et.";
+}
+window.openRewardRules=function(){U();document.getElementById("rewardRulesModal").classList.add("show")};
+window.closeRewardRules=function(){document.getElementById("rewardRulesModal").classList.remove("show")};
+function S(v){
+  U();
+  let t="ODUL HAVUZU "+v,g=document.getElementById("giftBadge");
+  if(g&&!document.getElementById("prizeOnlyHome")){
+    let d=document.createElement("div");d.id="prizeOnlyHome";
+    d.style.cssText="color:var(--gold);font-family:var(--hud);font-size:22px;margin-bottom:18px";
+    g.after(d);
+  }
+  let d=document.getElementById("prizeOnlyHome");if(d)d.textContent=t;
+  let e=document.getElementById("ethBal");
+  if(e&&!document.getElementById("prizeOnlyNav")){
+    let n=document.createElement("span");n.id="prizeOnlyNav";
+    n.style.cssText="color:var(--gold);font-family:var(--hud);font-size:10px;padding:5px";
+    e.before(n);
+  }
+  let n=document.getElementById("prizeOnlyNav");if(n)n.textContent=t;
+}
+async function R(){try{S(F(await P()))}catch(e){}setTimeout(R,30000)}
+U();R();
+})();
+</script>
+<script>
+(function(){
+function rrOpen(){let m=document.getElementById("rewardRulesModal");if(m)m.classList.add("show")}
+function rrClose(){let m=document.getElementById("rewardRulesModal");if(m)m.classList.remove("show")}
+window.openRewardRules=rrOpen;window.closeRewardRules=rrClose;
+function bind(){
+  let b=document.getElementById("rewardRulesBtn");
+  if(b&&!b.dataset.rrBound){b.dataset.rrBound="1";b.addEventListener("click",e=>{e.preventDefault();rrOpen()})}
+  let m=document.getElementById("rewardRulesModal");
+  if(m&&!m.dataset.rrBound){m.dataset.rrBound="1";m.addEventListener("click",e=>{if(e.target===m)rrClose()})}
+}
+bind();setInterval(bind,1000);
+})();
+</script>
+<script>
+(function(){
+const RANK_NFT_ABI=[
+  {type:"function",name:"mintRank",stateMutability:"nonpayable",inputs:[{name:"rank",type:"uint8"},{name:"deadline",type:"uint256"},{name:"signature",type:"bytes"}],outputs:[]},
+  {type:"function",name:"hasRankNFT",stateMutability:"view",inputs:[{name:"player",type:"address"},{name:"rank",type:"uint8"}],outputs:[{name:"",type:"bool"}]}
+];
+const COPY={
+  tr:{title:"RUTBE NFT ROZETLERI",ready:"AKTIF",setup:"HAZIRLANIYOR",note:"Prestij rozeti. Oyun gucu vermez.",claim:"TALEP ET",owned:"SAHIP",pending:"GONDERILDI",locked:"KILITLI",need:"katki kaldi",disabled:"Kontrat ayarlanmadi",connect:"Once cuzdan bagla",notReady:"Rutbe NFT sistemi henuz aktif degil",sign:"NFT hakki kontrol ediliyor...",approve:"Cuzdanda mint onayi ver",sent:"NFT mint islemi gonderildi",fail:"NFT talebi basarisiz"},
+  en:{title:"RANK NFT BADGES",ready:"ACTIVE",setup:"PREPARING",note:"Prestige badge. No game power.",claim:"CLAIM",owned:"OWNED",pending:"SENT",locked:"LOCKED",need:"contribution left",disabled:"Contract not configured",connect:"Connect wallet first",notReady:"Rank NFT system is not active yet",sign:"Checking NFT eligibility...",approve:"Approve mint in wallet",sent:"NFT mint transaction sent",fail:"NFT claim failed"},
+  ru:{title:"NFT ZVANIYA",ready:"ACTIVE",setup:"PREPARING",note:"Prestige badge. No game power.",claim:"CLAIM",owned:"OWNED",pending:"SENT",locked:"LOCKED",need:"points left",disabled:"Contract not configured",connect:"Connect wallet first",notReady:"Rank NFT system is not active yet",sign:"Checking NFT eligibility...",approve:"Approve mint in wallet",sent:"NFT mint transaction sent",fail:"NFT claim failed"}
+};
+let rankNftStatus=null,rankNftContribution=0,rankNftOwned=new Set(),rankNftPending=new Set(),rankNftLastWallet=null;
+function L(k){let lang="tr";try{lang=localStorage.getItem("abswar-lang")||"tr"}catch(e){}return (COPY[lang]||COPY.tr)[k]||k}
+function E(v){return typeof escapeHtml==="function"?escapeHtml(v):String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]))}
+function ranks(){return rankNftStatus?.ranks||RANKS_FE.map((r,i)=>({index:i,name:r.name,icon:r.icon,min:r.min,bonusPct:r.bonus}))}
+function pendingKey(){return "abswar-rank-nft-pending:"+APP_NETWORK+":"+(wallet||"none").toLowerCase()}
+function loadPending(){try{rankNftPending=new Set(JSON.parse(localStorage.getItem(pendingKey())||"[]").map(Number))}catch(e){rankNftPending=new Set()}}
+function savePending(){try{localStorage.setItem(pendingKey(),JSON.stringify([...rankNftPending]))}catch(e){}}
+function badgeSvg(r,earned,owned){
+  const color=owned?"var(--green)":earned?"var(--gold)":"var(--dim)";
+  const mark=r.index===0?"HELM":r.index===1?"-":r.index===2?"--":r.index===3?"*":r.index===4?"**":r.index===5?"***":"****";
+  return `<div style="width:42px;height:42px;border:1px solid ${color};border-radius:50%;display:flex;align-items:center;justify-content:center;color:${color};font-family:var(--hud);font-size:11px;box-shadow:0 0 12px rgba(245,200,66,.08)">${mark}</div>`;
+}
+function ensurePanel(){
+  if(document.getElementById("rankNftPanel"))return;
+  const anchor=document.getElementById("ysCountry")?.closest(".ys-row")||document.getElementById("panel-siralama");
+  if(!anchor)return;
+  const p=document.createElement("div");
+  p.id="rankNftPanel";
+  p.style.cssText="margin:8px 10px 0;padding:10px;background:linear-gradient(180deg,rgba(245,200,66,.08),rgba(0,200,83,.03));border:1px solid rgba(245,200,66,.25);font-family:var(--ui)";
+  p.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px"><span id="rankNftTitle" style="font-family:var(--hud);font-size:9px;letter-spacing:1px;color:var(--gold)"></span><span id="rankNftStatus" style="font-family:var(--mono);font-size:8px;color:var(--dim)"></span></div><div id="rankNftGrid" style="display:flex;flex-direction:column;gap:6px"></div><div id="rankNftNote" style="margin-top:8px;font-size:9px;color:var(--dim);line-height:1.4"></div>';
+  anchor.after(p);
+}
+function renderRankNftPanel(){
+  ensurePanel();
+  const panel=document.getElementById("rankNftPanel"),grid=document.getElementById("rankNftGrid");
+  if(!panel||!grid)return;
+  loadPending();
+  document.getElementById("rankNftTitle").textContent=L("title");
+  document.getElementById("rankNftStatus").textContent=rankNftStatus?.enabled?L("ready"):L("setup");
+  document.getElementById("rankNftStatus").style.color=rankNftStatus?.enabled?"var(--green)":"var(--gold)";
+  document.getElementById("rankNftNote").textContent=(rankNftStatus?.enabled?"":L("disabled")+". ")+L("note");
+  grid.innerHTML=ranks().map(r=>{
+    const earned=rankNftContribution>=Number(r.min||0),owned=rankNftOwned.has(Number(r.index)),pending=rankNftPending.has(Number(r.index));
+    let label=owned?L("owned"):pending?L("pending"):earned?(rankNftStatus?.enabled?L("claim"):L("setup")):L("locked");
+    let sub=earned?`${Number(r.min||0).toLocaleString("tr-TR")} katkı / +%${r.bonusPct||0}`:`${(Number(r.min||0)-rankNftContribution).toLocaleString("tr-TR")} ${L("need")}`;
+    let disabled=!earned||owned||pending||!rankNftStatus?.enabled;
+    return `<div style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.025);border:1px solid ${earned?"rgba(245,200,66,.24)":"var(--border)"};padding:7px">
+      ${badgeSvg(r,earned,owned)}
+      <div style="flex:1;min-width:0"><div style="font-family:var(--hud);font-size:9px;color:${earned?"var(--text)":"var(--dim)"};letter-spacing:1px">${E(r.icon||"")} ${E(r.name)}</div><div style="font-size:9px;color:var(--dim);margin-top:2px">${E(sub)}</div></div>
+      <button class="btn-sm ${disabled?"btn-out":"btn-red"}" style="font-size:7px;padding:5px 7px;min-width:72px" ${disabled?"disabled":""} onclick="claimRankNft(${Number(r.index)})">${E(label)}</button>
+    </div>`;
+  }).join("");
+}
+async function rankNftViem(){
+  if(typeof loadAbswarAgwModules==="function"){const m=await loadAbswarAgwModules();return m.viemModule}
+  if(typeof lm==="function"){const m=await lm();return m.v}
+  throw new Error("Viem yuklenemedi");
+}
+async function refreshRankNftStatus(){
+  try{const r=await fetch(API+"/api/nft/rank/status");const d=await r.json();rankNftStatus=d.rankNft||d}catch(e){rankNftStatus={enabled:false,ranks:ranks()}}
+  renderRankNftPanel();
+  await refreshRankNftOwned();
+}
+async function refreshRankNftOwned(){
+  if(!wallet||!rankNftStatus?.enabled||!rankNftStatus.contractAddress)return;
+  if(rankNftLastWallet!==wallet){rankNftOwned=new Set();rankNftLastWallet=wallet}
+  try{
+    const viem=await rankNftViem(),owned=new Set();
+    for(const r of ranks()){
+      const data=viem.encodeFunctionData({abi:RANK_NFT_ABI,functionName:"hasRankNFT",args:[wallet,Number(r.index)]});
+      const res=await fetch(ACTIVE_CHAIN.rpcUrls[0],{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({jsonrpc:"2.0",id:Date.now()+Number(r.index),method:"eth_call",params:[{to:rankNftStatus.contractAddress,data},"latest"]})}).then(x=>x.json());
+      if(res.result&&res.result!=="0x"){
+        const [hasIt]=viem.decodeFunctionResult({abi:RANK_NFT_ABI,functionName:"hasRankNFT",data:res.result});
+        if(hasIt)owned.add(Number(r.index));
+      }
+    }
+    rankNftOwned=owned;
+    for(const i of [...rankNftPending])if(rankNftOwned.has(i))rankNftPending.delete(i);
+    savePending();
+    renderRankNftPanel();
+  }catch(e){}
+}
+window.claimRankNft=async function(rankIndex){
+  if(!wallet){showToast(L("connect"),"error");return}
+  if(!rankNftStatus?.enabled){showToast(L("notReady"),"error");return}
+  showLoader(L("sign"));
+  try{
+    const res=await authJson("/api/nft/claim-signature",{wallet,rank:rankIndex});
+    const claim=await res.json();
+    if(!res.ok||claim.error)throw new Error(tErr(claim)||claim.error||"NFT claim failed");
+    const viem=await rankNftViem();
+    const data=viem.encodeFunctionData({abi:RANK_NFT_ABI,functionName:"mintRank",args:[Number(rankIndex),BigInt(claim.deadline),claim.signature]});
+    showToast(L("approve"),"info");
+    const agw=await waitForAbstractWallet(true);
+    await agw.sendTransaction({to:claim.contractAddress,value:0n,data});
+    rankNftPending.add(Number(rankIndex));savePending();renderRankNftPanel();
+    showToast(L("sent"),"success");
+    setTimeout(refreshRankNftOwned,15000);
+  }catch(e){showToast((e.message||L("fail")).slice(0,120),"error")}
+  finally{hideLoader()}
+};
+const oldUpdateRank=window.updateRankUI;
+if(typeof oldUpdateRank==="function"){window.updateRankUI=function(c){oldUpdateRank(c);rankNftContribution=Number(c)||0;renderRankNftPanel();refreshRankNftOwned()}}
+const oldSetLang=window.setLang;
+if(typeof oldSetLang==="function"){window.setLang=function(lang){const r=oldSetLang(lang);setTimeout(renderRankNftPanel,0);return r}}
+window.addEventListener("abswar:agw-account",e=>{if(e.detail?.address){rankNftLastWallet=null;refreshRankNftOwned()}else{rankNftOwned=new Set();rankNftPending=new Set();renderRankNftPanel()}});
+ensurePanel();renderRankNftPanel();refreshRankNftStatus();setInterval(refreshRankNftStatus,60000);
 })();
 </script>
 </body>
 </html>
-
-    <script>
-      (function u(){let c=ACTIVE_CHAIN.contractAddress,f=x=>(Number(x)/1e18).toFixed(4)+" ETH";fetch(ACTIVE_CHAIN.rpcUrls[0],{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({jsonrpc:"2.0",id:1,method:"eth_getBalance",params:[c,"latest"]})}).then(r=>r.json()).then(j=>{let w=BigInt(j.result||0),p=w*70n/100n,s="ODUL HAVUZU "+f(p)+" / TOPLAM "+f(w),g=document.getElementById("giftBadge");if(g&&!document.getElementById("poolX")){let d=document.createElement("div");d.id="poolX";d.style.cssText="color:var(--gold);font-family:var(--hud);font-size:20px;margin-bottom:18px";g.after(d)}let d=document.getElementById("poolX");if(d)d.textContent=s;let e=document.getElementById("ethBal");if(e&&!document.getElementById("poolN")){let n=document.createElement("span");n.id="poolN";n.style.cssText="color:var(--gold);font-family:var(--hud);font-size:10px;padding:5px";e.before(n)}let n=document.getElementById("poolN");if(n)n.textContent=s;let a=document.getElementById("adminRoundInfo");if(a&&!document.getElementById("poolA")){let b=document.createElement("div");b.id="poolA";b.style.cssText="margin-top:10px;padding:12px;border:1px solid rgba(245,200,66,.35);color:var(--gold);font-family:var(--mono);font-size:11px";a.after(b)}let b=document.getElementById("poolA");if(b)b.textContent=s}).catch(()=>{});setTimeout(u,3e4)})();
-    </script>
-
-    </script>
-
-          <script>
-            (function(){function h(){["poolX","poolN","rewardPoolBadge","rewardPoolNav","welcomeRewardPoolEth","welcomeDepositedEth","navRewardPoolEth"].forEach(id=>{let e=document.getElementById(id);if(e)e.style.display="none"})}h();setInterval(h,1000)})();
-          </script>
-
-          </script>
-
-    <script>
-      (function(){function h(){["poolX","poolN","rewardPoolBadge","rewardPoolNav"].forEach(id=>{let e=document.getElementById(id);if(e)e.remove()})}h();setInterval(h,500)})();
-    </script>
-
-    </script>
-
-<script>
-  (function r(){let c=ACTIVE_CHAIN.contractAddress,F=x=>(Number(x)/1e18).toFixed(4)+" ETH";fetch(ACTIVE_CHAIN.rpcUrls[0],{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({jsonrpc:"2.0",id:2,method:"eth_getBalance",params:[c,"latest"]})}).then(r=>r.json()).then(j=>{let p=BigInt(j.result||0)*70n/100n,s="ODUL HAVUZU "+F(p),g=document.getElementById("giftBadge");if(g&&!document.getElementById("prizeOnlyHome")){let d=document.createElement("div");d.id="prizeOnlyHome";d.style.cssText="color:var(--gold);font-family:var(--hud);font-size:22px;margin-bottom:18px";g.after(d)}let d=document.getElementById("prizeOnlyHome");if(d)d.textContent=s;let e=document.getElementById("ethBal");if(e&&!document.getElementById("prizeOnlyNav")){let n=document.createElement("span");n.id="prizeOnlyNav";n.style.cssText="color:var(--gold);font-family:var(--hud);font-size:10px;padding:5px";e.before(n)}let n=document.getElementById("prizeOnlyNav");if(n)n.textContent=s}).catch(()=>{});setTimeout(r,3e4)})();
-</script>
-
-</script>
-
-<script>
-  (function(){const F=window.fetch;window.fetch=async function(i,o){try{const u=typeof i=="string"?i:i.url;if(u&&u.includes("/api/admin/")&&typeof ensureAuthSession=="function"){await ensureAuthSession(false);o=o||{};o.headers=authHeaders(o.headers||{})}}catch(e){}return F(i,o)}})();
-</script>
-
-</script>
-
-<script>
-  (function(){
-    const SEL="0x66666aa9",Q=1000000000000000000n;
-    function F(w){let a=w/Q,b=(w%Q).toString().padStart(18,"0").slice(0,4).replace(/0+$/,"");return a+(b?"."+b:"")+" ETH"}
-    async function P(){let j=await fetch(ACTIVE_CHAIN.rpcUrls[0],{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({jsonrpc:"2.0",id:Date.now(),method:"eth_call",params:[{to:ACTIVE_CHAIN.contractAddress,data:SEL},"latest"]})}).then(r=>r.json());return BigInt(j.result||"0x0")}
-    function U(){let l=document.querySelector(".logo-sub");if(l&&!document.getElementById("betaBadge")){let b=document.createElement("span");b.id="betaBadge";b.textContent="BETA";b.style.cssText="border:1px solid rgba(245,200,66,.55);color:var(--gold);font-family:var(--hud);font-size:9px;padding:3px 6px;margin-left:6px;letter-spacing:1px";l.after(b)}let h=document.querySelector("[data-i18n='nav.help']");if(h&&!document.getElementById("rewardRulesBtn")){let b=document.createElement("button");b.id="rewardRulesBtn";b.textContent="ODUL KURALLARI";b.onclick=openRewardRules;b.style.cssText="background:transparent;border:1px solid rgba(245,200,66,.45);color:var(--gold);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer";h.after(b)}if(!document.getElementById("rewardRulesModal")){let m=document.createElement("div");m.id="rewardRulesModal";m.className="modal";m.innerHTML='<div class="modal-box" style="width:520px;max-width:92vw;text-align:left"><button class="modal-close" onclick="closeRewardRules()">KAPAT</button><div class="modal-title" style="color:var(--gold)">ODUL KURALLARI</div><div style="font-family:var(--ui);font-size:13px;line-height:1.7;color:var(--text)"><p><b>Odul havuzu:</b> Mermi alimlarindan kontratta ayrilan odul bakiyesidir.</p><p><b>Tur suresi:</b> 7 gun. Tur bitince en yuksek HP sahibi ilk 3 ulke kazanir.</p><p><b>Dagilim:</b> 1. ulke %60, 2. ulke %25, 3. ulke %15.</p><p><b>Odeme:</b> Kazanan ulkelerin en yuksek katkili oyuncularina admin tarafindan kontrattaki <code>payReward</code> ile odenir.</p><p style="color:var(--gold)"><b>Mainnet:</b> Islemler gercek ETH ile yapilir. Cuzdan onay ekranini her zaman kontrol et.</p><p style="color:var(--dim);font-size:11px">Guvenlik notu: Odeme dogrulamasi aktif; resmi bagimsiz audit raporu ayri bir surectir.</p></div></div>';m.addEventListener("click",e=>{if(e.target===m)closeRewardRules()});document.body.appendChild(m)}let w=document.querySelector("[data-i18n='welcome.warning']");if(w)w.textContent="Mainnet: gercek ETH kullanilir. Cuzdan onaylarini dikkatli kontrol et."}
-    window.openRewardRules=function(){U();document.getElementById("rewardRulesModal").classList.add("show")};window.closeRewardRules=function(){document.getElementById("rewardRulesModal").classList.remove("show")};function S(v){U();let t="ODUL HAVUZU "+v,g=document.getElementById("giftBadge");if(g&&!document.getElementById("prizeOnlyHome")){let d=document.createElement("div");d.id="prizeOnlyHome";d.style.cssText="color:var(--gold);font-family:var(--hud);font-size:22px;margin-bottom:18px";g.after(d)}let d=document.getElementById("prizeOnlyHome");if(d)d.textContent=t;let e=document.getElementById("ethBal");if(e&&!document.getElementById("prizeOnlyNav")){let n=document.createElement("span");n.id="prizeOnlyNav";n.style.cssText="color:var(--gold);font-family:var(--hud);font-size:10px;padding:5px";e.before(n)}let n=document.getElementById("prizeOnlyNav");if(n)n.textContent=t}
-    async function R(){try{S(F(await P()))}catch(e){}setTimeout(R,30000)}U();R();
-  })();
-</script>
-
-</script>
-
-<script>
-  (function(){
-    function rrOpen(){let m=document.getElementById("rewardRulesModal");if(m)m.classList.add("show")}
-    function rrClose(){let m=document.getElementById("rewardRulesModal");if(m)m.classList.remove("show")}
-    window.openRewardRules=rrOpen;window.closeRewardRules=rrClose;
-    function bind(){let b=document.getElementById("rewardRulesBtn");if(b&&!b.dataset.rrBound){b.dataset.rrBound="1";b.addEventListener("click",e=>{e.preventDefault();rrOpen()})}let m=document.getElementById("rewardRulesModal");if(m&&!m.dataset.rrBound){m.dataset.rrBound="1";m.addEventListener("click",e=>{if(e.target===m)rrClose()})}}
-    bind();setInterval(bind,1000);
-  })();
-</script>
-
-</script>
