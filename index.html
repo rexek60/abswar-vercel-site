@@ -292,7 +292,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   nav.topnav .logo-main{font-size:13px;letter-spacing:2px}
   #walletBtn{font-size:8px;padding:4px 7px}
   #soundBtn{width:26px;height:24px;font-size:12px}
-  #ethBal{display:none}
+  #ethBal{display:inline-flex}
   /* Saldırı butonları daha sıkı */
   .bulk-atk-btn{font-size:7px;padding:3px 5px;flex:1}
   /* Mob nav etiketleri küçük */
@@ -1598,7 +1598,7 @@ try {
 
 /* ── TUR BİTTİ MODALI ── */
 // Sahibin (deploy edenin) cüzdan adresi — bu adres bağlıysa admin paneli görünür
-const OWNER_WALLET = '0x87EA222a358Af798a5afABa8F85715c3eCae5D8c'.toLowerCase();
+const OWNER_WALLET = '0x9C5e9dB5836e9c95be7cBec023D543c36E865B5B'.toLowerCase();
 let roundEndShown = false;
 
 function showRoundEndModal(result) {
@@ -5126,5 +5126,15 @@ refreshAbswarAgwBridge().catch(error => {
   async function rb(a){if(a===undefined)a=await ra();window.abswarAgw={ready:true,address:a,login:async()=>{const p=await ep(),x=await p.request({method:'eth_requestAccounts'});await rb(x?.[0]||null)},logout:async()=>{await rb(null)},signMessage:async m=>{const p=await ep(),{stringToHex:h}=await lm().then(x=>x.v),x=window.abswarAgw.address||await ra();if(!x)throw new Error('Abstract Global Wallet bagli degil');return p.request({method:'personal_sign',params:[h(m),x]})},sendTransaction:async t=>{const p=await ep(),{toHex:h}=await lm().then(x=>x.v),x=window.abswarAgw.address||await ra();if(!x)throw new Error('Abstract Global Wallet bagli degil');return p.request({method:'eth_sendTransaction',params:[{...t,from:x,value:typeof t.value==='bigint'?h(t.value):t.value}]})}};if(a!==awl){awl=a;dispatchEvent(new CustomEvent('abswar:agw-account',{detail:{address:a}}))}}
   rb().catch(e=>console.error('[ABSWAR AGW]',e));
   </script>
+<script>
+(function(){
+  function f(h){const q=1000000000000000000n,w=BigInt(h||'0x0');return (w/q)+'.'+(w%q).toString().padStart(18,'0').slice(0,3)+' ETH'}
+  window.updateWalletBalance=async function(a){try{a=a||wallet;const e=document.getElementById('ethBal');if(!e)return;if(!a){e.textContent='0.000 ETH';return}const r=await fetch(ACTIVE_CHAIN.rpcUrls[0],{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:Date.now(),method:'eth_getBalance',params:[a,'latest']})});const j=await r.json();if(j&&j.result)e.textContent=f(j.result)}catch(_){}};
+  const st=document.createElement('style');st.textContent='#ethBal{display:inline-flex!important}';document.head.appendChild(st);
+  if(typeof applyConnectedWallet==='function'){const p=applyConnectedWallet;applyConnectedWallet=function(a){p(a);updateWalletBalance(a)}}
+  if(typeof buyAmmo==='function'){const b=buyAmmo;buyAmmo=async function(p){await b(p);await updateWalletBalance()}}
+  addEventListener('abswar:agw-account',e=>setTimeout(()=>updateWalletBalance(e.detail&&e.detail.address),500));
+})();
+</script>
 </body>
 </html>
