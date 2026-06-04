@@ -240,7 +240,6 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   body[data-mob-tab="savas"]    #panel-tarih,
   body[data-mob-tab="ittifak"]  #panel-ittifak,
   body[data-mob-tab="pazar"]    #panel-ulkeler,
-  body[data-mob-tab="pazar"]    #panel-kaynak,
   body[data-mob-tab="istat"]    #panel-siralama,
   body[data-mob-tab="istat"]    #panel-radar { display:flex !important; }
 
@@ -249,7 +248,6 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   body[data-mob-tab="savas"]   #panel-tarih   { flex:1 1 auto; min-height:0 }
   /* "Pazar" sekmesinde ülkeler üstte, kaynaklar altta */
   body[data-mob-tab="pazar"]   #panel-ulkeler { flex:0 0 auto; max-height:55vh; overflow-y:auto }
-  body[data-mob-tab="pazar"]   #panel-kaynak  { flex:1 1 auto; min-height:0 }
   /* "İstat" sekmesinde sıralama üstte, radar altta */
   body[data-mob-tab="istat"]   #panel-siralama { flex:0 0 auto; max-height:60vh; overflow-y:auto }
   body[data-mob-tab="istat"]   #panel-radar    { flex:1 1 auto; min-height:0 }
@@ -665,13 +663,13 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 </div>
 
 <!-- LEADERBOARD + STATS (col 4) -->
-<div class="cell" id="panel-siralama" style="grid-column:4;grid-row:1">
+<div class="cell" id="panel-siralama" style="grid-column:4;grid-row:1 / 3">
   <div class="sh" data-i18n="panel.leaderboard">LİDERLİK TABLOSU</div>
   <div class="lb-tabs">
     <div class="lb-tab active" onclick="setLbTab('countries',this)">ÜLKELER</div>
     <div class="lb-tab" onclick="setLbTab('players',this)">OYUNCULAR</div>
   </div>
-  <div style="flex:1;overflow-y:auto" id="lbList">
+  <div style="flex:0 1 220px;min-height:120px;overflow-y:auto" id="lbList">
     <div class="lb-row"><span class="lb-num">1</span><span style="font-size:13px">🇷🇺</span><span class="lb-name">Rusya</span><span class="lb-hp">1000 HP</span></div>
     <div class="lb-row"><span class="lb-num">2</span><span style="font-size:13px">🇨🇳</span><span class="lb-name">Çin</span><span class="lb-hp">1000 HP</span></div>
     <div class="lb-row"><span class="lb-num">3</span><span style="font-size:13px">🇩🇪</span><span class="lb-name">Almanya</span><span class="lb-hp">1000 HP</span></div>
@@ -683,7 +681,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     <div class="lb-row"><span class="lb-num">9</span><span style="font-size:13px">🇯🇵</span><span class="lb-name">Japonya</span><span class="lb-hp">1000 HP</span></div>
     <div class="lb-row"><span class="lb-num">10</span><span style="font-size:13px">🇬🇧</span><span class="lb-name">Bir. Krallık</span><span class="lb-hp">1000 HP</span></div>
   </div>
-  <button class="btn-sm btn-out" style="margin:6px;width:calc(100%-12px)">TAM SIRALAMAYI GÖR</button>
+  <button class="btn-sm btn-out" style="margin:6px;width:calc(100% - 12px)">TAM SIRALAMAYI GÖR</button>
   <div class="sh" style="flex-shrink:0" data-i18n="panel.mystats">İSTATİSTİKLERİN</div>
   <div>
     <div class="ys-row"><span class="ys-l" data-i18n="stat.kills">ÖLDÜRME</span><span class="ys-v red" id="ysKills">0</span></div>
@@ -696,13 +694,10 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 </div>
 
 <!-- BOTTOM ROW -->
-<!-- Attack History -->
+<!-- Resource Control -->
 <div class="cell" id="panel-tarih" style="grid-column:1;grid-row:2">
-  <div class="sh"><span data-i18n="panel.history">SALDIRI TARİHİ</span> <span id="ahCount" style="font-size:9px;color:var(--dim);margin-left:6px">(0)</span></div>
-  <div class="ah-head"><span>HEDEF</span><span>HASAR</span><span>ZAMAN</span></div>
-  <div style="flex:1;overflow-y:auto" id="attackHistory">
-    <div style="padding:20px;text-align:center;color:var(--dim);font-size:10px" id="ahEmpty" data-i18n="empty.attacks">Henüz saldırı yok</div>
-  </div>
+  <div class="sh"><span data-i18n="panel.resources">KAYNAK KONTROLU</span> <button class="btn-sm btn-out" style="font-size:7px;padding:2px 6px" onclick="boostAllResources()" data-i18n="btn.produceAll">TUMUNU URET</button></div>
+  <div style="flex:1;overflow-y:auto;padding:10px 0" id="resourceList"></div>
 </div>
 
 <!-- Alliance Chat -->
@@ -756,10 +751,12 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   </div>
 </div>
 
-<!-- Resource -->
-<div class="cell" id="panel-kaynak" style="grid-column:4;grid-row:2">
-  <div class="sh"><span data-i18n="panel.resources">KAYNAK KONTROLÜ</span> <button class="btn-sm btn-out" style="font-size:7px;padding:2px 6px" onclick="boostAllResources()" data-i18n="btn.produceAll">TÜMÜNÜ ÜRET</button></div>
-  <div style="flex:1;overflow-y:auto;padding:10px 0" id="resourceList"></div>
+<!-- Hidden attack-history sink keeps attack effects safe without showing the old panel. -->
+<div class="cell" id="panel-kaynak" style="display:none">
+  <span id="ahCount">(0)</span>
+  <div id="attackHistory">
+    <div id="ahEmpty"></div>
+  </div>
 </div>
 
 </div><!-- end layout -->
@@ -2801,6 +2798,7 @@ function addAttackHistory(code, dmg) {
   row.className='ah-row anim-new';
   row.innerHTML=`<div style="display:flex;align-items:center;gap:4px;font-size:9px"><span>${c?.f||'🏳️'}</span> ${c?.n||code}</div><div class="ah-dmg">-${dmg||1} HP</div><div class="ah-time">şimdi</div>`;
   const hist = document.getElementById('attackHistory');
+  if (!hist) return;
   // Boş durum mesajını gizle
   const empty = document.getElementById('ahEmpty');
   if (empty) empty.style.display = 'none';
@@ -5344,7 +5342,7 @@ function badgeSvg(r,earned,owned){
 }
 function ensurePanel(){
   if(document.getElementById("rankNftPanel"))return;
-  const anchor=document.getElementById("ysCountry")?.closest(".ys-row")||document.getElementById("panel-siralama");
+  const anchor=document.getElementById("ysRank")?.closest(".ys-row")||document.getElementById("ysCountry")?.closest(".ys-row")||document.getElementById("panel-siralama");
   if(!anchor)return;
   const p=document.createElement("div");
   p.id="rankNftPanel";
