@@ -176,30 +176,106 @@ contract AbswarRankNFT {
     }
 
     function _badgeSvg(uint8 rank) internal pure returns (string memory) {
-        string memory color = rank >= 5 ? "#f5c842" : rank >= 3 ? "#c9d6df" : rank >= 1 ? "#f5c842" : "#00c853";
-        string memory rare = rank == 6 ? '<text x="128" y="218" text-anchor="middle" fill="#f5c842" font-size="12">EN NADIR</text>' : "";
-        return string.concat(
+        string memory stroke = _rankStroke(rank);
+        string memory rare = rank == 6 ? '<text x="128" y="216" text-anchor="middle" fill="#6f5a20" font-family="monospace" font-size="12" letter-spacing="2">EN NADIR</text>' : "";
+        string memory head = string.concat(
             '<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">',
-            '<rect width="256" height="256" rx="24" fill="#090c0f"/>',
-            '<circle cx="128" cy="116" r="82" fill="#0d1117" stroke="', color, '" stroke-width="6"/>',
-            '<circle cx="128" cy="116" r="62" fill="none" stroke="#e8162a" stroke-width="2" opacity=".55"/>',
-            '<text x="128" y="88" text-anchor="middle" fill="', color, '" font-family="monospace" font-size="18">ABSWAR</text>',
-            '<text x="128" y="130" text-anchor="middle" fill="#ffffff" font-family="monospace" font-size="24">', _rankStars(rank), '</text>',
-            '<text x="128" y="166" text-anchor="middle" fill="', color, '" font-family="monospace" font-size="20">', _rankName(rank), '</text>',
-            '<text x="128" y="196" text-anchor="middle" fill="#b8ccd8" font-family="monospace" font-size="12">', Strings.toString(_rankMin(rank)), ' katki / +', Strings.toString(_rankBonus(rank)), '%</text>',
+            '<defs>',
+            '<linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0a0f0c"/><stop offset="1" stop-color="#060a08"/></linearGradient>',
+            '<linearGradient id="plate" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="', _rankPlate(rank), '"/><stop offset="1" stop-color="#0c1410"/></linearGradient>',
+            '<radialGradient id="disk" cx=".5" cy=".4" r=".65"><stop offset="0" stop-color="#1a2018"/><stop offset="1" stop-color="#0a0e0a"/></radialGradient>',
+            '</defs>',
+            '<rect width="256" height="256" rx="24" fill="url(#bg)"/>',
+            '<text x="128" y="31" text-anchor="middle" fill="#e8f5ec" font-family="sans-serif" font-size="18" font-weight="700" letter-spacing="3">ABSWAR</text>',
+            '<text x="128" y="50" text-anchor="middle" fill="#5fae7a" font-family="monospace" font-size="10" letter-spacing="2">RUTBE NFT ROZETI</text>'
+        );
+        string memory frame = string.concat(
+            '<rect x="28" y="66" width="200" height="166" rx="13" fill="url(#plate)" stroke="', _rankBorder(rank), '" stroke-width="', rank == 6 ? "2" : "1.5", '"/>',
+            '<circle cx="128" cy="123" r="43" fill="none" stroke="', stroke, '" stroke-width="', rank >= 5 ? "3" : "2.25", '"/>',
+            '<circle cx="128" cy="123" r="34" fill="url(#disk)" stroke="', rank == 6 ? "#8f7320" : "#0e1a14", '" stroke-width="1"/>'
+        );
+        string memory labels = string.concat(
+            '<text x="128" y="184" text-anchor="middle" fill="', rank >= 5 ? "#f5ecd8" : "#e8f5ec", '" font-family="sans-serif" font-size="20" font-weight="700" letter-spacing="1.5">', _rankName(rank), '</text>',
+            '<text x="128" y="204" text-anchor="middle" fill="', _rankAccent(rank), '" font-family="monospace" font-size="12">', Strings.toString(_rankMin(rank)), ' katki - +%', Strings.toString(_rankBonus(rank)), '</text>',
             rare,
             '</svg>'
         );
+        return string.concat(head, frame, _rankIcon(rank), labels);
     }
 
-    function _rankStars(uint8 rank) internal pure returns (string memory) {
-        if (rank == 0) return "HELM";
-        if (rank == 1) return "-";
-        if (rank == 2) return "--";
-        if (rank == 3) return "*";
-        if (rank == 4) return "**";
-        if (rank == 5) return "***";
-        return "****";
+    function _rankStroke(uint8 rank) internal pure returns (string memory) {
+        if (rank == 0) return "#3a8f5c";
+        if (rank == 1 || rank == 2) return "#c9a84a";
+        if (rank == 3 || rank == 4) return "#d4d4d8";
+        if (rank == 5) return "#e0b84a";
+        return "#f0c850";
+    }
+
+    function _rankFill(uint8 rank) internal pure returns (string memory) {
+        if (rank == 0) return "#5fae7a";
+        if (rank == 1 || rank == 2) return "#c9a84a";
+        if (rank == 3 || rank == 4) return "#e4e4e8";
+        if (rank == 5) return "#f0c850";
+        return "#ffd966";
+    }
+
+    function _rankPlate(uint8 rank) internal pure returns (string memory) {
+        if (rank == 6) return "#1a1408";
+        if (rank == 5) return "#17150f";
+        return "#16221c";
+    }
+
+    function _rankBorder(uint8 rank) internal pure returns (string memory) {
+        if (rank == 6) return "#8f7320";
+        if (rank == 5) return "#5a4a2a";
+        if (rank >= 3) return "#3a4a40";
+        return "#2a3a30";
+    }
+
+    function _rankAccent(uint8 rank) internal pure returns (string memory) {
+        if (rank >= 6) return "#8f7320";
+        if (rank == 5) return "#6f5a2a";
+        return "#4a6f58";
+    }
+
+    function _rankIcon(uint8 rank) internal pure returns (string memory) {
+        string memory fill = _rankFill(rank);
+        string memory stroke = _rankStroke(rank);
+        if (rank == 0) {
+            return string.concat('<path d="M106 137 a22 17 0 0 1 44 0 z" fill="', fill, '"/><rect x="104" y="134" width="48" height="5" rx="2.5" fill="', stroke, '"/>');
+        }
+        if (rank == 1) {
+            return string.concat('<path d="M108 114 l20 13 l20 -13 v9 l-20 13 l-20 -13 z" fill="', fill, '"/>');
+        }
+        if (rank == 2) {
+            return string.concat(
+                '<path d="M108 106 l20 13 l20 -13 v9 l-20 13 l-20 -13 z" fill="', fill, '"/>',
+                '<path d="M108 124 l20 13 l20 -13 v9 l-20 13 l-20 -13 z" fill="', fill, '"/>'
+            );
+        }
+        if (rank == 3) {
+            return string.concat('<path d="M128 91 l7 21 l22 0 l-18 13 l7 21 l-18 -13 l-18 13 l7 -21 l-18 -13 l22 0 z" fill="', fill, '"/>');
+        }
+        if (rank == 4) {
+            return string.concat(
+                '<path d="M108 101 l6 18 l19 0 l-15 11 l6 18 l-16 -11 l-16 11 l6 -18 l-15 -11 l19 0 z" fill="', fill, '"/>',
+                '<path d="M156 101 l6 18 l19 0 l-15 11 l6 18 l-16 -11 l-16 11 l6 -18 l-15 -11 l19 0 z" fill="', fill, '"/>'
+            );
+        }
+        if (rank == 5) {
+            return string.concat(
+                '<path d="M128 89 l7 20 l21 0 l-17 12 l6 20 l-17 -12 l-17 12 l6 -20 l-17 -12 l21 0 z" fill="', fill, '"/>',
+                '<path d="M96 124 l5 14 l15 0 l-12 9 l4 15 l-12 -9 l-12 9 l4 -15 l-12 -9 l15 0 z" fill="', fill, '"/>',
+                '<path d="M160 124 l5 14 l15 0 l-12 9 l4 15 l-12 -9 l-12 9 l4 -15 l-12 -9 l15 0 z" fill="', fill, '"/>'
+            );
+        }
+        return string.concat(
+            '<g stroke="', stroke, '" stroke-width="2" fill="none" opacity=".85"><path d="M88 145 q-16 -24 -9 -54"/><path d="M86 135 q-13 -4 -17 -14"/><path d="M90 122 q-13 -4 -17 -14"/><path d="M168 145 q16 -24 9 -54"/><path d="M170 135 q13 -4 17 -14"/><path d="M166 122 q13 -4 17 -14"/></g>',
+            '<path d="M128 88 l7 19 l20 0 l-16 12 l6 19 l-17 -12 l-17 12 l6 -19 l-16 -12 l20 0 z" fill="', fill, '"/>',
+            '<path d="M100 119 l5 14 l15 0 l-12 9 l4 15 l-12 -9 l-12 9 l4 -15 l-12 -9 l15 0 z" fill="', fill, '"/>',
+            '<path d="M156 119 l5 14 l15 0 l-12 9 l4 15 l-12 -9 l-12 9 l4 -15 l-12 -9 l15 0 z" fill="', fill, '"/>',
+            '<path d="M128 144 l5 14 l15 0 l-12 9 l4 15 l-12 -9 l-12 9 l4 -15 l-12 -9 l15 0 z" fill="', fill, '"/>'
+        );
     }
 }
 

@@ -20,7 +20,7 @@
 <meta name="twitter:title" content="ABSWAR — Küresel Savaş MMO">
 <meta name="twitter:description" content="Web3 cyberpunk savaş MMO. 119 ülke. Smart contract ekonomili.">
 
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Oswald:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -28,7 +28,7 @@
   --bg:#090c0f;--bg1:#0d1117;--bg2:#111820;--bg3:#161e28;
   --border:rgba(255,255,255,0.07);--border-r:rgba(232,22,42,0.3);
   --text:#b8ccd8;--dim:#4a6070;
-  --hud:'Orbitron',monospace;--mono:'Share Tech Mono',monospace;--ui:'Rajdhani',sans-serif;
+  --hud:'Black Ops One',monospace;--mono:'Share Tech Mono',monospace;--ui:'Oswald',sans-serif;
 }
 html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-family:var(--ui);overflow:hidden;font-size:13px}
 ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:#1e2d3d}
@@ -579,7 +579,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
       <circle id="tlCircle2" cx="0" cy="0" r="10" fill="none" stroke="#e8162a" stroke-width="0.5" opacity="0.5"/>
       <line id="tlH" x1="-22" y1="0" x2="22" y2="0" stroke="#e8162a" stroke-width="0.4" opacity="0.6"/>
       <line id="tlV" x1="0" y1="-22" x2="0" y2="22" stroke="#e8162a" stroke-width="0.4" opacity="0.6"/>
-      <text id="tlLabel" x="0" y="-24" text-anchor="middle" fill="#e8162a" font-family="'Orbitron'" font-size="6" letter-spacing="2">HEDEF KİLİTLENDİ</text>
+      <text id="tlLabel" x="0" y="-24" text-anchor="middle" fill="#e8162a" font-family="'Black Ops One'" font-size="6" letter-spacing="2">HEDEF KİLİTLENDİ</text>
     </g>
 
     <!-- MY COUNTRY PULSE -->
@@ -5290,9 +5290,9 @@ const RANK_NFT_ABI=[
   {type:"function",name:"hasRankNFT",stateMutability:"view",inputs:[{name:"player",type:"address"},{name:"rank",type:"uint8"}],outputs:[{name:"",type:"bool"}]}
 ];
 const COPY={
-  tr:{title:"RUTBE NFT ROZETLERI",ready:"AKTIF",setup:"HAZIRLANIYOR",note:"Prestij rozeti. Oyun gucu vermez.",claim:"TALEP ET",owned:"SAHIP",pending:"GONDERILDI",locked:"KILITLI",need:"katki kaldi",disabled:"Kontrat ayarlanmadi",connect:"Once cuzdan bagla",notReady:"Rutbe NFT sistemi henuz aktif degil",sign:"NFT hakki kontrol ediliyor...",approve:"Cuzdanda mint onayi ver",sent:"NFT mint islemi gonderildi",fail:"NFT talebi basarisiz"},
-  en:{title:"RANK NFT BADGES",ready:"ACTIVE",setup:"PREPARING",note:"Prestige badge. No game power.",claim:"CLAIM",owned:"OWNED",pending:"SENT",locked:"LOCKED",need:"contribution left",disabled:"Contract not configured",connect:"Connect wallet first",notReady:"Rank NFT system is not active yet",sign:"Checking NFT eligibility...",approve:"Approve mint in wallet",sent:"NFT mint transaction sent",fail:"NFT claim failed"},
-  ru:{title:"NFT ZVANIYA",ready:"ACTIVE",setup:"PREPARING",note:"Prestige badge. No game power.",claim:"CLAIM",owned:"OWNED",pending:"SENT",locked:"LOCKED",need:"points left",disabled:"Contract not configured",connect:"Connect wallet first",notReady:"Rank NFT system is not active yet",sign:"Checking NFT eligibility...",approve:"Approve mint in wallet",sent:"NFT mint transaction sent",fail:"NFT claim failed"}
+  tr:{title:"RÜTBE NFT ROZETLERİ",subtitle:"ABSWAR başarı koleksiyonu",ready:"CANLI",setup:"HAZIRLANIYOR",note:"Rütbeni kanıtlayan kalıcı prestij rozeti. Oyun gücü vermez; sadece başarı göstergesidir.",claim:"ROZETİ AL",owned:"ALINDI",pending:"İŞLEMDE",locked:"KİLİTLİ",need:"katkı kaldı",disabled:"NFT kontratı hazırlanıyor",connect:"Önce cüzdanını bağla",notReady:"Rütbe NFT sistemi henüz hazır değil",sign:"Rozet hakkın kontrol ediliyor...",approve:"Cüzdanında NFT mint işlemini onayla",sent:"NFT mint işlemi gönderildi",fail:"NFT rozeti alınamadı"},
+  en:{title:"RANK NFT BADGES",subtitle:"ABSWAR achievement collection",ready:"LIVE",setup:"PREPARING",note:"A permanent prestige badge that proves your rank. It gives no game power; it only shows achievement.",claim:"CLAIM BADGE",owned:"OWNED",pending:"PENDING",locked:"LOCKED",need:"contribution left",disabled:"NFT contract is being prepared",connect:"Connect your wallet first",notReady:"Rank NFT system is not ready yet",sign:"Checking your badge eligibility...",approve:"Approve the NFT mint in your wallet",sent:"NFT mint transaction sent",fail:"NFT badge claim failed"},
+  ru:{title:"NFT ЗНАЧКИ РАНГА",subtitle:"Коллекция достижений ABSWAR",ready:"LIVE",setup:"PREPARING",note:"Permanent prestige badge for your rank. It gives no game power; it only proves achievement.",claim:"CLAIM BADGE",owned:"OWNED",pending:"PENDING",locked:"LOCKED",need:"points left",disabled:"NFT contract is being prepared",connect:"Connect wallet first",notReady:"Rank NFT system is not ready yet",sign:"Checking badge eligibility...",approve:"Approve mint in wallet",sent:"NFT mint transaction sent",fail:"NFT badge claim failed"}
 };
 let rankNftStatus=null,rankNftContribution=0,rankNftOwned=new Set(),rankNftPending=new Set(),rankNftLastWallet=null;
 function L(k){let lang="tr";try{lang=localStorage.getItem("abswar-lang")||"tr"}catch(e){}return (COPY[lang]||COPY.tr)[k]||k}
@@ -5301,10 +5301,21 @@ function ranks(){return rankNftStatus?.ranks||RANKS_FE.map((r,i)=>({index:i,name
 function pendingKey(){return "abswar-rank-nft-pending:"+APP_NETWORK+":"+(wallet||"none").toLowerCase()}
 function loadPending(){try{rankNftPending=new Set(JSON.parse(localStorage.getItem(pendingKey())||"[]").map(Number))}catch(e){rankNftPending=new Set()}}
 function savePending(){try{localStorage.setItem(pendingKey(),JSON.stringify([...rankNftPending]))}catch(e){}}
+const BADGE_STYLE=[
+  {stroke:"#3a8f5c",fill:"#5fae7a",accent:"#4a6f58",plate:"#16221c",border:"#2a3a30"},
+  {stroke:"#c9a84a",fill:"#c9a84a",accent:"#4a6f58",plate:"#16221c",border:"#2a3a30"},
+  {stroke:"#c9a84a",fill:"#c9a84a",accent:"#4a6f58",plate:"#16221c",border:"#2a3a30"},
+  {stroke:"#d4d4d8",fill:"#e4e4e8",accent:"#4a6f58",plate:"#16221c",border:"#3a4a40"},
+  {stroke:"#d4d4d8",fill:"#e4e4e8",accent:"#4a6f58",plate:"#16221c",border:"#3a4a40"},
+  {stroke:"#e0b84a",fill:"#f0c850",accent:"#6f5a2a",plate:"#17150f",border:"#5a4a2a"},
+  {stroke:"#f0c850",fill:"#ffd966",accent:"#8f7320",plate:"#1a1408",border:"#8f7320"}
+];
+const BADGE_SPRITES=[{x:30,y:90,h:150},{x:250,y:90,h:150},{x:470,y:90,h:150},{x:30,y:260,h:150},{x:250,y:260,h:150},{x:470,y:260,h:150},{x:250,y:430,h:170}];
 function badgeSvg(r,earned,owned){
-  const color=owned?"var(--green)":earned?"var(--gold)":"var(--dim)";
-  const mark=r.index===0?"HELM":r.index===1?"-":r.index===2?"--":r.index===3?"*":r.index===4?"**":r.index===5?"***":"****";
-  return `<div style="width:42px;height:42px;border:1px solid ${color};border-radius:50%;display:flex;align-items:center;justify-content:center;color:${color};font-family:var(--hud);font-size:11px;box-shadow:0 0 12px rgba(245,200,66,.08)">${mark}</div>`;
+  const i=Number(r.index)||0,t=BADGE_STYLE[i]||BADGE_STYLE[0],s=BADGE_SPRITES[i]||BADGE_SPRITES[0],opacity=owned?1:earned:.94:.38;
+  const scale=.52,w=104,h=Math.round(s.h*scale),name=E(String(r.name||"").toLocaleUpperCase("tr-TR"));
+  const border=owned?"#00c853":earned?t.border:"rgba(255,255,255,.12)",filter=earned?"drop-shadow(0 0 9px rgba(245,200,66,.16))":"grayscale(.45)";
+  return `<div role="img" aria-label="${name}" style="flex:0 0 ${w}px;width:${w}px;height:${h}px;border:1px solid ${border};border-radius:9px;overflow:hidden;background-image:url('assets/abswar-rutbe-rozetleri.svg');background-repeat:no-repeat;background-size:${700*scale}px ${620*scale}px;background-position:${-s.x*scale}px ${-s.y*scale}px;opacity:${opacity};filter:${filter};box-shadow:${owned?"0 0 13px rgba(0,200,83,.18)":earned?"0 0 12px rgba(245,200,66,.12)":"none"}"></div>`;
 }
 function ensurePanel(){
   if(document.getElementById("rankNftPanel"))return;
@@ -5312,8 +5323,8 @@ function ensurePanel(){
   if(!anchor)return;
   const p=document.createElement("div");
   p.id="rankNftPanel";
-  p.style.cssText="margin:8px 10px 0;padding:10px;background:linear-gradient(180deg,rgba(245,200,66,.08),rgba(0,200,83,.03));border:1px solid rgba(245,200,66,.25);font-family:var(--ui)";
-  p.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px"><span id="rankNftTitle" style="font-family:var(--hud);font-size:9px;letter-spacing:1px;color:var(--gold)"></span><span id="rankNftStatus" style="font-family:var(--mono);font-size:8px;color:var(--dim)"></span></div><div id="rankNftGrid" style="display:flex;flex-direction:column;gap:6px"></div><div id="rankNftNote" style="margin-top:8px;font-size:9px;color:var(--dim);line-height:1.4"></div>';
+  p.style.cssText="margin:8px 10px 0;padding:12px;background:linear-gradient(180deg,rgba(245,200,66,.10),rgba(6,10,8,.88));border:1px solid rgba(245,200,66,.28);border-radius:10px;box-shadow:0 10px 26px rgba(0,0,0,.28);font-family:var(--ui)";
+  p.innerHTML='<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px"><div><div id="rankNftTitle" style="font-family:var(--hud);font-size:10px;letter-spacing:1.2px;color:var(--gold)"></div><div id="rankNftSubtitle" style="margin-top:3px;font-size:9px;color:var(--dim);line-height:1.35"></div></div><span id="rankNftStatus" style="font-family:var(--mono);font-size:8px;color:var(--dim);border:1px solid currentColor;border-radius:999px;padding:3px 6px;white-space:nowrap"></span></div><div id="rankNftGrid" style="display:flex;flex-direction:column;gap:7px"></div><div id="rankNftNote" style="margin-top:9px;font-size:9px;color:var(--dim);line-height:1.45"></div>';
   anchor.after(p);
 }
 function renderRankNftPanel(){
@@ -5322,6 +5333,7 @@ function renderRankNftPanel(){
   if(!panel||!grid)return;
   loadPending();
   document.getElementById("rankNftTitle").textContent=L("title");
+  document.getElementById("rankNftSubtitle").textContent=L("subtitle");
   document.getElementById("rankNftStatus").textContent=rankNftStatus?.enabled?L("ready"):L("setup");
   document.getElementById("rankNftStatus").style.color=rankNftStatus?.enabled?"var(--green)":"var(--gold)";
   document.getElementById("rankNftNote").textContent=(rankNftStatus?.enabled?"":L("disabled")+". ")+L("note");
@@ -5330,10 +5342,10 @@ function renderRankNftPanel(){
     let label=owned?L("owned"):pending?L("pending"):earned?(rankNftStatus?.enabled?L("claim"):L("setup")):L("locked");
     let sub=earned?`${Number(r.min||0).toLocaleString("tr-TR")} katkı / +%${r.bonusPct||0}`:`${(Number(r.min||0)-rankNftContribution).toLocaleString("tr-TR")} ${L("need")}`;
     let disabled=!earned||owned||pending||!rankNftStatus?.enabled;
-    return `<div style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.025);border:1px solid ${earned?"rgba(245,200,66,.24)":"var(--border)"};padding:7px">
+    return `<div style="display:flex;align-items:center;gap:9px;background:${owned?"rgba(0,200,83,.08)":earned?"rgba(245,200,66,.055)":"rgba(255,255,255,.025)"};border:1px solid ${owned?"rgba(0,200,83,.35)":earned?"rgba(245,200,66,.26)":"var(--border)"};border-radius:9px;padding:7px">
       ${badgeSvg(r,earned,owned)}
-      <div style="flex:1;min-width:0"><div style="font-family:var(--hud);font-size:9px;color:${earned?"var(--text)":"var(--dim)"};letter-spacing:1px">${E(r.icon||"")} ${E(r.name)}</div><div style="font-size:9px;color:var(--dim);margin-top:2px">${E(sub)}</div></div>
-      <button class="btn-sm ${disabled?"btn-out":"btn-red"}" style="font-size:7px;padding:5px 7px;min-width:72px" ${disabled?"disabled":""} onclick="claimRankNft(${Number(r.index)})">${E(label)}</button>
+      <div style="flex:1;min-width:0"><div style="font-family:var(--hud);font-size:9px;color:${earned?"var(--text)":"var(--dim)"};letter-spacing:1px">${E(r.icon||"")} ${E(r.name)}</div><div style="font-size:9px;color:var(--dim);margin-top:3px">${E(sub)}</div></div>
+      <button class="btn-sm ${disabled?"btn-out":"btn-red"}" style="font-size:7px;padding:6px 8px;min-width:82px;border-radius:7px" ${disabled?"disabled":""} onclick="claimRankNft(${Number(r.index)})">${E(label)}</button>
     </div>`;
   }).join("");
 }
