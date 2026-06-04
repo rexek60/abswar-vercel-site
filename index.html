@@ -243,11 +243,11 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   body[data-mob-tab="istat"]    #panel-siralama,
   body[data-mob-tab="istat"]    #panel-radar { display:flex !important; }
 
-  /* "Savaş" sekmesinde kontrol üstte, tarih altta */
+  /* "Savaş" sekmesinde kontrol üstte, kaynaklar altta */
   body[data-mob-tab="savas"]   #panel-kontrol { flex:0 0 auto; max-height:50vh; overflow-y:auto }
   body[data-mob-tab="savas"]   #panel-tarih   { flex:1 1 auto; min-height:0 }
-  /* "Pazar" sekmesinde ülkeler üstte, kaynaklar altta */
-  body[data-mob-tab="pazar"]   #panel-ulkeler { flex:0 0 auto; max-height:55vh; overflow-y:auto }
+  /* "Pazar" sekmesinde ülke ve cephane paneli tek başına alanı doldurur */
+  body[data-mob-tab="pazar"]   #panel-ulkeler { flex:1 1 auto; max-height:none; overflow-y:auto }
   /* "İstat" sekmesinde sıralama üstte, radar altta */
   body[data-mob-tab="istat"]   #panel-siralama { flex:0 0 auto; max-height:60vh; overflow-y:auto }
   body[data-mob-tab="istat"]   #panel-radar    { flex:1 1 auto; min-height:0 }
