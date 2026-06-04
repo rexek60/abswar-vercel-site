@@ -5338,7 +5338,7 @@ function badgeSvg(r,earned,owned){
   const i=Number(r.index)||0,t=BADGE_STYLE[i]||BADGE_STYLE[0],s=BADGE_SPRITES[i]||BADGE_SPRITES[0],opacity=owned?1:(earned ? .94 : .38);
   const scale=.52,w=104,h=Math.round(s.h*scale),name=E(String(r.name||"").toLocaleUpperCase("tr-TR"));
   const border=owned?"#00c853":earned?t.border:"rgba(255,255,255,.12)",filter=earned?"drop-shadow(0 0 9px rgba(245,200,66,.16))":"grayscale(.45)";
-  return `<div role="img" aria-label="${name}" style="flex:0 0 ${w}px;width:${w}px;height:${h}px;border:1px solid ${border};border-radius:9px;overflow:hidden;background-image:url('assets/abswar-rutbe-rozetleri.svg');background-repeat:no-repeat;background-size:${700*scale}px ${620*scale}px;background-position:${-s.x*scale}px ${-s.y*scale}px;opacity:${opacity};filter:${filter};box-shadow:${owned?"0 0 13px rgba(0,200,83,.18)":earned?"0 0 12px rgba(245,200,66,.12)":"none"}"></div>`;
+  return `<div role="img" aria-label="${name}" style="flex:0 0 ${w}px;width:${w}px;height:${h}px;border:1px solid ${border};border-radius:9px;overflow:hidden;background-image:url('assets/abswar-rank-badge-${i}.svg');background-repeat:no-repeat;background-size:cover;background-position:center;opacity:${opacity};filter:${filter};box-shadow:${owned?"0 0 13px rgba(0,200,83,.18)":earned?"0 0 12px rgba(245,200,66,.12)":"none"}"></div>`;
 }
 function ensurePanel(){
   if(document.getElementById("rankNftPanel"))return;

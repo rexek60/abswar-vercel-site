@@ -100,7 +100,7 @@ contract AbswarRankNFT {
         string memory json = string.concat(
             '{"name":"ABSWAR ', rankName, ' Badge",',
             '"description":"Soulbound ABSWAR prestige badge. It proves the wallet reached this rank; it gives no extra game power.",',
-            '"image":"data:image/svg+xml;base64,', Base64.encode(bytes(_badgeSvg(rank))), '",',
+            '"image":"', _rankImageUrl(rank), '",',
             '"attributes":[',
             '{"trait_type":"Rank","value":"', rankName, '"},',
             '{"trait_type":"Contribution Threshold","value":"', Strings.toString(_rankMin(rank)), '"},',
@@ -175,134 +175,8 @@ contract AbswarRankNFT {
         return 30;
     }
 
-    function _badgeSvg(uint8 rank) internal pure returns (string memory) {
-        if (rank == 6) {
-            return string.concat(
-                '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="170" viewBox="0 0 200 170">',
-                _badgeDefs(),
-                '<rect x="0" y="0" width="200" height="170" rx="12" fill="url(#genPlate)" stroke="#8f7320" stroke-width="2"/>',
-                '<g stroke="#c9a84a" stroke-width="1.8" fill="none" opacity="0.85">',
-                '<path d="M62 70 q-12 -18 -7 -36"/><path d="M60 62 q-10 -3 -13 -11"/><path d="M62 52 q-10 -3 -13 -11"/>',
-                '<path d="M138 70 q12 -18 7 -36"/><path d="M140 62 q10 -3 13 -11"/><path d="M138 52 q10 -3 13 -11"/></g>',
-                '<circle cx="100" cy="58" r="40" fill="none" stroke="#f0c850" stroke-width="3"/>',
-                '<circle cx="100" cy="58" r="32" fill="url(#genDisk)" stroke="#8f7320" stroke-width="1"/>',
-                '<path d="M100 34 l5 13 l14 0 l-11 8 l4 13 l-12 -8 l-12 8 l4 -13 l-11 -8 l14 0 z" fill="#ffd966"/>',
-                '<path d="M78 56 l3 10 l11 0 l-9 6 l3 11 l-8 -6 l-8 6 l3 -11 l-9 -6 l11 0 z" fill="#ffd966"/>',
-                '<path d="M122 56 l3 10 l11 0 l-9 6 l3 11 l-8 -6 l-8 6 l3 -11 l-9 -6 l11 0 z" fill="#ffd966"/>',
-                '<path d="M100 74 l3 10 l11 0 l-9 6 l3 11 l-8 -6 l-8 6 l3 -11 l-9 -6 l11 0 z" fill="#ffd966"/>',
-                '<text x="100" y="122" text-anchor="middle" fill="#ffe9a8" font-family="sans-serif" font-size="16" font-weight="700">GENERAL</text>',
-                '<text x="100" y="142" text-anchor="middle" fill="#8f7320" font-family="monospace" font-size="10">15.000 katk&#305; &#183; +%30</text>',
-                '<text x="100" y="159" text-anchor="middle" fill="#6f5a20" font-family="monospace" font-size="9" letter-spacing="1">&#9733; EN NAD&#304;R &#9733;</text>',
-                '</svg>'
-            );
-        }
-        return string.concat(
-            '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="150" viewBox="0 0 200 150">',
-            _badgeDefs(),
-            '<rect x="0" y="0" width="200" height="150" rx="10" fill="url(#plate)" stroke="', _rankBorder(rank), '" stroke-width="', rank == 5 ? "1.5" : "1", '"/>',
-            '<circle cx="100" cy="55" r="36" fill="none" stroke="', _rankStroke(rank), '" stroke-width="', rank == 5 ? "2.5" : "2", '"/>',
-            '<circle cx="100" cy="55" r="29" fill="#0e1a14"/>',
-            _rankIcon(rank),
-            '<text x="100" y="112" text-anchor="middle" fill="', rank == 5 ? "#f5ecd8" : "#e8f5ec", '" font-family="sans-serif" font-size="15" font-weight="600">', _rankDisplayName(rank), '</text>',
-            '<text x="100" y="133" text-anchor="middle" fill="', _rankAccent(rank), '" font-family="monospace" font-size="10">', _rankMinLabel(rank), ' katk&#305; &#183; +%', Strings.toString(_rankBonus(rank)), '</text>',
-            '</svg>'
-        );
-    }
-
-    function _badgeDefs() internal pure returns (string memory) {
-        return string.concat(
-            '<defs>',
-            '<linearGradient id="plate" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16221c"/><stop offset="1" stop-color="#0c1410"/></linearGradient>',
-            '<linearGradient id="genPlate" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a1408"/><stop offset="1" stop-color="#0c0a04"/></linearGradient>',
-            '<radialGradient id="genDisk" cx="0.5" cy="0.4" r="0.6"><stop offset="0" stop-color="#1a2018"/><stop offset="1" stop-color="#0a0e0a"/></radialGradient>',
-            '</defs>'
-        );
-    }
-
-    function _rankDisplayName(uint8 rank) internal pure returns (string memory) {
-        if (rank == 0) return "ASKER";
-        if (rank == 1) return "ONBA&#350;I";
-        if (rank == 2) return "&#199;AVU&#350;";
-        if (rank == 3) return "TE&#286;MEN";
-        if (rank == 4) return "Y&#220;ZBA&#350;I";
-        if (rank == 5) return "B&#304;NBA&#350;I";
-        return "GENERAL";
-    }
-
-    function _rankMinLabel(uint8 rank) internal pure returns (string memory) {
-        if (rank == 4) return "1.500";
-        if (rank == 5) return "5.000";
-        if (rank == 6) return "15.000";
-        return Strings.toString(_rankMin(rank));
-    }
-
-    function _rankStroke(uint8 rank) internal pure returns (string memory) {
-        if (rank == 0) return "#3a8f5c";
-        if (rank == 1 || rank == 2) return "#c9a84a";
-        if (rank == 3 || rank == 4) return "#d4d4d8";
-        if (rank == 5) return "#e0b84a";
-        return "#f0c850";
-    }
-
-    function _rankFill(uint8 rank) internal pure returns (string memory) {
-        if (rank == 0) return "#5fae7a";
-        if (rank == 1 || rank == 2) return "#c9a84a";
-        if (rank == 3 || rank == 4) return "#e4e4e8";
-        if (rank == 5) return "#f0c850";
-        return "#ffd966";
-    }
-
-    function _rankPlate(uint8 rank) internal pure returns (string memory) {
-        if (rank == 6) return "#1a1408";
-        if (rank == 5) return "#17150f";
-        return "#16221c";
-    }
-
-    function _rankBorder(uint8 rank) internal pure returns (string memory) {
-        if (rank == 6) return "#8f7320";
-        if (rank == 5) return "#5a4a2a";
-        if (rank >= 3) return "#3a4a40";
-        return "#2a3a30";
-    }
-
-    function _rankAccent(uint8 rank) internal pure returns (string memory) {
-        if (rank >= 6) return "#8f7320";
-        if (rank == 5) return "#6f5a2a";
-        return "#4a6f58";
-    }
-
-    function _rankIcon(uint8 rank) internal pure returns (string memory) {
-        string memory fill = _rankFill(rank);
-        string memory stroke = _rankStroke(rank);
-        if (rank == 0) {
-            return string.concat('<path d="M82 62 a18 14 0 0 1 36 0 z" fill="', fill, '"/><rect x="80" y="60" width="40" height="4" rx="2" fill="', stroke, '"/>');
-        }
-        if (rank == 1) {
-            return string.concat('<path d="M84 50 l16 10 l16 -10 v8 l-16 10 l-16 -10 z" fill="', fill, '"/>');
-        }
-        if (rank == 2) {
-            return string.concat(
-                '<path d="M84 44 l16 10 l16 -10 v8 l-16 10 l-16 -10 z" fill="', fill, '"/>',
-                '<path d="M84 58 l16 10 l16 -10 v8 l-16 10 l-16 -10 z" fill="', fill, '"/>'
-            );
-        }
-        if (rank == 3) {
-            return string.concat('<path d="M100 36 l5 15 l16 0 l-13 9 l5 15 l-13 -9 l-13 9 l5 -15 l-13 -9 l16 0 z" fill="', fill, '"/>');
-        }
-        if (rank == 4) {
-            return string.concat(
-                '<path d="M82 48 l4 12 l13 0 l-10 8 l4 12 l-11 -8 l-11 8 l4 -12 l-10 -8 l13 0 z" fill="', fill, '"/>',
-                '<path d="M118 48 l4 12 l13 0 l-10 8 l4 12 l-11 -8 l-11 8 l4 -12 l-10 -8 l13 0 z" fill="', fill, '"/>'
-            );
-        }
-        if (rank == 5) {
-            return string.concat(
-                '<path d="M100 34 l5 14 l15 0 l-12 9 l5 14 l-13 -9 l-13 9 l5 -14 l-12 -9 l15 0 z" fill="', fill, '"/>',
-                '<path d="M76 60 l4 10 l11 0 l-9 7 l3 11 l-9 -7 l-9 7 l3 -11 l-9 -7 l11 0 z" fill="', fill, '"/>',
-                '<path d="M124 60 l4 10 l11 0 l-9 7 l3 11 l-9 -7 l-9 7 l3 -11 l-9 -7 l11 0 z" fill="', fill, '"/>'
-            );
-        }
-        return "";
+    function _rankImageUrl(uint8 rank) internal pure returns (string memory) {
+        return string.concat("https://abswar.xyz/assets/abswar-rank-badge-", Strings.toString(rank), ".svg");
     }
 }
 
