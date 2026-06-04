@@ -6,7 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
-      ADMIN_ADDRESS: 0x9C5e9dB5836e9c95be7cBec023D543c36E865B5B
+      ADMIN_ADDRESS: "0x9C5e9dB5836e9c95be7cBec023D543c36E865B5B"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
