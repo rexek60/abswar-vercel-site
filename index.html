@@ -5346,13 +5346,13 @@ function ensurePanel(){
   if(!anchor)return;
   const p=document.createElement("div");
   p.id="rankNftPanel";
-  p.style.cssText="margin:8px 10px 0;padding:12px;background:linear-gradient(180deg,rgba(245,200,66,.10),rgba(6,10,8,.88));border:1px solid rgba(245,200,66,.28);border-radius:10px;box-shadow:0 10px 26px rgba(0,0,0,.28);font-family:var(--ui)";
-  p.innerHTML='<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px"><div><div id="rankNftTitle" style="font-family:var(--hud);font-size:10px;letter-spacing:1.2px;color:var(--gold)"></div><div id="rankNftSubtitle" style="margin-top:3px;font-size:9px;color:var(--dim);line-height:1.35"></div></div><span id="rankNftStatus" style="font-family:var(--mono);font-size:8px;color:var(--dim);border:1px solid currentColor;border-radius:999px;padding:3px 6px;white-space:nowrap"></span></div><div id="rankNftGrid" style="display:flex;flex-direction:column;gap:7px"></div><div id="rankNftNote" style="margin-top:9px;font-size:9px;color:var(--dim);line-height:1.45"></div>';
+  p.style.cssText="margin:8px 10px 0;padding:12px;background:linear-gradient(180deg,rgba(245,200,66,.10),rgba(6,10,8,.88));border:1px solid rgba(245,200,66,.28);border-radius:10px;box-shadow:0 10px 26px rgba(0,0,0,.28);font-family:var(--ui);overflow:hidden";
+  p.innerHTML='<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px"><div><div id="rankNftTitle" style="font-family:var(--hud);font-size:10px;letter-spacing:1.2px;color:var(--gold)"></div><div id="rankNftSubtitle" style="margin-top:3px;font-size:9px;color:var(--dim);line-height:1.35"></div></div><span id="rankNftStatus" style="font-family:var(--mono);font-size:8px;color:var(--dim);border:1px solid currentColor;border-radius:999px;padding:3px 6px;white-space:nowrap"></span></div><div id="rankNftClaimTop" style="display:none;margin-bottom:8px;position:sticky;top:0;z-index:2"></div><div id="rankNftGrid" style="display:flex;flex-direction:column;gap:7px;max-height:300px;overflow-y:auto;padding-right:2px"></div><div id="rankNftNote" style="margin-top:9px;font-size:9px;color:var(--dim);line-height:1.45"></div>';
   anchor.after(p);
 }
 function renderRankNftPanel(){
   ensurePanel();
-  const panel=document.getElementById("rankNftPanel"),grid=document.getElementById("rankNftGrid");
+  const panel=document.getElementById("rankNftPanel"),grid=document.getElementById("rankNftGrid"),claimTop=document.getElementById("rankNftClaimTop");
   if(!panel||!grid)return;
   loadPending();
   document.getElementById("rankNftTitle").textContent=L("title");
@@ -5362,7 +5362,15 @@ function renderRankNftPanel(){
   document.getElementById("rankNftNote").textContent=(rankNftStatus?.enabled?"":L("disabled")+". ")+L("note");
   const list=ranks();
   const claimable=list.filter(r=>rankNftContribution>=Number(r.min||0)&&!rankNftOwned.has(Number(r.index))&&!rankNftPending.has(Number(r.index))&&rankNftStatus?.enabled);
-  const claimBanner=claimable.length?`<div style="background:rgba(245,200,66,.10);border:1px solid rgba(245,200,66,.36);border-radius:9px;padding:8px 9px;color:var(--gold);font-size:9px;line-height:1.45"><b style="font-family:var(--hud);font-size:8px;letter-spacing:1px">${E(L("claimReady"))}: ${E(claimable.map(r=>r.name).join(", "))}</b><br>${E(L("claimHint"))}</div>`:"";
+  if(claimTop){
+    const first=claimable[0];
+    claimTop.style.display=first?"block":"none";
+    claimTop.innerHTML=first?`<div style="display:flex;align-items:center;gap:10px;background:linear-gradient(90deg,rgba(245,200,66,.20),rgba(245,200,66,.08));border:1px solid rgba(245,200,66,.50);border-radius:10px;padding:9px 10px;color:var(--gold);box-shadow:0 0 18px rgba(245,200,66,.10)">
+      <div style="flex:1;min-width:0"><div style="font-family:var(--hud);font-size:9px;letter-spacing:1px">${E(L("claimReady"))}: ${E(claimable.map(r=>r.name).join(", "))}</div><div style="font-size:9px;color:var(--dim);margin-top:3px;line-height:1.35">${E(L("claimHint"))}</div></div>
+      <button class="btn-sm btn-red" style="font-size:8px;padding:7px 10px;min-width:92px;border-radius:8px;box-shadow:0 0 14px rgba(232,22,42,.22)" onclick="claimRankNft(${Number(first.index)})">${E(L("claim"))}</button>
+    </div>`:"";
+  }
+  const claimBanner="";
   grid.innerHTML=claimBanner+list.map(r=>{
     const earned=rankNftContribution>=Number(r.min||0),owned=rankNftOwned.has(Number(r.index)),pending=rankNftPending.has(Number(r.index));
     let label=owned?L("owned"):pending?L("pending"):earned?(rankNftStatus?.enabled?L("claim"):L("setup")):L("locked");
