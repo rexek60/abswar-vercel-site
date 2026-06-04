@@ -3286,6 +3286,7 @@ function showToast(msg,type='info') {
 /* ── SES SİSTEMİ (Web Audio API ile sentezleniyor — dosya yok) ── */
 let _audioCtx = null;
 let _soundEnabled = true;
+let _audioUnlocked = false;
 try { _soundEnabled = localStorage.getItem('abswar-sound') !== '0'; } catch(e) {}
 
 function getAudioCtx() {
@@ -3297,6 +3298,28 @@ function getAudioCtx() {
   if (_audioCtx.state === 'suspended') _audioCtx.resume();
   return _audioCtx;
 }
+
+function _unlockAudioOnce() {
+  if (_audioUnlocked || !_soundEnabled) return;
+  const ctx = getAudioCtx();
+  if (!ctx) return;
+  try {
+    if (ctx.state === 'suspended') ctx.resume();
+    const buffer = ctx.createBuffer(1, 1, ctx.sampleRate);
+    const source = ctx.createBufferSource();
+    source.buffer = buffer;
+    source.connect(ctx.destination);
+    source.start(0);
+    _audioUnlocked = true;
+    console.debug('[ABSWAR ses] audio context unlock ✓ (ctx:', ctx.state + ')');
+  } catch(e) {
+    console.debug('[ABSWAR ses] audio unlock hatası:', e.message);
+  }
+}
+
+['click','touchstart','keydown'].forEach(evt => {
+  window.addEventListener(evt, _unlockAudioOnce, { once:true, passive:true });
+});
 
 function _envGain(ctx, t0, peak, attack, decay) {
   const g = ctx.createGain();
@@ -3510,9 +3533,9 @@ function _playBuffer(buf, ctx) {
     g.gain.value = _soundVolume;
     src.connect(g).connect(ctx.destination);
     src.start();
-    console.log('[ABSWAR ses] dosya çalındı ✓ (ctx:', ctx.state + ', süre:', buf.duration.toFixed(2) + 's)');
+    console.debug('[ABSWAR ses] dosya çalındı ✓ (ctx:', ctx.state + ', süre:', buf.duration.toFixed(2) + 's)');
   } catch(e) {
-    console.log('[ABSWAR ses] çalma hatası:', e.message);
+    console.debug('[ABSWAR ses] çalma hatası:', e.message);
   }
 }
 
@@ -3520,6 +3543,7 @@ function playSound(kind) {
   if (!_soundEnabled) return;
   const ctx = getAudioCtx();
   if (!ctx) return;
+  if (ctx.state === 'suspended') ctx.resume();
   _initAudioGraph(ctx);
 
   // 1) Gerçek dosya zaten yüklüyse onu çal
@@ -3544,6 +3568,7 @@ function _playSynthSound(kind) {
   if (!_soundEnabled) return;
   const ctx = getAudioCtx();
   if (!ctx) return;
+  if (ctx.state === 'suspended') ctx.resume();
   _initAudioGraph(ctx);
   const t0 = ctx.currentTime;
 
@@ -5290,9 +5315,9 @@ const RANK_NFT_ABI=[
   {type:"function",name:"hasRankNFT",stateMutability:"view",inputs:[{name:"player",type:"address"},{name:"rank",type:"uint8"}],outputs:[{name:"",type:"bool"}]}
 ];
 const COPY={
-  tr:{title:"RÜTBE NFT ROZETLERİ",subtitle:"ABSWAR başarı koleksiyonu",ready:"CANLI",setup:"HAZIRLANIYOR",note:"Rütbeni kanıtlayan kalıcı prestij rozeti. Oyun gücü vermez; sadece başarı göstergesidir.",claim:"ROZETİ AL",owned:"ALINDI",pending:"İŞLEMDE",locked:"KİLİTLİ",need:"katkı kaldı",disabled:"NFT kontratı hazırlanıyor",connect:"Önce cüzdanını bağla",notReady:"Rütbe NFT sistemi henüz hazır değil",sign:"Rozet hakkın kontrol ediliyor...",approve:"Cüzdanında NFT mint işlemini onayla",sent:"NFT mint işlemi gönderildi",fail:"NFT rozeti alınamadı"},
-  en:{title:"RANK NFT BADGES",subtitle:"ABSWAR achievement collection",ready:"LIVE",setup:"PREPARING",note:"A permanent prestige badge that proves your rank. It gives no game power; it only shows achievement.",claim:"CLAIM BADGE",owned:"OWNED",pending:"PENDING",locked:"LOCKED",need:"contribution left",disabled:"NFT contract is being prepared",connect:"Connect your wallet first",notReady:"Rank NFT system is not ready yet",sign:"Checking your badge eligibility...",approve:"Approve the NFT mint in your wallet",sent:"NFT mint transaction sent",fail:"NFT badge claim failed"},
-  ru:{title:"NFT ЗНАЧКИ РАНГА",subtitle:"Коллекция достижений ABSWAR",ready:"LIVE",setup:"PREPARING",note:"Permanent prestige badge for your rank. It gives no game power; it only proves achievement.",claim:"CLAIM BADGE",owned:"OWNED",pending:"PENDING",locked:"LOCKED",need:"points left",disabled:"NFT contract is being prepared",connect:"Connect wallet first",notReady:"Rank NFT system is not ready yet",sign:"Checking badge eligibility...",approve:"Approve mint in wallet",sent:"NFT mint transaction sent",fail:"NFT badge claim failed"}
+  tr:{title:"RÜTBE NFT ROZETLERİ",subtitle:"ABSWAR başarı koleksiyonu",ready:"CANLI",setup:"HAZIRLANIYOR",note:"NFT otomatik düşmez. Hak kazandığın rozette ROZETİ AL butonuna basıp cüzdanda mint onayı ver.",claim:"ROZETİ AL",owned:"ALINDI",pending:"İŞLEMDE",locked:"KİLİTLİ",need:"katkı kaldı",disabled:"NFT kontratı hazırlanıyor",connect:"Önce cüzdanını bağla",notReady:"Rütbe NFT sistemi henüz hazır değil",sign:"Rozet hakkın kontrol ediliyor...",approve:"Cüzdanında NFT mint işlemini onayla",sent:"NFT mint işlemi gönderildi",fail:"NFT rozeti alınamadı",claimReady:"Rozetin hazır",claimHint:"NFT otomatik düşmez; almak için ROZETİ AL'a bas."},
+  en:{title:"RANK NFT BADGES",subtitle:"ABSWAR achievement collection",ready:"LIVE",setup:"PREPARING",note:"NFTs are not dropped automatically. Press CLAIM BADGE on an unlocked badge and approve the mint in your wallet.",claim:"CLAIM BADGE",owned:"OWNED",pending:"PENDING",locked:"LOCKED",need:"contribution left",disabled:"NFT contract is being prepared",connect:"Connect your wallet first",notReady:"Rank NFT system is not ready yet",sign:"Checking your badge eligibility...",approve:"Approve the NFT mint in your wallet",sent:"NFT mint transaction sent",fail:"NFT badge claim failed",claimReady:"Badge ready",claimHint:"NFTs are not automatic; press CLAIM BADGE to mint."},
+  ru:{title:"NFT ЗНАЧКИ РАНГА",subtitle:"Коллекция достижений ABSWAR",ready:"LIVE",setup:"PREPARING",note:"NFT is not automatic. Press CLAIM BADGE on an unlocked badge and approve the mint in your wallet.",claim:"CLAIM BADGE",owned:"OWNED",pending:"PENDING",locked:"LOCKED",need:"points left",disabled:"NFT contract is being prepared",connect:"Connect wallet first",notReady:"Rank NFT system is not ready yet",sign:"Checking badge eligibility...",approve:"Approve mint in wallet",sent:"NFT mint transaction sent",fail:"NFT badge claim failed",claimReady:"Badge ready",claimHint:"NFT is not automatic; press CLAIM BADGE to mint."}
 };
 let rankNftStatus=null,rankNftContribution=0,rankNftOwned=new Set(),rankNftPending=new Set(),rankNftLastWallet=null;
 function L(k){let lang="tr";try{lang=localStorage.getItem("abswar-lang")||"tr"}catch(e){}return (COPY[lang]||COPY.tr)[k]||k}
@@ -5312,7 +5337,7 @@ const BADGE_STYLE=[
 ];
 const BADGE_SPRITES=[{x:30,y:90,h:150},{x:250,y:90,h:150},{x:470,y:90,h:150},{x:30,y:260,h:150},{x:250,y:260,h:150},{x:470,y:260,h:150},{x:250,y:430,h:170}];
 function badgeSvg(r,earned,owned){
-  const i=Number(r.index)||0,t=BADGE_STYLE[i]||BADGE_STYLE[0],s=BADGE_SPRITES[i]||BADGE_SPRITES[0],opacity=owned?1:earned:.94:.38;
+  const i=Number(r.index)||0,t=BADGE_STYLE[i]||BADGE_STYLE[0],s=BADGE_SPRITES[i]||BADGE_SPRITES[0],opacity=owned?1:(earned ? .94 : .38);
   const scale=.52,w=104,h=Math.round(s.h*scale),name=E(String(r.name||"").toLocaleUpperCase("tr-TR"));
   const border=owned?"#00c853":earned?t.border:"rgba(255,255,255,.12)",filter=earned?"drop-shadow(0 0 9px rgba(245,200,66,.16))":"grayscale(.45)";
   return `<div role="img" aria-label="${name}" style="flex:0 0 ${w}px;width:${w}px;height:${h}px;border:1px solid ${border};border-radius:9px;overflow:hidden;background-image:url('assets/abswar-rutbe-rozetleri.svg');background-repeat:no-repeat;background-size:${700*scale}px ${620*scale}px;background-position:${-s.x*scale}px ${-s.y*scale}px;opacity:${opacity};filter:${filter};box-shadow:${owned?"0 0 13px rgba(0,200,83,.18)":earned?"0 0 12px rgba(245,200,66,.12)":"none"}"></div>`;
@@ -5337,7 +5362,10 @@ function renderRankNftPanel(){
   document.getElementById("rankNftStatus").textContent=rankNftStatus?.enabled?L("ready"):L("setup");
   document.getElementById("rankNftStatus").style.color=rankNftStatus?.enabled?"var(--green)":"var(--gold)";
   document.getElementById("rankNftNote").textContent=(rankNftStatus?.enabled?"":L("disabled")+". ")+L("note");
-  grid.innerHTML=ranks().map(r=>{
+  const list=ranks();
+  const claimable=list.filter(r=>rankNftContribution>=Number(r.min||0)&&!rankNftOwned.has(Number(r.index))&&!rankNftPending.has(Number(r.index))&&rankNftStatus?.enabled);
+  const claimBanner=claimable.length?`<div style="background:rgba(245,200,66,.10);border:1px solid rgba(245,200,66,.36);border-radius:9px;padding:8px 9px;color:var(--gold);font-size:9px;line-height:1.45"><b style="font-family:var(--hud);font-size:8px;letter-spacing:1px">${E(L("claimReady"))}: ${E(claimable.map(r=>r.name).join(", "))}</b><br>${E(L("claimHint"))}</div>`:"";
+  grid.innerHTML=claimBanner+list.map(r=>{
     const earned=rankNftContribution>=Number(r.min||0),owned=rankNftOwned.has(Number(r.index)),pending=rankNftPending.has(Number(r.index));
     let label=owned?L("owned"):pending?L("pending"):earned?(rankNftStatus?.enabled?L("claim"):L("setup")):L("locked");
     let sub=earned?`${Number(r.min||0).toLocaleString("tr-TR")} katkı / +%${r.bonusPct||0}`:`${(Number(r.min||0)-rankNftContribution).toLocaleString("tr-TR")} ${L("need")}`;
