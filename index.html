@@ -6,6 +6,7 @@
 <title>ABSWAR — Küresel Savaş MMO</title>
 <meta name="description" content="ABSWAR — Web3 tabanlı cyberpunk küresel savaş MMO. 119 ülke, gerçek zamanlı saldırı, smart contract ekonomisi.">
 <meta name="theme-color" content="#e8162a">
+<link rel="canonical" href="https://abswar.xyz/">
 
 <!-- Favicon (inline SVG) -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%230d1117'/%3E%3Ccircle cx='32' cy='32' r='26' fill='none' stroke='%2300c853' stroke-width='2'/%3E%3Ccircle cx='32' cy='32' r='18' fill='none' stroke='%2300c853' stroke-width='1.5' opacity='0.6'/%3E%3Ccircle cx='32' cy='32' r='10' fill='none' stroke='%2300c853' stroke-width='1' opacity='0.4'/%3E%3Cpath d='M32 6 L32 58 M6 32 L58 32' stroke='%2300c853' stroke-width='1' opacity='0.5'/%3E%3Ccircle cx='32' cy='32' r='3' fill='%23e8162a'/%3E%3C/svg%3E">
@@ -15,10 +16,13 @@
 <meta property="og:title" content="ABSWAR — Küresel Savaş MMO">
 <meta property="og:description" content="Web3 tabanlı cyberpunk savaş MMO. 119 ülke, gerçek zamanlı, smart contract ekonomili.">
 <meta property="og:image" content="https://abswar.xyz/og.png">
-<meta property="og:url" content="https://abswar.xyz">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="https://abswar.xyz/">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="ABSWAR — Küresel Savaş MMO">
 <meta name="twitter:description" content="Web3 cyberpunk savaş MMO. 119 ülke. Smart contract ekonomili.">
+<meta name="twitter:image" content="https://abswar.xyz/og.png">
 
 <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Oswald:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
@@ -69,13 +73,13 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 
 /* MAP */
 #mapSvg{width:100%;height:100%;cursor:crosshair}
-.country-land{stroke-width:0.6;stroke-linejoin:round;stroke-linecap:round;transition:fill .4s,stroke .3s,filter .3s;cursor:crosshair}
+.country-land{stroke-width:0.6;stroke-linejoin:round;stroke-linecap:round;transition:fill .4s,stroke .3s,filter .3s;cursor:crosshair;vector-effect:non-scaling-stroke;paint-order:stroke fill;fill-opacity:.96}
 /* HP seviyesine göre renkler */
-.country-land.hp-full{fill:url(#landGrad);stroke:#5ce68a;stroke-width:0.6}
-.country-land.hp-high{fill:#2a8a4d;stroke:#55c879;stroke-width:0.6}
-.country-land.hp-mid{fill:#a08428;stroke:#f5d058;stroke-width:0.7}
-.country-land.hp-low{fill:#a04825;stroke:#ff8a45;stroke-width:0.7}
-.country-land.hp-critical{fill:#b21f30;stroke:#ff3050;stroke-width:0.8}
+.country-land.hp-full{fill:url(#landGrad);stroke:#84d79a;stroke-width:0.55}
+.country-land.hp-high{fill:url(#hpHighGrad);stroke:#74c68c;stroke-width:0.6}
+.country-land.hp-mid{fill:url(#hpMidGrad);stroke:#e4c56a;stroke-width:0.7}
+.country-land.hp-low{fill:url(#hpLowGrad);stroke:#e58a55;stroke-width:0.75}
+.country-land.hp-critical{fill:url(#hpCriticalGrad);stroke:#ff526c;stroke-width:0.85}
 .bulk-atk-btn{padding:5px 8px;background:rgba(232,22,42,0.12);color:#ff6b7a;font-family:var(--hud);font-size:9px;letter-spacing:0.5px;border:1px solid rgba(232,22,42,0.35);cursor:pointer;border-radius:1px;transition:all 0.15s}
 .bulk-atk-btn:hover:not(:disabled){background:rgba(232,22,42,0.25);color:#fff}
 .bulk-atk-btn:disabled{opacity:0.3;cursor:not-allowed}
@@ -95,6 +99,9 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .country-land:hover{fill:#27a862 !important;stroke:#00ff9d !important;stroke-width:1.1;filter:url(#landGlow)}
 .country-land.my-country{fill:#1a9a48 !important;stroke:#00ff9d !important;stroke-width:1.4;filter:url(#neonGlow)}
 .country-land.targeted{fill:#c41530 !important;stroke:#ff3050 !important;stroke-width:1.4;filter:url(#neonGlow)}
+.country-land.superpower{fill:url(#superpowerGrad) !important;stroke:#f5c842 !important;stroke-width:1.25;filter:url(#neonGlow)}
+.country-land.my-country.superpower{stroke:#fff176 !important;stroke-width:1.6}
+.country-land.targeted.superpower{stroke:#ffcf4a !important;stroke-width:1.6}
 .country-land.eliminated{fill:#1a1a1a !important;stroke:#383838 !important;stroke-width:0.3;opacity:0.35}
 @keyframes countryBreath{0%,100%{filter:url(#landGlow)}50%{filter:url(#neonGlow)}}
 .city-dot{fill:#e8162a;cursor:crosshair}
@@ -102,6 +109,8 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .city-dot.target-city{fill:#ff4500}
 .city-label{font-family:'Share Tech Mono',monospace;font-size:7px;fill:#e8f4ff;pointer-events:none;paint-order:stroke;stroke:#03080e;stroke-width:1.6px;stroke-linejoin:round}
 .hp-label{font-family:'Share Tech Mono',monospace;font-size:6.5px;fill:rgba(184,204,216,0.6);pointer-events:none;paint-order:stroke;stroke:#03080e;stroke-width:1.4px;stroke-linejoin:round}
+.super-badge{display:none;margin-left:6px;padding:2px 6px;border:1px solid rgba(245,200,66,.55);color:var(--gold);font-family:var(--hud);font-size:8px;letter-spacing:1px;background:rgba(245,200,66,.10)}
+.super-badge.show{display:inline-block}
 
 /* RIGHT PANELS */
 .co-header{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid var(--border);flex-shrink:0}
@@ -131,6 +140,8 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .lb-num{font-family:var(--mono);font-size:9px;color:var(--dim);width:14px;text-align:right}
 .lb-name{font-family:var(--hud);font-size:8px;color:var(--text);letter-spacing:1px;flex:1}
 .lb-hp{font-family:var(--mono);font-size:9px;color:var(--dim);white-space:nowrap}
+.lb-row.superpower .lb-hp{color:var(--gold)}
+.lb-row.superpower .lb-name::after{content:' ⚡';color:var(--gold)}
 .ys-row{display:flex;justify-content:space-between;padding:4px 12px;border-bottom:1px solid rgba(255,255,255,0.03)}
 .ys-l{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:1px}
 .ys-v{font-family:var(--mono);font-size:9px;color:var(--text)}
@@ -326,7 +337,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     🎁 <span id="giftBadgeText">İlk 100 oyuncuya +100 bonus mermi!</span>
   </div>
   <div style="font-family:var(--ui);font-size:14px;color:var(--text);max-width:480px;line-height:1.6;margin-bottom:28px" data-i18n="welcome.body">
-    119 ülkeden birini seç, ittifak kur, savaş alanına gir. Web3 cüzdanınla bağlan, mermi al, hedeflerini eli yenmesi için saldır.
+    119 ülkeden birini seç, ittifak kur, savaş alanına gir. Web3 cüzdanınla bağlan, mermi al, hedeflerinin elenmesi için saldır.
   </div>
   <button onclick="connectWallet()" style="background:linear-gradient(180deg,#e8162a,#a01020);border:none;color:#fff;font-family:var(--hud);font-size:13px;letter-spacing:3px;padding:14px 36px;cursor:pointer;font-weight:700;box-shadow:0 4px 20px rgba(232,22,42,0.4),inset 0 1px 0 rgba(255,255,255,0.15)" data-i18n="welcome.cta">
     🔗 CÜZDAN BAĞLA & SAVAŞA KATIL
@@ -335,7 +346,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     Önce çevreyi gözden geçirmek istiyorum →
   </button>
   <div style="margin-top:32px;font-family:var(--mono);font-size:10px;color:var(--dim);max-width:420px;line-height:1.6" data-i18n="welcome.warning">
-    ⚠️ Test ağında çalışır. Gerçek para gerekmez. Test ETH almak için Sepolia faucet kullan, sonra Abstract köprüsünden geçir.
+    ⚠️ Abstract mainnet üzerinde çalışır. Mermi alımlarında gerçek ETH kullanılır; cüzdan onay ekranını her zaman kontrol et.
   </div>
 </div>
 <!-- Bağlantı kayıp uyarısı -->
@@ -446,6 +457,19 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
         <stop offset="100%" stop-color="#020812"/>
       </radialGradient>
 
+      <radialGradient id="oceanVignette" cx="50%" cy="45%" r="78%">
+        <stop offset="0%" stop-color="rgba(255,255,255,0)"/>
+        <stop offset="70%" stop-color="rgba(0,0,0,0.08)"/>
+        <stop offset="100%" stop-color="rgba(0,0,0,0.52)"/>
+      </radialGradient>
+
+      <filter id="oceanSurface" x="0" y="0" width="100%" height="100%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.012 0.035" numOctaves="3" seed="7" result="noise"/>
+        <feColorMatrix in="noise" type="matrix"
+          values="0 0 0 0 0.10  0 0 0 0 0.34  0 0 0 0 0.48  0 0 0 .32 0"/>
+        <feBlend in2="SourceGraphic" mode="screen"/>
+      </filter>
+
       <!-- Okyanus dalga dokusu (gerçekçilik için) -->
       <pattern id="waveTexture" x="0" y="0" width="100" height="60" patternUnits="userSpaceOnUse">
         <rect width="100" height="60" fill="transparent"/>
@@ -462,9 +486,28 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 
       <!-- Kıta gradyanı (normal ülkeler — daha doğal renk) -->
       <linearGradient id="landGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stop-color="#2a9b5d"/>
-        <stop offset="50%" stop-color="#187540"/>
-        <stop offset="100%" stop-color="#0a3d22"/>
+        <stop offset="0%" stop-color="#5f9d63"/>
+        <stop offset="45%" stop-color="#2f7b45"/>
+        <stop offset="100%" stop-color="#173d24"/>
+      </linearGradient>
+
+      <linearGradient id="hpHighGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#6f9858"/><stop offset="55%" stop-color="#3e7e42"/><stop offset="100%" stop-color="#1e4026"/>
+      </linearGradient>
+      <linearGradient id="hpMidGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#b99b4f"/><stop offset="55%" stop-color="#8a7130"/><stop offset="100%" stop-color="#44371a"/>
+      </linearGradient>
+      <linearGradient id="hpLowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#b87844"/><stop offset="55%" stop-color="#8d4f2d"/><stop offset="100%" stop-color="#492315"/>
+      </linearGradient>
+      <linearGradient id="hpCriticalGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#b3424a"/><stop offset="55%" stop-color="#7e2430"/><stop offset="100%" stop-color="#351018"/>
+      </linearGradient>
+      <linearGradient id="superpowerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#fff176"/>
+        <stop offset="38%" stop-color="#f5c842"/>
+        <stop offset="72%" stop-color="#ad6f17"/>
+        <stop offset="100%" stop-color="#55320a"/>
       </linearGradient>
 
       <!-- Arka plan ülkeleri gradyanı — daha topraksı -->
@@ -527,7 +570,9 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 
     <!-- Okyanus arka plan + dalga dokusu + atmosfer -->
     <rect x="0" y="0" width="1000" height="500" fill="url(#oceanGrad)"/>
+    <rect x="0" y="0" width="1000" height="500" filter="url(#oceanSurface)" opacity="0.35"/>
     <rect x="0" y="0" width="1000" height="500" fill="url(#waveTexture)" opacity="0.5"/>
+    <rect x="0" y="0" width="1000" height="500" fill="url(#oceanVignette)" opacity="0.9"/>
 
     <!-- Enlem/boylam ızgarası -->
     <g id="mapGrid" opacity="0.4"></g>
@@ -627,6 +672,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     <div style="display:flex;align-items:center;gap:7px">
       <span style="font-size:20px" id="coFlag">🇹🇷</span>
       <span style="font-family:var(--hud);font-size:13px;font-weight:700;color:white;letter-spacing:2px" id="coName">TÜRKİYE</span>
+      <span id="coSuperBadge" class="super-badge">⚡ SÜPER GÜÇ</span>
     </div>
     <div style="display:flex;align-items:center;gap:6px">
       <button onclick="copyCountryLink(myCountry)" title="Bu ülkenin linkini kopyala" style="background:transparent;border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.6);font-size:10px;padding:3px 7px;cursor:pointer;border-radius:1px">🔗</button>
@@ -636,10 +682,10 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   <div style="padding:8px 12px;border-bottom:1px solid var(--border);flex-shrink:0">
     <div style="display:flex;justify-content:space-between;margin-bottom:4px">
       <span style="font-family:var(--hud);font-size:14px;color:white" id="coHP">1,000</span>
-      <span style="font-family:var(--mono);font-size:9px;color:var(--dim);align-self:flex-end">/ 1,000</span>
+      <span style="font-family:var(--mono);font-size:9px;color:var(--dim);align-self:flex-end">/ <span id="coMaxHP">100,000</span></span>
     </div>
-    <div class="hpb"><div class="hpf" id="coHPBar" style="width:100%"></div></div>
-    <div style="font-family:var(--mono);font-size:8px;color:var(--red);text-align:right;margin-top:2px" id="coHPPct">100%</div>
+    <div class="hpb"><div class="hpf" id="coHPBar" style="width:1%"></div></div>
+    <div style="font-family:var(--mono);font-size:8px;color:var(--red);text-align:right;margin-top:2px" id="coHPPct">1.0%</div>
   </div>
   <div class="stats-grid">
     <div class="stat-cell"><div class="stat-label" data-i18n="stat.bullets">🔫 Mermilerim</div><div class="stat-val" id="myBullets" style="color:var(--green)">0</div></div>
@@ -670,16 +716,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     <div class="lb-tab" onclick="setLbTab('players',this)">OYUNCULAR</div>
   </div>
   <div style="flex:0 1 220px;min-height:120px;overflow-y:auto" id="lbList">
-    <div class="lb-row"><span class="lb-num">1</span><span style="font-size:13px">🇷🇺</span><span class="lb-name">Rusya</span><span class="lb-hp">1000 HP</span></div>
-    <div class="lb-row"><span class="lb-num">2</span><span style="font-size:13px">🇨🇳</span><span class="lb-name">Çin</span><span class="lb-hp">1000 HP</span></div>
-    <div class="lb-row"><span class="lb-num">3</span><span style="font-size:13px">🇩🇪</span><span class="lb-name">Almanya</span><span class="lb-hp">1000 HP</span></div>
-    <div class="lb-row"><span class="lb-num">4</span><span style="font-size:13px">🇧🇷</span><span class="lb-name">Brezilya</span><span class="lb-hp">1000 HP</span></div>
-    <div class="lb-row me"><span class="lb-num">5</span><span style="font-size:13px">🇹🇷</span><span class="lb-name">Türkiye</span><span class="lb-hp">1000 HP</span></div>
-    <div class="lb-row"><span class="lb-num">6</span><span style="font-size:13px">🇮🇳</span><span class="lb-name">Hindistan</span><span class="lb-hp">1000 HP</span></div>
-    <div class="lb-row"><span class="lb-num">7</span><span style="font-size:13px">🇺🇸</span><span class="lb-name">ABD</span><span class="lb-hp">1000 HP</span></div>
-    <div class="lb-row"><span class="lb-num">8</span><span style="font-size:13px">🇫🇷</span><span class="lb-name">Fransa</span><span class="lb-hp">1000 HP</span></div>
-    <div class="lb-row"><span class="lb-num">9</span><span style="font-size:13px">🇯🇵</span><span class="lb-name">Japonya</span><span class="lb-hp">1000 HP</span></div>
-    <div class="lb-row"><span class="lb-num">10</span><span style="font-size:13px">🇬🇧</span><span class="lb-name">Bir. Krallık</span><span class="lb-hp">1000 HP</span></div>
+    <div style="padding:20px;text-align:center;color:var(--dim);font-size:11px">Canlı sıralama yükleniyor...</div>
   </div>
   <button class="btn-sm btn-out" style="margin:6px;width:calc(100% - 12px)">TAM SIRALAMAYI GÖR</button>
   <div class="sh" style="flex-shrink:0" data-i18n="panel.mystats">İSTATİSTİKLERİN</div>
@@ -696,7 +733,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 <!-- BOTTOM ROW -->
 <!-- Resource Control -->
 <div class="cell" id="panel-tarih" style="grid-column:1;grid-row:2">
-  <div class="sh"><span data-i18n="panel.resources">KAYNAK KONTROLU</span> <button class="btn-sm btn-out" style="font-size:7px;padding:2px 6px" onclick="boostAllResources()" data-i18n="btn.produceAll">TUMUNU URET</button></div>
+  <div class="sh"><span data-i18n="panel.resources">KAYNAK KONTROLÜ</span> <button class="btn-sm btn-out" style="font-size:7px;padding:2px 6px" onclick="boostAllResources()" data-i18n="btn.produceAll">TÜMÜNÜ ÜRET</button></div>
   <div style="flex:1;overflow-y:auto;padding:10px 0" id="resourceList"></div>
 </div>
 
@@ -876,7 +913,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 
       <div style="border-left:3px solid #b366ff;padding-left:12px">
         <div style="font-family:var(--hud);font-size:11px;color:#b366ff;letter-spacing:2px;margin-bottom:4px" data-i18n="help.step5">5 · İTTİFAK KUR</div>
-        <span data-i18n-html="help.b5">"İTTİFAK KUR" ile kendi ittifakını başlat veya "İTTİFAKA KATIL" ile mevcut bir ittifağa gir. Telsiz komutlarıyla müttefiklere sinyal gönder.</span>
+        <span data-i18n-html="help.b5">"İTTİFAK KUR" ile kendi ittifakını başlat veya "İTTİFAKA KATIL" ile mevcut bir ittifaka gir. Telsiz komutlarıyla müttefiklere sinyal gönder.</span>
       </div>
 
       <div style="border-left:3px solid #f5c842;padding-left:12px">
@@ -946,7 +983,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
         <b style="color:#66b3ff">📝 Not:</b> Mesajın panoya kopyalanır. Sahibe iletmek için Twitter / Discord / e-postaya yapıştırabilirsin.
       </div>
       <div style="margin-top:14px;display:flex;gap:8px">
-        <button class="btn-sm btn-red" style="flex:1;padding:10px" onclick="submitFeedback()" data-i18n="fb.submit">📋 KOPYALA & İLET</button>
+        <button class="btn-sm btn-red" style="flex:1;padding:10px" onclick="submitFeedback()" data-i18n="fb.submit">GÖNDER</button>
         <button class="btn-sm btn-out" style="flex:1;padding:10px" onclick="closeFeedbackModal()" data-i18n="btn.cancel">İPTAL</button>
       </div>
     </div>
@@ -983,20 +1020,20 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     </div>
 
     <div id="adminEconomyInfo" style="margin-top:10px;padding:12px;background:linear-gradient(180deg,rgba(245,200,66,0.10),rgba(245,200,66,0.03));border:1px solid rgba(245,200,66,0.35);font-family:var(--mono);font-size:11px;color:var(--text);text-align:left;line-height:1.7">
-      Ekonomi bilgisi yukleniyor...
+      Ekonomi bilgisi yükleniyor...
     </div>
 
     <!-- Token alanı -->
     <div style="margin-top:14px;text-align:left">
       <label style="font-family:var(--hud);font-size:10px;color:var(--dim);letter-spacing:1px">ADMIN TOKEN</label>
-      <input id="adminTokenInput" type="password" placeholder="Railway ADMIN_TOKEN" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:12px;padding:9px;outline:none;margin-top:4px">
-      <div style="margin-top:4px;font-size:9px;color:var(--dim)">Bir kez gir, tarayıcı hatırlar. Railway → backend → Variables → ADMIN_TOKEN</div>
+      <input id="adminTokenInput" type="password" placeholder="Admin token" autocomplete="off" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:12px;padding:9px;outline:none;margin-top:4px">
+      <div style="margin-top:4px;font-size:9px;color:var(--dim)">Sadece owner cüzdan oturumu ile çalışır. Gizli token kod içinde tutulmaz.</div>
     </div>
 
     <!-- İşlemler -->
     <div style="margin-top:16px;display:flex;flex-direction:column;gap:8px;text-align:left">
       <button class="btn-sm" onclick="adminAction('round/start')" style="width:100%;padding:11px;background:rgba(72,187,120,0.12);border:1px solid var(--green);color:var(--green);font-family:var(--hud);font-size:11px;cursor:pointer;text-align:left">
-        🔄 YENİ TUR BAŞLAT <span style="color:var(--dim);font-size:9px">— Tüm HP'leri 1000'e sıfırlar (şişmiş canları düzeltir)</span>
+        🔄 YENİ TUR BAŞLAT <span style="color:var(--dim);font-size:9px">— Her ülke 1000 HP'den başlar, süper güçler sıfırlanır</span>
       </button>
       <button class="btn-sm" onclick="adminAction('round/end')" style="width:100%;padding:11px;background:rgba(245,200,66,0.1);border:1px solid var(--gold);color:var(--gold);font-family:var(--hud);font-size:11px;cursor:pointer;text-align:left">
         ⏹ TURU BİTİR <span style="color:var(--dim);font-size:9px">— Mevcut turu kapatır, kazananları belirler</span>
@@ -1005,7 +1042,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
         🏆 KAZANANLARI GÖR <span style="color:var(--dim);font-size:9px">— İlk 3 ülke ve ödül payları</span>
       </button>
       <button class="btn-sm" onclick="adminConfirmReset()" style="width:100%;padding:11px;background:rgba(245,66,66,0.1);border:1px solid var(--red);color:var(--red);font-family:var(--hud);font-size:11px;cursor:pointer;text-align:left">
-        ⚠️ TAM RESET <span style="color:var(--dim);font-size:9px">— HER ŞEYİ siler (oyuncular, ittifaklar, HP)</span>
+        ⚠️ TAM RESET <span style="color:var(--dim);font-size:9px">— Sadece tur bittikten sonra tüm kayıtları siler</span>
       </button>
     </div>
 
@@ -1024,7 +1061,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     <div id="rendAdmin" style="margin-top:18px;display:none">
       <div style="background:rgba(245,200,66,0.08);border:1px solid rgba(245,200,66,0.3);padding:12px;font-size:12px;color:var(--text);line-height:1.5">
         <b style="color:var(--gold)">ADMIN PANELİ</b><br>
-        Bu adresleri <code>payReward(adres, miktar)</code> ile öde. Miktarlar ödül havuzu (%70) baz alınarak hesaplanmıştır. Her ödemeyi cüzdanından onaylaman gerekir.
+        Bu adresleri kontrattaki <code>payReward(adres, miktar)</code> ile öde. Her ödeme tx hash'i admin tarafından kaydedilince tur durumu üzerinden doğrulanabilir.
       </div>
       <div id="rendPayouts" style="margin-top:10px;font-family:var(--mono);font-size:11px;color:var(--text)"></div>
       <button onclick="startNextRound()" class="btn-sm btn-red" style="margin-top:14px;width:100%;padding:10px" data-i18n="re.startNew">
@@ -1041,6 +1078,8 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 
 <script>
 const API = 'https://abswar-clean-backend-production.up.railway.app';
+const START_HP_FE = 1000;
+const MAX_HP_FE = 100000;
 const APP_NETWORK = new URLSearchParams(location.search).get('network') === 'testnet' ? 'testnet' : 'mainnet';
 const CHAINS = {
   testnet: {
@@ -1059,7 +1098,7 @@ const CHAINS = {
     rpcUrls: ['https://api.mainnet.abs.xyz'],
     explorerUrl: 'https://abscan.org',
     contractAddress: '0x359859108B1AA0d0B5BA0DbAA1287d6D77a340dd',
-    warning: 'Mainnet: gercek ETH kullanilir.'
+    warning: 'Mainnet: gerçek ETH kullanılır.'
   }
 };
 const ACTIVE_CHAIN = CHAINS[APP_NETWORK] || CHAINS.mainnet;
@@ -1126,7 +1165,7 @@ async function ensureAuthSession(force=false) {
   const challenge = await challengeRes.json();
   if (!challengeRes.ok || challenge.error) throw new Error(tErr(challenge) || challenge.error || 'Auth challenge failed');
 
-  showToast('Cuzdan imzasi bekleniyor...','info');
+  showToast('Cüzdan imzası bekleniyor...','info');
   const agw = await waitForAbstractWallet(true);
   const signature = await agw.signMessage(challenge.message);
 
@@ -1653,7 +1692,7 @@ function closeRoundEndModal() {
 }
 
 async function startNextRound() {
-  const token = prompt('ADMIN_TOKEN gir (Railway loglarından):');
+  const token = prompt('Admin token gir:');
   if (!token) return;
   try {
     await ensureAuthSession(false);
@@ -1707,17 +1746,17 @@ function updateEconomyUI(economy) {
   const welcomeReward = document.getElementById('welcomeRewardPoolEth');
   if (welcomeReward) welcomeReward.textContent = rewardEth;
   const welcomeDeposited = document.getElementById('welcomeDepositedEth');
-  if (welcomeDeposited) welcomeDeposited.textContent = `Toplam yatirilan: ${totalEth}`;
+  if (welcomeDeposited) welcomeDeposited.textContent = `Toplam yatırılan: ${totalEth}`;
   const navReward = document.getElementById('navRewardPoolEth');
   if (navReward) navReward.textContent = rewardEth;
 
   const adminBox = document.getElementById('adminEconomyInfo');
   if (adminBox) {
     adminBox.innerHTML = `
-      <div style="font-family:var(--hud);font-size:10px;color:var(--gold);letter-spacing:1px;margin-bottom:4px">EKONOMI OZETI</div>
-      <div>Toplam yatirilan ETH: <b style="color:var(--gold)">${totalEth}</b></div>
-      <div>Toplam odul havuzu (%70): <b style="color:var(--green)">${rewardEth}</b></div>
-      <div style="color:var(--dim)">Satin alma: ${purchaseCount} islem · Satilan mermi: ${totalBullets}</div>
+      <div style="font-family:var(--hud);font-size:10px;color:var(--gold);letter-spacing:1px;margin-bottom:4px">EKONOMİ ÖZETİ</div>
+      <div>Toplam yatırılan ETH: <b style="color:var(--gold)">${totalEth}</b></div>
+      <div>Toplam ödül havuzu (%70): <b style="color:var(--green)">${rewardEth}</b></div>
+      <div style="color:var(--dim)">Satın alma: ${purchaseCount} işlem · Satılan mermi: ${totalBullets}</div>
     `;
   }
 }
@@ -1745,7 +1784,7 @@ async function refreshAdminRoundInfo() {
 function _getAdminToken() {
   const token = document.getElementById('adminTokenInput').value.trim();
   if (!token) {
-    showToast('Önce ADMIN_TOKEN gir','error');
+    showToast('Önce admin token gir','error');
     return null;
   }
   // Tarayıcıda sakla (bir daha girme)
@@ -1767,13 +1806,13 @@ async function adminAction(path) {
     const data = await res.json();
     if (!res.ok || data.error) {
       result.innerHTML = `<span style="color:var(--red)">❌ ${tErr(data)||('HTTP '+res.status)}</span>`;
-      if (res.status === 403) result.innerHTML += '<br><span style="color:var(--dim);font-size:10px">Token yanlış. Railway → backend → Variables → ADMIN_TOKEN değerini kontrol et.</span>';
+      if (res.status === 403) result.innerHTML += '<br><span style="color:var(--dim);font-size:10px">Token veya owner cüzdan oturumu geçersiz.</span>';
       return;
     }
     result.innerHTML = `<span style="color:var(--green)">✅ Başarılı!</span>`;
     if (path === 'round/start') {
-      result.innerHTML += '<br><span style="color:var(--dim);font-size:10px">Tüm ülke HP\'leri 1000\'e sıfırlandı.</span>';
-      showToast('🎯 Yeni tur başladı — HP\'ler sıfırlandı!','success');
+      result.innerHTML += '<br><span style="color:var(--dim);font-size:10px">Yeni tur 1000 başlangıç HP\'siyle başladı; süper güçler sıfırlandı.</span>';
+      showToast('🎯 Yeni tur başladı — ülkeler 1000 HP ile başladı!','success');
     } else if (path === 'round/end') {
       showToast('⏹ Tur bitirildi','info');
     }
@@ -2054,6 +2093,14 @@ function buildMap() {
   const landG = document.getElementById('landBackground');
   landG.innerHTML = '';
   LAND_PATHS.forEach(d => {
+    const coast = document.createElementNS('http://www.w3.org/2000/svg','path');
+    coast.setAttribute('d', d);
+    coast.setAttribute('fill', 'none');
+    coast.setAttribute('stroke', 'rgba(162,220,190,0.16)');
+    coast.setAttribute('stroke-width', '1.2');
+    coast.setAttribute('filter', 'url(#coastGlow)');
+    coast.setAttribute('pointer-events', 'none');
+    landG.appendChild(coast);
     // Ana dolgu
     const p = document.createElementNS('http://www.w3.org/2000/svg','path');
     p.setAttribute('d', d);
@@ -2076,6 +2123,14 @@ function buildMap() {
   const gameG = document.getElementById('gameCountries');
   gameG.innerHTML = '';
   Object.entries(GAME_PATHS).forEach(([code, d]) => {
+    const coast = document.createElementNS('http://www.w3.org/2000/svg','path');
+    coast.setAttribute('d', d);
+    coast.setAttribute('fill', 'none');
+    coast.setAttribute('stroke', 'rgba(178,240,205,0.24)');
+    coast.setAttribute('stroke-width', '1.25');
+    coast.setAttribute('filter', 'url(#coastGlow)');
+    coast.setAttribute('pointer-events', 'none');
+    gameG.appendChild(coast);
     // Ana ülke
     const p = document.createElementNS('http://www.w3.org/2000/svg','path');
     p.setAttribute('d', d);
@@ -2167,9 +2222,22 @@ function spawnAttackWave(code) {
   setTimeout(()=>{ try{g.removeChild(ring);}catch(e){} }, 1100);
 }
 
+function countryMaxHp(country) {
+  return Math.max(START_HP_FE, Number(country?.max_hp || country?.maxHP || MAX_HP_FE) || MAX_HP_FE);
+}
+function countryHpPct(countryOrHp, maybeCountry) {
+  const country = typeof countryOrHp === 'object' ? countryOrHp : maybeCountry;
+  const hp = typeof countryOrHp === 'object' ? Number(countryOrHp?.hp || 0) : Number(countryOrHp || 0);
+  return Math.max(0, Math.min(100, (hp / countryMaxHp(country)) * 100));
+}
+function isSuperpowerCountry(country) {
+  return !!(country?.isSuperpower || country?.is_superpower);
+}
+
 // HP'ye göre renk sınıfı
-function hpClass(hp) {
-  const pct = hp / 1000;
+function hpClass(hp, country) {
+  if (isSuperpowerCountry(country)) return 'superpower';
+  const pct = countryHpPct(hp, country) / 100;
   if (pct > 0.85) return 'hp-full';
   if (pct > 0.55) return 'hp-high';
   if (pct > 0.30) return 'hp-mid';
@@ -2187,6 +2255,7 @@ function renderLabels() {
     const alive = country ? country.is_alive !== false : true;
     const isMe = code === myCountry;
     const isTgt = code === targetCountry;
+    const superCls = isSuperpowerCountry(country) ? ' superpower' : '';
 
     // SVG path rengini HP'ye göre güncelle
     const el = document.getElementById(code);
@@ -2195,11 +2264,11 @@ function renderLabels() {
         el.setAttribute('class','country-land eliminated');
         el.removeAttribute('filter');
       } else if (isMe) {
-        el.setAttribute('class','country-land my-country');
+        el.setAttribute('class','country-land my-country' + superCls);
       } else if (isTgt) {
-        el.setAttribute('class','country-land targeted');
+        el.setAttribute('class','country-land targeted' + superCls);
       } else {
-        el.setAttribute('class','country-land ' + hpClass(hp));
+        el.setAttribute('class','country-land ' + hpClass(hp, country) + superCls);
         el.setAttribute('filter','url(#landGlow)');
       }
     }
@@ -2240,7 +2309,7 @@ function renderLabels() {
     txt.setAttribute('fill', color);
     txt.setAttribute('font-size', isMe || isTgt ? '7.5' : '6.2');
     txt.setAttribute('font-weight', isMe || isTgt ? '700' : '400');
-    txt.textContent = c.f + ' ' + code;
+    txt.textContent = (superCls ? '⚡ ' : '') + c.f + ' ' + code;
     g.appendChild(txt);
 
     if (isMe || isTgt) {
@@ -2780,14 +2849,31 @@ function cancelBulkAttack() {
   showToast('⏹ Durdurma sinyali gönderildi...','info');
 }
 
-function updateHP(code, hp) {
+function updateCountryCard(country) {
+  if (!country) return;
+  const hp = Number(country.hp || 0);
+  const pct = countryHpPct(country);
+  const hpEl = document.getElementById('coHP');
+  const maxEl = document.getElementById('coMaxHP');
+  const barEl = document.getElementById('coHPBar');
+  const pctEl = document.getElementById('coHPPct');
+  const badge = document.getElementById('coSuperBadge');
+  if (hpEl) hpEl.textContent = hp.toLocaleString('tr-TR');
+  if (maxEl) maxEl.textContent = countryMaxHp(country).toLocaleString('tr-TR');
+  if (barEl) barEl.style.width = pct + '%';
+  if (pctEl) pctEl.textContent = pct.toFixed(1) + '%';
+  if (badge) badge.classList.toggle('show', isSuperpowerCountry(country));
+}
+
+function updateHP(code, hp, meta={}) {
   const idx = gameCountries.findIndex(x=>x.code===code);
-  if (idx>=0) gameCountries[idx].hp = hp;
+  if (idx>=0) {
+    gameCountries[idx].hp = hp;
+    if (meta.maxHP || meta.max_hp) gameCountries[idx].max_hp = meta.maxHP || meta.max_hp;
+    if (meta.isSuperpower !== undefined) gameCountries[idx].isSuperpower = !!meta.isSuperpower;
+  }
   if (code === myCountry) {
-    const pct = Math.max(0,(hp/1000*100));
-    document.getElementById('coHP').textContent = hp.toLocaleString('tr-TR');
-    document.getElementById('coHPBar').style.width = pct+'%';
-    document.getElementById('coHPPct').textContent = pct.toFixed(1)+'%';
+    updateCountryCard(gameCountries[idx] || { hp, max_hp: meta.maxHP || meta.max_hp || MAX_HP_FE, isSuperpower: meta.isSuperpower });
   }
   renderLabels();
 }
@@ -2882,7 +2968,7 @@ async function buyAmmo(pack) {
 
   } catch(e) {
     if (e.code === 4001) showToast(t('toast.txCancelled'),'error');
-    else showToast('Islem gonderildiyse mermi biraz gec yazilabilir. Hata: ' + (e.message||'').slice(0,40),'error');
+    else showToast('İşlem gönderildiyse mermi biraz geç yazılabilir. Hata: ' + (e.message||'').slice(0,40),'error');
     await updateWalletBalance();
   } finally {
     hideLoader();
@@ -2903,7 +2989,7 @@ async function confirmAmmoPurchase(pack, txHash) {
     if (!res.ok || data.error) throw new Error(tErr(data) || data.error || ('HTTP '+res.status));
     return data;
   }
-  throw new Error('Islem onayi zaman asimina ugradi');
+  throw new Error('İşlem onayı zaman aşımına uğradı');
 }
 
 function sendChatLegacy() {
@@ -3125,19 +3211,16 @@ function updateLeaderboard(countries) {
     sorted.slice(0,12).forEach((c,i)=>{
       const cd=CD[c.code];
       const row=document.createElement('div');
-      row.className='lb-row'+(c.code===myCountry?' me':'');
+      row.className='lb-row'+(c.code===myCountry?' me':'')+(isSuperpowerCountry(c)?' superpower':'');
       const hpVal = (c.hp||0);
-      row.innerHTML=`<span class="lb-num">${i+1}</span><span style="font-size:13px">${cd?.f||c.flag||'🏳️'}</span><span class="lb-name">${cd?.n||c.name||c.code}</span><span class="lb-hp">${hpVal} HP</span>`;
+      row.innerHTML=`<span class="lb-num">${i+1}</span><span style="font-size:13px">${cd?.f||c.flag||'🏳️'}</span><span class="lb-name">${cd?.n||c.name||c.code}</span><span class="lb-hp">${hpVal.toLocaleString('tr-TR')} HP</span>`;
       list.appendChild(row);
     });
   }
   if (myCountry) {
     const me=sorted.find(c=>c.code===myCountry);
     if (me) {
-      const pct=Math.max(0,(me.hp/1000*100));
-      document.getElementById('coHPBar').style.width=pct+'%';
-      document.getElementById('coHP').textContent=(me.hp||0).toLocaleString('tr-TR');
-      document.getElementById('coHPPct').textContent=pct.toFixed(1)+'%';
+      updateCountryCard(me);
       const rank=sorted.findIndex(c=>c.code===myCountry)+1;
       document.getElementById('coRank').textContent='#'+rank;
     }
@@ -3784,7 +3867,12 @@ ioScript.onload=()=>{
     playSound('eliminated');
     showToast(`💀 ${CD[d.country]?.f||''} ${CD[d.country]?.n||d.country} ELİMİNE EDİLDİ!`,'error');
   });
-  socket.on('hp:update',(d)=>{ updateHP(d.target||d.targetCountry, d.newHP||d.hp); });
+  socket.on('hp:update',(d)=>{ updateHP(d.target||d.targetCountry, d.newHP||d.hp, d); });
+  socket.on('country:superpower',(d)=>{
+    updateHP(d.country, d.hp || MAX_HP_FE, { maxHP:MAX_HP_FE, isSuperpower:true });
+    addNewsTicker(null, d.country, null, 'superpower', d.message);
+    showToast(d.message || `🌟 ${CD[d.country]?.n||d.country} SÜPER GÜÇ oldu!`, 'success');
+  });
   socket.on('war:state',(d)=>{ if(d?.countries) updateLeaderboard(d.countries); if(d?.round) setRoundFromState(d.round); });
   socket.on('round:ended',(result)=>{ playSound('victory'); showRoundEndModal(result); });
   socket.on('round:started',(d)=>{
@@ -3984,7 +4072,9 @@ const I18N = {
     'toast.copied': '📋 Adres kopyalandı',
     'toast.linkCopied': '🔗 Link kopyalandı: {code}',
     'toast.nicknameSet': '✅ Nickname: {nick}',
-    'toast.feedbackCopied': '📋 Panoya kopyalandı! Twitter/Discord/e-postaya yapıştırabilirsin.',
+    'toast.feedbackSent': 'Geri bildirim gönderildi. Teşekkürler!',
+    'toast.feedbackFailed': 'Geri bildirim gönderilemedi',
+    'toast.feedbackCopied': 'Sunucuya ulaşılamadı; mesaj panoya kopyalandı.',
     'toast.bulkStarted': '⚔️ {n} saldırı başlatıldı — {country}',
     'toast.bulkDone': '✅ {ok}/{total} saldırı tamamlandı',
     'toast.bulkCancelled': '⏹ Durduruldu — {ok}/{total} saldırı yapıldı',
@@ -4085,7 +4175,7 @@ const I18N = {
     'help.b2': 'Bağlanınca ülke seçim penceresi açılır. Arama kutusunu kullanarak 119 ülke arasından seç. <b style="color:var(--red)">Ülken elenene kadar değiştiremezsin.</b>',
     'help.b3': '"MERMİ SATIN AL" panelinden paket seç. Mermi satın alma <b>blockchain işlemidir</b> — Abstract Global Wallet onayı gerekir, gas ödenir.<br><br><span style="color:var(--dim);font-size:11px">Temel: 0.001 ETH → 100 mermi<br>Gelişmiş: 0.01 ETH → 1.000 mermi<br>Prim: 0.1 ETH → 10.000 mermi<br>Efsanevi: 1.0 ETH → 100.000 mermi</span>',
     'help.b4': 'Haritada hedef ülkeye tıkla → kırmızı vurgu çıkar → "SALDIRI BAŞLAT" butonuna bas. Her saldırı 1 mermi harcar, hedefin HP\'sini düşürür, kendi HP\'ne ekler. Saldırılar ücretsizdir (on-chain değil — hızlı).',
-    'help.b5': '"İTTİFAK KUR" ile kendi ittifakını başlat veya "İTTİFAKA KATIL" ile mevcut bir ittifağa gir. Telsiz komutlarıyla müttefiklere sinyal gönder.',
+    'help.b5': '"İTTİFAK KUR" ile kendi ittifakını başlat veya "İTTİFAKA KATIL" ile mevcut bir ittifaka gir. Telsiz komutlarıyla müttefiklere sinyal gönder.',
     'help.b6': 'Her kaynak farklı işe yarar (1 mermi → +10 seviye):<br><span style="color:var(--dim);font-size:11px">🛢️ <b>Petrol</b> — %100\'e ulaşırsa <b>+10 mermi</b> (sıfırlanır)<br>⚙️ <b>Metal</b> — Her seviye için <b>+%1 ekstra hasar</b> (max %10)<br>☢️ <b>Uranyum</b> — Her seviye için <b>+%1 kalkan</b> (savunma)<br>⚡ <b>Enerji</b> — %100\'e ulaşırsa ülkene <b>+50 HP</b> (sıfırlanır)</span>',
     'help.b7': 'Katkı puanına göre rütben yükselir. Her rütbe <b>katkı bonusu</b> verir — saldırı başına daha çok puan kazanırsın:<br><span style="color:var(--dim);font-size:11px;line-height:1.7">🪖 Asker (0) · 🎖 Onbaşı (50, +%5) · 🎖🎖 Çavuş (200, +%10)<br>⭐ Teğmen (500, +%15) · ⭐⭐ Yüzbaşı (1.500, +%20)<br>⭐⭐⭐ Binbaşı (5.000, +%25) · ⭐⭐⭐⭐ General (15.000, +%30)</span>',
     'help.b8': 'Yeşil = sağlam · Sarı = hasarlı · Turuncu = kritik · Kırmızı = ölmek üzere · Gri = elenen.',
@@ -4108,8 +4198,8 @@ const I18N = {
     'fb.idea': '💡 ÖNERİ',
     'fb.praise': '⭐ BEĞENİ',
     'fb.other': '❓ DİĞER',
-    'fb.submit': '📋 KOPYALA & İLET',
-    'fb.note': '📝 Not: Mesajın panoya kopyalanır. Sahibe iletmek için Twitter / Discord / e-postaya yapıştırabilirsin.',
+    'fb.submit': 'GÖNDER',
+    'fb.note': 'Mesajın doğrudan ABSWAR ekibine gönderilir. Bağlantı kesilirse yedek olarak panoya kopyalanır.',
     'fb.maxChars': '500 karaktere kadar',
     // Mermi paketleri
     'pack.basic': 'TEMEL',
@@ -4119,10 +4209,10 @@ const I18N = {
     'pack.bullets': 'mermi',
     // Welcome overlay
     'welcome.subtitle': 'KÜRESEL SAVAŞ MMO · ABSTRACT MAINNET',
-    'welcome.body': '119 ülkeden birini seç, ittifak kur, savaş alanına gir. Web3 cüzdanınla bağlan, mermi al, hedeflerini yenmesi için saldır.',
+    'welcome.body': '119 ülkeden birini seç, ittifak kur, savaş alanına gir. Web3 cüzdanınla bağlan, mermi al, hedeflerinin elenmesi için saldır.',
     'welcome.cta': '🔗 ABSTRACT İLE BAĞLAN & SAVAŞA KATIL',
     'welcome.skip': 'Önce çevreyi gözden geçirmek istiyorum →',
-    'welcome.warning': '⚠️ Test ağında çalışır. Gerçek para gerekmez. Test ETH almak için Sepolia faucet kullan, sonra Abstract köprüsünden geçir.',
+    'welcome.warning': '⚠️ Abstract mainnet üzerinde çalışır. Mermi alımlarında gerçek ETH kullanılır; cüzdan onay ekranını her zaman kontrol et.',
     // Round end
     're.title': 'TUR {n} BİTTİ',
     're.subtitle': 'Kazananlar ve ödül dağılımı:',
@@ -4271,7 +4361,9 @@ const I18N = {
     'toast.copied': '📋 Address copied',
     'toast.linkCopied': '🔗 Link copied: {code}',
     'toast.nicknameSet': '✅ Nickname: {nick}',
-    'toast.feedbackCopied': '📋 Copied to clipboard! Paste it to Twitter/Discord/email.',
+    'toast.feedbackSent': 'Feedback sent. Thank you!',
+    'toast.feedbackFailed': 'Feedback could not be sent',
+    'toast.feedbackCopied': 'Server was unreachable; message copied to clipboard.',
     'toast.bulkStarted': '⚔️ {n} attacks started — {country}',
     'toast.bulkDone': '✅ {ok}/{total} attacks completed',
     'toast.bulkCancelled': '⏹ Stopped — {ok}/{total} attacks done',
@@ -4388,8 +4480,8 @@ const I18N = {
     'fb.idea': '💡 IDEA',
     'fb.praise': '⭐ PRAISE',
     'fb.other': '❓ OTHER',
-    'fb.submit': '📋 COPY & SHARE',
-    'fb.note': '📝 Note: Your message will be copied to clipboard. Paste it to Twitter / Discord / email.',
+    'fb.submit': 'SEND',
+    'fb.note': 'Your message is sent directly to the ABSWAR team. If the connection fails, it is copied to clipboard.',
     'fb.maxChars': 'Up to 500 characters',
     'pack.basic': 'BASIC',
     'pack.advanced': 'ADVANCED',
@@ -4400,7 +4492,7 @@ const I18N = {
     'welcome.body': 'Pick one of 119 countries, form alliances, enter the battlefield. Connect your Web3 wallet, buy ammo, attack to crush your targets.',
     'welcome.cta': '🔗 CONNECT ABSTRACT WALLET & JOIN WAR',
     'welcome.skip': 'Let me look around first →',
-    'welcome.warning': '⚠️ Runs on testnet. No real money needed. Get test ETH from Sepolia faucet then bridge to Abstract.',
+    'welcome.warning': '⚠️ Runs on Abstract mainnet. Ammo purchases use real ETH; always review wallet confirmations.',
     're.title': 'ROUND {n} ENDED',
     're.subtitle': 'Winners and reward distribution:',
     're.adminPanel': 'ADMIN PANEL',
@@ -4545,7 +4637,9 @@ const I18N = {
     'toast.copied': '📋 Адрес скопирован',
     'toast.linkCopied': '🔗 Ссылка скопирована: {code}',
     'toast.nicknameSet': '✅ Ник: {nick}',
-    'toast.feedbackCopied': '📋 Скопировано в буфер обмена!',
+    'toast.feedbackSent': 'Отзыв отправлен. Спасибо!',
+    'toast.feedbackFailed': 'Не удалось отправить отзыв',
+    'toast.feedbackCopied': 'Сервер недоступен; сообщение скопировано в буфер.',
     'toast.bulkStarted': '⚔️ Запущено {n} атак — {country}',
     'toast.bulkDone': '✅ Готово {ok}/{total} атак',
     'toast.bulkCancelled': '⏹ Остановлено — {ok}/{total} атак',
@@ -4661,8 +4755,8 @@ const I18N = {
     'fb.idea': '💡 ИДЕЯ',
     'fb.praise': '⭐ ОДОБРЕНИЕ',
     'fb.other': '❓ ДРУГОЕ',
-    'fb.submit': '📋 КОПИРОВАТЬ',
-    'fb.note': '📝 Прим.: Сообщение скопируется в буфер. Вставьте в Twitter / Discord / email.',
+    'fb.submit': 'ОТПРАВИТЬ',
+    'fb.note': 'Сообщение отправляется команде ABSWAR. Если связь пропадет, оно будет скопировано в буфер.',
     'fb.maxChars': 'До 500 символов',
     'pack.basic': 'БАЗОВЫЙ',
     'pack.advanced': 'ПРОДВ.',
@@ -4673,7 +4767,7 @@ const I18N = {
     'welcome.body': 'Выберите одну из 119 стран, создайте альянс, выходите в бой. Подключите Web3-кошелёк, купите патроны, атакуйте цели.',
     'welcome.cta': '🔗 ПОДКЛЮЧИТЬ ABSTRACT WALLET',
     'welcome.skip': 'Сначала осмотрюсь →',
-    'welcome.warning': '⚠️ Работает в testnet. Реальные деньги не нужны. Возьмите test ETH из Sepolia faucet и переведите в Abstract.',
+    'welcome.warning': '⚠️ Работает в Abstract mainnet. Покупка патронов использует реальный ETH; проверяйте подтверждения кошелька.',
     're.title': 'РАУНД {n} ЗАВЕРШЁН',
     're.subtitle': 'Победители и распределение наград:',
     're.adminPanel': 'АДМИН-ПАНЕЛЬ',
@@ -4704,11 +4798,11 @@ function t(key, vars) {
   let s = dict[key] || I18N.tr[key] || key;
   if (APP_NETWORK === 'mainnet') {
     const mainnetCopy = {
-      'welcome.subtitle': 'GLOBAL WAR MMO · ABSTRACT MAINNET',
-      'welcome.warning': '⚠️ Mainnet: real ETH is used. Review wallet confirmations carefully.',
-      'help.testnet': '⚠️ MAINNET: Transactions use real ETH. Review wallet confirmations carefully.',
-      'help.step1.body': 'Connect from the top-right button. The Abstract Global Wallet login opens on mainnet.',
-      'help.b1': 'Connect from the top-right button. The Abstract Global Wallet login opens on mainnet.'
+      'welcome.subtitle': 'KÜRESEL SAVAŞ MMO · ABSTRACT MAINNET',
+      'welcome.warning': '⚠️ Abstract mainnet: gerçek ETH kullanılır. Cüzdan onaylarını dikkatli kontrol et.',
+      'help.testnet': '⚠️ MAINNET: İşlemler gerçek ETH kullanır. Cüzdan onaylarını dikkatli kontrol et.',
+      'help.step1.body': 'Sağ üstteki bağlantı butonuna bas. Abstract Global Wallet mainnet giriş penceresi açılır.',
+      'help.b1': 'Sağ üstteki bağlantı butonuna bas. Abstract Global Wallet mainnet giriş penceresi açılır.'
     };
     if (mainnetCopy[key]) s = mainnetCopy[key];
   }
@@ -4827,7 +4921,7 @@ function addRadarDetection(from, to, dmg) {
 const _newsBuffer = []; // Tampon — duplicate önle
 let _newsTickerInitialized = false;
 
-function addNewsTicker(from, to, dmg, kind='attack') {
+function addNewsTicker(from, to, dmg, kind='attack', message='') {
   const tickerInner = document.getElementById('tickerInner');
   if (!tickerInner) return;
 
@@ -4842,6 +4936,8 @@ function addNewsTicker(from, to, dmg, kind='attack') {
   let html = '';
   if (kind === 'eliminated') {
     html = `<span style="color:var(--red)">💀 ${tc?.n||to||'?'} elendi!</span>`;
+  } else if (kind === 'superpower') {
+    html = `<span style="color:var(--gold)">${message || `🌟 ${tc?.n||to||'?'} SÜPER GÜÇ oldu!`}</span>`;
   } else {
     const icon = dmg >= 3 ? '🔥' : dmg >= 2 ? '⚡' : '⚔️';
     html = `<span>${icon} ${fc?.n||from||'?'} → ${tc?.n||to||'?'} (-${dmg||1} HP)</span>`;
@@ -5011,40 +5107,40 @@ document.getElementById('feedbackInput').addEventListener('input', function() {
   document.getElementById('fbCount').textContent = `${this.value.length} / 500`;
 });
 
-function submitFeedback() {
+async function submitFeedback() {
   const text = document.getElementById('feedbackInput').value.trim();
   if (!text) { showToast(t('toast.feedbackEmpty'),'error'); return; }
   if (text.length < 5) { showToast(t('toast.feedbackShort'),'error'); return; }
 
-  const labels = { bug:'🐛 BUG', idea:'💡 ÖNERİ', praise:'⭐ BEĞENİ', other:'❓ DİĞER' };
-  const browserInfo = `${navigator.userAgent.split(' ').slice(-2).join(' ')}`;
-  const time = new Date().toLocaleString('tr-TR');
-  const walletShort = wallet ? wallet.slice(0,6)+'...'+wallet.slice(-4) : 'Bağlı değil';
-  const nick = myNickname || 'Yok';
-  const country = myCountry || 'Yok';
-
-  const formatted = `[ABSWAR ${labels[_feedbackType]||_feedbackType}]
-Tarih: ${time}
-Oyuncu: ${nick} (${walletShort})
-Ülke: ${country}
-Tarayıcı: ${browserInfo}
-URL: ${window.location.href}
-
----
-${text}`;
-
+  const btn = document.querySelector('#feedbackModal button[onclick="submitFeedback()"]');
+  const oldText = btn ? btn.textContent : '';
+  if (btn) { btn.disabled = true; btn.textContent = 'GÖNDERİLİYOR...'; }
   try {
-    navigator.clipboard.writeText(formatted).then(()=> {
-      showToast('📋 Panoya kopyalandı! Twitter/Discord/e-postaya yapıştırabilirsin.','success');
-      closeFeedbackModal();
-    }).catch(()=> {
-      // Fallback
-      prompt('Mesajı kopyala:', formatted);
-      closeFeedbackModal();
+    const res = await fetch(API + '/api/feedback', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        type: _feedbackType,
+        message: text,
+        wallet,
+        country: myCountry,
+        url: window.location.href
+      })
     });
-  } catch(e) {
-    prompt('Mesajı kopyala:', formatted);
+    const data = await res.json().catch(()=>({}));
+    if (!res.ok || data.error) {
+      showToast(tErr(data) || t('toast.feedbackFailed'), 'error');
+      return;
+    }
+    showToast(t('toast.feedbackSent'), 'success');
     closeFeedbackModal();
+  } catch(e) {
+    const fallback = `[ABSWAR ${_feedbackType}]\nURL: ${window.location.href}\n\n${text}`;
+    try { await navigator.clipboard.writeText(fallback); } catch(_e) {}
+    showToast(t('toast.feedbackCopied'), 'info');
+    closeFeedbackModal();
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = oldText || t('fb.submit'); }
   }
 }
 
@@ -5263,25 +5359,25 @@ function U(){
   let h=document.querySelector("[data-i18n='nav.help']");
   if(h&&!document.getElementById("rewardRulesBtn")){
     let b=document.createElement("button");
-    b.id="rewardRulesBtn";b.textContent="ODUL KURALLARI";b.onclick=openRewardRules;
+    b.id="rewardRulesBtn";b.textContent="ÖDÜL KURALLARI";b.onclick=openRewardRules;
     b.style.cssText="background:transparent;border:1px solid rgba(245,200,66,.45);color:var(--gold);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer";
     h.after(b);
   }
   if(!document.getElementById("rewardRulesModal")){
     let m=document.createElement("div");
     m.id="rewardRulesModal";m.className="modal";
-    m.innerHTML='<div class="modal-box" style="width:520px;max-width:92vw;text-align:left"><button class="modal-close" onclick="closeRewardRules()">KAPAT</button><div class="modal-title" style="color:var(--gold)">ODUL KURALLARI</div><div style="font-family:var(--ui);font-size:13px;line-height:1.7;color:var(--text)"><p><b>Odul havuzu:</b> Mermi alimlarindan kontratta ayrilan odul bakiyesidir.</p><p><b>Tur suresi:</b> 7 gun. Tur bitince en yuksek HP sahibi ilk 3 ulke kazanir.</p><p><b>Dagilim:</b> 1. ulke %60, 2. ulke %25, 3. ulke %15.</p><p><b>Odeme:</b> Kazanan ulkelerin en yuksek katkili oyuncularina admin tarafindan kontrattaki <code>payReward</code> ile odenir.</p><p style="color:var(--gold)"><b>Mainnet:</b> Islemler gercek ETH ile yapilir. Cuzdan onay ekranini her zaman kontrol et.</p><p style="color:var(--dim);font-size:11px">Guvenlik notu: Odeme dogrulamasi aktif; resmi bagimsiz audit raporu ayri bir surectir.</p></div></div>';
+    m.innerHTML='<div class="modal-box" style="width:520px;max-width:92vw;text-align:left"><button class="modal-close" onclick="closeRewardRules()">KAPAT</button><div class="modal-title" style="color:var(--gold)">ÖDÜL KURALLARI</div><div style="font-family:var(--ui);font-size:13px;line-height:1.7;color:var(--text)"><p><b>Ödül havuzu:</b> Mermi alımlarından kontratta ayrılan ödül bakiyesidir.</p><p><b>Tur süresi:</b> 7 gün. Tur bitince en yüksek HP sahibi ilk 3 ülke kazanır.</p><p><b>Dağılım:</b> 1. ülke %60, 2. ülke %25, 3. ülke %15.</p><p><b>Ödeme:</b> Kazanan ülkelerin en yüksek katkılı oyuncularına admin tarafından kontrattaki <code>payReward</code> ile ödenir. Ödeme tx hashleri backend’e kaydedilerek tur durumu üzerinden doğrulanabilir hale getirilir.</p><p style="color:var(--gold)"><b>Mainnet:</b> İşlemler gerçek ETH ile yapılır. Cüzdan onay ekranını her zaman kontrol et.</p><p style="color:var(--dim);font-size:11px">Güvenlik notu: Ödeme doğrulaması aktif; resmi bağımsız audit raporu ayrı bir süreçtir.</p></div></div>';
     m.addEventListener("click",e=>{if(e.target===m)closeRewardRules()});
     document.body.appendChild(m);
   }
   let w=document.querySelector("[data-i18n='welcome.warning']");
-  if(w)w.textContent="Mainnet: gercek ETH kullanilir. Cuzdan onaylarini dikkatli kontrol et.";
+  if(w)w.textContent="Mainnet: gerçek ETH kullanılır. Cüzdan onaylarını dikkatli kontrol et.";
 }
 window.openRewardRules=function(){U();document.getElementById("rewardRulesModal").classList.add("show")};
 window.closeRewardRules=function(){document.getElementById("rewardRulesModal").classList.remove("show")};
 function S(v){
   U();
-  let t="ODUL HAVUZU "+v,g=document.getElementById("giftBadge");
+  let t="ÖDÜL HAVUZU "+v,g=document.getElementById("giftBadge");
   if(g&&!document.getElementById("prizeOnlyHome")){
     let d=document.createElement("div");d.id="prizeOnlyHome";
     d.style.cssText="color:var(--gold);font-family:var(--hud);font-size:22px;margin-bottom:18px";
