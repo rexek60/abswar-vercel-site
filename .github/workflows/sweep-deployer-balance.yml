@@ -1,0 +1,68 @@
+name: Sweep Deployer Balance
+
+on:
+  workflow_dispatch:
+
+jobs:
+  sweep:
+    runs-on: ubuntu-latest
+    env:
+      DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+      RPC_URL: https://api.mainnet.abs.xyz
+      SWEEP_TO: 0x9C5e9dB5836e9c95be7cBec023D543c36E865B5B
+    steps:
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install ethers
+        run: npm install ethers@6.16.0
+
+      - name: Sweep deployer balance
+        run: |
+          node --input-type=module <<'NODE'
+          import { ethers } from "ethers";
+
+          const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
+          const wallet = new ethers.Wallet(process.env.DEPLOYER_PRIVATE_KEY, provider);
+          const to = ethers.getAddress(process.env.SWEEP_TO);
+
+          function fmt(v) {
+            return ethers.formatEther(v);
+          }
+
+          console.log("Sweeping from:", wallet.address);
+          console.log("Sweeping to:", to);
+
+          for (let round = 1; round <= 4; round++) {
+            const balance = await provider.getBalance(wallet.address);
+            console.log(`Round ${round} balance: ${fmt(balance)} ETH`);
+
+            if (balance <= 0n) break;
+
+            const feeData = await provider.getFeeData();
+            const gasPrice = feeData.gasPrice ?? feeData.maxFeePerGas;
+            if (!gasPrice) throw new Error("Gas price not available");
+
+            const gasLimit = await provider.estimateGas({ from: wallet.address, to, value: 1n });
+            const estimatedFee = gasLimit * gasPrice;
+            const reserve = (estimatedFee * 13n) / 10n + 1000n;
+
+            if (balance <= reserve) {
+              console.log(`Remaining balance is below safe fee reserve: ${fmt(balance)} ETH`);
+              break;
+            }
+
+            const value = balance - reserve;
+            console.log(`Sending ${fmt(value)} ETH with reserve ${fmt(reserve)} ETH`);
+
+            const tx = await wallet.sendTransaction({ to, value, gasLimit });
+            console.log("Sweep tx:", tx.hash);
+            const receipt = await tx.wait();
+            console.log("Sweep confirmed in block:", receipt.blockNumber);
+          }
+
+          const finalBalance = await provider.getBalance(wallet.address);
+          console.log("Final deployer balance:", fmt(finalBalance), "ETH");
+          NODE
