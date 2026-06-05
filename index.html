@@ -3681,7 +3681,7 @@ function _checkFps() {
     const fps = (_frameCount * 1000) / (now - _lastFpsCheck);
     if (fps < 25 && !_performanceMode) {
       _performanceMode = true;
-      console.log('[ABSWAR] Düşük FPS algılandı — performans modu açıldı');
+      console.debug('[ABSWAR] Düşük FPS algılandı — performans modu açıldı');
     } else if (fps > 45 && _performanceMode) {
       _performanceMode = false;
     }
@@ -3738,6 +3738,13 @@ ioScript.onload=()=>{
     timeout:8000
   });
   let _firstConnect = true;
+  let _heartbeatTimer = null;
+  const ensureHeartbeatTimer = () => {
+    if (_heartbeatTimer) return;
+    _heartbeatTimer = setInterval(() => {
+      if (wallet && socket.connected) socket.emit('heartbeat', { wallet });
+    }, 30000);
+  };
   socket.on('connect',()=>{
     document.querySelector('.gdot').style.background='#00c853';
     setBackendStatus(true);
@@ -3747,7 +3754,8 @@ ioScript.onload=()=>{
       pollState();
     }
     _firstConnect = false;
-    setInterval(()=>{if(wallet)socket.emit('heartbeat',{wallet});},30000);
+    if (wallet) socket.emit('heartbeat', { wallet });
+    ensureHeartbeatTimer();
   });
   socket.on('disconnect',(reason)=>{
     document.querySelector('.gdot').style.background='#e8162a';
