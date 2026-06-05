@@ -223,12 +223,16 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 @media (max-width:1023px){
   body{overflow-x:hidden}
   /* Üst nav küçült */
-  nav.topnav{padding:4px 8px;flex-wrap:wrap;height:auto;min-height:38px}
+  nav.topnav{padding:5px 8px;flex-wrap:wrap;height:72px;min-height:72px;align-content:center;row-gap:5px;overflow:visible}
   nav.topnav .logo-sub{display:none}
   nav.topnav > div:nth-child(4){display:none} /* Orta sekme menüsü gizle (bottom nav var) */
   nav.topnav .nav-link{display:none}
   nav.topnav button[onclick="openHelp()"] .nav-helptxt{display:none}
   nav.topnav .logo-main{font-size:14px;letter-spacing:3px}
+  nav.topnav .nav-actions{margin-left:0 !important;width:100%;flex:1 0 100%;justify-content:space-between;gap:6px !important;min-width:0}
+  nav.topnav .nav-actions > *{flex:0 0 auto}
+  nav.topnav .nav-actions #walletBtn{min-width:104px;max-width:138px;white-space:normal;line-height:1.1;text-align:center}
+  nav.topnav .nav-actions #ethBal{font-size:9px;min-width:52px;text-align:center}
   /* Cüzdan kısmı küçült */
   #walletBtn{font-size:9px;padding:5px 10px;letter-spacing:1px}
   #nicknameBtn,#soundBtn{font-size:9px}
@@ -239,7 +243,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     flex-direction:column;
     grid-template-columns:none;
     grid-template-rows:none;
-    height:calc(100vh - 42px - 54px - 26px);
+    height:calc(100dvh - 72px - 54px - 26px);
     gap:0;
     overflow:hidden;
   }
@@ -299,6 +303,9 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 @media (max-width:480px){
   nav.topnav{gap:6px}
   nav.topnav .logo-main{font-size:13px;letter-spacing:2px}
+  nav.topnav .nav-actions{gap:4px !important}
+  nav.topnav .nav-actions button[onclick="openHelp()"]{display:none}
+  nav.topnav .nav-actions #walletBtn{min-width:110px;max-width:128px}
   #walletBtn{font-size:8px;padding:4px 7px}
   #soundBtn{width:26px;height:24px;font-size:12px}
   #ethBal{display:inline-flex}
@@ -378,7 +385,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     <div class="nav-link" onclick="focusPanel('ulkeler',this)" data-i18n="nav.market">PAZAR</div>
     <div class="nav-link" onclick="focusPanel('siralama',this)" data-i18n="nav.rank">SIRALAMA</div>
   </div>
-  <div style="margin-left:auto;display:flex;align-items:center;gap:10px">
+  <div class="nav-actions" style="margin-left:auto;display:flex;align-items:center;gap:10px">
     <button onclick="cycleLang()" id="langBtn" title="Dil / Language / Язык" style="background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--hud);font-size:10px;padding:5px 8px;cursor:pointer">🇹🇷 TR</button>
     <button onclick="toggleSound()" id="soundBtn" title="Sesi aç/kapa" style="background:transparent;border:1px solid var(--border);color:var(--text);font-size:14px;width:30px;height:28px;cursor:pointer;padding:0">🔊</button>
     <button onclick="openFeedbackModal()" title="Geri bildirim / bug rapor" style="background:transparent;border:1px solid var(--border);color:var(--text);font-size:14px;width:30px;height:28px;cursor:pointer;padding:0">💬</button>
