@@ -47,7 +47,7 @@ jobs:
 
             const gasLimit = await provider.estimateGas({ from: wallet.address, to, value: 1n });
             const estimatedFee = gasLimit * gasPrice;
-            const reserve = (estimatedFee * 13n) / 10n + 1000n;
+            const reserve = [estimatedFee * 4n, 22000000000000n].reduce((a, b) => a > b ? a : b);
 
             if (balance <= reserve) {
               console.log(`Remaining balance is below safe fee reserve: ${fmt(balance)} ETH`);
