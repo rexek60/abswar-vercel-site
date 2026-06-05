@@ -1046,6 +1046,9 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
       <button class="btn-sm" onclick="adminShowWinners()" style="width:100%;padding:11px;background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--hud);font-size:11px;cursor:pointer;text-align:left">
         🏆 KAZANANLARI GÖR <span style="color:var(--dim);font-size:9px">— İlk 3 ülke ve ödül payları</span>
       </button>
+      <button class="btn-sm" onclick="adminGrantAllRankNfts()" style="width:100%;padding:11px;background:rgba(245,200,66,0.12);border:1px solid var(--gold);color:var(--gold);font-family:var(--hud);font-size:11px;cursor:pointer;text-align:left">
+        RUTBE NFTLERINI CUZDANA AL <span style="color:var(--dim);font-size:9px">- Sadece owner cuzdanina, oyun katkisini degistirmez</span>
+      </button>
       <button class="btn-sm" onclick="adminConfirmReset()" style="width:100%;padding:11px;background:rgba(245,66,66,0.1);border:1px solid var(--red);color:var(--red);font-family:var(--hud);font-size:11px;cursor:pointer;text-align:left">
         ⚠️ TAM RESET <span style="color:var(--dim);font-size:9px">— Sadece tur bittikten sonra tüm kayıtları siler</span>
       </button>
@@ -1856,6 +1859,58 @@ async function adminShowWinners() {
       </div>`).join('');
   } catch(e) {
     result.innerHTML = `<span style="color:var(--red)">❌ Sunucuya ulaşılamadı</span>`;
+  }
+}
+
+async function adminGrantAllRankNfts() {
+  const token = _getAdminToken();
+  if (!token) return;
+  if (!wallet || wallet.toLowerCase() !== OWNER_WALLET) {
+    showToast('Bu islem sadece owner cuzdanıyla yapılır.','error');
+    return;
+  }
+  if (!confirm('Eksik rutbe NFTleri icin cuzdaninda mint onayi acilacak. Her islem 0 ETH degerinde olmali; yalnizca ag gas ucreti olabilir. Devam edilsin mi?')) return;
+
+  const result = document.getElementById('adminResult');
+  result.innerHTML = '<span style="color:var(--dim)">Rutbe NFT imzalari hazirlaniyor...</span>';
+  try {
+    await ensureAuthSession(false);
+    const res = await fetch(API+'/api/admin/nft/rank-grant',{
+      method:'POST',
+      headers:authHeaders({'Content-Type':'application/json','x-admin-token':token}),
+      body:JSON.stringify({ wallet })
+    });
+    const data = await res.json();
+    if (!res.ok || data.error) {
+      result.innerHTML = `<span style="color:var(--red)">HATA: ${tErr(data)||data.error||('HTTP '+res.status)}</span>`;
+      return;
+    }
+
+    const claims = (data.claims||[]).filter(c=>c.status==='claimable'&&c.signature);
+    const owned = Number(data.owned||0);
+    if (!claims.length) {
+      result.innerHTML = `<span style="color:var(--green)">Tum rutbe NFTleri zaten cuzdaninda.</span><br><span style="color:var(--dim);font-size:10px">Alinmis: ${owned}</span>`;
+      if (typeof abswarRefreshRankNftOwned === 'function') abswarRefreshRankNftOwned();
+      return;
+    }
+
+    result.innerHTML = `<span style="color:var(--gold)">${claims.length} rozet mint edilecek. Cuzdan onaylarini sirayla ver.</span>`;
+    const minted = [];
+    for (const claim of claims) {
+      const name = claim.rank?.name || ('Rutbe '+claim.rank?.index);
+      showToast(`${name} NFT mint onayini cuzdaninda ver`, 'info');
+      if (typeof abswarMintRankNftClaim !== 'function') throw new Error('NFT mint yardimcisi hazir degil');
+      await abswarMintRankNftClaim(claim);
+      minted.push(name);
+      if (typeof abswarMarkRankNftPending === 'function') abswarMarkRankNftPending(claim.rank.index);
+      result.innerHTML = `<span style="color:var(--green)">Islem gonderildi:</span> ${minted.map(E).join(', ')}<br><span style="color:var(--dim);font-size:10px">Kalan: ${claims.length-minted.length}</span>`;
+    }
+
+    showToast('Rutbe NFT mint islemleri gonderildi','success');
+    result.innerHTML = `<span style="color:var(--green)">Gonderildi:</span> ${minted.map(E).join(', ')}<br><span style="color:var(--dim);font-size:10px">Cuzdan ve explorer tarafinda islenmesi biraz surebilir.</span>`;
+    if (typeof abswarRefreshRankNftOwned === 'function') setTimeout(abswarRefreshRankNftOwned, 15000);
+  } catch(e) {
+    result.innerHTML = `<span style="color:var(--red)">HATA: ${(e.message||'NFT mint baslatilamadi').slice(0,140)}</span>`;
   }
 }
 
@@ -5533,6 +5588,14 @@ async function refreshRankNftOwned(){
     renderRankNftPanel();
   }catch(e){}
 }
+window.abswarMintRankNftClaim=async function(claim){
+  const viem=await rankNftViem();
+  const data=viem.encodeFunctionData({abi:RANK_NFT_ABI,functionName:"mintRank",args:[Number(claim.rank.index),BigInt(claim.deadline),claim.signature]});
+  const agw=await waitForAbstractWallet(true);
+  return agw.sendTransaction({to:claim.contractAddress,value:0n,data});
+};
+window.abswarMarkRankNftPending=function(rankIndex){addPendingRank(rankIndex);renderRankNftPanel()};
+window.abswarRefreshRankNftOwned=refreshRankNftOwned;
 window.claimRankNft=async function(rankIndex){
   if(!wallet){showToast(L("connect"),"error");return}
   if(!rankNftStatus?.enabled){showToast(L("notReady"),"error");return}
@@ -5541,11 +5604,8 @@ window.claimRankNft=async function(rankIndex){
     const res=await authJson("/api/nft/claim-signature",{wallet,rank:rankIndex});
     const claim=await res.json();
     if(!res.ok||claim.error)throw new Error(tErr(claim)||claim.error||"NFT claim failed");
-    const viem=await rankNftViem();
-    const data=viem.encodeFunctionData({abi:RANK_NFT_ABI,functionName:"mintRank",args:[Number(rankIndex),BigInt(claim.deadline),claim.signature]});
     showToast(L("approve"),"info");
-    const agw=await waitForAbstractWallet(true);
-    await agw.sendTransaction({to:claim.contractAddress,value:0n,data});
+    await window.abswarMintRankNftClaim(claim);
     addPendingRank(rankIndex);renderRankNftPanel();
     showToast(L("sent"),"success");
     setTimeout(refreshRankNftOwned,15000);
