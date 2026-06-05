@@ -9,7 +9,7 @@ jobs:
     env:
       DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
       RPC_URL: https://api.mainnet.abs.xyz
-      SWEEP_TO: 0x9C5e9dB5836e9c95be7cBec023D543c36E865B5B
+      SWEEP_TO: "0x9C5e9dB5836e9c95be7cBec023D543c36E865B5B"
     steps:
       - name: Setup Node
         uses: actions/setup-node@v4
