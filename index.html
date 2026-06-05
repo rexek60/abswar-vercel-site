@@ -306,6 +306,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   nav.topnav .nav-actions{gap:4px !important}
   nav.topnav .nav-actions button[onclick="openHelp()"]{display:none}
   nav.topnav .nav-actions #rewardRulesBtn,
+  nav.topnav .nav-actions #riskInfoBtn,
   nav.topnav .nav-actions #prizeOnlyNav,
   nav.topnav .nav-actions #ethBal{display:none !important}
   nav.topnav .nav-actions #walletBtn{min-width:110px;max-width:128px}
@@ -318,6 +319,14 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   .mob-bottom-nav .mb-icon{font-size:16px}
   /* Boost grid tek kolon */
   .boost-grid{grid-template-columns:1fr 1fr}
+}
+
+@media (min-width:481px) and (max-width:767px){
+  nav.topnav .nav-actions #rewardRulesBtn,
+  nav.topnav .nav-actions #riskInfoBtn,
+  nav.topnav .nav-actions #prizeOnlyNav,
+  nav.topnav .nav-actions #ethBal{display:none !important}
+  nav.topnav .nav-actions{gap:6px !important}
 }
 
 </style>
@@ -1057,6 +1066,12 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
       </button>
       <button class="btn-sm" onclick="adminGrantAllRankNfts()" style="width:100%;padding:11px;background:rgba(245,200,66,0.12);border:1px solid var(--gold);color:var(--gold);font-family:var(--hud);font-size:11px;cursor:pointer;text-align:left">
         RUTBE NFTLERINI CUZDANA AL <span style="color:var(--dim);font-size:9px">- Sadece owner cuzdanina, oyun katkisini degistirmez</span>
+      </button>
+      <button class="btn-sm" onclick="adminDownloadBackup()" style="width:100%;padding:11px;background:transparent;border:1px solid rgba(102,179,255,.45);color:#66b3ff;font-family:var(--hud);font-size:11px;cursor:pointer;text-align:left">
+        YEDEK INDIR <span style="color:var(--dim);font-size:9px">- Oyuncu, ulke, tur ve odul durumunu JSON olarak alir</span>
+      </button>
+      <button class="btn-sm" onclick="adminShowMetrics()" style="width:100%;padding:11px;background:transparent;border:1px solid rgba(0,200,83,.35);color:var(--green);font-family:var(--hud);font-size:11px;cursor:pointer;text-align:left">
+        SISTEM METRIKLERI <span style="color:var(--dim);font-size:9px">- Canli izleme ozeti</span>
       </button>
       <button class="btn-sm" onclick="adminConfirmReset()" style="width:100%;padding:11px;background:rgba(245,66,66,0.1);border:1px solid var(--red);color:var(--red);font-family:var(--hud);font-size:11px;cursor:pointer;text-align:left">
         ⚠️ TAM RESET <span style="color:var(--dim);font-size:9px">— Sadece tur bittikten sonra tüm kayıtları siler</span>
@@ -1868,6 +1883,68 @@ async function adminShowWinners() {
       </div>`).join('');
   } catch(e) {
     result.innerHTML = `<span style="color:var(--red)">❌ Sunucuya ulaşılamadı</span>`;
+  }
+}
+
+async function adminShowMetrics() {
+  const token = _getAdminToken();
+  if (!token) return;
+  const result = document.getElementById('adminResult');
+  result.innerHTML = '<span style="color:var(--dim)">Metrikler yukleniyor...</span>';
+  try {
+    await ensureAuthSession(false);
+    const res = await fetch(API+'/api/admin/metrics',{
+      headers:authHeaders({'x-admin-token':token})
+    });
+    const data = await res.json();
+    if (!res.ok || data.error) {
+      result.innerHTML = `<span style="color:var(--red)">HATA: ${tErr(data)||data.error||('HTTP '+res.status)}</span>`;
+      return;
+    }
+    const eth = data.economy?.rewardPoolEth || '0';
+    result.innerHTML = `
+      <div style="color:var(--green);font-family:var(--hud);margin-bottom:6px">SISTEM METRIKLERI</div>
+      <div style="line-height:1.7;color:var(--text)">
+        Uptime: <b>${Math.floor((data.uptimeSec||0)/60)}</b> dk<br>
+        DB: <b>${data.dbEnabled?'aktif':'bellek modu'}</b><br>
+        Oyuncu: <b>${data.playerCount||0}</b> · Online: <b>${data.onlinePlayers||0}</b><br>
+        Ittifak: <b>${data.allianceCount||0}</b> · Saldiri kaydi: <b>${data.recentAttackCount||0}</b><br>
+        Ulke: <b>${data.countries?.alive||0}</b> aktif / <b>${data.countries?.eliminated||0}</b> elenmis · Super guc: <b>${data.countries?.superpowers||0}</b><br>
+        Odul havuzu: <b style="color:var(--gold)">${eth} ETH</b><br>
+        Tur: <b>${data.round?.number||'?'} / ${data.round?.status||'?'}</b>
+      </div>`;
+  } catch(e) {
+    result.innerHTML = '<span style="color:var(--red)">HATA: Metrikler alinamadi</span>';
+  }
+}
+
+async function adminDownloadBackup() {
+  const token = _getAdminToken();
+  if (!token) return;
+  const result = document.getElementById('adminResult');
+  result.innerHTML = '<span style="color:var(--dim)">Yedek hazirlaniyor...</span>';
+  try {
+    await ensureAuthSession(false);
+    const res = await fetch(API+'/api/admin/backup',{
+      headers:authHeaders({'x-admin-token':token})
+    });
+    const data = await res.json();
+    if (!res.ok || data.error) {
+      result.innerHTML = `<span style="color:var(--red)">HATA: ${tErr(data)||data.error||('HTTP '+res.status)}</span>`;
+      return;
+    }
+    const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `abswar-backup-${Date.now()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    result.innerHTML = `<span style="color:var(--green)">Yedek hazirlandi.</span><br><span style="color:var(--dim);font-size:10px">Oyuncu: ${(data.players||[]).length} · Ulke: ${(data.countries||[]).length} · Tur: ${data.round?.number||'?'}</span>`;
+  } catch(e) {
+    result.innerHTML = '<span style="color:var(--red)">HATA: Yedek alinamadi</span>';
   }
 }
 
@@ -5489,6 +5566,32 @@ function bind(){
   if(m&&!m.dataset.rrBound){m.dataset.rrBound="1";m.addEventListener("click",e=>{if(e.target===m)rrClose()})}
 }
 bind();setInterval(bind,1000);
+})();
+</script>
+<script>
+(function(){
+function ensureRiskInfo(){
+  const anchor=document.getElementById("rewardRulesBtn")||document.querySelector("[data-i18n='nav.help']");
+  if(anchor&&!document.getElementById("riskInfoBtn")){
+    const b=document.createElement("button");
+    b.id="riskInfoBtn";
+    b.textContent="GUVENLIK / RISK";
+    b.onclick=()=>window.openRiskInfo();
+    b.style.cssText="background:transparent;border:1px solid rgba(102,179,255,.45);color:#66b3ff;font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer";
+    anchor.after(b);
+  }
+  if(!document.getElementById("riskInfoModal")){
+    const m=document.createElement("div");
+    m.id="riskInfoModal";
+    m.className="modal";
+    m.innerHTML='<div class="modal-box" style="width:560px;max-width:92vw;text-align:left;max-height:88vh;overflow-y:auto"><button class="modal-close" onclick="window.closeRiskInfo()">KAPAT</button><div class="modal-title" style="color:#66b3ff">G&Uuml;VENL&#304;K / R&#304;SK B&#304;LG&#304;S&#304;</div><div style="font-family:var(--ui);font-size:13px;line-height:1.7;color:var(--text)"><p><b>Mainnet:</b> Mermi satin alma gercek ETH ile yapilan blockchain islemidir. Cuzdan onay ekraninda ag, tutar ve alici kontrati kontrol et.</p><p><b>Oyun verisi:</b> Saldiri, HP, mermi dusumu ve super guc hesaplari server-side yapilir. Client tarafindan gelen HP/mermi degerlerine guvenilmez.</p><p><b>Odul akisi:</b> Odul havuzu ve odeme hashleri gorunur hale getirildi. Su an odemeler admin tarafindan kontrattaki <code>payReward</code> ile kaydedilerek ilerler; tam otomatik escrow dagitim ayri kontrat surumu gerektirir.</p><p><b>Rank NFT:</b> Rozetler soulbound prestij NFTleridir; transfer edilemez ve ekstra oyun gucu vermez.</p><p><b>Audit durumu:</b> Ic kontroller ve canli dogrulamalar yapildi; resmi bagimsiz smart contract/security audit raporu henuz alinmadi. Buyuk lansman oncesi tavsiye edilir.</p><p style="color:var(--gold)"><b>Oyuncu notu:</b> Kaybetmeyi goze alamayacagin miktarla islem yapma. Blockchain islemleri geri alinamaz.</p></div></div>';
+    m.addEventListener("click",e=>{if(e.target===m)closeRiskInfo()});
+    document.body.appendChild(m);
+  }
+}
+window.openRiskInfo=function(){ensureRiskInfo();document.getElementById("riskInfoModal").classList.add("show")};
+window.closeRiskInfo=function(){const m=document.getElementById("riskInfoModal");if(m)m.classList.remove("show")};
+ensureRiskInfo();setInterval(ensureRiskInfo,1000);
 })();
 </script>
 <script>
