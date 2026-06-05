@@ -1881,6 +1881,9 @@ async function adminGrantAllRankNfts() {
   if (!confirm('Eksik rutbe NFTleri icin cuzdaninda mint onayi acilacak. Her islem 0 ETH degerinde olmali; yalnizca ag gas ucreti olabilir. Devam edilsin mi?')) return;
 
   const result = document.getElementById('adminResult');
+  const adminEsc = v => typeof escapeHtml === 'function'
+    ? escapeHtml(v)
+    : String(v??'').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
   result.innerHTML = '<span style="color:var(--dim)">Rutbe NFT imzalari hazirlaniyor...</span>';
   try {
     await ensureAuthSession(false);
@@ -1912,11 +1915,11 @@ async function adminGrantAllRankNfts() {
       await abswarMintRankNftClaim(claim);
       minted.push(name);
       if (typeof abswarMarkRankNftPending === 'function') abswarMarkRankNftPending(claim.rank.index);
-      result.innerHTML = `<span style="color:var(--green)">Islem gonderildi:</span> ${minted.map(E).join(', ')}<br><span style="color:var(--dim);font-size:10px">Kalan: ${claims.length-minted.length}</span>`;
+      result.innerHTML = `<span style="color:var(--green)">Islem gonderildi:</span> ${minted.map(adminEsc).join(', ')}<br><span style="color:var(--dim);font-size:10px">Kalan: ${claims.length-minted.length}</span>`;
     }
 
     showToast('Rutbe NFT mint islemleri gonderildi','success');
-    result.innerHTML = `<span style="color:var(--green)">Gonderildi:</span> ${minted.map(E).join(', ')}<br><span style="color:var(--dim);font-size:10px">Cuzdan ve explorer tarafinda islenmesi biraz surebilir.</span>`;
+    result.innerHTML = `<span style="color:var(--green)">Gonderildi:</span> ${minted.map(adminEsc).join(', ')}<br><span style="color:var(--dim);font-size:10px">Cuzdan ve explorer tarafinda islenmesi biraz surebilir.</span>`;
     if (typeof abswarRefreshRankNftOwned === 'function') setTimeout(abswarRefreshRankNftOwned, 15000);
   } catch(e) {
     result.innerHTML = `<span style="color:var(--red)">HATA: ${(e.message||'NFT mint baslatilamadi').slice(0,140)}</span>`;
