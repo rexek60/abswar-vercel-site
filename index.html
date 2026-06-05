@@ -908,7 +908,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 
       <div style="border-left:3px solid var(--green);padding-left:12px">
         <div style="font-family:var(--hud);font-size:11px;color:var(--green);letter-spacing:2px;margin-bottom:4px" data-i18n="help.step4">4 · SALDIR</div>
-        <span data-i18n-html="help.b4">Haritada hedef ülkeye tıkla → kırmızı vurgu çıkar → "SALDIRI BAŞLAT" butonuna bas. Her saldırı 1 mermi harcar, hedefin HP'sini düşürür, kendi HP'ne ekler. Saldırılar ücretsizdir (on-chain değil — hızlı).</span>
+        <span data-i18n-html="help.b4">Haritada hedef ülkeye tıkla → kırmızı vurgu çıkar → "SALDIRI BAŞLAT" butonuna bas. Her saldırı 1 mermi harcar. Hasar, mermi düşümü ve HP artışı sunucuda hesaplanır; hedefin HP'si düşer, senin ülkenin HP'si 100.000'e kadar artabilir.</span>
       </div>
 
       <div style="border-left:3px solid #b366ff;padding-left:12px">
@@ -923,13 +923,18 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
         🛢️ <b>Petrol</b> — %100'e ulaşırsa <b>+10 mermi</b> (sıfırlanır)<br>
         ⚙️ <b>Metal</b> — Her seviye için <b>+%1 ekstra hasar</b> (max %10)<br>
         ☢️ <b>Uranyum</b> — Her seviye için <b>+%1 kalkan</b> (savunma)<br>
-        ⚡ <b>Enerji</b> — %100'e ulaşırsa ülkene <b>+50 HP</b> (sıfırlanır)
+        ⚡ <b>Enerji</b> — %100'e ulaşırsa ülkene <b>+50 HP</b> verir; ülke HP'si en fazla <b>100.000</b> olur
         </span></span>
       </div>
 
       <div style="border-left:3px solid #ff6b7a;padding-left:12px">
-        <div style="font-family:var(--hud);font-size:11px;color:#ff6b7a;letter-spacing:2px;margin-bottom:4px" data-i18n="help.step7">7 · RÜTBE SİSTEMİ</div>
-        <span data-i18n-html="help.b7">Katkı puanına göre rütben yükselir. Her rütbe <b>katkı bonusu</b> verir — saldırı başına daha çok puan kazanırsın:<br>
+        <div style="font-family:var(--hud);font-size:11px;color:#ff6b7a;letter-spacing:2px;margin-bottom:4px" data-i18n="help.step7">7 · SÜPER GÜÇ</div>
+        <span data-i18n-html="help.b7">Bir ülke <b>100.000 HP</b>'ye ulaşınca <b>⚡ SÜPER GÜÇ</b> olur. Bu durum tur sonuna kadar kalıcıdır: verdiği hasar <b>+%50</b>, aldığı hasar <b>-%25</b> olur. Yenilmez değildir; birleşen ülkeler yine devirebilir.</span>
+      </div>
+
+      <div style="border-left:3px solid #ff9f66;padding-left:12px">
+        <div style="font-family:var(--hud);font-size:11px;color:#ff9f66;letter-spacing:2px;margin-bottom:4px" data-i18n="help.step8">8 · RÜTBE SİSTEMİ</div>
+        <span data-i18n-html="help.b8">Katkı puanına göre rütben yükselir. Her rütbe <b>katkı bonusu</b> verir — saldırı başına daha çok puan kazanırsın:<br>
         <span style="color:var(--dim);font-size:11px;line-height:1.7">
         🪖 Asker (0) · 🎖 Onbaşı (50, +%5) · 🎖🎖 Çavuş (200, +%10)<br>
         ⭐ Teğmen (500, +%15) · ⭐⭐ Yüzbaşı (1.500, +%20)<br>
@@ -938,8 +943,8 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
       </div>
 
       <div style="border-left:3px solid var(--dim);padding-left:12px">
-        <div style="font-family:var(--hud);font-size:11px;color:var(--dim);letter-spacing:2px;margin-bottom:4px" data-i18n="help.step8">8 · HARİTA RENKLERİ</div>
-        <span data-i18n-html="help.b8">Yeşil = sağlam · Sarı = hasarlı · Turuncu = kritik · Kırmızı = ölmek üzere · Gri = elenen.</span>
+        <div style="font-family:var(--hud);font-size:11px;color:var(--dim);letter-spacing:2px;margin-bottom:4px" data-i18n="help.step9">9 · HARİTA RENKLERİ</div>
+        <span data-i18n-html="help.b9">Harita renkleri 100.000 maksimum HP'ye göre yüzdelik hesaplanır. Yeşil = güçlü · Sarı = hasarlı · Turuncu = kritik · Kırmızı = düşmek üzere · Altın/⚡ = süper güç · Gri = elenen.</span>
       </div>
 
       <div style="border-left:3px solid #66b3ff;padding-left:12px">
@@ -953,8 +958,8 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
         </div>
       </div>
 
-      <div style="background:rgba(232,22,42,0.1);padding:10px;border:1px solid rgba(232,22,42,0.3);font-size:11px;color:var(--text);margin-top:4px">
-        <b style="color:var(--red)">⚠️ NOT:</b> Oyun şu an <b>Abstract Testnet</b>'te — gerçek para değil, test ETH. Mainnet'e geçiş audit sonrası yapılır.
+      <div style="background:rgba(245,200,66,0.1);padding:10px;border:1px solid rgba(245,200,66,0.3);font-size:11px;color:var(--text);margin-top:4px">
+        <b style="color:var(--gold)">⚠️ MAINNET NOTU:</b> Mermi satın alma gerçek ETH ile yapılan blockchain işlemidir. Cüzdan onay ekranında tutarı ve ağı kontrol et; saldırılar ise hızlı olması için off-chain çalışır.
       </div>
 
     </div>
@@ -4166,20 +4171,23 @@ const I18N = {
     'help.step5.body': '"İTTİFAK KUR" ile kendi ittifakını başlat veya mevcut bir ittifağa katıl.',
     'help.step6': '6 · KAYNAK SİSTEMİ',
     'help.step6.body': 'Her kaynağın farklı etkisi vardır (1 mermi → +10 seviye).',
-    'help.step7': '7 · RÜTBE SİSTEMİ',
-    'help.step7.body': 'Katkı puanına göre rütben yükselir. Her rütbe katkı bonusu verir.',
-    'help.step8': '8 · HARİTA RENKLERİ',
-    'help.step8.body': 'Yeşil = sağlam · Sarı = hasarlı · Turuncu = kritik · Kırmızı = ölmek üzere · Gri = elenen.',
+    'help.step7': '7 · SÜPER GÜÇ',
+    'help.step7.body': '100.000 HP’ye ulaşan ülke süper güç olur ve tur sonuna kadar buff kazanır.',
+    'help.step8': '8 · RÜTBE SİSTEMİ',
+    'help.step8.body': 'Katkı puanına göre rütben yükselir. Her rütbe katkı bonusu verir.',
+    'help.step9': '9 · HARİTA RENKLERİ',
+    'help.step9.body': 'Renkler 100.000 maksimum HP’ye göre hesaplanır.',
     'help.shortcuts': '⌨ KLAVYE KISAYOLLARI',
     'help.b1': 'Sağ üstteki "CÜZDAN BAĞLA" butonuna bas. Abstract Global Wallet giriş penceresi açılır.',
     'help.b2': 'Bağlanınca ülke seçim penceresi açılır. Arama kutusunu kullanarak 119 ülke arasından seç. <b style="color:var(--red)">Ülken elenene kadar değiştiremezsin.</b>',
     'help.b3': '"MERMİ SATIN AL" panelinden paket seç. Mermi satın alma <b>blockchain işlemidir</b> — Abstract Global Wallet onayı gerekir, gas ödenir.<br><br><span style="color:var(--dim);font-size:11px">Temel: 0.001 ETH → 100 mermi<br>Gelişmiş: 0.01 ETH → 1.000 mermi<br>Prim: 0.1 ETH → 10.000 mermi<br>Efsanevi: 1.0 ETH → 100.000 mermi</span>',
-    'help.b4': 'Haritada hedef ülkeye tıkla → kırmızı vurgu çıkar → "SALDIRI BAŞLAT" butonuna bas. Her saldırı 1 mermi harcar, hedefin HP\'sini düşürür, kendi HP\'ne ekler. Saldırılar ücretsizdir (on-chain değil — hızlı).',
+    'help.b4': 'Haritada hedef ülkeye tıkla → kırmızı vurgu çıkar → "SALDIRI BAŞLAT" butonuna bas. Her saldırı 1 mermi harcar. Hasar, mermi düşümü ve HP artışı sunucuda hesaplanır; hedefin HP\'si düşer, senin ülkenin HP\'si 100.000\'e kadar artabilir.',
     'help.b5': '"İTTİFAK KUR" ile kendi ittifakını başlat veya "İTTİFAKA KATIL" ile mevcut bir ittifaka gir. Telsiz komutlarıyla müttefiklere sinyal gönder.',
-    'help.b6': 'Her kaynak farklı işe yarar (1 mermi → +10 seviye):<br><span style="color:var(--dim);font-size:11px">🛢️ <b>Petrol</b> — %100\'e ulaşırsa <b>+10 mermi</b> (sıfırlanır)<br>⚙️ <b>Metal</b> — Her seviye için <b>+%1 ekstra hasar</b> (max %10)<br>☢️ <b>Uranyum</b> — Her seviye için <b>+%1 kalkan</b> (savunma)<br>⚡ <b>Enerji</b> — %100\'e ulaşırsa ülkene <b>+50 HP</b> (sıfırlanır)</span>',
-    'help.b7': 'Katkı puanına göre rütben yükselir. Her rütbe <b>katkı bonusu</b> verir — saldırı başına daha çok puan kazanırsın:<br><span style="color:var(--dim);font-size:11px;line-height:1.7">🪖 Asker (0) · 🎖 Onbaşı (50, +%5) · 🎖🎖 Çavuş (200, +%10)<br>⭐ Teğmen (500, +%15) · ⭐⭐ Yüzbaşı (1.500, +%20)<br>⭐⭐⭐ Binbaşı (5.000, +%25) · ⭐⭐⭐⭐ General (15.000, +%30)</span>',
-    'help.b8': 'Yeşil = sağlam · Sarı = hasarlı · Turuncu = kritik · Kırmızı = ölmek üzere · Gri = elenen.',
-    'help.testnet': '⚠️ NOT: Oyun şu an Abstract Testnet\'te — gerçek para değil, test ETH. Mainnet\'e geçiş audit sonrası yapılır.',
+    'help.b6': 'Her kaynak farklı işe yarar (1 mermi → +10 seviye):<br><span style="color:var(--dim);font-size:11px">🛢️ <b>Petrol</b> — %100\'e ulaşırsa <b>+10 mermi</b> (sıfırlanır)<br>⚙️ <b>Metal</b> — Her seviye için <b>+%1 ekstra hasar</b> (max %10)<br>☢️ <b>Uranyum</b> — Her seviye için <b>+%1 kalkan</b> (savunma)<br>⚡ <b>Enerji</b> — %100\'e ulaşırsa ülkene <b>+50 HP</b> verir; ülke HP\'si en fazla <b>100.000</b> olur</span>',
+    'help.b7': 'Bir ülke <b>100.000 HP</b>\'ye ulaşınca <b>⚡ SÜPER GÜÇ</b> olur. Bu durum tur sonuna kadar kalıcıdır: verdiği hasar <b>+%50</b>, aldığı hasar <b>-%25</b> olur. Yenilmez değildir; birleşen ülkeler yine devirebilir.',
+    'help.b8': 'Katkı puanına göre rütben yükselir. Her rütbe <b>katkı bonusu</b> verir — saldırı başına daha çok puan kazanırsın:<br><span style="color:var(--dim);font-size:11px;line-height:1.7">🪖 Asker (0) · 🎖 Onbaşı (50, +%5) · 🎖🎖 Çavuş (200, +%10)<br>⭐ Teğmen (500, +%15) · ⭐⭐ Yüzbaşı (1.500, +%20)<br>⭐⭐⭐ Binbaşı (5.000, +%25) · ⭐⭐⭐⭐ General (15.000, +%30)</span>',
+    'help.b9': 'Harita renkleri 100.000 maksimum HP\'ye göre yüzdelik hesaplanır. Yeşil = güçlü · Sarı = hasarlı · Turuncu = kritik · Kırmızı = düşmek üzere · Altın/⚡ = süper güç · Gri = elenen.',
+    'help.testnet': '⚠️ MAINNET: Mermi satın alma gerçek ETH ile yapılan blockchain işlemidir. Cüzdan onay ekranında tutarı ve ağı kontrol et.',
     // İttifak butonları (büyük)
     'btn.allianceCreateBig': '+ İTTİFAK KUR',
     'btn.allianceJoinBig': 'İTTİFAKA KATIL',
@@ -4451,20 +4459,23 @@ const I18N = {
     'help.step5.body': 'Use "CREATE ALLIANCE" to start your own or join an existing one.',
     'help.step6': '6 · RESOURCE SYSTEM',
     'help.step6.body': 'Each resource has a different effect (1 ammo → +10 level).',
-    'help.step7': '7 · RANK SYSTEM',
-    'help.step7.body': 'Your rank rises with contribution. Each rank gives a contribution bonus.',
-    'help.step8': '8 · MAP COLORS',
-    'help.step8.body': 'Green = healthy · Yellow = damaged · Orange = critical · Red = dying · Gray = eliminated.',
+    'help.step7': '7 · SUPERPOWER',
+    'help.step7.body': 'A country that reaches 100,000 HP becomes a superpower until the round ends.',
+    'help.step8': '8 · RANK SYSTEM',
+    'help.step8.body': 'Your rank rises with contribution. Each rank gives a contribution bonus.',
+    'help.step9': '9 · MAP COLORS',
+    'help.step9.body': 'Colors are calculated against the 100,000 max HP scale.',
     'help.shortcuts': '⌨ KEYBOARD SHORTCUTS',
     'help.b1': 'Click "CONNECT WALLET" top right. The Abstract Global Wallet login opens.',
     'help.b2': 'Once connected, the country picker opens. Use the search box to choose from 119 countries. <b style="color:var(--red)">You cannot change until yours is eliminated.</b>',
     'help.b3': 'Pick a pack from "BUY AMMO". Buying ammo is an <b>on-chain transaction</b> — Abstract Global Wallet approval and gas required.<br><br><span style="color:var(--dim);font-size:11px">Basic: 0.001 ETH → 100 ammo<br>Advanced: 0.01 ETH → 1,000 ammo<br>Premium: 0.1 ETH → 10,000 ammo<br>Legendary: 1.0 ETH → 100,000 ammo</span>',
-    'help.b4': 'Click a target country on the map → red highlight appears → press "ATTACK". Each attack costs 1 ammo, lowers the target HP and adds to yours. Attacks are free (off-chain — fast).',
+    'help.b4': 'Click a target country on the map → red highlight appears → press "ATTACK". Each attack costs 1 ammo. Damage, ammo spend, and HP gain are calculated by the server; target HP drops and your country HP can grow up to 100,000.',
     'help.b5': 'Use "CREATE ALLIANCE" to start your own or "JOIN ALLIANCE" to enter an existing one. Signal allies with radio commands.',
-    'help.b6': 'Each resource has a different effect (1 ammo → +10 level):<br><span style="color:var(--dim);font-size:11px">🛢️ <b>Oil</b> — at 100% gives <b>+10 ammo</b> (resets)<br>⚙️ <b>Metal</b> — each level <b>+1% extra damage</b> (max 10%)<br>☢️ <b>Uranium</b> — each level <b>+1% shield</b> (defense)<br>⚡ <b>Energy</b> — at 100% gives your country <b>+50 HP</b> (resets)</span>',
-    'help.b7': 'Your rank rises with contribution. Each rank gives a <b>contribution bonus</b> — more points per attack:<br><span style="color:var(--dim);font-size:11px;line-height:1.7">🪖 Soldier (0) · 🎖 Corporal (50, +5%) · 🎖🎖 Sergeant (200, +10%)<br>⭐ Lieutenant (500, +15%) · ⭐⭐ Captain (1,500, +20%)<br>⭐⭐⭐ Major (5,000, +25%) · ⭐⭐⭐⭐ General (15,000, +30%)</span>',
-    'help.b8': 'Green = healthy · Yellow = damaged · Orange = critical · Red = dying · Gray = eliminated.',
-    'help.testnet': '⚠️ NOTE: Currently on Abstract Testnet — not real money, test ETH. Mainnet launch after audit.',
+    'help.b6': 'Each resource has a different effect (1 ammo → +10 level):<br><span style="color:var(--dim);font-size:11px">🛢️ <b>Oil</b> — at 100% gives <b>+10 ammo</b> (resets)<br>⚙️ <b>Metal</b> — each level <b>+1% extra damage</b> (max 10%)<br>☢️ <b>Uranium</b> — each level <b>+1% shield</b> (defense)<br>⚡ <b>Energy</b> — at 100% gives your country <b>+50 HP</b>; country HP is capped at <b>100,000</b></span>',
+    'help.b7': 'When a country reaches <b>100,000 HP</b>, it becomes a <b>⚡ SUPERPOWER</b>. This lasts until the round ends: outgoing damage <b>+50%</b>, incoming damage <b>-25%</b>. It is not invincible; coordinated countries can still bring it down.',
+    'help.b8': 'Your rank rises with contribution. Each rank gives a <b>contribution bonus</b> — more points per attack:<br><span style="color:var(--dim);font-size:11px;line-height:1.7">🪖 Soldier (0) · 🎖 Corporal (50, +5%) · 🎖🎖 Sergeant (200, +10%)<br>⭐ Lieutenant (500, +15%) · ⭐⭐ Captain (1,500, +20%)<br>⭐⭐⭐ Major (5,000, +25%) · ⭐⭐⭐⭐ General (15,000, +30%)</span>',
+    'help.b9': 'Map colors use the 100,000 max HP percentage scale. Green = strong · Yellow = damaged · Orange = critical · Red = falling · Gold/⚡ = superpower · Gray = eliminated.',
+    'help.testnet': '⚠️ MAINNET: Ammo purchases use real ETH on-chain. Always review the amount and network in your wallet confirmation.',
     'btn.allianceCreateBig': '+ CREATE ALLIANCE',
     'btn.allianceJoinBig': 'JOIN ALLIANCE',
     'btn.allianceCreateModal': 'CREATE ALLIANCE',
@@ -4726,20 +4737,23 @@ const I18N = {
     'help.step5.body': 'Используйте "СОЗДАТЬ АЛЬЯНС" или вступите в существующий.',
     'help.step6': '6 · РЕСУРСЫ',
     'help.step6.body': 'У каждого ресурса свой эффект (1 патрон → +10 уровень).',
-    'help.step7': '7 · ЗВАНИЯ',
-    'help.step7.body': 'Звание растёт с вкладом. Каждое звание даёт бонус к вкладу.',
-    'help.step8': '8 · ЦВЕТА КАРТЫ',
-    'help.step8.body': 'Зелёный = здоровый · Жёлтый = ранен · Оранжевый = критичен · Красный = умирает · Серый = устранён.',
+    'help.step7': '7 · СУПЕРДЕРЖАВА',
+    'help.step7.body': 'Страна с 100 000 HP становится супердержавой до конца раунда.',
+    'help.step8': '8 · ЗВАНИЯ',
+    'help.step8.body': 'Звание растёт с вкладом. Каждое звание даёт бонус к вкладу.',
+    'help.step9': '9 · ЦВЕТА КАРТЫ',
+    'help.step9.body': 'Цвета считаются по шкале максимума 100 000 HP.',
     'help.shortcuts': '⌨ ГОРЯЧИЕ КЛАВИШИ',
     'help.b1': 'Нажмите "ПОДКЛЮЧИТЬ" справа вверху. Откроется вход Abstract Global Wallet.',
     'help.b2': 'После подключения откроется выбор страны. Используйте поиск для выбора из 119 стран. <b style="color:var(--red)">Нельзя сменить, пока ваша жива.</b>',
     'help.b3': 'Выберите пакет в "КУПИТЬ ПАТРОНЫ". Покупка — это <b>on-chain транзакция</b>: нужно подтверждение Abstract Global Wallet и газ.<br><br><span style="color:var(--dim);font-size:11px">Базовый: 0.001 ETH → 100 патронов<br>Продвинутый: 0.01 ETH → 1 000<br>Премиум: 0.1 ETH → 10 000<br>Легендарный: 1.0 ETH → 100 000</span>',
-    'help.b4': 'Кликните страну-цель на карте → появится красная подсветка → нажмите "АТАКОВАТЬ". Каждая атака стоит 1 патрон, снижает HP цели и добавляет к вашему. Атаки бесплатны (off-chain — быстро).',
+    'help.b4': 'Кликните страну-цель на карте → появится красная подсветка → нажмите "АТАКОВАТЬ". Каждая атака стоит 1 патрон. Урон, расход патронов и прирост HP считает сервер; HP цели падает, HP вашей страны может расти до 100 000.',
     'help.b5': 'Используйте "СОЗДАТЬ АЛЬЯНС" или "ВСТУПИТЬ В АЛЬЯНС". Подавайте сигналы союзникам радио-командами.',
-    'help.b6': 'У каждого ресурса свой эффект (1 патрон → +10 уровень):<br><span style="color:var(--dim);font-size:11px">🛢️ <b>Нефть</b> — при 100% даёт <b>+10 патронов</b> (сброс)<br>⚙️ <b>Металл</b> — каждый уровень <b>+1% урона</b> (макс 10%)<br>☢️ <b>Уран</b> — каждый уровень <b>+1% щит</b> (защита)<br>⚡ <b>Энергия</b> — при 100% даёт стране <b>+50 HP</b> (сброс)</span>',
-    'help.b7': 'Звание растёт с вкладом. Каждое звание даёт <b>бонус к вкладу</b> — больше очков за атаку:<br><span style="color:var(--dim);font-size:11px;line-height:1.7">🪖 Солдат (0) · 🎖 Ефрейтор (50, +5%) · 🎖🎖 Сержант (200, +10%)<br>⭐ Лейтенант (500, +15%) · ⭐⭐ Капитан (1 500, +20%)<br>⭐⭐⭐ Майор (5 000, +25%) · ⭐⭐⭐⭐ Генерал (15 000, +30%)</span>',
-    'help.b8': 'Зелёный = здоровый · Жёлтый = ранен · Оранжевый = критичен · Красный = умирает · Серый = устранён.',
-    'help.testnet': '⚠️ ВНИМАНИЕ: Игра в Abstract Testnet — не реальные деньги, test ETH. Mainnet после аудита.',
+    'help.b6': 'У каждого ресурса свой эффект (1 патрон → +10 уровень):<br><span style="color:var(--dim);font-size:11px">🛢️ <b>Нефть</b> — при 100% даёт <b>+10 патронов</b> (сброс)<br>⚙️ <b>Металл</b> — каждый уровень <b>+1% урона</b> (макс 10%)<br>☢️ <b>Уран</b> — каждый уровень <b>+1% щит</b> (защита)<br>⚡ <b>Энергия</b> — при 100% даёт стране <b>+50 HP</b>; максимум HP страны <b>100 000</b></span>',
+    'help.b7': 'Когда страна достигает <b>100 000 HP</b>, она становится <b>⚡ СУПЕРДЕРЖАВОЙ</b>. Это длится до конца раунда: исходящий урон <b>+50%</b>, входящий урон <b>-25%</b>. Она не бессмертна; союз стран всё ещё может её свалить.',
+    'help.b8': 'Звание растёт с вкладом. Каждое звание даёт <b>бонус к вкладу</b> — больше очков за атаку:<br><span style="color:var(--dim);font-size:11px;line-height:1.7">🪖 Солдат (0) · 🎖 Ефрейтор (50, +5%) · 🎖🎖 Сержант (200, +10%)<br>⭐ Лейтенант (500, +15%) · ⭐⭐ Капитан (1 500, +20%)<br>⭐⭐⭐ Майор (5 000, +25%) · ⭐⭐⭐⭐ Генерал (15 000, +30%)</span>',
+    'help.b9': 'Цвета карты используют шкалу максимума 100 000 HP. Зелёный = сильная · Жёлтый = ранена · Оранжевый = критично · Красный = падает · Золото/⚡ = супердержава · Серый = устранена.',
+    'help.testnet': '⚠️ MAINNET: Покупка патронов использует реальный ETH on-chain. Проверяйте сумму и сеть в подтверждении кошелька.',
     'btn.allianceCreateBig': '+ СОЗДАТЬ АЛЬЯНС',
     'btn.allianceJoinBig': 'ВСТУПИТЬ В АЛЬЯНС',
     'btn.allianceCreateModal': 'СОЗДАТЬ АЛЬЯНС',
