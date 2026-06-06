@@ -1705,6 +1705,7 @@ function updateNicknameUI(nick) {
 function dismissWelcome() {
   const ov = document.getElementById('welcomeOverlay');
   if (ov) { ov.style.transition='opacity 0.4s'; ov.style.opacity='0'; setTimeout(()=>ov.remove(), 450); }
+  try { startWarMusic(); } catch(e) {}
 }
 
 /* ── SEKME BAŞLIĞI BİLDİRİM SAYACI ── */
@@ -3700,7 +3701,7 @@ function _initAudioGraph(ctx) {
 let _warMusic = { started:false, gain:null, timer:null, nodes:[], step:0 };
 
 function _warMusicTargetVolume() {
-  return document.hidden ? 0.022 : 0.082;
+  return document.hidden ? 0.055 : 0.22;
 }
 
 function _musicVoice(ctx, opts) {
@@ -3752,21 +3753,21 @@ function _warMusicTick(ctx) {
   const note = bass[s % bass.length];
 
   if (s % 4 === 0) {
-    _musicVoice(ctx, { type:'sine', f0:78, f1:34, t0:t, dur:0.22, peak:0.18, attack:0.006, decay:0.22, filter:260 });
-    _musicNoise(ctx, { t0:t, dur:0.07, peak:0.025, hp:120, lp:900 });
+    _musicVoice(ctx, { type:'sine', f0:82, f1:34, t0:t, dur:0.26, peak:0.26, attack:0.006, decay:0.25, filter:340 });
+    _musicNoise(ctx, { t0:t, dur:0.08, peak:0.055, hp:110, lp:1200 });
   }
   if (s % 2 === 0) {
-    _musicVoice(ctx, { type:'triangle', f0:note, t0:t+0.02, dur:0.26, peak:0.055, attack:0.008, decay:0.24, filter:520 });
+    _musicVoice(ctx, { type:'triangle', f0:note, t0:t+0.02, dur:0.32, peak:0.115, attack:0.008, decay:0.30, filter:760 });
   }
   if (s % 4 === 2) {
-    _musicNoise(ctx, { t0:t+0.04, dur:0.045, peak:0.025, hp:2400, lp:7200 });
+    _musicNoise(ctx, { t0:t+0.04, dur:0.05, peak:0.05, hp:2200, lp:7200 });
   }
   if (s % 8 === 5) {
     const blip = Math.random() > 0.5 ? 880 : 1174.66;
-    _musicVoice(ctx, { type:'sine', f0:blip, f1:blip*0.72, t0:t+0.03, dur:0.12, peak:0.025, attack:0.004, decay:0.12, filter:2500 });
+    _musicVoice(ctx, { type:'sine', f0:blip, f1:blip*0.72, t0:t+0.03, dur:0.15, peak:0.055, attack:0.004, decay:0.14, filter:3100 });
   }
   if (s % 32 === 16) {
-    _musicVoice(ctx, { type:'sawtooth', f0:392, f1:185, t0:t, dur:1.1, peak:0.032, attack:0.08, decay:1.05, filter:900 });
+    _musicVoice(ctx, { type:'sawtooth', f0:392, f1:185, t0:t, dur:1.2, peak:0.07, attack:0.08, decay:1.12, filter:1100 });
   }
 }
 
@@ -3774,7 +3775,10 @@ function startWarMusic() {
   if (!_soundEnabled || _warMusic.started) return;
   const ctx = getAudioCtx();
   if (!ctx) return;
-  if (ctx.state === 'suspended') ctx.resume();
+  if (ctx.state === 'suspended') {
+    ctx.resume().then(()=>startWarMusic()).catch(()=>{});
+    return;
+  }
   _initAudioGraph(ctx);
 
   _warMusic.started = true;
@@ -3782,20 +3786,20 @@ function startWarMusic() {
   _warMusic.nodes = [];
   _warMusic.gain = ctx.createGain();
   _warMusic.gain.gain.setValueAtTime(0.0001, ctx.currentTime);
-  _warMusic.gain.gain.linearRampToValueAtTime(_warMusicTargetVolume(), ctx.currentTime + 2.2);
+  _warMusic.gain.gain.linearRampToValueAtTime(_warMusicTargetVolume(), ctx.currentTime + 1.1);
   _warMusic.gain.connect(_masterGain);
 
   const padFilter = ctx.createBiquadFilter();
   padFilter.type = 'lowpass';
-  padFilter.frequency.value = 460;
+  padFilter.frequency.value = 820;
   padFilter.Q.value = 0.8;
   padFilter.connect(_warMusic.gain);
   _warMusic.nodes.push(padFilter);
 
   [
-    { f:36.71, type:'sawtooth', gain:0.052, detune:-5 },
-    { f:55.00, type:'triangle', gain:0.045, detune:7 },
-    { f:73.42, type:'sine', gain:0.030, detune:0 }
+    { f:36.71, type:'sawtooth', gain:0.095, detune:-5 },
+    { f:55.00, type:'triangle', gain:0.085, detune:7 },
+    { f:73.42, type:'sine', gain:0.055, detune:0 }
   ].forEach(v => {
     const osc = ctx.createOscillator();
     const g = ctx.createGain();
@@ -3808,6 +3812,8 @@ function startWarMusic() {
     _warMusic.nodes.push(osc, g);
   });
 
+  _musicVoice(ctx, { type:'sawtooth', f0:132, f1:54, t0:ctx.currentTime + 0.02, dur:0.9, peak:0.18, attack:0.02, decay:0.85, filter:950 });
+  _musicNoise(ctx, { t0:ctx.currentTime + 0.04, dur:0.18, peak:0.08, hp:160, lp:1800 });
   _warMusic.timer = setInterval(() => _warMusicTick(ctx), 250);
 }
 
@@ -4024,6 +4030,7 @@ function playSound(kind) {
   if (!ctx) return;
   if (ctx.state === 'suspended') ctx.resume();
   _initAudioGraph(ctx);
+  if (!_warMusic.started) setTimeout(()=>startWarMusic(), 0);
 
   // 1) Gerçek dosya zaten yüklüyse onu çal
   if (_soundBuffers[kind]) {
