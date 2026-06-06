@@ -195,6 +195,15 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .modal-sub{font-family:var(--mono);font-size:9px;color:var(--dim);margin-bottom:14px}
 .modal-close{float:right;background:transparent;border:1px solid var(--border);color:var(--dim);padding:3px 8px;cursor:pointer;font-size:10px;transition:all .15s}
 .modal-close:hover{border-color:var(--red);color:var(--red)}
+.docs-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 14px}
+.docs-tab{background:rgba(255,255,255,.035);border:1px solid var(--border);color:var(--dim);font-family:var(--hud);font-size:9px;letter-spacing:1.5px;padding:7px 10px;cursor:pointer;border-radius:2px;transition:all .15s}
+.docs-tab:hover{border-color:var(--gold);color:var(--text)}
+.docs-tab.active{border-color:var(--red);color:white;background:rgba(232,22,42,.13);box-shadow:0 0 14px rgba(232,22,42,.12)}
+.docs-panel{display:none;text-align:left;font-family:var(--ui);font-size:13px;color:var(--text);line-height:1.58;margin-top:10px}
+.docs-panel.active{display:flex;flex-direction:column;gap:14px}
+.docs-card{border-left:3px solid var(--gold);padding:10px 12px;background:rgba(255,255,255,.025)}
+.docs-card h4{margin:0 0 6px;font-family:var(--hud);font-size:11px;letter-spacing:2px;color:var(--gold)}
+.docs-card p{margin:0 0 7px}.docs-card p:last-child{margin-bottom:0}
 .c-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
 .c-btn{padding:8px 4px;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:var(--hud);font-size:8px;letter-spacing:1px;cursor:pointer;text-align:center;transition:all .15s;border-radius:1px}
 .c-btn:hover{border-color:var(--red);color:white;background:rgba(232,22,42,0.1)}
@@ -227,7 +236,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   nav.topnav .logo-sub{display:none}
   nav.topnav > div:nth-child(4){display:none} /* Orta sekme menüsü gizle (bottom nav var) */
   nav.topnav .nav-link{display:none}
-  nav.topnav button[onclick="openHelp()"] .nav-helptxt{display:none}
+  nav.topnav button[onclick="openDocs()"] .nav-helptxt{display:none}
   nav.topnav .logo-main{font-size:14px;letter-spacing:3px}
   nav.topnav .nav-actions{margin-left:0 !important;width:100%;flex:1 0 100%;justify-content:space-between;gap:6px !important;min-width:0}
   nav.topnav .nav-actions > *{flex:0 0 auto}
@@ -304,7 +313,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   nav.topnav{gap:6px}
   nav.topnav .logo-main{font-size:13px;letter-spacing:2px}
   nav.topnav .nav-actions{gap:4px !important}
-  nav.topnav .nav-actions button[onclick="openHelp()"]{display:none}
+  nav.topnav .nav-actions button[onclick="openDocs()"]{display:none}
   nav.topnav .nav-actions #rewardRulesBtn,
   nav.topnav .nav-actions #riskInfoBtn,
   nav.topnav .nav-actions #prizeOnlyNav,
@@ -414,7 +423,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     <button onclick="cycleLang()" id="langBtn" title="Dil / Language / Язык" style="background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--hud);font-size:10px;padding:5px 8px;cursor:pointer">🇹🇷 TR</button>
     <button onclick="toggleSound()" id="soundBtn" title="Sesi aç/kapa" style="background:transparent;border:1px solid var(--border);color:var(--text);font-size:14px;width:30px;height:28px;cursor:pointer;padding:0">🔊</button>
     <button onclick="openFeedbackModal()" title="Geri bildirim / bug rapor" style="background:transparent;border:1px solid var(--border);color:var(--text);font-size:14px;width:30px;height:28px;cursor:pointer;padding:0">💬</button>
-    <button onclick="openHelp()" title="Nasıl Oynanır" style="background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer" data-i18n="nav.help">❓ NASIL OYNANIR</button>
+    <button onclick="openDocs()" title="ABSWAR Docs" style="background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer" data-i18n="nav.docs">📚 DOCS</button>
     <span style="font-family:var(--mono);font-size:11px;color:var(--red)" id="ethBal">0.000 ETH</span>
     <button id="nicknameBtn" onclick="openNicknameModal()" title="Nickname ayarla" style="display:none;background:transparent;border:1px solid var(--border);color:var(--green);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer">👤 <span id="nicknameLabel" data-i18n="nav.nickname">İSİM EKLE</span></button>
     <button id="adminBtn" onclick="openAdminPanel()" title="Admin Paneli" style="display:none;background:linear-gradient(180deg,rgba(245,200,66,0.15),rgba(245,200,66,0.05));border:1px solid var(--gold);color:var(--gold);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer;letter-spacing:1px">⚙️ ADMIN</button>
@@ -908,14 +917,19 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   </div>
 </div>
 
-<!-- YARDIM MODALI -->
+<!-- DOCS MODALI -->
 <div class="modal" id="helpModal">
   <div class="modal-box" style="width:520px;max-width:92vw;max-height:88vh;overflow-y:auto">
-    <button class="modal-close" onclick="closeHelp()">✕ KAPAT</button>
-    <div class="modal-title" data-i18n="modal.help">❓ NASIL OYNANIR</div>
-    <div class="modal-sub" data-i18n="sub.help">ABSWAR'a hoş geldin Komutan. Adımları takip et:</div>
+    <button class="modal-close" onclick="closeDocs()">✕ KAPAT</button>
+    <div class="modal-title" data-i18n="modal.docs">📚 ABSWAR DOCS</div>
+    <div class="modal-sub" data-i18n="sub.docs">Oyunu, ödülleri ve güvenlik notlarını tek yerde oku.</div>
+    <div class="docs-tabs" role="tablist">
+      <button class="docs-tab active" id="docsTabHow" onclick="setDocsTab('how')" type="button">NASIL OYNANIR</button>
+      <button class="docs-tab" id="docsTabReward" onclick="setDocsTab('reward')" type="button">ÖDÜL</button>
+      <button class="docs-tab" id="docsTabSecurity" onclick="setDocsTab('security')" type="button">GÜVENLİK</button>
+    </div>
 
-    <div style="display:flex;flex-direction:column;gap:14px;text-align:left;font-family:var(--ui);font-size:13px;color:var(--text);line-height:1.55;margin-top:10px">
+    <div id="docsPanelHow" class="docs-panel active">
 
       <div style="border-left:3px solid var(--red);padding-left:12px">
         <div style="font-family:var(--hud);font-size:11px;color:var(--red);letter-spacing:2px;margin-bottom:4px" data-i18n="help.step1">1 · CÜZDAN BAĞLA</div>
@@ -994,6 +1008,49 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
         <b style="color:var(--gold)">⚠️ MAINNET NOTU:</b> Mermi satın alma gerçek ETH ile yapılan blockchain işlemidir. Cüzdan onay ekranında tutarı ve ağı kontrol et; saldırılar ise hızlı olması için off-chain çalışır.
       </div>
 
+    </div>
+
+    <div id="docsPanelReward" class="docs-panel">
+      <div class="docs-card">
+        <h4>ÖDÜL HAVUZU</h4>
+        <p>Mermi alımlarından ayrılan oyun ödül bakiyesi tur sonunda kazananlara dağıtılır. Ana ekranda oyuncular sadece ödül havuzunu görür; admin panelinde toplam yatırılan ETH ayrıca gösterilir.</p>
+        <p><b>Dağılım:</b> 1. ülke %60, 2. ülke %25, 3. ülke %15.</p>
+      </div>
+      <div class="docs-card" style="border-left-color:var(--green)">
+        <h4>TUR VE KAZANMA</h4>
+        <p>Tur süresi 7 gündür. Tur bittiğinde en yüksek güncel HP'ye sahip ilk 3 ülke ödül sıralamasına girer.</p>
+        <p>Kazanan ülkenin ödülü, o ülkeye en çok katkı veren oyuncuya ödenir.</p>
+      </div>
+      <div class="docs-card" style="border-left-color:#66b3ff">
+        <h4>ÖDEME ŞEFFAFLIĞI</h4>
+        <p>Mevcut sürümde ödeme, admin tarafından kontrattaki <code>payReward</code> işlemiyle yapılır ve işlem hashleri backend tarafında kaydedilir.</p>
+        <p>Tam otomatik escrow dağıtımı ayrı bir smart contract sürümü gerektirir; bu yüzden resmi lansman öncesi ayrı kontrat/audit işi olarak tutulmalıdır.</p>
+      </div>
+      <div class="docs-card" style="border-left-color:var(--red)">
+        <h4>MAINNET UYARISI</h4>
+        <p>Mermi satın alma gerçek ETH ile yapılan geri alınamaz blockchain işlemidir. Cüzdan onay ekranında ağın Abstract Mainnet, tutarın doğru ve alıcı kontratın doğru olduğundan emin ol.</p>
+      </div>
+    </div>
+
+    <div id="docsPanelSecurity" class="docs-panel">
+      <div class="docs-card" style="border-left-color:#66b3ff">
+        <h4>OYUN VERİSİ</h4>
+        <p>Saldırı, HP, mermi düşümü, katkı ve süper güç hesapları server-side yapılır. Client tarafından gönderilen HP veya mermi değerlerine güvenilmez.</p>
+      </div>
+      <div class="docs-card" style="border-left-color:var(--gold)">
+        <h4>RANK NFT</h4>
+        <p>Rütbe NFT rozetleri prestij içindir. Soulbound yapıdadır, transfer edilemez ve ekstra oyun gücü vermez.</p>
+        <p>NFT otomatik düşmez; hak kazandığın rozette <b>ROZETİ AL</b> butonuna basıp cüzdanda mint onayı vermen gerekir.</p>
+      </div>
+      <div class="docs-card" style="border-left-color:var(--green)">
+        <h4>SUNUCU VE ADMIN</h4>
+        <p>Admin token frontend içinde saklanmaz; yetkili işlemler backend doğrulamasından geçer. Admin ekranı owner cüzdanı ve token kontrolüyle kullanılır.</p>
+      </div>
+      <div class="docs-card" style="border-left-color:var(--red)">
+        <h4>AUDIT DURUMU</h4>
+        <p>İç kontroller ve canlı doğrulamalar yapıldı; fakat bu, resmi bağımsız smart contract/security audit yerine geçmez. Büyük duyuru veya yüksek hacim öncesi bağımsız audit önerilir.</p>
+        <p>Kaybetmeyi göze alamayacağın miktarla işlem yapma; blockchain işlemleri geri alınamaz.</p>
+      </div>
     </div>
   </div>
 </div>
@@ -1670,15 +1727,32 @@ function notifyTab(msg) {
   }
 }
 
-/* ── YARDIM EKRANI ── */
-function openHelp() { document.getElementById('helpModal').classList.add('show'); }
-function closeHelp() { document.getElementById('helpModal').classList.remove('show'); }
-document.getElementById('helpModal').addEventListener('click', function(e){ if(e.target===this) closeHelp(); });
+/* ── DOCS EKRANI ── */
+function setDocsTab(tab='how') {
+  const keys = ['how','reward','security'];
+  const active = keys.includes(tab) ? tab : 'how';
+  for (const key of keys) {
+    document.getElementById('docsTab'+key[0].toUpperCase()+key.slice(1))?.classList.toggle('active', key === active);
+    document.getElementById('docsPanel'+key[0].toUpperCase()+key.slice(1))?.classList.toggle('active', key === active);
+  }
+}
+function openDocs(tab='how') {
+  setDocsTab(tab);
+  document.getElementById('helpModal').classList.add('show');
+}
+function closeDocs() { document.getElementById('helpModal').classList.remove('show'); }
+function openHelp() { openDocs('how'); }
+function closeHelp() { closeDocs(); }
+function openRewardRules() { openDocs('reward'); }
+function closeRewardRules() { closeDocs(); }
+function openRiskInfo() { openDocs('security'); }
+function closeRiskInfo() { closeDocs(); }
+document.getElementById('helpModal').addEventListener('click', function(e){ if(e.target===this) closeDocs(); });
 
 // İlk ziyarette otomatik göster
 try {
   if (!localStorage.getItem('abswar-help-seen')) {
-    setTimeout(()=>{ openHelp(); localStorage.setItem('abswar-help-seen','1'); }, 800);
+    setTimeout(()=>{ openDocs('how'); localStorage.setItem('abswar-help-seen','1'); }, 800);
   }
 } catch(e) {}
 
@@ -4128,6 +4202,7 @@ const I18N = {
     'nav.market': 'PAZAR',
     'nav.rank': 'SIRALAMA',
     'nav.help': '❓ NASIL OYNANIR',
+    'nav.docs': '📚 DOCS',
     'nav.feedback': 'Geri bildirim / bug rapor',
     'nav.sound': 'Sesi aç/kapa',
     'nav.nickname': 'İSİM EKLE',
@@ -4319,6 +4394,7 @@ const I18N = {
     'modal.nickname': '👤 NICKNAME AYARLA',
     'modal.feedback': '💬 GERİ BİLDİRİM / BUG RAPOR',
     'modal.help': '❓ NASIL OYNANIR',
+    'modal.docs': '📚 ABSWAR DOCS',
     'modal.country': 'ÜLKE SEÇ',
     'modal.roundEnd': '🏆 TUR BİTTİ',
     // Modal alt başlıklar
@@ -4328,6 +4404,7 @@ const I18N = {
     'sub.feedback': 'Bir sorun mu var? Bir fikrin mi var? Bize yaz.',
     'sub.country': 'Hangi ülkenin komutanı olacaksın?',
     'sub.help': 'ABSWAR\'a hoş geldin Komutan. Adımları takip et:',
+    'sub.docs': 'Oyunu, ödülleri ve güvenlik notlarını tek yerde oku.',
     // Yardım modal adımları (kısa, anahtar)
     'help.step1': '1 · CÜZDAN BAĞLA',
     'help.step1.body': 'Sağ üstteki "CÜZDAN BAĞLA" butonuna bas. Abstract Global Wallet giriş penceresi açılır.',
@@ -4427,6 +4504,7 @@ const I18N = {
     'nav.market': 'MARKET',
     'nav.rank': 'RANKING',
     'nav.help': '❓ HOW TO PLAY',
+    'nav.docs': '📚 DOCS',
     'nav.feedback': 'Feedback / Bug report',
     'nav.sound': 'Toggle sound',
     'nav.nickname': 'ADD NAME',
@@ -4609,6 +4687,7 @@ const I18N = {
     'modal.nickname': '👤 SET NICKNAME',
     'modal.feedback': '💬 FEEDBACK / BUG REPORT',
     'modal.help': '❓ HOW TO PLAY',
+    'modal.docs': '📚 ABSWAR DOCS',
     'modal.country': 'SELECT COUNTRY',
     'modal.roundEnd': '🏆 ROUND ENDED',
     'sub.allianceCreate': 'Give your alliance a name. Other commanders can join.',
@@ -4617,6 +4696,7 @@ const I18N = {
     'sub.feedback': 'Got a problem? Got an idea? Tell us.',
     'sub.country': 'Which country will you command?',
     'sub.help': 'Welcome to ABSWAR, Commander. Follow the steps:',
+    'sub.docs': 'Read how to play, rewards, and safety notes in one place.',
     'help.step1': '1 · CONNECT WALLET',
     'help.step1.body': 'Click "CONNECT WALLET" top right. The Abstract Global Wallet login opens.',
     'help.step2': '2 · PICK COUNTRY',
@@ -4706,6 +4786,7 @@ const I18N = {
     'nav.market': 'РЫНОК',
     'nav.rank': 'РЕЙТИНГ',
     'nav.help': '❓ КАК ИГРАТЬ',
+    'nav.docs': '📚 DOCS',
     'nav.feedback': 'Отзыв / отчёт об ошибке',
     'nav.sound': 'Звук вкл/выкл',
     'nav.nickname': 'ДОБАВИТЬ ИМЯ',
@@ -4887,6 +4968,7 @@ const I18N = {
     'modal.nickname': '👤 ЗАДАТЬ НИК',
     'modal.feedback': '💬 ОТЗЫВ / ОШИБКА',
     'modal.help': '❓ КАК ИГРАТЬ',
+    'modal.docs': '📚 ABSWAR DOCS',
     'modal.country': 'ВЫБРАТЬ СТРАНУ',
     'modal.roundEnd': '🏆 РАУНД ЗАВЕРШЁН',
     'sub.allianceCreate': 'Назовите свой альянс. Другие командиры смогут присоединиться.',
@@ -4895,6 +4977,7 @@ const I18N = {
     'sub.feedback': 'Есть проблема? Есть идея? Напишите нам.',
     'sub.country': 'Какой страной вы будете командовать?',
     'sub.help': 'Добро пожаловать в ABSWAR, Командир. Следуйте шагам:',
+    'sub.docs': 'Правила игры, награды и безопасность собраны в одном месте.',
     'help.step1': '1 · ПОДКЛЮЧИТЬ КОШЕЛЁК',
     'help.step1.body': 'Нажмите "ПОДКЛЮЧИТЬ" справа вверху. Откроется вход Abstract Global Wallet.',
     'help.step2': '2 · ВЫБРАТЬ СТРАНУ',
@@ -5395,6 +5478,15 @@ Object.assign(window, {
   adminDownloadBackup,
   adminGrantAllRankNfts,
   adminConfirmReset,
+  setDocsTab,
+  openDocs,
+  closeDocs,
+  openHelp,
+  closeHelp,
+  openRewardRules,
+  closeRewardRules,
+  openRiskInfo,
+  closeRiskInfo,
   waitForAbstractWallet,
   updateWalletBalance,
   updateRankUI
@@ -5556,25 +5648,13 @@ function U(){
     b.style.cssText="border:1px solid rgba(245,200,66,.55);color:var(--gold);font-family:var(--hud);font-size:9px;padding:3px 6px;margin-left:6px;letter-spacing:1px";
     l.after(b);
   }
-  let h=document.querySelector("[data-i18n='nav.help']");
-  if(h&&!document.getElementById("rewardRulesBtn")){
-    let b=document.createElement("button");
-    b.id="rewardRulesBtn";b.textContent="ÖDÜL KURALLARI";b.onclick=openRewardRules;
-    b.style.cssText="background:transparent;border:1px solid rgba(245,200,66,.45);color:var(--gold);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer";
-    h.after(b);
-  }
-  if(!document.getElementById("rewardRulesModal")){
-    let m=document.createElement("div");
-    m.id="rewardRulesModal";m.className="modal";
-    m.innerHTML='<div class="modal-box" style="width:520px;max-width:92vw;text-align:left"><button class="modal-close" onclick="closeRewardRules()">KAPAT</button><div class="modal-title" style="color:var(--gold)">ÖDÜL KURALLARI</div><div style="font-family:var(--ui);font-size:13px;line-height:1.7;color:var(--text)"><p><b>Ödül havuzu:</b> Mermi alımlarından kontratta ayrılan ödül bakiyesidir.</p><p><b>Tur süresi:</b> 7 gün. Tur bitince en yüksek HP sahibi ilk 3 ülke kazanır.</p><p><b>Dağılım:</b> 1. ülke %60, 2. ülke %25, 3. ülke %15.</p><p><b>Ödeme:</b> Kazanan ülkelerin en yüksek katkılı oyuncularına admin tarafından kontrattaki <code>payReward</code> ile ödenir. Ödeme tx hashleri backend’e kaydedilerek tur durumu üzerinden doğrulanabilir hale getirilir.</p><p style="color:var(--gold)"><b>Mainnet:</b> İşlemler gerçek ETH ile yapılır. Cüzdan onay ekranını her zaman kontrol et.</p><p style="color:var(--dim);font-size:11px">Güvenlik notu: Ödeme doğrulaması aktif; resmi bağımsız audit raporu ayrı bir süreçtir.</p></div></div>';
-    m.addEventListener("click",e=>{if(e.target===m)closeRewardRules()});
-    document.body.appendChild(m);
-  }
+  document.getElementById("rewardRulesBtn")?.remove();
+  document.getElementById("rewardRulesModal")?.remove();
   let w=document.querySelector("[data-i18n='welcome.warning']");
   if(w)w.textContent="Mainnet: gerçek ETH kullanılır. Cüzdan onaylarını dikkatli kontrol et.";
 }
-window.openRewardRules=function(){U();document.getElementById("rewardRulesModal").classList.add("show")};
-window.closeRewardRules=function(){document.getElementById("rewardRulesModal").classList.remove("show")};
+window.openRewardRules=function(){U();window.openDocs?window.openDocs("reward"):openDocs("reward")};
+window.closeRewardRules=function(){window.closeDocs?window.closeDocs():closeDocs()};
 function S(v){
   U();
   let t="ÖDÜL HAVUZU "+v,g=document.getElementById("giftBadge");
@@ -5598,14 +5678,12 @@ U();R();
 </script>
 <script>
 (function(){
-function rrOpen(){let m=document.getElementById("rewardRulesModal");if(m)m.classList.add("show")}
-function rrClose(){let m=document.getElementById("rewardRulesModal");if(m)m.classList.remove("show")}
+function rrOpen(){window.openDocs?window.openDocs("reward"):openDocs("reward")}
+function rrClose(){window.closeDocs?window.closeDocs():closeDocs()}
 window.openRewardRules=rrOpen;window.closeRewardRules=rrClose;
 function bind(){
-  let b=document.getElementById("rewardRulesBtn");
-  if(b&&!b.dataset.rrBound){b.dataset.rrBound="1";b.addEventListener("click",e=>{e.preventDefault();rrOpen()})}
-  let m=document.getElementById("rewardRulesModal");
-  if(m&&!m.dataset.rrBound){m.dataset.rrBound="1";m.addEventListener("click",e=>{if(e.target===m)rrClose()})}
+  document.getElementById("rewardRulesBtn")?.remove();
+  document.getElementById("rewardRulesModal")?.remove();
 }
 bind();setInterval(bind,1000);
 })();
@@ -5613,26 +5691,11 @@ bind();setInterval(bind,1000);
 <script>
 (function(){
 function ensureRiskInfo(){
-  const anchor=document.getElementById("rewardRulesBtn")||document.querySelector("[data-i18n='nav.help']");
-  if(anchor&&!document.getElementById("riskInfoBtn")){
-    const b=document.createElement("button");
-    b.id="riskInfoBtn";
-    b.textContent="GUVENLIK / RISK";
-    b.onclick=()=>window.openRiskInfo();
-    b.style.cssText="background:transparent;border:1px solid rgba(102,179,255,.45);color:#66b3ff;font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer";
-    anchor.after(b);
-  }
-  if(!document.getElementById("riskInfoModal")){
-    const m=document.createElement("div");
-    m.id="riskInfoModal";
-    m.className="modal";
-    m.innerHTML='<div class="modal-box" style="width:560px;max-width:92vw;text-align:left;max-height:88vh;overflow-y:auto"><button class="modal-close" onclick="window.closeRiskInfo()">KAPAT</button><div class="modal-title" style="color:#66b3ff">G&Uuml;VENL&#304;K / R&#304;SK B&#304;LG&#304;S&#304;</div><div style="font-family:var(--ui);font-size:13px;line-height:1.7;color:var(--text)"><p><b>Mainnet:</b> Mermi satin alma gercek ETH ile yapilan blockchain islemidir. Cuzdan onay ekraninda ag, tutar ve alici kontrati kontrol et.</p><p><b>Oyun verisi:</b> Saldiri, HP, mermi dusumu ve super guc hesaplari server-side yapilir. Client tarafindan gelen HP/mermi degerlerine guvenilmez.</p><p><b>Odul akisi:</b> Odul havuzu ve odeme hashleri gorunur hale getirildi. Su an odemeler admin tarafindan kontrattaki <code>payReward</code> ile kaydedilerek ilerler; tam otomatik escrow dagitim ayri kontrat surumu gerektirir.</p><p><b>Rank NFT:</b> Rozetler soulbound prestij NFTleridir; transfer edilemez ve ekstra oyun gucu vermez.</p><p><b>Audit durumu:</b> Ic kontroller ve canli dogrulamalar yapildi; resmi bagimsiz smart contract/security audit raporu henuz alinmadi. Buyuk lansman oncesi tavsiye edilir.</p><p style="color:var(--gold)"><b>Oyuncu notu:</b> Kaybetmeyi goze alamayacagin miktarla islem yapma. Blockchain islemleri geri alinamaz.</p></div></div>';
-    m.addEventListener("click",e=>{if(e.target===m)closeRiskInfo()});
-    document.body.appendChild(m);
-  }
+  document.getElementById("riskInfoBtn")?.remove();
+  document.getElementById("riskInfoModal")?.remove();
 }
-window.openRiskInfo=function(){ensureRiskInfo();document.getElementById("riskInfoModal").classList.add("show")};
-window.closeRiskInfo=function(){const m=document.getElementById("riskInfoModal");if(m)m.classList.remove("show")};
+window.openRiskInfo=function(){ensureRiskInfo();window.openDocs?window.openDocs("security"):openDocs("security")};
+window.closeRiskInfo=function(){window.closeDocs?window.closeDocs():closeDocs()};
 ensureRiskInfo();setInterval(ensureRiskInfo,1000);
 })();
 </script>
