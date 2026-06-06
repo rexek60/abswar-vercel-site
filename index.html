@@ -3697,11 +3697,34 @@ function _initAudioGraph(ctx) {
   _reverbGain.connect(_masterGain);
 }
 
-/* ── ARKA PLAN SAVAŞ MÜZİĞİ (telif gerektirmeyen procedural loop) ── */
-let _warMusic = { started:false, gain:null, timer:null, nodes:[], step:0 };
+/* ── ARKA PLAN SAVAŞ MÜZİĞİ ── */
+const WAR_MUSIC_FILE = 'assets/hitslab-dramatic-war-military-music-427109.mp3';
+let _warMusic = { started:false, mode:'none', gain:null, timer:null, nodes:[], step:0, audio:null, audioFailed:false, startToken:0 };
 
 function _warMusicTargetVolume() {
   return document.hidden ? 0.055 : 0.22;
+}
+
+function _warMusicFileVolume() {
+  return document.hidden ? 0.18 : 0.46;
+}
+
+function _ensureWarMusicAudio() {
+  if (_warMusic.audio) return _warMusic.audio;
+  const audio = new Audio(WAR_MUSIC_FILE);
+  audio.loop = true;
+  audio.preload = 'auto';
+  audio.volume = _warMusicFileVolume();
+  audio.addEventListener('error', () => {
+    _warMusic.audioFailed = true;
+    if ((_warMusic.mode === 'file' || _warMusic.mode === 'file-loading') && _soundEnabled) {
+      _warMusic.mode = 'none';
+      _warMusic.started = false;
+      _startProceduralWarMusic();
+    }
+  });
+  _warMusic.audio = audio;
+  return audio;
 }
 
 function _musicVoice(ctx, opts) {
@@ -3773,15 +3796,55 @@ function _warMusicTick(ctx) {
 
 function startWarMusic() {
   if (!_soundEnabled || _warMusic.started) return;
+  if (!_warMusic.audioFailed && WAR_MUSIC_FILE) {
+    const audio = _ensureWarMusicAudio();
+    const token = ++_warMusic.startToken;
+    audio.volume = _warMusicFileVolume();
+    _warMusic.started = true;
+    _warMusic.mode = 'file-loading';
+    const playPromise = audio.play();
+    if (playPromise && typeof playPromise.then === 'function') {
+      playPromise.then(() => {
+        if (token !== _warMusic.startToken) return;
+        _warMusic.mode = 'file';
+        _warMusic.started = true;
+      }).catch(() => {
+        if (token !== _warMusic.startToken) return;
+        _warMusic.audioFailed = true;
+        _warMusic.mode = 'none';
+        _warMusic.started = false;
+        _startProceduralWarMusic();
+      });
+    } else {
+      _warMusic.mode = 'file';
+    }
+    setTimeout(() => {
+      if (token !== _warMusic.startToken) return;
+      if (_warMusic.mode === 'file-loading' && (audio.paused || audio.readyState === 0)) {
+        _warMusic.audioFailed = true;
+        try { audio.pause(); } catch(e) {}
+        _warMusic.mode = 'none';
+        _warMusic.started = false;
+        _startProceduralWarMusic();
+      }
+    }, 1800);
+    return;
+  }
+  _startProceduralWarMusic();
+}
+
+function _startProceduralWarMusic() {
+  if (!_soundEnabled || _warMusic.mode === 'procedural') return;
   const ctx = getAudioCtx();
   if (!ctx) return;
   if (ctx.state === 'suspended') {
-    ctx.resume().then(()=>startWarMusic()).catch(()=>{});
+    ctx.resume().then(()=>_startProceduralWarMusic()).catch(()=>{});
     return;
   }
   _initAudioGraph(ctx);
 
   _warMusic.started = true;
+  _warMusic.mode = 'procedural';
   _warMusic.step = 0;
   _warMusic.nodes = [];
   _warMusic.gain = ctx.createGain();
@@ -3820,7 +3883,12 @@ function startWarMusic() {
 function stopWarMusic() {
   if (!_warMusic.started) return;
   const ctx = _audioCtx;
+  _warMusic.startToken++;
   _warMusic.started = false;
+  _warMusic.mode = 'none';
+  if (_warMusic.audio) {
+    try { _warMusic.audio.pause(); } catch(e) {}
+  }
   if (_warMusic.timer) clearInterval(_warMusic.timer);
   _warMusic.timer = null;
   if (ctx && _warMusic.gain) {
@@ -3842,6 +3910,9 @@ function stopWarMusic() {
 }
 
 function updateWarMusicDucking() {
+  if (_warMusic.audio && !_warMusic.audio.paused) {
+    _warMusic.audio.volume = _warMusicFileVolume();
+  }
   if (!_warMusic.started || !_warMusic.gain || !_audioCtx) return;
   try {
     _warMusic.gain.gain.cancelScheduledValues(_audioCtx.currentTime);
