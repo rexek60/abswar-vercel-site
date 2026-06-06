@@ -2661,6 +2661,7 @@ async function waitForAbstractWallet(requireAccount=false) {
 
 function applyConnectedWallet(address) {
   wallet = address;
+  window.ABSWAR_WALLET = address;
   const btn = document.getElementById('walletBtn');
   btn.textContent = wallet.slice(0,6)+'...'+wallet.slice(-4);
   btn.className = 'btn-wallet connected';
@@ -5238,6 +5239,7 @@ async function disconnectWallet() {
   // Tam session sıfırla
   clearAuthSession();
   wallet = null;
+  window.ABSWAR_WALLET = null;
   myCountry = null;
   targetCountry = null;
   myAlliance = null;
@@ -5382,6 +5384,21 @@ function copyCountryLink(code) {
 }
 
 /* ── INIT ── */
+window.ABSWAR_API = API;
+window.ABSWAR_ACTIVE_CHAIN = ACTIVE_CHAIN;
+window.ABSWAR_RANKS_FE = RANKS_FE;
+window.ABSWAR_getWallet = () => wallet;
+Object.assign(window, {
+  adminAction,
+  adminShowWinners,
+  adminShowMetrics,
+  adminDownloadBackup,
+  adminGrantAllRankNfts,
+  adminConfirmReset,
+  waitForAbstractWallet,
+  updateWalletBalance,
+  updateRankUI
+});
 buildMap();
 renderLabels();
 renderResources();
@@ -5631,10 +5648,14 @@ const COPY={
   ru:{title:"NFT ЗНАЧКИ РАНГА",subtitle:"Коллекция достижений ABSWAR",ready:"LIVE",setup:"PREPARING",note:"NFT is not automatic. Press CLAIM BADGE on an unlocked badge and approve the mint in your wallet.",claim:"CLAIM BADGE",owned:"OWNED",pending:"PENDING",locked:"LOCKED",need:"points left",disabled:"NFT contract is being prepared",connect:"Connect wallet first",notReady:"Rank NFT system is not ready yet",sign:"Checking badge eligibility...",approve:"Approve mint in wallet",sent:"NFT mint transaction sent",fail:"NFT badge claim failed",claimReady:"Badge ready",claimHint:"NFT is not automatic; press CLAIM BADGE to mint."}
 };
 let rankNftStatus=null,rankNftContribution=0,rankNftOwned=new Set(),rankNftPending=new Set(),rankNftPendingAt={},rankNftPendingTx={},rankNftLastWallet=null;
+const SAFE_NETWORK=window.ABSWAR_APP_NETWORK||(typeof APP_NETWORK!=="undefined"?APP_NETWORK:"mainnet");
+function safeWallet(){return window.ABSWAR_WALLET||(typeof wallet!=="undefined"?wallet:"")}
+function safeChain(){return window.ABSWAR_ACTIVE_CHAIN||(typeof ACTIVE_CHAIN!=="undefined"?ACTIVE_CHAIN:null)}
+function safeRanks(){return window.ABSWAR_RANKS_FE||(typeof RANKS_FE!=="undefined"?RANKS_FE:[])}
 function L(k){let lang="tr";try{lang=localStorage.getItem("abswar-lang")||"tr"}catch(e){}return (COPY[lang]||COPY.tr)[k]||k}
 function E(v){return typeof escapeHtml==="function"?escapeHtml(v):String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]))}
-function ranks(){return rankNftStatus?.ranks||RANKS_FE.map((r,i)=>({index:i,name:r.name,icon:r.icon,min:r.min,bonusPct:r.bonus}))}
-function pendingKey(){return "abswar-rank-nft-pending:"+APP_NETWORK+":"+(rankNftStatus?.contractAddress||"no-contract").toLowerCase()+":"+(wallet||"none").toLowerCase()}
+function ranks(){return rankNftStatus?.ranks||safeRanks().map((r,i)=>({index:i,name:r.name,icon:r.icon,min:r.min,bonusPct:r.bonus}))}
+function pendingKey(){return "abswar-rank-nft-pending:"+SAFE_NETWORK+":"+(rankNftStatus?.contractAddress||"no-contract").toLowerCase()+":"+(safeWallet()||"none").toLowerCase()}
 function loadPending(){try{rankNftPendingAt={};rankNftPendingTx={};rankNftPending=new Set(JSON.parse(localStorage.getItem(pendingKey())||"[]").map(x=>{const v=typeof x==="object"?Number(x.rank):Number(x);rankNftPendingAt[v]=typeof x==="object"?Number(x.ts)||0:0;rankNftPendingTx[v]=typeof x==="object"?(x.txHash||""):"";return v}).filter(Number.isFinite))}catch(e){rankNftPending=new Set();rankNftPendingAt={};rankNftPendingTx={}}}
 function savePending(){try{const now=Date.now();localStorage.setItem(pendingKey(),JSON.stringify([...rankNftPending].map(i=>({rank:i,ts:rankNftPendingAt[i]||now,txHash:rankNftPendingTx[i]||""}))))}catch(e){}}
 function addPendingRank(i,txHash=""){const n=Number(i);rankNftPending.add(n);rankNftPendingAt[n]=Date.now();if(txHash)rankNftPendingTx[n]=txHash;savePending()}
@@ -5720,13 +5741,14 @@ async function refreshRankNftStatus(){
   await refreshRankNftOwned();
 }
 async function refreshRankNftOwned(){
-  if(!wallet||!rankNftStatus?.enabled||!rankNftStatus.contractAddress)return;
-  if(rankNftLastWallet!==wallet){rankNftOwned=new Set();rankNftLastWallet=wallet}
+  const currentWallet=safeWallet(),chain=safeChain();
+  if(!currentWallet||!chain?.rpcUrls?.[0]||!rankNftStatus?.enabled||!rankNftStatus.contractAddress)return;
+  if(rankNftLastWallet!==currentWallet){rankNftOwned=new Set();rankNftLastWallet=currentWallet}
   try{
     const viem=await rankNftViem(),owned=new Set();
     for(const r of ranks()){
-      const data=viem.encodeFunctionData({abi:RANK_NFT_ABI,functionName:"hasRankNFT",args:[wallet,Number(r.index)]});
-      const res=await fetch(ACTIVE_CHAIN.rpcUrls[0],{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({jsonrpc:"2.0",id:Date.now()+Number(r.index),method:"eth_call",params:[{to:rankNftStatus.contractAddress,data},"latest"]})}).then(x=>x.json());
+      const data=viem.encodeFunctionData({abi:RANK_NFT_ABI,functionName:"hasRankNFT",args:[currentWallet,Number(r.index)]});
+      const res=await fetch(chain.rpcUrls[0],{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({jsonrpc:"2.0",id:Date.now()+Number(r.index),method:"eth_call",params:[{to:rankNftStatus.contractAddress,data},"latest"]})}).then(x=>x.json());
       if(res.result&&res.result!=="0x"){
         const [hasIt]=viem.decodeFunctionResult({abi:RANK_NFT_ABI,functionName:"hasRankNFT",data:res.result});
         if(hasIt)owned.add(Number(r.index));
@@ -5750,11 +5772,12 @@ window.abswarMintRankNftClaim=async function(claim){
 window.abswarMarkRankNftPending=function(rankIndex,txHash=""){addPendingRank(rankIndex,txHash);renderRankNftPanel();scheduleRankNftCheck(rankIndex,txHash)};
 window.abswarRefreshRankNftOwned=refreshRankNftOwned;
 window.claimRankNft=async function(rankIndex){
-  if(!wallet){showToast(L("connect"),"error");return}
+  const currentWallet=safeWallet();
+  if(!currentWallet){showToast(L("connect"),"error");return}
   if(!rankNftStatus?.enabled){showToast(L("notReady"),"error");return}
   showLoader(L("sign"));
   try{
-    const res=await authJson("/api/nft/claim-signature",{wallet,rank:rankIndex});
+    const res=await authJson("/api/nft/claim-signature",{wallet:currentWallet,rank:rankIndex});
     const claim=await res.json();
     if(!res.ok||claim.error)throw new Error(tErr(claim)||claim.error||"NFT claim failed");
     showToast(L("approve"),"info");
