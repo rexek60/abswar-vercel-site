@@ -72,8 +72,8 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .act-time{font-size:8px;color:var(--dim);margin-top:1px}
 
 /* MAP */
-#mapSvg{width:100%;height:100%;cursor:crosshair}
-.country-land{stroke-width:0.6;stroke-linejoin:round;stroke-linecap:round;transition:fill .4s,stroke .3s,filter .3s;cursor:crosshair;vector-effect:non-scaling-stroke;paint-order:stroke fill;fill-opacity:.96}
+#mapSvg{width:100%;height:100%;cursor:crosshair;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+ .country-land{stroke-width:0.6;stroke-linejoin:round;stroke-linecap:round;transition:fill .4s,stroke .3s,filter .3s;cursor:crosshair;vector-effect:non-scaling-stroke;paint-order:stroke fill;fill-opacity:.96;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 /* HP seviyesine göre renkler */
 .country-land.hp-full{fill:url(#landGrad);stroke:#84d79a;stroke-width:0.55}
 .country-land.hp-high{fill:url(#hpHighGrad);stroke:#74c68c;stroke-width:0.6}
@@ -356,6 +356,20 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   </div>
   <div style="font-family:var(--ui);font-size:14px;color:var(--text);max-width:480px;line-height:1.6;margin-bottom:28px" data-i18n="welcome.body">
     119 ülkeden birini seç, ittifak kur, savaş alanına gir. Web3 cüzdanınla bağlan, mermi al, hedeflerinin elenmesi için saldır.
+  </div>
+  <div style="display:flex;gap:8px;max-width:520px;width:100%;margin:-10px 0 22px;justify-content:center;flex-wrap:wrap">
+    <div style="flex:1;min-width:138px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.09);padding:9px 10px;text-align:left">
+      <div style="font-family:var(--hud);font-size:9px;color:var(--green);letter-spacing:1px">1 · BAGLAN</div>
+      <div style="font-size:10px;color:var(--dim);margin-top:4px;line-height:1.35">Abstract cuzdaninla giris yap.</div>
+    </div>
+    <div style="flex:1;min-width:138px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.09);padding:9px 10px;text-align:left">
+      <div style="font-family:var(--hud);font-size:9px;color:var(--gold);letter-spacing:1px">2 · ULKE SEC</div>
+      <div style="font-size:10px;color:var(--dim);margin-top:4px;line-height:1.35">119 ulkeden birini komuta et.</div>
+    </div>
+    <div style="flex:1;min-width:138px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.09);padding:9px 10px;text-align:left">
+      <div style="font-family:var(--hud);font-size:9px;color:var(--red);letter-spacing:1px">3 · SALDIR</div>
+      <div style="font-size:10px;color:var(--dim);margin-top:4px;line-height:1.35">Mermi al, hedef sec, savasa gir.</div>
+    </div>
   </div>
   <button onclick="connectWallet()" style="background:linear-gradient(180deg,#e8162a,#a01020);border:none;color:#fff;font-family:var(--hud);font-size:13px;letter-spacing:3px;padding:14px 36px;cursor:pointer;font-weight:700;box-shadow:0 4px 20px rgba(232,22,42,0.4),inset 0 1px 0 rgba(255,255,255,0.15)" data-i18n="welcome.cta">
     🔗 CÜZDAN BAĞLA & SAVAŞA KATIL
@@ -1806,6 +1820,12 @@ async function refreshAdminRoundInfo() {
       timeLeft = ` · Kalan: ${d}g ${h}s`;
     }
     box.innerHTML = `Tur #${r.number||r.roundNumber||'?'} · ${statusMap[r.status]||r.status||'?'}${timeLeft}`;
+    try {
+      const sys = await fetch(API+'/api/status').then(r=>r.json());
+      if (sys && sys.dbEnabled === false) {
+        box.innerHTML += '<br><span style="color:var(--gold);font-size:10px">Uyari: Kalici veri sistemi kapali. Railway DATABASE_URL/Postgres baglantisini kontrol et.</span>';
+      }
+    } catch(_e) {}
     const state = await fetch(API+'/api/game/state').then(r=>r.json());
     if (state?.economy) updateEconomyUI(state.economy);
   } catch(e) {
@@ -1961,6 +1981,9 @@ async function adminGrantAllRankNfts() {
   const adminEsc = v => typeof escapeHtml === 'function'
     ? escapeHtml(v)
     : String(v??'').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+  const shortAdminTx = tx => tx && String(tx).startsWith('0x')
+    ? String(tx).slice(0,10)+'...'+String(tx).slice(-6)
+    : '';
   result.innerHTML = '<span style="color:var(--dim)">Rutbe NFT imzalari hazirlaniyor...</span>';
   try {
     await ensureAuthSession(false);
@@ -1989,9 +2012,10 @@ async function adminGrantAllRankNfts() {
       const name = claim.rank?.name || ('Rutbe '+claim.rank?.index);
       showToast(`${name} NFT mint onayini cuzdaninda ver`, 'info');
       if (typeof abswarMintRankNftClaim !== 'function') throw new Error('NFT mint yardimcisi hazir degil');
-      await abswarMintRankNftClaim(claim);
-      minted.push(name);
-      if (typeof abswarMarkRankNftPending === 'function') abswarMarkRankNftPending(claim.rank.index);
+      const txHash = await abswarMintRankNftClaim(claim);
+      const txLabel = shortAdminTx(txHash);
+      minted.push(txLabel ? `${name} (${txLabel})` : name);
+      if (typeof abswarMarkRankNftPending === 'function') abswarMarkRankNftPending(claim.rank.index, txHash);
       result.innerHTML = `<span style="color:var(--green)">Islem gonderildi:</span> ${minted.map(adminEsc).join(', ')}<br><span style="color:var(--dim);font-size:10px">Kalan: ${claims.length-minted.length}</span>`;
     }
 
@@ -2563,7 +2587,8 @@ function selectTarget(code) {
   });
 
   renderLabels();
-  showToast(`🎯 ${CD[code]?.f||''} ${CD[code]?.n||code} hedef kilitlendi`, 'info');
+  const mobileHint = window.matchMedia && window.matchMedia('(max-width:1023px)').matches ? ' · Savas sekmesinden saldir' : '';
+  showToast(`🎯 ${CD[code]?.f||''} ${CD[code]?.n||code} hedef kilitlendi${mobileHint}`, 'info');
 }
 
 /* ── ATTACK LINE ANIMATION ── */
@@ -5605,14 +5630,15 @@ const COPY={
   en:{title:"RANK NFT BADGES",subtitle:"ABSWAR achievement collection",ready:"LIVE",setup:"PREPARING",note:"NFTs are not dropped automatically. Press CLAIM BADGE on an unlocked badge and approve the mint in your wallet.",claim:"CLAIM BADGE",owned:"OWNED",pending:"PENDING",locked:"LOCKED",need:"contribution left",disabled:"NFT contract is being prepared",connect:"Connect your wallet first",notReady:"Rank NFT system is not ready yet",sign:"Checking your badge eligibility...",approve:"Approve the NFT mint in your wallet",sent:"NFT mint transaction sent",fail:"NFT badge claim failed",claimReady:"Badge ready",claimHint:"NFTs are not automatic; press CLAIM BADGE to mint."},
   ru:{title:"NFT ЗНАЧКИ РАНГА",subtitle:"Коллекция достижений ABSWAR",ready:"LIVE",setup:"PREPARING",note:"NFT is not automatic. Press CLAIM BADGE on an unlocked badge and approve the mint in your wallet.",claim:"CLAIM BADGE",owned:"OWNED",pending:"PENDING",locked:"LOCKED",need:"points left",disabled:"NFT contract is being prepared",connect:"Connect wallet first",notReady:"Rank NFT system is not ready yet",sign:"Checking badge eligibility...",approve:"Approve mint in wallet",sent:"NFT mint transaction sent",fail:"NFT badge claim failed",claimReady:"Badge ready",claimHint:"NFT is not automatic; press CLAIM BADGE to mint."}
 };
-let rankNftStatus=null,rankNftContribution=0,rankNftOwned=new Set(),rankNftPending=new Set(),rankNftPendingAt={},rankNftLastWallet=null;
+let rankNftStatus=null,rankNftContribution=0,rankNftOwned=new Set(),rankNftPending=new Set(),rankNftPendingAt={},rankNftPendingTx={},rankNftLastWallet=null;
 function L(k){let lang="tr";try{lang=localStorage.getItem("abswar-lang")||"tr"}catch(e){}return (COPY[lang]||COPY.tr)[k]||k}
 function E(v){return typeof escapeHtml==="function"?escapeHtml(v):String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]))}
 function ranks(){return rankNftStatus?.ranks||RANKS_FE.map((r,i)=>({index:i,name:r.name,icon:r.icon,min:r.min,bonusPct:r.bonus}))}
 function pendingKey(){return "abswar-rank-nft-pending:"+APP_NETWORK+":"+(rankNftStatus?.contractAddress||"no-contract").toLowerCase()+":"+(wallet||"none").toLowerCase()}
-function loadPending(){try{rankNftPendingAt={};rankNftPending=new Set(JSON.parse(localStorage.getItem(pendingKey())||"[]").map(x=>{const v=typeof x==="object"?Number(x.rank):Number(x);rankNftPendingAt[v]=typeof x==="object"?Number(x.ts)||0:0;return v}).filter(Number.isFinite))}catch(e){rankNftPending=new Set();rankNftPendingAt={}}}
-function savePending(){try{const now=Date.now();localStorage.setItem(pendingKey(),JSON.stringify([...rankNftPending].map(i=>({rank:i,ts:rankNftPendingAt[i]||now}))))}catch(e){}}
-function addPendingRank(i){rankNftPending.add(Number(i));rankNftPendingAt[Number(i)]=Date.now();savePending()}
+function loadPending(){try{rankNftPendingAt={};rankNftPendingTx={};rankNftPending=new Set(JSON.parse(localStorage.getItem(pendingKey())||"[]").map(x=>{const v=typeof x==="object"?Number(x.rank):Number(x);rankNftPendingAt[v]=typeof x==="object"?Number(x.ts)||0:0;rankNftPendingTx[v]=typeof x==="object"?(x.txHash||""):"";return v}).filter(Number.isFinite))}catch(e){rankNftPending=new Set();rankNftPendingAt={};rankNftPendingTx={}}}
+function savePending(){try{const now=Date.now();localStorage.setItem(pendingKey(),JSON.stringify([...rankNftPending].map(i=>({rank:i,ts:rankNftPendingAt[i]||now,txHash:rankNftPendingTx[i]||""}))))}catch(e){}}
+function addPendingRank(i,txHash=""){const n=Number(i);rankNftPending.add(n);rankNftPendingAt[n]=Date.now();if(txHash)rankNftPendingTx[n]=txHash;savePending()}
+function shortTx(tx){return tx&&String(tx).startsWith("0x")?String(tx).slice(0,10)+"..."+String(tx).slice(-6):""}
 const BADGE_STYLE=[
   {stroke:"#3a8f5c",fill:"#5fae7a",accent:"#4a6f58",plate:"#16221c",border:"#2a3a30"},
   {stroke:"#c9a84a",fill:"#c9a84a",accent:"#4a6f58",plate:"#16221c",border:"#2a3a30"},
@@ -5664,6 +5690,7 @@ function renderRankNftPanel(){
     const earned=rankNftContribution>=Number(r.min||0),owned=rankNftOwned.has(Number(r.index)),pending=rankNftPending.has(Number(r.index));
     let label=owned?L("owned"):pending?L("pending"):earned?(rankNftStatus?.enabled?L("claim"):L("setup")):L("locked");
     let sub=earned?`${Number(r.min||0).toLocaleString("tr-TR")} katkı / +%${r.bonusPct||0}`:`${(Number(r.min||0)-rankNftContribution).toLocaleString("tr-TR")} ${L("need")}`;
+    if(pending){sub=`Onay bekleniyor${shortTx(rankNftPendingTx[Number(r.index)])?" · "+shortTx(rankNftPendingTx[Number(r.index)]):""}`}
     let disabled=!earned||owned||pending||!rankNftStatus?.enabled;
     return `<div style="display:flex;align-items:center;gap:9px;background:${owned?"rgba(0,200,83,.08)":earned?"rgba(245,200,66,.055)":"rgba(255,255,255,.025)"};border:1px solid ${owned?"rgba(0,200,83,.35)":earned?"rgba(245,200,66,.26)":"var(--border)"};border-radius:9px;padding:7px">
       ${badgeSvg(r,earned,owned)}
@@ -5676,6 +5703,16 @@ async function rankNftViem(){
   if(typeof loadAbswarAgwModules==="function"){const m=await loadAbswarAgwModules();return m.viemModule}
   if(typeof lm==="function"){const m=await lm();return m.v}
   throw new Error("Viem yuklenemedi");
+}
+function scheduleRankNftCheck(rankIndex,txHash=""){
+  const waits=[7000,18000,42000,75000];
+  waits.forEach(ms=>setTimeout(async()=>{
+    const before=rankNftOwned.has(Number(rankIndex));
+    await refreshRankNftOwned();
+    if(!before&&rankNftOwned.has(Number(rankIndex))){
+      showToast(`NFT rozet alindi${shortTx(txHash)?" · "+shortTx(txHash):""}`,"success");
+    }
+  },ms));
 }
 async function refreshRankNftStatus(){
   try{const r=await fetch(API+"/api/nft/rank/status");const d=await r.json();rankNftStatus=d.rankNft||d}catch(e){rankNftStatus={enabled:false,ranks:ranks()}}
@@ -5697,7 +5734,7 @@ async function refreshRankNftOwned(){
     }
     rankNftOwned=owned;
     for(const i of [...rankNftPending]){
-      if(rankNftOwned.has(i)||Date.now()-(rankNftPendingAt[i]||0)>120000){rankNftPending.delete(i);delete rankNftPendingAt[i]}
+      if(rankNftOwned.has(i)||Date.now()-(rankNftPendingAt[i]||0)>120000){rankNftPending.delete(i);delete rankNftPendingAt[i];delete rankNftPendingTx[i]}
     }
     savePending();
     renderRankNftPanel();
@@ -5707,9 +5744,10 @@ window.abswarMintRankNftClaim=async function(claim){
   const viem=await rankNftViem();
   const data=viem.encodeFunctionData({abi:RANK_NFT_ABI,functionName:"mintRank",args:[Number(claim.rank.index),BigInt(claim.deadline),claim.signature]});
   const agw=await waitForAbstractWallet(true);
-  return agw.sendTransaction({to:claim.contractAddress,value:0n,data});
+  const txHash=await agw.sendTransaction({to:claim.contractAddress,value:0n,data});
+  return txHash;
 };
-window.abswarMarkRankNftPending=function(rankIndex){addPendingRank(rankIndex);renderRankNftPanel()};
+window.abswarMarkRankNftPending=function(rankIndex,txHash=""){addPendingRank(rankIndex,txHash);renderRankNftPanel();scheduleRankNftCheck(rankIndex,txHash)};
 window.abswarRefreshRankNftOwned=refreshRankNftOwned;
 window.claimRankNft=async function(rankIndex){
   if(!wallet){showToast(L("connect"),"error");return}
@@ -5720,10 +5758,10 @@ window.claimRankNft=async function(rankIndex){
     const claim=await res.json();
     if(!res.ok||claim.error)throw new Error(tErr(claim)||claim.error||"NFT claim failed");
     showToast(L("approve"),"info");
-    await window.abswarMintRankNftClaim(claim);
-    addPendingRank(rankIndex);renderRankNftPanel();
-    showToast(L("sent"),"success");
-    setTimeout(refreshRankNftOwned,15000);
+    const txHash=await window.abswarMintRankNftClaim(claim);
+    addPendingRank(rankIndex,txHash);renderRankNftPanel();
+    showToast(`${L("sent")}${shortTx(txHash)?" · "+shortTx(txHash):""}`,"success");
+    scheduleRankNftCheck(rankIndex,txHash);
   }catch(e){showToast((e.message||L("fail")).slice(0,120),"error")}
   finally{hideLoader()}
 };
@@ -5731,7 +5769,7 @@ const oldUpdateRank=window.updateRankUI;
 if(typeof oldUpdateRank==="function"){window.updateRankUI=function(c){oldUpdateRank(c);rankNftContribution=Number(c)||0;renderRankNftPanel();refreshRankNftOwned()}}
 const oldSetLang=window.setLang;
 if(typeof oldSetLang==="function"){window.setLang=function(lang){const r=oldSetLang(lang);setTimeout(renderRankNftPanel,0);return r}}
-window.addEventListener("abswar:agw-account",e=>{if(e.detail?.address){rankNftLastWallet=null;refreshRankNftOwned()}else{rankNftOwned=new Set();rankNftPending=new Set();rankNftPendingAt={};renderRankNftPanel()}});
+window.addEventListener("abswar:agw-account",e=>{if(e.detail?.address){rankNftLastWallet=null;refreshRankNftOwned()}else{rankNftOwned=new Set();rankNftPending=new Set();rankNftPendingAt={};rankNftPendingTx={};renderRankNftPanel()}});
 ensurePanel();renderRankNftPanel();refreshRankNftStatus();setInterval(refreshRankNftStatus,60000);
 })();
 </script>
