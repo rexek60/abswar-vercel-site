@@ -420,7 +420,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   </div>
   <div class="nav-actions" style="margin-left:auto;display:flex;align-items:center;gap:10px">
     <button onclick="cycleLang()" id="langBtn" title="Dil / Language / Язык" style="background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--hud);font-size:10px;padding:5px 8px;cursor:pointer">🇹🇷 TR</button>
-    <button onclick="toggleSound()" id="soundBtn" title="Sesi aç/kapa" style="background:transparent;border:1px solid var(--border);color:var(--text);font-size:14px;width:30px;height:28px;cursor:pointer;padding:0">🔊</button>
+    <button onclick="toggleSound()" id="soundBtn" title="Ses / müzik aç-kapa" style="background:transparent;border:1px solid var(--border);color:var(--text);font-size:14px;width:30px;height:28px;cursor:pointer;padding:0">🔊</button>
     <button onclick="openFeedbackModal()" title="Geri bildirim / bug rapor" style="background:transparent;border:1px solid var(--border);color:var(--text);font-size:14px;width:30px;height:28px;cursor:pointer;padding:0">💬</button>
     <button id="docsNavBtn" onclick="document.getElementById('helpModal').classList.add('show');['How','Reward','Security'].forEach(k=>{document.getElementById('docsTab'+k)?.classList.toggle('active',k==='How');document.getElementById('docsPanel'+k)?.classList.toggle('active',k==='How')})" title="ABSWAR Docs" style="background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer" data-i18n="nav.docs">📚 DOCS</button>
     <span style="font-family:var(--mono);font-size:11px;color:var(--red)" id="ethBal">0.000 ETH</span>
@@ -3640,6 +3640,7 @@ function _unlockAudioOnce() {
     source.connect(ctx.destination);
     source.start(0);
     _audioUnlocked = true;
+    startWarMusic();
     console.debug('[ABSWAR ses] audio context unlock ✓ (ctx:', ctx.state + ')');
   } catch(e) {
     console.debug('[ABSWAR ses] audio unlock hatası:', e.message);
@@ -3694,6 +3695,155 @@ function _initAudioGraph(ctx) {
   _reverbNode.connect(_reverbGain);
   _reverbGain.connect(_masterGain);
 }
+
+/* ── ARKA PLAN SAVAŞ MÜZİĞİ (telif gerektirmeyen procedural loop) ── */
+let _warMusic = { started:false, gain:null, timer:null, nodes:[], step:0 };
+
+function _warMusicTargetVolume() {
+  return document.hidden ? 0.022 : 0.082;
+}
+
+function _musicVoice(ctx, opts) {
+  if (!_warMusic.gain) return;
+  const { type='sine', f0=220, f1, t0, dur=0.2, peak=0.06, attack=0.01, decay=0.2, filter=1600 } = opts;
+  const osc = ctx.createOscillator();
+  osc.type = type;
+  osc.frequency.setValueAtTime(f0, t0);
+  if (f1) osc.frequency.exponentialRampToValueAtTime(Math.max(0.01, f1), t0 + dur);
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.linearRampToValueAtTime(peak, t0 + attack);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + attack + decay);
+  const lp = ctx.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.frequency.value = filter;
+  osc.connect(g).connect(lp).connect(_warMusic.gain);
+  osc.start(t0);
+  osc.stop(t0 + attack + decay + 0.08);
+}
+
+function _musicNoise(ctx, opts) {
+  if (!_warMusic.gain) return;
+  const { t0, dur=0.08, peak=0.035, hp=800, lp=4500 } = opts;
+  const buf = ctx.createBuffer(1, Math.max(1, Math.floor(ctx.sampleRate * dur)), ctx.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i=0; i<data.length; i++) data[i] = (Math.random()*2-1) * Math.pow(1 - i/data.length, 1.6);
+  const src = ctx.createBufferSource();
+  src.buffer = buf;
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(peak, t0);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  const high = ctx.createBiquadFilter();
+  high.type = 'highpass';
+  high.frequency.value = hp;
+  const low = ctx.createBiquadFilter();
+  low.type = 'lowpass';
+  low.frequency.value = lp;
+  src.connect(g).connect(high).connect(low).connect(_warMusic.gain);
+  src.start(t0);
+  src.stop(t0 + dur + 0.03);
+}
+
+function _warMusicTick(ctx) {
+  if (!_warMusic.started || !_soundEnabled) return;
+  const s = _warMusic.step++;
+  const t = ctx.currentTime + 0.045;
+  const bass = [55,55,73.42,55,49,49,65.41,49,41.2,41.2,55,41.2,36.71,36.71,49,36.71];
+  const note = bass[s % bass.length];
+
+  if (s % 4 === 0) {
+    _musicVoice(ctx, { type:'sine', f0:78, f1:34, t0:t, dur:0.22, peak:0.18, attack:0.006, decay:0.22, filter:260 });
+    _musicNoise(ctx, { t0:t, dur:0.07, peak:0.025, hp:120, lp:900 });
+  }
+  if (s % 2 === 0) {
+    _musicVoice(ctx, { type:'triangle', f0:note, t0:t+0.02, dur:0.26, peak:0.055, attack:0.008, decay:0.24, filter:520 });
+  }
+  if (s % 4 === 2) {
+    _musicNoise(ctx, { t0:t+0.04, dur:0.045, peak:0.025, hp:2400, lp:7200 });
+  }
+  if (s % 8 === 5) {
+    const blip = Math.random() > 0.5 ? 880 : 1174.66;
+    _musicVoice(ctx, { type:'sine', f0:blip, f1:blip*0.72, t0:t+0.03, dur:0.12, peak:0.025, attack:0.004, decay:0.12, filter:2500 });
+  }
+  if (s % 32 === 16) {
+    _musicVoice(ctx, { type:'sawtooth', f0:392, f1:185, t0:t, dur:1.1, peak:0.032, attack:0.08, decay:1.05, filter:900 });
+  }
+}
+
+function startWarMusic() {
+  if (!_soundEnabled || _warMusic.started) return;
+  const ctx = getAudioCtx();
+  if (!ctx) return;
+  if (ctx.state === 'suspended') ctx.resume();
+  _initAudioGraph(ctx);
+
+  _warMusic.started = true;
+  _warMusic.step = 0;
+  _warMusic.nodes = [];
+  _warMusic.gain = ctx.createGain();
+  _warMusic.gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+  _warMusic.gain.gain.linearRampToValueAtTime(_warMusicTargetVolume(), ctx.currentTime + 2.2);
+  _warMusic.gain.connect(_masterGain);
+
+  const padFilter = ctx.createBiquadFilter();
+  padFilter.type = 'lowpass';
+  padFilter.frequency.value = 460;
+  padFilter.Q.value = 0.8;
+  padFilter.connect(_warMusic.gain);
+  _warMusic.nodes.push(padFilter);
+
+  [
+    { f:36.71, type:'sawtooth', gain:0.052, detune:-5 },
+    { f:55.00, type:'triangle', gain:0.045, detune:7 },
+    { f:73.42, type:'sine', gain:0.030, detune:0 }
+  ].forEach(v => {
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = v.type;
+    osc.frequency.value = v.f;
+    osc.detune.value = v.detune;
+    g.gain.value = v.gain;
+    osc.connect(g).connect(padFilter);
+    osc.start();
+    _warMusic.nodes.push(osc, g);
+  });
+
+  _warMusic.timer = setInterval(() => _warMusicTick(ctx), 250);
+}
+
+function stopWarMusic() {
+  if (!_warMusic.started) return;
+  const ctx = _audioCtx;
+  _warMusic.started = false;
+  if (_warMusic.timer) clearInterval(_warMusic.timer);
+  _warMusic.timer = null;
+  if (ctx && _warMusic.gain) {
+    try {
+      _warMusic.gain.gain.cancelScheduledValues(ctx.currentTime);
+      _warMusic.gain.gain.setValueAtTime(Math.max(0.0001, _warMusic.gain.gain.value), ctx.currentTime);
+      _warMusic.gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.7);
+    } catch(e) {}
+  }
+  setTimeout(() => {
+    _warMusic.nodes.forEach(n => {
+      try { if (typeof n.stop === 'function') n.stop(); } catch(e) {}
+      try { n.disconnect(); } catch(e) {}
+    });
+    try { _warMusic.gain && _warMusic.gain.disconnect(); } catch(e) {}
+    _warMusic.nodes = [];
+    _warMusic.gain = null;
+  }, 850);
+}
+
+function updateWarMusicDucking() {
+  if (!_warMusic.started || !_warMusic.gain || !_audioCtx) return;
+  try {
+    _warMusic.gain.gain.cancelScheduledValues(_audioCtx.currentTime);
+    _warMusic.gain.gain.linearRampToValueAtTime(_warMusicTargetVolume(), _audioCtx.currentTime + 0.8);
+  } catch(e) {}
+}
+
+document.addEventListener('visibilitychange', updateWarMusicDucking);
 
 // Distortion/saturation eğrisi — gerçek silah/patlama sesleri için "kirlilik"
 // amount yükseldikçe daha agresif. Önbelleklenir (her seste yeniden üretilmez).
@@ -3984,18 +4134,25 @@ function _playSynthSound(kind) {
   }
 }
 
+function syncSoundButton() {
+  const btn = document.getElementById('soundBtn');
+  if (btn) btn.textContent = _soundEnabled ? '🔊' : '🔇';
+}
+
 function toggleSound() {
   _soundEnabled = !_soundEnabled;
   try { localStorage.setItem('abswar-sound', _soundEnabled?'1':'0'); } catch(e){}
-  const btn = document.getElementById('soundBtn');
-  if (btn) btn.textContent = _soundEnabled ? '🔊' : '🔇';
+  syncSoundButton();
   if (_soundEnabled) {
+    startWarMusic();
     playSound('click');
     showToast(t('toast.soundOn'),'info');
   } else {
+    stopWarMusic();
     showToast(t('toast.soundOff'),'info');
   }
 }
+syncSoundButton();
 
 /* ── ANİMASYON LİMİTİ ── */
 let _activeAnimations = 0;
@@ -4203,7 +4360,7 @@ const I18N = {
     'nav.help': '❓ NASIL OYNANIR',
     'nav.docs': '📚 DOCS',
     'nav.feedback': 'Geri bildirim / bug rapor',
-    'nav.sound': 'Sesi aç/kapa',
+    'nav.sound': 'Ses / müzik aç-kapa',
     'nav.nickname': 'İSİM EKLE',
     // Mobil sekmeler
     'mob.map': 'HARİTA',
@@ -4314,8 +4471,8 @@ const I18N = {
     'toast.allianceJoined': '🛡️ İttifaka katıldın',
     'toast.allianceLeft': '✕ İttifaktan ayrıldın',
     'toast.roundStart': '🎯 TUR {n} BAŞLADI!',
-    'toast.soundOn': '🔊 Ses açık',
-    'toast.soundOff': '🔇 Ses kapalı',
+    'toast.soundOn': '🔊 Ses ve müzik açık',
+    'toast.soundOff': '🔇 Ses ve müzik kapalı',
     'toast.disconnected': '⏏ Çıkış yapıldı',
     'toast.logoutFull': '⏏ Abstract Global Wallet oturumu kapatıldı',
     'toast.copied': '📋 Adres kopyalandı',
@@ -4505,7 +4662,7 @@ const I18N = {
     'nav.help': '❓ HOW TO PLAY',
     'nav.docs': '📚 DOCS',
     'nav.feedback': 'Feedback / Bug report',
-    'nav.sound': 'Toggle sound',
+    'nav.sound': 'Toggle sound / music',
     'nav.nickname': 'ADD NAME',
     'mob.map': 'MAP',
     'mob.war': 'WAR',
@@ -4609,8 +4766,8 @@ const I18N = {
     'toast.allianceJoined': '🛡️ Joined alliance',
     'toast.allianceLeft': '✕ Left alliance',
     'toast.roundStart': '🎯 ROUND {n} STARTED!',
-    'toast.soundOn': '🔊 Sound on',
-    'toast.soundOff': '🔇 Sound off',
+    'toast.soundOn': '🔊 Sound and music on',
+    'toast.soundOff': '🔇 Sound and music off',
     'toast.disconnected': '⏏ Disconnected',
     'toast.logoutFull': '⏏ Abstract Global Wallet session closed',
     'toast.copied': '📋 Address copied',
@@ -4787,7 +4944,7 @@ const I18N = {
     'nav.help': '❓ КАК ИГРАТЬ',
     'nav.docs': '📚 DOCS',
     'nav.feedback': 'Отзыв / отчёт об ошибке',
-    'nav.sound': 'Звук вкл/выкл',
+    'nav.sound': 'Звук / музыка вкл-выкл',
     'nav.nickname': 'ДОБАВИТЬ ИМЯ',
     'mob.map': 'КАРТА',
     'mob.war': 'БОЙ',
@@ -4891,8 +5048,8 @@ const I18N = {
     'toast.allianceJoined': '🛡️ Вы вступили в альянс',
     'toast.allianceLeft': '✕ Вы покинули альянс',
     'toast.roundStart': '🎯 РАУНД {n} НАЧАЛСЯ!',
-    'toast.soundOn': '🔊 Звук включён',
-    'toast.soundOff': '🔇 Звук выключен',
+    'toast.soundOn': '🔊 Звук и музыка включены',
+    'toast.soundOff': '🔇 Звук и музыка выключены',
     'toast.disconnected': '⏏ Отключено',
     'toast.logoutFull': '⏏ Сессия Abstract Global Wallet закрыта',
     'toast.copied': '📋 Адрес скопирован',
@@ -5486,6 +5643,10 @@ Object.assign(window, {
   closeRewardRules,
   openRiskInfo,
   closeRiskInfo,
+  startWarMusic,
+  stopWarMusic,
+  syncSoundButton,
+  toggleSound,
   waitForAbstractWallet,
   updateWalletBalance,
   updateRankUI
