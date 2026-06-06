@@ -423,7 +423,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     <button onclick="cycleLang()" id="langBtn" title="Dil / Language / Язык" style="background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--hud);font-size:10px;padding:5px 8px;cursor:pointer">🇹🇷 TR</button>
     <button onclick="toggleSound()" id="soundBtn" title="Sesi aç/kapa" style="background:transparent;border:1px solid var(--border);color:var(--text);font-size:14px;width:30px;height:28px;cursor:pointer;padding:0">🔊</button>
     <button onclick="openFeedbackModal()" title="Geri bildirim / bug rapor" style="background:transparent;border:1px solid var(--border);color:var(--text);font-size:14px;width:30px;height:28px;cursor:pointer;padding:0">💬</button>
-    <button onclick="openDocs()" title="ABSWAR Docs" style="background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer" data-i18n="nav.docs">📚 DOCS</button>
+    <button id="docsNavBtn" onclick="openDocs()" title="ABSWAR Docs" style="background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer" data-i18n="nav.docs">📚 DOCS</button>
     <span style="font-family:var(--mono);font-size:11px;color:var(--red)" id="ethBal">0.000 ETH</span>
     <button id="nicknameBtn" onclick="openNicknameModal()" title="Nickname ayarla" style="display:none;background:transparent;border:1px solid var(--border);color:var(--green);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer">👤 <span id="nicknameLabel" data-i18n="nav.nickname">İSİM EKLE</span></button>
     <button id="adminBtn" onclick="openAdminPanel()" title="Admin Paneli" style="display:none;background:linear-gradient(180deg,rgba(245,200,66,0.15),rgba(245,200,66,0.05));border:1px solid var(--gold);color:var(--gold);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer;letter-spacing:1px">⚙️ ADMIN</button>
@@ -5697,6 +5697,47 @@ function ensureRiskInfo(){
 window.openRiskInfo=function(){ensureRiskInfo();window.openDocs?window.openDocs("security"):openDocs("security")};
 window.closeRiskInfo=function(){window.closeDocs?window.closeDocs():closeDocs()};
 ensureRiskInfo();setInterval(ensureRiskInfo,1000);
+})();
+</script>
+<script>
+(function(){
+function docsKey(tab){return tab==="reward"?"Reward":tab==="security"?"Security":"How"}
+function setDocs(tab="how"){
+  const active=["how","reward","security"].includes(tab)?tab:"how";
+  ["how","reward","security"].forEach(key=>{
+    const suffix=docsKey(key);
+    document.getElementById("docsTab"+suffix)?.classList.toggle("active",key===active);
+    document.getElementById("docsPanel"+suffix)?.classList.toggle("active",key===active);
+  });
+}
+function openDocsSafe(tab="how"){setDocs(tab);document.getElementById("helpModal")?.classList.add("show")}
+function closeDocsSafe(){document.getElementById("helpModal")?.classList.remove("show")}
+Object.assign(window,{
+  setDocsTab:setDocs,
+  openDocs:openDocsSafe,
+  closeDocs:closeDocsSafe,
+  openHelp:()=>openDocsSafe("how"),
+  closeHelp:closeDocsSafe,
+  openRewardRules:()=>openDocsSafe("reward"),
+  closeRewardRules:closeDocsSafe,
+  openRiskInfo:()=>openDocsSafe("security"),
+  closeRiskInfo:closeDocsSafe
+});
+function bindDocs(){
+  const nav=document.getElementById("docsNavBtn");
+  if(nav&&!nav.dataset.docsBound){nav.dataset.docsBound="1";nav.addEventListener("click",e=>{e.preventDefault();openDocsSafe("how")})}
+  const modal=document.getElementById("helpModal");
+  if(modal&&!modal.dataset.docsBound){modal.dataset.docsBound="1";modal.addEventListener("click",e=>{if(e.target===modal)closeDocsSafe()})}
+  [["docsTabHow","how"],["docsTabReward","reward"],["docsTabSecurity","security"]].forEach(([id,key])=>{
+    const btn=document.getElementById(id);
+    if(btn&&!btn.dataset.docsBound){btn.dataset.docsBound="1";btn.addEventListener("click",e=>{e.preventDefault();setDocs(key)})}
+  });
+  document.getElementById("rewardRulesBtn")?.remove();
+  document.getElementById("riskInfoBtn")?.remove();
+  document.getElementById("rewardRulesModal")?.remove();
+  document.getElementById("riskInfoModal")?.remove();
+}
+bindDocs();setInterval(bindDocs,1000);
 })();
 </script>
 <script>
