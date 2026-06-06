@@ -236,7 +236,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   nav.topnav .logo-sub{display:none}
   nav.topnav > div:nth-child(4){display:none} /* Orta sekme menüsü gizle (bottom nav var) */
   nav.topnav .nav-link{display:none}
-  nav.topnav button[onclick="openDocs()"] .nav-helptxt{display:none}
+  nav.topnav #docsNavBtn .nav-helptxt{display:none}
   nav.topnav .logo-main{font-size:14px;letter-spacing:3px}
   nav.topnav .nav-actions{margin-left:0 !important;width:100%;flex:1 0 100%;justify-content:space-between;gap:6px !important;min-width:0}
   nav.topnav .nav-actions > *{flex:0 0 auto}
@@ -313,7 +313,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   nav.topnav{gap:6px}
   nav.topnav .logo-main{font-size:13px;letter-spacing:2px}
   nav.topnav .nav-actions{gap:4px !important}
-  nav.topnav .nav-actions button[onclick="openDocs()"]{display:none}
+  nav.topnav .nav-actions #docsNavBtn{display:none}
   nav.topnav .nav-actions #rewardRulesBtn,
   nav.topnav .nav-actions #riskInfoBtn,
   nav.topnav .nav-actions #prizeOnlyNav,
@@ -423,7 +423,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     <button onclick="cycleLang()" id="langBtn" title="Dil / Language / Язык" style="background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--hud);font-size:10px;padding:5px 8px;cursor:pointer">🇹🇷 TR</button>
     <button onclick="toggleSound()" id="soundBtn" title="Sesi aç/kapa" style="background:transparent;border:1px solid var(--border);color:var(--text);font-size:14px;width:30px;height:28px;cursor:pointer;padding:0">🔊</button>
     <button onclick="openFeedbackModal()" title="Geri bildirim / bug rapor" style="background:transparent;border:1px solid var(--border);color:var(--text);font-size:14px;width:30px;height:28px;cursor:pointer;padding:0">💬</button>
-    <button id="docsNavBtn" onclick="openDocs()" title="ABSWAR Docs" style="background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer" data-i18n="nav.docs">📚 DOCS</button>
+    <button id="docsNavBtn" onclick="document.getElementById('helpModal').classList.add('show');['How','Reward','Security'].forEach(k=>{document.getElementById('docsTab'+k)?.classList.toggle('active',k==='How');document.getElementById('docsPanel'+k)?.classList.toggle('active',k==='How')})" title="ABSWAR Docs" style="background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer" data-i18n="nav.docs">📚 DOCS</button>
     <span style="font-family:var(--mono);font-size:11px;color:var(--red)" id="ethBal">0.000 ETH</span>
     <button id="nicknameBtn" onclick="openNicknameModal()" title="Nickname ayarla" style="display:none;background:transparent;border:1px solid var(--border);color:var(--green);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer">👤 <span id="nicknameLabel" data-i18n="nav.nickname">İSİM EKLE</span></button>
     <button id="adminBtn" onclick="openAdminPanel()" title="Admin Paneli" style="display:none;background:linear-gradient(180deg,rgba(245,200,66,0.15),rgba(245,200,66,0.05));border:1px solid var(--gold);color:var(--gold);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer;letter-spacing:1px">⚙️ ADMIN</button>
@@ -920,13 +920,13 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 <!-- DOCS MODALI -->
 <div class="modal" id="helpModal">
   <div class="modal-box" style="width:520px;max-width:92vw;max-height:88vh;overflow-y:auto">
-    <button class="modal-close" onclick="closeDocs()">✕ KAPAT</button>
+    <button class="modal-close" onclick="document.getElementById('helpModal').classList.remove('show')">✕ KAPAT</button>
     <div class="modal-title" data-i18n="modal.docs">📚 ABSWAR DOCS</div>
     <div class="modal-sub" data-i18n="sub.docs">Oyunu, ödülleri ve güvenlik notlarını tek yerde oku.</div>
     <div class="docs-tabs" role="tablist">
-      <button class="docs-tab active" id="docsTabHow" onclick="setDocsTab('how')" type="button">NASIL OYNANIR</button>
-      <button class="docs-tab" id="docsTabReward" onclick="setDocsTab('reward')" type="button">ÖDÜL</button>
-      <button class="docs-tab" id="docsTabSecurity" onclick="setDocsTab('security')" type="button">GÜVENLİK</button>
+      <button class="docs-tab active" id="docsTabHow" onclick="['How','Reward','Security'].forEach(k=>{document.getElementById('docsTab'+k)?.classList.toggle('active',k==='How');document.getElementById('docsPanel'+k)?.classList.toggle('active',k==='How')})" type="button">NASIL OYNANIR</button>
+      <button class="docs-tab" id="docsTabReward" onclick="['How','Reward','Security'].forEach(k=>{document.getElementById('docsTab'+k)?.classList.toggle('active',k==='Reward');document.getElementById('docsPanel'+k)?.classList.toggle('active',k==='Reward')})" type="button">ÖDÜL</button>
+      <button class="docs-tab" id="docsTabSecurity" onclick="['How','Reward','Security'].forEach(k=>{document.getElementById('docsTab'+k)?.classList.toggle('active',k==='Security');document.getElementById('docsPanel'+k)?.classList.toggle('active',k==='Security')})" type="button">GÜVENLİK</button>
     </div>
 
     <div id="docsPanelHow" class="docs-panel active">
