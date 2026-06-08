@@ -1196,6 +1196,19 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
       <div style="margin-top:4px;font-size:9px;color:var(--dim)">Sadece owner cüzdan oturumu ile çalışır. Gizli token kod içinde tutulmaz.</div>
     </div>
 
+    <div id="adminBulletGrantBox" style="margin-top:14px;padding:12px;background:linear-gradient(180deg,rgba(102,179,255,.10),rgba(102,179,255,.03));border:1px solid rgba(102,179,255,.35);text-align:left">
+      <div style="font-family:var(--hud);font-size:10px;color:#66b3ff;letter-spacing:1px;margin-bottom:8px">MERMI ODULU VER</div>
+      <input id="adminGrantWalletInput" type="text" placeholder="Cuzdan adresi (0x...)" autocomplete="off" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:11px;padding:9px;outline:none;margin-bottom:7px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px">
+        <input id="adminGrantBulletsInput" type="number" min="1" max="100000" step="1" placeholder="Mermi miktari" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:11px;padding:9px;outline:none">
+        <input id="adminGrantReasonInput" type="text" maxlength="120" placeholder="Not (opsiyonel)" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:11px;padding:9px;outline:none">
+      </div>
+      <button class="btn-sm" onclick="adminGrantBullets()" style="margin-top:8px;width:100%;padding:10px;background:rgba(102,179,255,.13);border:1px solid rgba(102,179,255,.65);color:#66b3ff;font-family:var(--hud);font-size:10px;cursor:pointer;text-align:left">
+        MERMI ODULU GONDER <span style="color:var(--dim);font-size:9px">- Sadece owner + admin token ile</span>
+      </button>
+      <div style="margin-top:6px;font-size:9px;color:var(--dim)">Oyuncu oyundaysa mermi bakiyesi anlik guncellenir. Bu islem satin alma kaydi degil, admin odulu olarak loglanir.</div>
+    </div>
+
     <!-- İşlemler -->
     <div style="margin-top:16px;display:flex;flex-direction:column;gap:8px;text-align:left">
       <button class="btn-sm" onclick="adminAction('round/start')" style="width:100%;padding:11px;background:rgba(72,187,120,0.12);border:1px solid var(--green);color:var(--green);font-family:var(--hud);font-size:11px;cursor:pointer;text-align:left">
@@ -1990,6 +2003,7 @@ function renderAdminPurchases(data) {
   if (!box) return;
   const wallets = Array.isArray(data?.wallets) ? data.wallets : [];
   const purchases = Array.isArray(data?.purchases) ? data.purchases : [];
+  const grants = Array.isArray(data?.grants) ? data.grants : [];
   const totalEth = formatEthAmount(data?.economy?.totalEth || 0);
   const generatedAt = formatAdminTime(data?.generatedAt);
 
@@ -2019,6 +2033,18 @@ function renderAdminPurchases(data) {
       }).join('')
     : '<div style="color:var(--dim);padding:8px 0">Son işlem bulunamadı.</div>';
 
+  const grantRows = grants.length
+    ? grants.slice(0, 8).map(item => {
+        const addr = escapeHtml(item.wallet || '');
+        const reason = item.reason ? ` - ${escapeHtml(item.reason)}` : '';
+        return `<div style="display:grid;grid-template-columns:72px minmax(0,1fr) 90px;gap:7px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06)">
+          <span style="color:var(--dim)">${escapeHtml(formatAdminTime(item.createdAt))}</span>
+          <span title="${addr}" style="word-break:break-all">${escapeHtml(shortAdminAddr(item.wallet || ''))}${reason}</span>
+          <b style="color:#66b3ff;text-align:right">+${Number(item.bullets||0).toLocaleString('tr-TR')}</b>
+        </div>`;
+      }).join('')
+    : '<div style="color:var(--dim);padding:8px 0">Son admin mermi odulu yok.</div>';
+
   box.innerHTML = `
     <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:8px">
       <div style="font-family:var(--hud);font-size:10px;color:var(--green);letter-spacing:1px">ODEME KAYITLARI</div>
@@ -2029,6 +2055,8 @@ function renderAdminPurchases(data) {
     ${walletRows}
     <div style="font-family:var(--hud);font-size:9px;color:#66b3ff;letter-spacing:1px;margin:12px 0 4px">SON ISLEMLER</div>
     ${txRows}
+    <div style="font-family:var(--hud);font-size:9px;color:#66b3ff;letter-spacing:1px;margin:12px 0 4px">SON ADMIN MERMI ODULLERI</div>
+    ${grantRows}
   `;
 }
 
@@ -2187,6 +2215,51 @@ async function adminShowMetrics() {
       </div>`;
   } catch(e) {
     result.innerHTML = '<span style="color:var(--red)">HATA: Metrikler alinamadi</span>';
+  }
+}
+
+async function adminGrantBullets() {
+  const token = _getAdminToken();
+  if (!token) return;
+  const result = document.getElementById('adminResult');
+  const targetWallet = document.getElementById('adminGrantWalletInput')?.value?.trim();
+  const bullets = Math.trunc(Number(document.getElementById('adminGrantBulletsInput')?.value || 0));
+  const reason = document.getElementById('adminGrantReasonInput')?.value?.trim() || '';
+
+  if (!/^0x[a-fA-F0-9]{40}$/.test(targetWallet || '')) {
+    showToast('Gecerli bir cuzdan adresi gir','error');
+    return;
+  }
+  if (!Number.isSafeInteger(bullets) || bullets < 1 || bullets > 100000) {
+    showToast('Mermi miktari 1 ile 100000 arasinda olmali','error');
+    return;
+  }
+  if (!confirm(`${targetWallet} adresine ${bullets.toLocaleString('tr-TR')} mermi odulu verilsin mi?`)) return;
+
+  result.innerHTML = '<span style="color:var(--dim)">Mermi odulu gonderiliyor...</span>';
+  try {
+    await ensureAuthSession(false);
+    const res = await fetch(API+'/api/admin/bullets/grant',{
+      method:'POST',
+      headers:authHeaders({'Content-Type':'application/json','x-admin-token':token}),
+      body:JSON.stringify({ wallet:targetWallet, bullets, reason })
+    });
+    const data = await res.json();
+    if (!res.ok || data.error) {
+      result.innerHTML = `<span style="color:var(--red)">HATA: ${tErr(data)||data.error||('HTTP '+res.status)}</span>`;
+      return;
+    }
+
+    const added = Number(data.grant?.bullets || bullets);
+    result.innerHTML = `<span style="color:var(--green)">Mermi odulu verildi:</span> +${added.toLocaleString('tr-TR')}<br><span style="color:var(--dim);font-size:10px">${escapeHtml(data.grant?.wallet || targetWallet)}</span>`;
+    document.getElementById('adminGrantBulletsInput').value = '';
+    if ((data.grant?.wallet || '').toLowerCase() === (wallet || '').toLowerCase() && data.player) {
+      updatePlayerUI(data.player);
+    }
+    refreshAdminPurchases(true);
+    pollState();
+  } catch(e) {
+    result.innerHTML = '<span style="color:var(--red)">HATA: Mermi odulu verilemedi</span>';
   }
 }
 
@@ -4646,6 +4719,12 @@ ioScript.onload=()=>{
     const n = typeof d === 'object' ? (d.onlinePlayers ?? d.count ?? 0) : d;
     document.getElementById('onlineCount').textContent=Number(n).toLocaleString('tr-TR');
   });
+  socket.on('admin:bullet-grant',(d)=>{
+    if (!wallet || !d?.wallet || d.wallet.toLowerCase() !== wallet.toLowerCase()) return;
+    showToast(`Admin odulu: +${Number(d.bullets||0).toLocaleString('tr-TR')} mermi`, 'success');
+    playSound && playSound('purchase');
+    refreshPlayerState();
+  });
 
   socket.on('game:over',(d)=>{ playSound('victory'); showToast(`🏆 OYUN BİTTİ! Kazanan: ${CD[d.winner]?.f||''} ${CD[d.winner]?.n||d.winner}`,'success'); });
   socket.on('alliance:feed',(d)=>{
@@ -5983,6 +6062,7 @@ Object.assign(window, {
   adminAction,
   adminShowWinners,
   adminShowMetrics,
+  adminGrantBullets,
   refreshAdminPurchases,
   adminDownloadBackup,
   adminGrantAllRankNfts,
