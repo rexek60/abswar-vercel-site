@@ -12,13 +12,23 @@ Cyberpunk arayüz · 119 ülkeli dünya haritası · Smart contract ekonomisi.
     vercel.json     → Vercel deploy ayarı
 
   backend/
-    server.js       → Realtime savaş motoru (Node.js + Socket.io)
+    server.js       → Realtime savaş motoru (abswar-clean-backend reposunda)
 
   smart-contract/
     AbswarGameV2.sol → Ekonomi contract'ı (zaten deploy edildi)
 
 ═══════════════════════════════════════════════════════════
 ## CANLI ADRESLER
+═══════════════════════════════════════════════════════════
+
+  Frontend  : https://abswar.xyz
+  Backend   : https://abswar-clean-backend-production.up.railway.app
+  Contract  : 0x359859108B1AA0d0B5BA0DbAA1287d6D77a340dd
+              (Abstract Mainnet — Chain ID 2741)
+  Rank NFT  : 0xB58581518367607fe730c33b23df2bc0A8ae1113
+
+═══════════════════════════════════════════════════════════
+## TESTNET
 ═══════════════════════════════════════════════════════════
 
   Frontend  : https://abswar-ui.vercel.app
@@ -31,18 +41,20 @@ Cyberpunk arayüz · 119 ülkeli dünya haritası · Smart contract ekonomisi.
 ═══════════════════════════════════════════════════════════
 
 ### 1. Frontend (Vercel)
-  - GitHub'da `abswar-ui` reposunu aç
-  - `frontend/index.html` dosyasını repodakiyle değiştir
+  - GitHub'da `rexek60/abswar-vercel-site` reposunu aç
+  - `index.html` dosyasını repodakiyle değiştir
   - Vercel otomatik deploy eder (1-2 dk)
 
 ### 2. Backend (Railway)
-  - GitHub'da `abswar-clean-backend` reposunu aç
-  - `backend/server.js` dosyasını repodakiyle değiştir
+  - GitHub'da `rexek60/abswar-clean-backend` reposunu aç
+  - Railway servisinde güncel backend kodunu kullan
+  - Canlı API: `https://abswar-clean-backend-production.up.railway.app`
   - Railway otomatik deploy eder (1-2 dk)
 
 ### 3. Smart Contract
   - Zaten deploy edildi, bir şey yapmana gerek yok.
-  - Yeniden deploy gerekirse: Remix IDE → AbswarGameV2.sol → Abstract Testnet
+  - Canlı ağ: Abstract Mainnet
+  - Yeniden deploy gerekirse: Remix IDE → AbswarGameV2.sol → Abstract Mainnet
 
 ═══════════════════════════════════════════════════════════
 ## ÇALIŞAN SİSTEMLER
@@ -78,8 +90,8 @@ Cyberpunk arayüz · 119 ülkeli dünya haritası · Smart contract ekonomisi.
 ## ÖNEMLİ NOTLAR
 ═══════════════════════════════════════════════════════════
 
-  • Smart contract ŞU AN TEST AĞINDA (Abstract Testnet).
-    Gerçek para yok, test ETH ile çalışıyor.
+  • Canlı sürüm Abstract Mainnet üzerindedir.
+    Testnet ayrıntıları üstteki TESTNET bölümünde ayrı tutulur.
 
   • Backend verileri bellekte tutuluyor — Railway yeniden
     başlarsa oyun durumu sıfırlanır. Kalıcı veri için

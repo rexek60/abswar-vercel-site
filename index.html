@@ -1197,16 +1197,16 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
     </div>
 
     <div id="adminBulletGrantBox" style="margin-top:14px;padding:12px;background:linear-gradient(180deg,rgba(102,179,255,.10),rgba(102,179,255,.03));border:1px solid rgba(102,179,255,.35);text-align:left">
-      <div style="font-family:var(--hud);font-size:10px;color:#66b3ff;letter-spacing:1px;margin-bottom:8px">MERMI ODULU VER</div>
-      <input id="adminGrantWalletInput" type="text" placeholder="Cuzdan adresi (0x...)" autocomplete="off" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:11px;padding:9px;outline:none;margin-bottom:7px">
+      <div style="font-family:var(--hud);font-size:10px;color:#66b3ff;letter-spacing:1px;margin-bottom:8px">MERMİ HEDİYE ET</div>
+      <input id="adminGrantWalletInput" type="text" placeholder="Cüzdan adresi (0x...)" autocomplete="off" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:11px;padding:9px;outline:none;margin-bottom:7px">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px">
-        <input id="adminGrantBulletsInput" type="number" min="1" max="100000" step="1" placeholder="Mermi miktari" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:11px;padding:9px;outline:none">
-        <input id="adminGrantReasonInput" type="text" maxlength="120" placeholder="Not (opsiyonel)" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:11px;padding:9px;outline:none">
+        <input id="adminGrantBulletsInput" type="number" min="1" max="1000000" step="1" placeholder="Mermi miktarı" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:11px;padding:9px;outline:none">
+        <input id="adminGrantReasonInput" type="text" maxlength="120" placeholder="Not (isteğe bağlı)" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:11px;padding:9px;outline:none">
       </div>
       <button class="btn-sm" onclick="adminGrantBullets()" style="margin-top:8px;width:100%;padding:10px;background:rgba(102,179,255,.13);border:1px solid rgba(102,179,255,.65);color:#66b3ff;font-family:var(--hud);font-size:10px;cursor:pointer;text-align:left">
-        MERMI ODULU GONDER <span style="color:var(--dim);font-size:9px">- Sadece owner + admin token ile</span>
+        🎁 MERMİ GÖNDER <span style="color:var(--dim);font-size:9px">- Sadece owner + admin token ile</span>
       </button>
-      <div style="margin-top:6px;font-size:9px;color:var(--dim)">Oyuncu oyundaysa mermi bakiyesi anlik guncellenir. Bu islem satin alma kaydi degil, admin odulu olarak loglanir.</div>
+      <div style="margin-top:6px;font-size:9px;color:var(--dim)">Oyuncu oyundaysa mermi bakiyesi anlık güncellenir. Bu işlem satın alma kaydı değil, admin hediyesi olarak loglanır.</div>
     </div>
 
     <!-- İşlemler -->
@@ -2098,7 +2098,10 @@ async function refreshAdminRoundInfo() {
       const h = Math.floor((r.remainingMs%86400000)/3600000);
       timeLeft = ` · Kalan: ${d}g ${h}s`;
     }
-    box.innerHTML = `Tur #${r.number||r.roundNumber||'?'} · ${statusMap[r.status]||r.status||'?'}${timeLeft}`;
+    const roundLabel = escapeHtml(String(r.number||r.roundNumber||'?'));
+    const roundStatus = escapeHtml(String(statusMap[r.status]||r.status||'?'));
+    const roundTime = escapeHtml(timeLeft);
+    box.innerHTML = `Tur #${roundLabel} · ${roundStatus}${roundTime}`;
     try {
       const sys = await fetch(API+'/api/status').then(r=>r.json());
       if (sys && sys.dbEnabled === false) {
@@ -2136,7 +2139,7 @@ async function adminAction(path) {
     });
     const data = await res.json();
     if (!res.ok || data.error) {
-      result.innerHTML = `<span style="color:var(--red)">❌ ${tErr(data)||('HTTP '+res.status)}</span>`;
+      result.innerHTML = `<span style="color:var(--red)">❌ ${escapeHtml(tErr(data)||('HTTP '+res.status))}</span>`;
       if (res.status === 403) result.innerHTML += '<br><span style="color:var(--dim);font-size:10px">Token veya owner cüzdan oturumu geçersiz.</span>';
       return;
     }
@@ -2167,7 +2170,7 @@ async function adminShowWinners() {
     });
     const data = await res.json();
     if (!res.ok || data.error) {
-      result.innerHTML = `<span style="color:var(--red)">❌ ${tErr(data)||('HTTP '+res.status)}</span>`;
+      result.innerHTML = `<span style="color:var(--red)">❌ ${escapeHtml(tErr(data)||('HTTP '+res.status))}</span>`;
       return;
     }
     const winners = data.winners || [];
@@ -2198,7 +2201,7 @@ async function adminShowMetrics() {
     });
     const data = await res.json();
     if (!res.ok || data.error) {
-      result.innerHTML = `<span style="color:var(--red)">HATA: ${tErr(data)||data.error||('HTTP '+res.status)}</span>`;
+      result.innerHTML = `<span style="color:var(--red)">HATA: ${escapeHtml(tErr(data)||data.error||('HTTP '+res.status))}</span>`;
       return;
     }
     const eth = data.economy?.rewardPoolEth || '0';
@@ -2227,39 +2230,41 @@ async function adminGrantBullets() {
   const reason = document.getElementById('adminGrantReasonInput')?.value?.trim() || '';
 
   if (!/^0x[a-fA-F0-9]{40}$/.test(targetWallet || '')) {
-    showToast('Gecerli bir cuzdan adresi gir','error');
+    showToast('Geçerli bir cüzdan adresi gir','error');
     return;
   }
-  if (!Number.isSafeInteger(bullets) || bullets < 1 || bullets > 100000) {
-    showToast('Mermi miktari 1 ile 100000 arasinda olmali','error');
+  if (!Number.isSafeInteger(bullets) || bullets < 1 || bullets > 1000000) {
+    showToast('Mermi miktarı 1 ile 1000000 arasında olmalı','error');
     return;
   }
-  if (!confirm(`${targetWallet} adresine ${bullets.toLocaleString('tr-TR')} mermi odulu verilsin mi?`)) return;
+  if (!confirm(`${targetWallet} adresine ${bullets.toLocaleString('tr-TR')} mermi hediyesi verilsin mi?`)) return;
 
-  result.innerHTML = '<span style="color:var(--dim)">Mermi odulu gonderiliyor...</span>';
+  result.innerHTML = '<span style="color:var(--dim)">Mermi hediyesi gönderiliyor...</span>';
   try {
     await ensureAuthSession(false);
-    const res = await fetch(API+'/api/admin/bullets/grant',{
+    const res = await fetch(API+'/api/admin/player/grant-bullets',{
       method:'POST',
       headers:authHeaders({'Content-Type':'application/json','x-admin-token':token}),
-      body:JSON.stringify({ wallet:targetWallet, bullets, reason })
+      body:JSON.stringify({ wallet:targetWallet, amount:bullets, reason })
     });
     const data = await res.json();
     if (!res.ok || data.error) {
-      result.innerHTML = `<span style="color:var(--red)">HATA: ${tErr(data)||data.error||('HTTP '+res.status)}</span>`;
+      result.innerHTML = `<span style="color:var(--red)">HATA: ${escapeHtml(tErr(data)||data.error||('HTTP '+res.status))}</span>`;
       return;
     }
 
-    const added = Number(data.grant?.bullets || bullets);
-    result.innerHTML = `<span style="color:var(--green)">Mermi odulu verildi:</span> +${added.toLocaleString('tr-TR')}<br><span style="color:var(--dim);font-size:10px">${escapeHtml(data.grant?.wallet || targetWallet)}</span>`;
+    const added = Number(data.amount ?? data.grant?.bullets ?? bullets);
+    const newBalance = Number(data.newBalance ?? data.player?.bullets ?? 0);
+    result.innerHTML = `<span style="color:var(--green)">Mermi hediyesi verildi:</span> +${escapeHtml(added.toLocaleString('tr-TR'))}<br><span style="color:var(--dim);font-size:10px">${escapeHtml(shortAdminAddr(data.wallet || data.grant?.wallet || targetWallet))} · yeni bakiye ${escapeHtml(newBalance.toLocaleString('tr-TR'))}</span>`;
     document.getElementById('adminGrantBulletsInput').value = '';
-    if ((data.grant?.wallet || '').toLowerCase() === (wallet || '').toLowerCase() && data.player) {
-      updatePlayerUI(data.player);
+    document.getElementById('adminGrantReasonInput').value = '';
+    if ((data.wallet || data.grant?.wallet || '').toLowerCase() === (wallet || '').toLowerCase()) {
+      updatePlayerUI({ bullets: newBalance });
     }
     refreshAdminPurchases(true);
     pollState();
   } catch(e) {
-    result.innerHTML = '<span style="color:var(--red)">HATA: Mermi odulu verilemedi</span>';
+    result.innerHTML = '<span style="color:var(--red)">HATA: Mermi hediyesi verilemedi</span>';
   }
 }
 
@@ -2275,7 +2280,7 @@ async function adminDownloadBackup() {
     });
     const data = await res.json();
     if (!res.ok || data.error) {
-      result.innerHTML = `<span style="color:var(--red)">HATA: ${tErr(data)||data.error||('HTTP '+res.status)}</span>`;
+      result.innerHTML = `<span style="color:var(--red)">HATA: ${escapeHtml(tErr(data)||data.error||('HTTP '+res.status))}</span>`;
       return;
     }
     const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
@@ -2287,7 +2292,7 @@ async function adminDownloadBackup() {
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
-    result.innerHTML = `<span style="color:var(--green)">Yedek hazirlandi.</span><br><span style="color:var(--dim);font-size:10px">Oyuncu: ${(data.players||[]).length} · Ulke: ${(data.countries||[]).length} · Tur: ${data.round?.number||'?'}</span>`;
+    result.innerHTML = `<span style="color:var(--green)">Yedek hazırlandı.</span><br><span style="color:var(--dim);font-size:10px">Oyuncu: ${escapeHtml(String((data.players||[]).length))} · Ülke: ${escapeHtml(String((data.countries||[]).length))} · Tur: ${escapeHtml(String(data.round?.number||'?'))}</span>`;
   } catch(e) {
     result.innerHTML = '<span style="color:var(--red)">HATA: Yedek alinamadi</span>';
   }
@@ -2319,19 +2324,19 @@ async function adminGrantAllRankNfts() {
     });
     const data = await res.json();
     if (!res.ok || data.error) {
-      result.innerHTML = `<span style="color:var(--red)">HATA: ${tErr(data)||data.error||('HTTP '+res.status)}</span>`;
+      result.innerHTML = `<span style="color:var(--red)">HATA: ${escapeHtml(tErr(data)||data.error||('HTTP '+res.status))}</span>`;
       return;
     }
 
     const claims = (data.claims||[]).filter(c=>c.status==='claimable'&&c.signature);
     const owned = Number(data.owned||0);
     if (!claims.length) {
-      result.innerHTML = `<span style="color:var(--green)">Tum rutbe NFTleri zaten cuzdaninda.</span><br><span style="color:var(--dim);font-size:10px">Alinmis: ${owned}</span>`;
+      result.innerHTML = `<span style="color:var(--green)">Tüm rütbe NFTleri zaten cüzdanında.</span><br><span style="color:var(--dim);font-size:10px">Alınmış: ${escapeHtml(String(owned))}</span>`;
       if (typeof abswarRefreshRankNftOwned === 'function') abswarRefreshRankNftOwned();
       return;
     }
 
-    result.innerHTML = `<span style="color:var(--gold)">${claims.length} rozet mint edilecek. Cuzdan onaylarini sirayla ver.</span>`;
+    result.innerHTML = `<span style="color:var(--gold)">${escapeHtml(String(claims.length))} rozet mint edilecek. Cüzdan onaylarını sırayla ver.</span>`;
     const minted = [];
     for (const claim of claims) {
       const name = claim.rank?.name || ('Rutbe '+claim.rank?.index);
@@ -2341,14 +2346,14 @@ async function adminGrantAllRankNfts() {
       const txLabel = shortAdminTx(txHash);
       minted.push(txLabel ? `${name} (${txLabel})` : name);
       if (typeof abswarMarkRankNftPending === 'function') abswarMarkRankNftPending(claim.rank.index, txHash);
-      result.innerHTML = `<span style="color:var(--green)">Islem gonderildi:</span> ${minted.map(adminEsc).join(', ')}<br><span style="color:var(--dim);font-size:10px">Kalan: ${claims.length-minted.length}</span>`;
+      result.innerHTML = `<span style="color:var(--green)">İşlem gönderildi:</span> ${minted.map(adminEsc).join(', ')}<br><span style="color:var(--dim);font-size:10px">Kalan: ${escapeHtml(String(claims.length-minted.length))}</span>`;
     }
 
     showToast('Rutbe NFT mint islemleri gonderildi','success');
-    result.innerHTML = `<span style="color:var(--green)">Gonderildi:</span> ${minted.map(adminEsc).join(', ')}<br><span style="color:var(--dim);font-size:10px">Cuzdan ve explorer tarafinda islenmesi biraz surebilir.</span>`;
+    result.innerHTML = `<span style="color:var(--green)">Gönderildi:</span> ${minted.map(adminEsc).join(', ')}<br><span style="color:var(--dim);font-size:10px">Cüzdan ve explorer tarafında işlenmesi biraz sürebilir.</span>`;
     if (typeof abswarRefreshRankNftOwned === 'function') setTimeout(abswarRefreshRankNftOwned, 15000);
   } catch(e) {
-    result.innerHTML = `<span style="color:var(--red)">HATA: ${(e.message||'NFT mint baslatilamadi').slice(0,140)}</span>`;
+    result.innerHTML = `<span style="color:var(--red)">HATA: ${escapeHtml((e.message||'NFT mint başlatılamadı').slice(0,140))}</span>`;
   }
 }
 
@@ -3445,7 +3450,7 @@ function addAttackHistory(code, dmg) {
   const c = CD[code];
   const row = document.createElement('div');
   row.className='ah-row anim-new';
-  row.innerHTML=`<div style="display:flex;align-items:center;gap:4px;font-size:9px"><span>${c?.f||'🏳️'}</span> ${c?.n||code}</div><div class="ah-dmg">-${dmg||1} HP</div><div class="ah-time">şimdi</div>`;
+  row.innerHTML=`<div style="display:flex;align-items:center;gap:4px;font-size:9px"><span>${escapeHtml(c?.f||'🏳️')}</span> ${escapeHtml(c?.n||code)}</div><div class="ah-dmg">-${escapeHtml(String(dmg||1))} HP</div><div class="ah-time">şimdi</div>`;
   const hist = document.getElementById('attackHistory');
   if (!hist) return;
   // Boş durum mesajını gizle
@@ -3465,7 +3470,7 @@ function addActivity(from, to) {
   const fc=CD[from], tc=CD[to];
   const item = document.createElement('div');
   item.className='act-item anim-new';
-  item.innerHTML=`<div class="act-country"><span class="ldot" style="width:4px;height:4px;margin-right:5px"></span>${tc?.f||''} ${tc?.n||to}</div><div class="act-detail">saldırdı: <b>${fc?.f||''} ${fc?.n||from}</b></div><div class="act-time">şimdi</div>`;
+  item.innerHTML=`<div class="act-country"><span class="ldot" style="width:4px;height:4px;margin-right:5px"></span>${escapeHtml(tc?.f||'')} ${escapeHtml(tc?.n||to)}</div><div class="act-detail">saldırdı: <b>${escapeHtml(fc?.f||'')} ${escapeHtml(fc?.n||from)}</b></div><div class="act-time">şimdi</div>`;
   const list = document.getElementById('activityList');
   const empty = document.getElementById('activityEmpty');
   if (empty) empty.style.display = 'none';
@@ -3556,19 +3561,7 @@ async function confirmAmmoPurchase(pack, txHash) {
 }
 
 function sendChatLegacy() {
-  const inp = document.getElementById('chatInput');
-  const msg = inp.value.trim(); if (!msg) return;
-  const c = CD[myCountry];
-  const row = document.createElement('div');
-  row.className='chat-msg anim-new';
-  const displayName = myNickname || (wallet ? wallet.slice(0,6)+'...' : 'Misafir');
-  row.innerHTML=`<div class="chat-who"><span style="font-size:11px">${c?.f||'🏳️'}</span><span class="chat-name">${displayName}</span><span class="chat-t">şimdi</span></div><div class="chat-txt">${msg}</div>`;
-  const body=document.getElementById('chatBody');
-  const empty = document.getElementById('chatEmpty');
-  if (empty) empty.style.display = 'none';
-  body.insertBefore(row,body.firstChild);
-  inp.value='';
-  if (wallet) authJson('/api/alliance/radio',{wallet,command:msg}).catch(()=>{});
+  return sendChat();
 }
 
 /* ── ALLIANCE ── */
@@ -3576,17 +3569,18 @@ function sendChat() {
   const inp = document.getElementById('chatInput');
   const msg = inp.value.trim();
   if (!msg) return;
-  const c = CD[myCountry];
-  const row = document.createElement('div');
-  row.className = 'chat-msg anim-new';
-  const displayName = myNickname || (wallet ? wallet.slice(0,6)+'...' : 'Misafir');
-  row.innerHTML = `<div class="chat-who"><span style="font-size:11px">${c?.f||'🏳️'}</span><span class="chat-name">${escapeHtml(displayName)}</span><span class="chat-t">simdi</span></div><div class="chat-txt">${escapeHtml(msg)}</div>`;
-  const body = document.getElementById('chatBody');
-  const empty = document.getElementById('chatEmpty');
-  if (empty) empty.style.display = 'none';
-  body.insertBefore(row, body.firstChild);
-  inp.value = '';
-  if (wallet) authJson('/api/alliance/radio', { wallet, command:msg }).catch(()=>{});
+  if (!wallet) { showToast(t('toast.connectFirst'),'error'); return; }
+  authJson('/api/alliance/chat', { wallet, message:msg }).then(async res => {
+    let data = {};
+    try { data = await res.json(); } catch(e) {}
+    if (!res.ok || data.error) {
+      showToast(tErr(data) || data.error || ('HTTP '+res.status), 'error');
+      return;
+    }
+    inp.value = '';
+  }).catch(e => {
+    showToast((e && e.message) ? e.message : 'Sohbet gonderilemedi', 'error');
+  });
 }
 
 let myAlliance = null;       // ID
@@ -3731,7 +3725,7 @@ function addChatSystemLegacy(text) {
   const row = document.createElement('div');
   row.className='chat-msg anim-new';
   row.style.background='rgba(0,200,83,0.06)';
-  row.innerHTML=`<div class="chat-who"><span style="font-size:11px">📡</span><span class="chat-name" style="color:var(--green)">SİSTEM</span><span class="chat-t">şimdi</span></div><div class="chat-txt" style="color:var(--green)">${text}</div>`;
+  row.innerHTML=`<div class="chat-who"><span style="font-size:11px">📡</span><span class="chat-name" style="color:var(--green)">SİSTEM</span><span class="chat-t">şimdi</span></div><div class="chat-txt" style="color:var(--green)">${escapeHtml(text)}</div>`;
   const body=document.getElementById('chatBody');
   const empty = document.getElementById('chatEmpty');
   if (empty) empty.style.display = 'none';
@@ -3776,7 +3770,7 @@ function updateLeaderboard(countries) {
       const row=document.createElement('div');
       row.className='lb-row'+(c.code===myCountry?' me':'')+(isSuperpowerCountry(c)?' superpower':'');
       const hpVal = (c.hp||0);
-      row.innerHTML=`<span class="lb-num">${i+1}</span><span style="font-size:13px">${cd?.f||c.flag||'🏳️'}</span><span class="lb-name">${cd?.n||c.name||c.code}</span><span class="lb-hp">${hpVal.toLocaleString('tr-TR')} HP</span>`;
+      row.innerHTML=`<span class="lb-num">${escapeHtml(String(i+1))}</span><span style="font-size:13px">${escapeHtml(cd?.f||c.flag||'🏳️')}</span><span class="lb-name">${escapeHtml(cd?.n||c.name||c.code)}</span><span class="lb-hp">${escapeHtml(hpVal.toLocaleString('tr-TR'))} HP</span>`;
       list.appendChild(row);
     });
   }
@@ -4728,24 +4722,28 @@ ioScript.onload=()=>{
 
   socket.on('game:over',(d)=>{ playSound('victory'); showToast(`🏆 OYUN BİTTİ! Kazanan: ${CD[d.winner]?.f||''} ${CD[d.winner]?.n||d.winner}`,'success'); });
   socket.on('alliance:feed',(d)=>{
-    // Kendi gönderdiğimiz mesajı atla (zaten yerel olarak gösterdik — radioCommand hariç çünkü o yerel eklemiyor)
-    const isSelf = wallet && d.wallet && d.wallet.toLowerCase() === wallet.toLowerCase();
-    // Telsiz komutları (büyük harfli sabit komutlar) — kendi telsizimi de göster (yerel eklemedik)
-    const isRadioCmd = d.command && /^[A-Z_]+$/.test(d.command);
-    if (isSelf && !isRadioCmd) return;
-
+    const payload = d?.payload || {};
+    const feedType = String(payload.type || d.type || '').toUpperCase();
+    const feedAllianceId = String(payload.allianceId || d.allianceId || '');
+    const currentAllianceId = String(myAllianceData?.id || myAlliance || '');
+    if ((feedType === 'CHAT' || feedType === 'RADIO') && feedAllianceId && (!currentAllianceId || feedAllianceId !== currentAllianceId)) return;
+    const feedWallet = payload.wallet || d.wallet || '';
+    const feedCommand = payload.command || d.command || '';
+    const feedCountry = payload.country || d.country || '';
+    const feedNickname = payload.nickname || d.nickname || '';
     const row=document.createElement('div'); row.className='chat-msg anim-new';
-    const cc=CD[d.country]||{};
+    const cc=CD[feedCountry]||{};
     // Nickname'i göstermek için: backend'den geliyorsa nickname, yoksa wallet kısa
-    const senderName = escapeHtml(d.nickname || (d.wallet||'???').slice(0,6));
+    const senderName = escapeHtml(feedNickname || (feedWallet||'???').slice(0,6));
     // Telsiz komutu mu, normal mesaj mı?
-    let displayText = escapeHtml(d.command || d.message || '');
+    const isRadioCmd = feedType === 'RADIO' || (!feedType && feedCommand && /^[A-Z_]+$/.test(feedCommand));
+    let displayText = escapeHtml(feedType === 'RADIO' ? (feedCommand || payload.message || d.message || '') : (payload.message || feedCommand || d.message || ''));
     if (isRadioCmd) {
       const labels = {ATTACK_NOW:'⚔️ ŞİMDİ SALDIR',DEFEND:'🛡️ SAVUN',REGROUP:'🔄 YENİDEN TOPLAN',RETREAT:'🏃 GERİ ÇEKİL',FOCUS_FIRE:'🎯 ODAKLI ATEŞ'};
-      displayText = `📻 ${labels[d.command] || d.command}`;
+      displayText = `📻 ${labels[feedCommand] || feedCommand}`;
       row.style.background='rgba(245,200,66,0.06)';
     }
-    row.innerHTML=`<div class="chat-who"><span style="font-size:11px">${cc.f||'🏳️'}</span><span class="chat-name">${senderName}</span><span class="chat-t">şimdi</span></div><div class="chat-txt">${displayText}</div>`;
+    row.innerHTML=`<div class="chat-who"><span style="font-size:11px">${escapeHtml(cc.f||'🏳️')}</span><span class="chat-name">${senderName}</span><span class="chat-t">şimdi</span></div><div class="chat-txt">${displayText}</div>`;
     const body=document.getElementById('chatBody');
     const empty = document.getElementById('chatEmpty');
     if (empty) empty.style.display = 'none';
@@ -4974,6 +4972,10 @@ const I18N = {
     'err.INVALID_RESOURCE': 'Geçersiz kaynak',
     'err.RATE_LIMITED': 'Çok fazla istek. Lütfen yavaşla.',
     'err.ATTACK_COOLDOWN': 'Çok hızlı saldırı — biraz yavaşla.',
+    'err.CHAT_COOLDOWN': 'Sohbet için biraz bekle.',
+    'err.RADIO_COOLDOWN': 'Telsiz için biraz bekle.',
+    'err.MESSAGE_EMPTY': 'Mesaj boş olamaz.',
+    'err.MESSAGE_INAPPROPRIATE': 'Uygunsuz mesaj.',
     'err.INSUFFICIENT_BULLETS': 'Yetersiz mermi',
     'err.ROUND_ALREADY_ENDED': 'Tur zaten bitmiş',
     'err.ROUND_ALREADY_ACTIVE': 'Zaten aktif tur var',
@@ -5267,6 +5269,10 @@ const I18N = {
     'err.INVALID_RESOURCE': 'Invalid resource',
     'err.RATE_LIMITED': 'Too many requests. Please slow down.',
     'err.ATTACK_COOLDOWN': 'Attack too fast — slow down.',
+    'err.CHAT_COOLDOWN': 'Please wait before chatting again.',
+    'err.RADIO_COOLDOWN': 'Please wait before using radio again.',
+    'err.MESSAGE_EMPTY': 'Message cannot be empty.',
+    'err.MESSAGE_INAPPROPRIATE': 'Inappropriate message.',
     'err.INSUFFICIENT_BULLETS': 'Insufficient ammo',
     'err.ROUND_ALREADY_ENDED': 'Round already ended',
     'err.ROUND_ALREADY_ACTIVE': 'Active round already exists',
@@ -5549,6 +5555,10 @@ const I18N = {
     'err.INVALID_RESOURCE': 'Неверный ресурс',
     'err.RATE_LIMITED': 'Слишком много запросов.',
     'err.ATTACK_COOLDOWN': 'Атака слишком частая — помедленнее.',
+    'err.CHAT_COOLDOWN': 'Подождите перед новым сообщением.',
+    'err.RADIO_COOLDOWN': 'Подождите перед новым радиосообщением.',
+    'err.MESSAGE_EMPTY': 'Сообщение не может быть пустым.',
+    'err.MESSAGE_INAPPROPRIATE': 'Недопустимое сообщение.',
     'err.INSUFFICIENT_BULLETS': 'Недостаточно патронов',
     'err.ROUND_ALREADY_ENDED': 'Раунд уже закончен',
     'err.ROUND_ALREADY_ACTIVE': 'Раунд уже активен',
@@ -5674,9 +5684,10 @@ function t(key, vars) {
 // Backend error code → kullanıcı mesajı
 function tErr(payload) {
   if (!payload) return t('err.ERROR');
-  // {code, error} formatı varsa code'u kullan
-  if (payload.code && I18N[_lang] && I18N[_lang]['err.'+payload.code]) {
-    return t('err.'+payload.code);
+  const code = payload.code || payload.errorCode || (typeof payload.error === 'string' && /^[A-Z0-9_]+$/.test(payload.error) ? payload.error : '');
+  // {code, error} formatı varsa kodu kullan
+  if (code && I18N[_lang] && I18N[_lang]['err.'+code]) {
+    return t('err.'+code);
   }
   // Fallback: backend'in TR error mesajı
   return payload.error || t('err.ERROR');
@@ -6394,26 +6405,34 @@ function renderRankNftPanel(){
   document.getElementById("rankNftStatus").style.color=rankNftStatus?.enabled?"var(--green)":"var(--gold)";
   document.getElementById("rankNftNote").textContent=(rankNftStatus?.enabled?"":L("disabled")+". ")+L("note");
   const list=ranks();
+  const myBullets=Number(myBulletsCount||0);
   const claimable=list.filter(r=>rankNftContribution>=Number(r.min||0)&&!rankNftOwned.has(Number(r.index))&&!rankNftPending.has(Number(r.index))&&rankNftStatus?.enabled);
   if(claimTop){
     const first=claimable[0];
     claimTop.style.display=first?"block":"none";
+    const firstCost=Number(first?.costBullets||0);
+    const firstAfford=myBullets>=firstCost;
+    const firstCostLabel=firstCost>0?`${firstCost.toLocaleString("tr-TR")} MERMİ`:"ÜCRETSİZ";
     claimTop.innerHTML=first?`<div style="display:flex;align-items:center;gap:10px;background:linear-gradient(90deg,rgba(245,200,66,.20),rgba(245,200,66,.08));border:1px solid rgba(245,200,66,.50);border-radius:10px;padding:9px 10px;color:var(--gold);box-shadow:0 0 18px rgba(245,200,66,.10)">
-      <div style="flex:1;min-width:0"><div style="font-family:var(--hud);font-size:9px;letter-spacing:1px">${E(L("claimReady"))}: ${E(claimable.map(r=>r.name).join(", "))}</div><div style="font-size:9px;color:var(--dim);margin-top:3px;line-height:1.35">${E(L("claimHint"))}</div></div>
-      <button class="btn-sm btn-red" style="font-size:8px;padding:7px 10px;min-width:92px;border-radius:8px;box-shadow:0 0 14px rgba(232,22,42,.22)" onclick="claimRankNft(${Number(first.index)})">${E(L("claim"))}</button>
+      <div style="flex:1;min-width:0"><div style="font-family:var(--hud);font-size:9px;letter-spacing:1px">${E(L("claimReady"))}: ${E(claimable.map(r=>r.name).join(", "))}</div><div style="font-size:9px;color:var(--dim);margin-top:3px;line-height:1.35">${E(L("claimHint"))} · ${E(firstCostLabel)}</div></div>
+      <button class="btn-sm ${firstAfford?"btn-red":"btn-out"}" style="font-size:8px;padding:7px 10px;min-width:92px;border-radius:8px;box-shadow:0 0 14px rgba(232,22,42,.22)" ${firstAfford?"":"disabled"} title="${E(firstAfford?firstCostLabel:"Yetersiz mermi")}" onclick="claimRankNft(${Number(first.index)})">${E(L("claim"))}</button>
     </div>`:"";
   }
   const claimBanner="";
   grid.innerHTML=claimBanner+list.map(r=>{
     const earned=rankNftContribution>=Number(r.min||0),owned=rankNftOwned.has(Number(r.index)),pending=rankNftPending.has(Number(r.index));
+    const costBullets=Number(r.costBullets||0);
+    const costLabel=costBullets>0?`${costBullets.toLocaleString("tr-TR")} MERMİ`:"ÜCRETSİZ";
+    const canAfford=myBullets>=costBullets;
     let label=owned?L("owned"):pending?L("pending"):earned?(rankNftStatus?.enabled?L("claim"):L("setup")):L("locked");
     let sub=earned?`${Number(r.min||0).toLocaleString("tr-TR")} katkı / +%${r.bonusPct||0}`:`${(Number(r.min||0)-rankNftContribution).toLocaleString("tr-TR")} ${L("need")}`;
     if(pending){sub=`Onay bekleniyor${shortTx(rankNftPendingTx[Number(r.index)])?" · "+shortTx(rankNftPendingTx[Number(r.index)]):""}`}
-    let disabled=!earned||owned||pending||!rankNftStatus?.enabled;
+    sub += ` · ${costLabel}`;
+    let disabled=!earned||owned||pending||!rankNftStatus?.enabled||!canAfford;
     return `<div style="display:flex;align-items:center;gap:9px;background:${owned?"rgba(0,200,83,.08)":earned?"rgba(245,200,66,.055)":"rgba(255,255,255,.025)"};border:1px solid ${owned?"rgba(0,200,83,.35)":earned?"rgba(245,200,66,.26)":"var(--border)"};border-radius:9px;padding:7px">
       ${badgeSvg(r,earned,owned)}
       <div style="flex:1;min-width:0"><div style="font-family:var(--hud);font-size:9px;color:${earned?"var(--text)":"var(--dim)"};letter-spacing:1px">${E(r.icon||"")} ${E(r.name)}</div><div style="font-size:9px;color:var(--dim);margin-top:3px">${E(sub)}</div></div>
-      <button class="btn-sm ${disabled?"btn-out":"btn-red"}" style="font-size:7px;padding:6px 8px;min-width:82px;border-radius:7px" ${disabled?"disabled":""} onclick="claimRankNft(${Number(r.index)})">${E(label)}</button>
+      <button class="btn-sm ${disabled?"btn-out":"btn-red"}" style="font-size:7px;padding:6px 8px;min-width:82px;border-radius:7px" ${disabled?"disabled":""} title="${E(!canAfford?"Yetersiz mermi":costLabel)}" onclick="claimRankNft(${Number(r.index)})">${E(label)}</button>
     </div>`;
   }).join("");
 }
@@ -6476,7 +6495,19 @@ window.claimRankNft=async function(rankIndex){
   try{
     const res=await authJson("/api/nft/claim-signature",{wallet:currentWallet,rank:rankIndex});
     const claim=await res.json();
-    if(!res.ok||claim.error)throw new Error(tErr(claim)||claim.error||"NFT claim failed");
+    if(!res.ok||claim.error){
+      if((claim.code||claim.error)==="INSUFFICIENT_BULLETS"){
+        const required=Number(claim.required ?? claim.costBullets ?? 0);
+        const bullets=Number(claim.bullets ?? myBulletsCount ?? 0);
+        showToast(`Bu rozet için ${required.toLocaleString("tr-TR")} mermi gerekir (${bullets.toLocaleString("tr-TR")} var)`,"error");
+        return;
+      }
+      throw new Error(tErr(claim)||claim.error||"NFT claim failed");
+    }
+    if(claim.player || claim.newBalance != null){
+      updatePlayerUI(claim.player || { bullets:Number(claim.newBalance||0) });
+      renderRankNftPanel();
+    }
     showToast(L("approve"),"info");
     const txHash=await window.abswarMintRankNftClaim(claim);
     addPendingRank(rankIndex,txHash);renderRankNftPanel();
