@@ -1,0 +1,24 @@
+<svg width="200" height="170" viewBox="0 0 200 170" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<linearGradient id="genPlate" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a1408"/><stop offset="1" stop-color="#0c0a04"/></linearGradient>
+<radialGradient id="genDisk" cx="0.5" cy="0.4" r="0.6"><stop offset="0" stop-color="#1a2018"/><stop offset="1" stop-color="#0a0e0a"/></radialGradient>
+</defs>
+<rect x="0" y="0" width="200" height="170" rx="12" fill="url(#genPlate)" stroke="#8f7320" stroke-width="2"/>
+<g stroke="#c9a84a" stroke-width="1.8" fill="none" opacity="0.85">
+<path d="M62 70 q-12 -18 -7 -36"/>
+<path d="M60 62 q-10 -3 -13 -11"/>
+<path d="M62 52 q-10 -3 -13 -11"/>
+<path d="M138 70 q12 -18 7 -36"/>
+<path d="M140 62 q10 -3 13 -11"/>
+<path d="M138 52 q10 -3 13 -11"/>
+</g>
+<circle cx="100" cy="58" r="40" fill="none" stroke="#f0c850" stroke-width="3"/>
+<circle cx="100" cy="58" r="32" fill="url(#genDisk)" stroke="#8f7320" stroke-width="1"/>
+<path d="M100 34 l5 13 l14 0 l-11 8 l4 13 l-12 -8 l-12 8 l4 -13 l-11 -8 l14 0 z" fill="#ffd966"/>
+<path d="M78 56 l3 10 l11 0 l-9 6 l3 11 l-8 -6 l-8 6 l3 -11 l-9 -6 l11 0 z" fill="#ffd966"/>
+<path d="M122 56 l3 10 l11 0 l-9 6 l3 11 l-8 -6 l-8 6 l3 -11 l-9 -6 l11 0 z" fill="#ffd966"/>
+<path d="M100 74 l3 10 l11 0 l-9 6 l3 11 l-8 -6 l-8 6 l3 -11 l-9 -6 l11 0 z" fill="#ffd966"/>
+<text x="100" y="122" text-anchor="middle" fill="#ffe9a8" font-family="sans-serif" font-size="16" font-weight="700">GENERAL</text>
+<text x="100" y="142" text-anchor="middle" fill="#8f7320" font-family="monospace" font-size="10">15.000 katk&#305; &#183; +%30</text>
+<text x="100" y="159" text-anchor="middle" fill="#6f5a20" font-family="monospace" font-size="9" letter-spacing="1">&#9733; EN NAD&#304;R &#9733;</text>
+</svg>

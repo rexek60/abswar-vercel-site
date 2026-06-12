@@ -1,0 +1,12 @@
+<svg width="200" height="150" viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<linearGradient id="plate" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16221c"/><stop offset="1" stop-color="#0c1410"/></linearGradient>
+</defs>
+<rect x="0" y="0" width="200" height="150" rx="10" fill="url(#plate)" stroke="#2a3a30" stroke-width="1"/>
+<circle cx="100" cy="55" r="36" fill="none" stroke="#3a8f5c" stroke-width="2"/>
+<circle cx="100" cy="55" r="29" fill="#0e1a14"/>
+<path d="M82 62 a18 14 0 0 1 36 0 z" fill="#5fae7a"/>
+<rect x="80" y="60" width="40" height="4" rx="2" fill="#3a8f5c"/>
+<text x="100" y="112" text-anchor="middle" fill="#e8f5ec" font-family="sans-serif" font-size="15" font-weight="600">ASKER</text>
+<text x="100" y="133" text-anchor="middle" fill="#4a6f58" font-family="monospace" font-size="10">0 katk&#305; &#183; +%0</text>
+</svg>
