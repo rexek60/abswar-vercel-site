@@ -1,4 +1,4 @@
-# ABSWAR Rank NFT Launch
+# Centradar Rank NFT Launch
 
 Rank NFT code is implemented, but real mainnet minting must be enabled in this order.
 

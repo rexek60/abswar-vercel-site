@@ -1,4 +1,4 @@
-# ABSWAR — Küresel Savaş MMO
+# Centradar: Tactical Gridwar
 
 Web3 tabanlı, gerçek zamanlı, çok oyunculu savaş oyunu.
 Cyberpunk arayüz · 119 ülkeli dünya haritası · Smart contract ekonomisi.
@@ -21,7 +21,7 @@ Cyberpunk arayüz · 119 ülkeli dünya haritası · Smart contract ekonomisi.
 ## CANLI ADRESLER
 ═══════════════════════════════════════════════════════════
 
-  Frontend  : https://abswar.xyz
+  Frontend  : https://centradar.xyz
   Backend   : https://abswar-clean-backend-production.up.railway.app
   Contract  : 0x359859108B1AA0d0B5BA0DbAA1287d6D77a340dd
               (Abstract Mainnet — Chain ID 2741)
@@ -32,7 +32,7 @@ Cyberpunk arayüz · 119 ülkeli dünya haritası · Smart contract ekonomisi.
 ═══════════════════════════════════════════════════════════
 
   Frontend  : https://abswar-ui.vercel.app
-  Backend   : https://api.abswar.xyz
+  Backend   : https://api.centradar.xyz
   Contract  : 0x325b18816734210e9fEbAA0516030A8Ec74bE3d4
               (Abstract Testnet — Chain ID 11124)
 
@@ -111,4 +111,4 @@ Cyberpunk arayüz · 119 ülkeli dünya haritası · Smart contract ekonomisi.
 
 ═══════════════════════════════════════════════════════════
 
-ABSWAR v1.0 — Tüm sistemler çalışır durumda.
+Centradar v1.0 — Tüm sistemler çalışır durumda.

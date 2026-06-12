@@ -2,14 +2,14 @@
 pragma solidity ^0.8.20;
 
 /**
- * ABSWAR Rank NFT badges.
+ * Centradar Rank NFT badges.
  *
  * Soulbound ERC-721 style prestige badges. They do not give game power.
  * A player can mint a rank badge only with a backend signature proving
  * that the wallet reached the required contribution threshold.
  */
 contract AbswarRankNFT {
-    string public name = "ABSWAR Rank Badges";
+    string public name = "Centradar Rank Badges";
     string public symbol = "ABSRANK";
 
     address public owner;
@@ -98,8 +98,8 @@ contract AbswarRankNFT {
         uint8 rank = uint8(tokenId & 0xff);
         string memory rankName = _rankName(rank);
         string memory json = string.concat(
-            '{"name":"ABSWAR ', rankName, ' Badge",',
-            '"description":"Soulbound ABSWAR prestige badge. It proves the wallet reached this rank; it gives no extra game power.",',
+            '{"name":"Centradar ', rankName, ' Badge",',
+            '"description":"Soulbound Centradar prestige badge. It proves the wallet reached this rank; it gives no extra game power.",',
             '"image":"', _rankImageUrl(rank), '",',
             '"attributes":[',
             '{"trait_type":"Rank","value":"', rankName, '"},',
@@ -176,7 +176,7 @@ contract AbswarRankNFT {
     }
 
     function _rankImageUrl(uint8 rank) internal pure returns (string memory) {
-        return string.concat("https://abswar.xyz/assets/abswar-rank-badge-", Strings.toString(rank), ".svg");
+        return string.concat("https://centradar.xyz/assets/abswar-rank-badge-", Strings.toString(rank), ".svg");
     }
 }
 

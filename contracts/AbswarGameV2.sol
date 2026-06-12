@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 /**
- * ABSWAR - Oyun Ekonomi Contract'i (v2)
+ * Centradar - Oyun Ekonomi Contract'i (v2)
  *
  * Abstract Testnet'e deploy edildi.
  * Deploy adresi: 0x325b18816734210e9fEbAA0516030A8Ec74bE3d4

@@ -3,26 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ABSWAR — Küresel Savaş MMO</title>
-<meta name="description" content="ABSWAR — Web3 tabanlı cyberpunk küresel savaş MMO. 119 ülke, gerçek zamanlı saldırı, smart contract ekonomisi.">
+<title>Centradar: Tactical Gridwar</title>
+<meta name="description" content="Centradar: Tactical Gridwar — Web3 tabanlı gerçek zamanlı savaş strateji oyunu. 119 ülke, taktik harita, smart contract ekonomisi.">
 <meta name="theme-color" content="#e8162a">
-<link rel="canonical" href="https://abswar.xyz/">
+<link rel="canonical" href="https://centradar.xyz/">
 
 <!-- Favicon (inline SVG) -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%230d1117'/%3E%3Ccircle cx='32' cy='32' r='26' fill='none' stroke='%2300c853' stroke-width='2'/%3E%3Ccircle cx='32' cy='32' r='18' fill='none' stroke='%2300c853' stroke-width='1.5' opacity='0.6'/%3E%3Ccircle cx='32' cy='32' r='10' fill='none' stroke='%2300c853' stroke-width='1' opacity='0.4'/%3E%3Cpath d='M32 6 L32 58 M6 32 L58 32' stroke='%2300c853' stroke-width='1' opacity='0.5'/%3E%3Ccircle cx='32' cy='32' r='3' fill='%23e8162a'/%3E%3C/svg%3E">
 
 <!-- Open Graph / sosyal medya paylaşım kartı -->
 <meta property="og:type" content="website">
-<meta property="og:title" content="ABSWAR — Küresel Savaş MMO">
-<meta property="og:description" content="Web3 tabanlı cyberpunk savaş MMO. 119 ülke, gerçek zamanlı, smart contract ekonomili.">
-<meta property="og:image" content="https://abswar.xyz/og.png">
+<meta property="og:title" content="Centradar: Tactical Gridwar">
+<meta property="og:description" content="Web3 tabanlı taktik savaş oyunu. 119 ülke, gerçek zamanlı çatışma, smart contract ekonomisi.">
+<meta property="og:image" content="https://centradar.xyz/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:url" content="https://abswar.xyz/">
+<meta property="og:url" content="https://centradar.xyz/">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="ABSWAR — Küresel Savaş MMO">
-<meta name="twitter:description" content="Web3 cyberpunk savaş MMO. 119 ülke. Smart contract ekonomili.">
-<meta name="twitter:image" content="https://abswar.xyz/og.png">
+<meta name="twitter:title" content="Centradar: Tactical Gridwar">
+<meta name="twitter:description" content="Web3 taktik savaş oyunu. 119 ülke. Smart contract ekonomili.">
+<meta name="twitter:image" content="https://centradar.xyz/og.png">
 
 <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Oswald:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
@@ -418,7 +418,7 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
       <animate attributeName="r" values="3;5;3" dur="1.8s" repeatCount="indefinite"/>
     </circle>
   </svg>
-  <div style="font-family:var(--hud);font-size:36px;letter-spacing:8px;color:#fff;font-weight:900;margin-bottom:6px">ABSWAR</div>
+  <div style="font-family:var(--hud);font-size:36px;letter-spacing:8px;color:#fff;font-weight:900;margin-bottom:6px">CENTRADAR</div>
   <div style="font-family:var(--hud);font-size:11px;letter-spacing:4px;color:var(--green);margin-bottom:24px" data-i18n="welcome.subtitle">KÜRESEL SAVAŞ MMO · ABSTRACT MAINNET</div>
   <div id="giftBadge" style="display:none;background:linear-gradient(180deg,rgba(245,200,66,0.15),rgba(245,200,66,0.05));border:1px solid rgba(245,200,66,0.4);border-radius:6px;padding:8px 16px;margin-bottom:20px;font-family:var(--hud);font-size:11px;color:var(--gold);letter-spacing:1px">
     🎁 <span id="giftBadgeText">İlk 100 oyuncuya +100 bonus mermi!</span>
@@ -468,8 +468,8 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
       <animate attributeName="r" values="3;4.5;3" dur="2s" repeatCount="indefinite"/>
     </circle>
   </svg>
-  <span class="logo-main">ABSWAR</span>
-  <span class="logo-sub">Küresel Savaş MMO</span>
+  <span class="logo-main">CENTRADAR</span>
+  <span class="logo-sub">Tactical Gridwar</span>
   <div style="display:flex">
     <div class="nav-link" data-page-link="kontrol" onclick="openAppPage('kontrol')" data-i18n="nav.controls">KONTROL PANELİ</div>
     <div class="nav-link active" data-page-link="harita" onclick="openAppPage('harita')" data-i18n="nav.map">HARİTA</div>
@@ -483,7 +483,7 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
     <button onclick="cycleLang()" id="langBtn" title="Dil / Language / Язык" style="background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--hud);font-size:10px;padding:5px 8px;cursor:pointer">🇹🇷 TR</button>
     <button onclick="toggleSound()" id="soundBtn" title="Ses / müzik aç-kapa" style="background:transparent;border:1px solid var(--border);color:var(--text);font-size:14px;width:30px;height:28px;cursor:pointer;padding:0">🔊</button>
     <button onclick="openFeedbackModal()" title="Geri bildirim / bug rapor" style="background:transparent;border:1px solid var(--border);color:var(--text);font-size:14px;width:30px;height:28px;cursor:pointer;padding:0">💬</button>
-    <button id="docsNavBtn" onclick="document.getElementById('helpModal').classList.add('show');['How','Reward','Security'].forEach(k=>{document.getElementById('docsTab'+k)?.classList.toggle('active',k==='How');document.getElementById('docsPanel'+k)?.classList.toggle('active',k==='How')})" title="ABSWAR Docs" style="background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer" data-i18n="nav.docs">📚 DOCS</button>
+    <button id="docsNavBtn" onclick="document.getElementById('helpModal').classList.add('show');['How','Reward','Security'].forEach(k=>{document.getElementById('docsTab'+k)?.classList.toggle('active',k==='How');document.getElementById('docsPanel'+k)?.classList.toggle('active',k==='How')})" title="Centradar Docs" style="background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer" data-i18n="nav.docs">📚 DOCS</button>
     <span style="font-family:var(--mono);font-size:11px;color:var(--red)" id="ethBal">0.000 ETH</span>
     <button id="nicknameBtn" onclick="openNicknameModal()" title="Nickname ayarla" style="display:none;background:transparent;border:1px solid var(--border);color:var(--green);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer">👤 <span id="nicknameLabel" data-i18n="nav.nickname">İSİM EKLE</span></button>
     <button id="adminBtn" onclick="openAdminPanel()" title="Admin Paneli" style="display:none;background:linear-gradient(180deg,rgba(245,200,66,0.15),rgba(245,200,66,0.05));border:1px solid var(--gold);color:var(--gold);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer;letter-spacing:1px">⚙️ ADMIN</button>
@@ -989,7 +989,7 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
 <div class="modal" id="helpModal">
   <div class="modal-box" style="width:520px;max-width:92vw;max-height:88vh;overflow-y:auto">
     <button class="modal-close" onclick="document.getElementById('helpModal').classList.remove('show')">✕ KAPAT</button>
-    <div class="modal-title" data-i18n="modal.docs">📚 ABSWAR DOCS</div>
+    <div class="modal-title" data-i18n="modal.docs">📚 CENTRADAR DOCS</div>
     <div class="modal-sub" data-i18n="sub.docs">Oyunu, ödülleri ve güvenlik notlarını tek yerde oku.</div>
     <div class="docs-tabs" role="tablist">
       <button class="docs-tab active" id="docsTabHow" onclick="['How','Reward','Security'].forEach(k=>{document.getElementById('docsTab'+k)?.classList.toggle('active',k==='How');document.getElementById('docsPanel'+k)?.classList.toggle('active',k==='How')})" type="button">NASIL OYNANIR</button>
@@ -1823,7 +1823,7 @@ function dismissWelcome() {
 }
 
 /* ── SEKME BAŞLIĞI BİLDİRİM SAYACI ── */
-const BASE_TITLE = 'ABSWAR — Küresel Savaş MMO';
+const BASE_TITLE = 'Centradar: Tactical Gridwar';
 let _unseenCount = 0;
 let _tabVisible = !document.hidden;
 document.addEventListener('visibilitychange', () => {
@@ -4228,9 +4228,9 @@ function _unlockAudioOnce() {
     source.start(0);
     _audioUnlocked = true;
     startWarMusic();
-    console.debug('[ABSWAR ses] audio context unlock ✓ (ctx:', ctx.state + ')');
+    console.debug('[CENTRADAR ses] audio context unlock ✓ (ctx:', ctx.state + ')');
   } catch(e) {
-    console.debug('[ABSWAR ses] audio unlock hatası:', e.message);
+    console.debug('[CENTRADAR ses] audio unlock hatası:', e.message);
   }
 }
 
@@ -4713,9 +4713,9 @@ function _playBuffer(buf, ctx) {
     g.gain.value = _soundVolume;
     src.connect(g).connect(ctx.destination);
     src.start();
-    console.debug('[ABSWAR ses] dosya çalındı ✓ (ctx:', ctx.state + ', süre:', buf.duration.toFixed(2) + 's)');
+    console.debug('[CENTRADAR ses] dosya çalındı ✓ (ctx:', ctx.state + ', süre:', buf.duration.toFixed(2) + 's)');
   } catch(e) {
-    console.debug('[ABSWAR ses] çalma hatası:', e.message);
+    console.debug('[CENTRADAR ses] çalma hatası:', e.message);
   }
 }
 
@@ -4871,7 +4871,7 @@ function _checkFps() {
     const fps = (_frameCount * 1000) / (now - _lastFpsCheck);
     if (fps < 25 && !_performanceMode) {
       _performanceMode = true;
-      console.debug('[ABSWAR] Düşük FPS algılandı — performans modu açıldı');
+      console.debug('[CENTRADAR] Düşük FPS algılandı — performans modu açıldı');
     } else if (fps > 45 && _performanceMode) {
       _performanceMode = false;
     }
@@ -5272,7 +5272,7 @@ const I18N = {
     'modal.nickname': '👤 NICKNAME AYARLA',
     'modal.feedback': '💬 GERİ BİLDİRİM / BUG RAPOR',
     'modal.help': '❓ NASIL OYNANIR',
-    'modal.docs': '📚 ABSWAR DOCS',
+    'modal.docs': '📚 CENTRADAR DOCS',
     'modal.country': 'ÜLKE SEÇ',
     'modal.roundEnd': '🏆 TUR BİTTİ',
     'payouts.lastRound': 'SON TUR ÖDEMELERİ',
@@ -5284,7 +5284,7 @@ const I18N = {
     'sub.nickname': 'Diğer oyuncular seni nasıl görsün?',
     'sub.feedback': 'Bir sorun mu var? Bir fikrin mi var? Bize yaz.',
     'sub.country': 'Hangi ülkenin komutanı olacaksın?',
-    'sub.help': 'ABSWAR\'a hoş geldin Komutan. Adımları takip et:',
+    'sub.help': 'Centradar\'a hoş geldin Komutan. Adımları takip et:',
     'sub.docs': 'Oyunu, ödülleri ve güvenlik notlarını tek yerde oku.',
     // Yardım modal adımları (kısa, anahtar)
     'help.step1': '1 · CÜZDAN BAĞLA',
@@ -5335,7 +5335,7 @@ const I18N = {
     'fb.praise': '⭐ BEĞENİ',
     'fb.other': '❓ DİĞER',
     'fb.submit': 'GÖNDER',
-    'fb.note': 'Mesajın doğrudan ABSWAR ekibine gönderilir. Bağlantı kesilirse yedek olarak panoya kopyalanır.',
+    'fb.note': 'Mesajın doğrudan Centradar ekibine gönderilir. Bağlantı kesilirse yedek olarak panoya kopyalanır.',
     'fb.maxChars': '500 karaktere kadar',
     // Mermi paketleri
     'pack.basic': 'TEMEL',
@@ -5572,7 +5572,7 @@ const I18N = {
     'modal.nickname': '👤 SET NICKNAME',
     'modal.feedback': '💬 FEEDBACK / BUG REPORT',
     'modal.help': '❓ HOW TO PLAY',
-    'modal.docs': '📚 ABSWAR DOCS',
+    'modal.docs': '📚 CENTRADAR DOCS',
     'modal.country': 'SELECT COUNTRY',
     'modal.roundEnd': '🏆 ROUND ENDED',
     'payouts.lastRound': 'LAST ROUND PAYOUTS',
@@ -5583,7 +5583,7 @@ const I18N = {
     'sub.nickname': 'How should other players see you?',
     'sub.feedback': 'Got a problem? Got an idea? Tell us.',
     'sub.country': 'Which country will you command?',
-    'sub.help': 'Welcome to ABSWAR, Commander. Follow the steps:',
+    'sub.help': 'Welcome to Centradar, Commander. Follow the steps:',
     'sub.docs': 'Read how to play, rewards, and safety notes in one place.',
     'help.step1': '1 · CONNECT WALLET',
     'help.step1.body': 'Click "CONNECT WALLET" top right. The Abstract Global Wallet login opens.',
@@ -5630,7 +5630,7 @@ const I18N = {
     'fb.praise': '⭐ PRAISE',
     'fb.other': '❓ OTHER',
     'fb.submit': 'SEND',
-    'fb.note': 'Your message is sent directly to the ABSWAR team. If the connection fails, it is copied to clipboard.',
+    'fb.note': 'Your message is sent directly to the Centradar team. If the connection fails, it is copied to clipboard.',
     'fb.maxChars': 'Up to 500 characters',
     'pack.basic': 'BASIC',
     'pack.advanced': 'ADVANCED',
@@ -5860,7 +5860,7 @@ const I18N = {
     'modal.nickname': '👤 ЗАДАТЬ НИК',
     'modal.feedback': '💬 ОТЗЫВ / ОШИБКА',
     'modal.help': '❓ КАК ИГРАТЬ',
-    'modal.docs': '📚 ABSWAR DOCS',
+    'modal.docs': '📚 CENTRADAR DOCS',
     'modal.country': 'ВЫБРАТЬ СТРАНУ',
     'modal.roundEnd': '🏆 РАУНД ЗАВЕРШЁН',
     'payouts.lastRound': 'ПОСЛЕДНИЕ ВЫПЛАТЫ',
@@ -5871,7 +5871,7 @@ const I18N = {
     'sub.nickname': 'Как вас будут видеть другие игроки?',
     'sub.feedback': 'Есть проблема? Есть идея? Напишите нам.',
     'sub.country': 'Какой страной вы будете командовать?',
-    'sub.help': 'Добро пожаловать в ABSWAR, Командир. Следуйте шагам:',
+    'sub.help': 'Добро пожаловать в Centradar, Командир. Следуйте шагам:',
     'sub.docs': 'Правила игры, награды и безопасность собраны в одном месте.',
     'help.step1': '1 · ПОДКЛЮЧИТЬ КОШЕЛЁК',
     'help.step1.body': 'Нажмите "ПОДКЛЮЧИТЬ" справа вверху. Откроется вход Abstract Global Wallet.',
@@ -5918,7 +5918,7 @@ const I18N = {
     'fb.praise': '⭐ ОДОБРЕНИЕ',
     'fb.other': '❓ ДРУГОЕ',
     'fb.submit': 'ОТПРАВИТЬ',
-    'fb.note': 'Сообщение отправляется команде ABSWAR. Если связь пропадет, оно будет скопировано в буфер.',
+    'fb.note': 'Сообщение отправляется команде Centradar. Если связь пропадет, оно будет скопировано в буфер.',
     'fb.maxChars': 'До 500 символов',
     'pack.basic': 'БАЗОВЫЙ',
     'pack.advanced': 'ПРОДВ.',
@@ -6297,7 +6297,7 @@ async function submitFeedback() {
     showToast(t('toast.feedbackSent'), 'success');
     closeFeedbackModal();
   } catch(e) {
-    const fallback = `[ABSWAR ${_feedbackType}]\nURL: ${window.location.href}\n\n${text}`;
+    const fallback = `[CENTRADAR ${_feedbackType}]\nURL: ${window.location.href}\n\n${text}`;
     try { await navigator.clipboard.writeText(fallback); } catch(_e) {}
     showToast(t('toast.feedbackCopied'), 'info');
     closeFeedbackModal();
@@ -6423,7 +6423,7 @@ async function loadAbswarAgwModules() {
 function bindAbswarProviderEvents() {
   if (!abswarAgwProvider || abswarProviderEventsBound) return;
   abswarProviderEventsBound = true;
-  const refresh = () => { refreshAbswarAgwBridge().catch(error => console.error('[ABSWAR AGW]', error)); };
+  const refresh = () => { refreshAbswarAgwBridge().catch(error => console.error('[CENTRADAR AGW]', error)); };
   abswarAgwProvider.on?.('accountsChanged', refresh);
   abswarAgwProvider.on?.('chainChanged', refresh);
 }
@@ -6514,7 +6514,7 @@ async function refreshAbswarAgwBridge(address) {
 }
 
 refreshAbswarAgwBridge().catch(error => {
-  console.error('[ABSWAR AGW]', error);
+  console.error('[CENTRADAR AGW]', error);
   window.abswarAgw = {
     ready: false,
     address: null,
@@ -6531,7 +6531,7 @@ async function lm(){if(awm)return awm;const[w,v,c]=await Promise.all([import('ht
 async function ep(){if(awp)return awp;const{w,c}=await lm();awp=await new Promise((r,j)=>{const t=setTimeout(()=>j(new Error('Abstract Global Wallet saglayicisi bulunamadi')),5000);function f(e){if(e.detail?.info?.rdns!=='xyz.abs.privy')return;clearTimeout(t);removeEventListener('eip6963:announceProvider',f);r(e.detail.provider)}addEventListener('eip6963:announceProvider',f);w.initAbstractGlobalWallet({chain:c});dispatchEvent(new Event('eip6963:requestProvider'))});return awp}
 async function ra(){if(!awp)return null;try{return(await awp.request({method:'eth_accounts'}))?.[0]||null}catch(e){return null}}
 async function rb(a){if(a===undefined)a=await ra();window.abswarAgw={ready:true,address:a,login:async()=>{const p=await ep(),x=await p.request({method:'eth_requestAccounts'});await rb(x?.[0]||null)},logout:async()=>{await rb(null)},signMessage:async m=>{const p=await ep(),{stringToHex:h}=await lm().then(x=>x.v),x=window.abswarAgw.address||await ra();if(!x)throw new Error('Abstract Global Wallet bagli degil');return p.request({method:'personal_sign',params:[h(m),x]})},sendTransaction:async t=>{const p=await ep(),{toHex:h}=await lm().then(x=>x.v),x=window.abswarAgw.address||await ra();if(!x)throw new Error('Abstract Global Wallet bagli degil');return p.request({method:'eth_sendTransaction',params:[{...t,from:x,value:typeof t.value==='bigint'?h(t.value):t.value}]})}};if(a!==awl){awl=a;dispatchEvent(new CustomEvent('abswar:agw-account',{detail:{address:a}}))}}
-rb().catch(e=>console.error('[ABSWAR AGW]',e));
+rb().catch(e=>console.error('[CENTRADAR AGW]',e));
 </script>
 <script>
 (function(){
@@ -6648,9 +6648,9 @@ const RANK_NFT_ABI=[
   {type:"function",name:"hasRankNFT",stateMutability:"view",inputs:[{name:"player",type:"address"},{name:"rank",type:"uint8"}],outputs:[{name:"",type:"bool"}]}
 ];
 const COPY={
-  tr:{title:"RÜTBE NFT ROZETLERİ",subtitle:"ABSWAR başarı koleksiyonu",ready:"CANLI",setup:"HAZIRLANIYOR",note:"NFT otomatik düşmez. Hak kazandığın rozette ROZETİ AL butonuna basıp cüzdanda mint onayı ver.",claim:"ROZETİ AL",owned:"ALINDI",pending:"İŞLEMDE",locked:"KİLİTLİ",need:"katkı kaldı",disabled:"NFT kontratı hazırlanıyor",connect:"Önce cüzdanını bağla",notReady:"Rütbe NFT sistemi henüz hazır değil",sign:"Rozet hakkın kontrol ediliyor...",approve:"Cüzdanında NFT mint işlemini onayla",sent:"NFT mint işlemi gönderildi",fail:"NFT rozeti alınamadı",claimReady:"Rozetin hazır",claimHint:"NFT otomatik düşmez; almak için ROZETİ AL'a bas."},
-  en:{title:"RANK NFT BADGES",subtitle:"ABSWAR achievement collection",ready:"LIVE",setup:"PREPARING",note:"NFTs are not dropped automatically. Press CLAIM BADGE on an unlocked badge and approve the mint in your wallet.",claim:"CLAIM BADGE",owned:"OWNED",pending:"PENDING",locked:"LOCKED",need:"contribution left",disabled:"NFT contract is being prepared",connect:"Connect your wallet first",notReady:"Rank NFT system is not ready yet",sign:"Checking your badge eligibility...",approve:"Approve the NFT mint in your wallet",sent:"NFT mint transaction sent",fail:"NFT badge claim failed",claimReady:"Badge ready",claimHint:"NFTs are not automatic; press CLAIM BADGE to mint."},
-  ru:{title:"NFT ЗНАЧКИ РАНГА",subtitle:"Коллекция достижений ABSWAR",ready:"LIVE",setup:"PREPARING",note:"NFT is not automatic. Press CLAIM BADGE on an unlocked badge and approve the mint in your wallet.",claim:"CLAIM BADGE",owned:"OWNED",pending:"PENDING",locked:"LOCKED",need:"points left",disabled:"NFT contract is being prepared",connect:"Connect wallet first",notReady:"Rank NFT system is not ready yet",sign:"Checking badge eligibility...",approve:"Approve mint in wallet",sent:"NFT mint transaction sent",fail:"NFT badge claim failed",claimReady:"Badge ready",claimHint:"NFT is not automatic; press CLAIM BADGE to mint."}
+  tr:{title:"RÜTBE NFT ROZETLERİ",subtitle:"Centradar başarı koleksiyonu",ready:"CANLI",setup:"HAZIRLANIYOR",note:"NFT otomatik düşmez. Hak kazandığın rozette ROZETİ AL butonuna basıp cüzdanda mint onayı ver.",claim:"ROZETİ AL",owned:"ALINDI",pending:"İŞLEMDE",locked:"KİLİTLİ",need:"katkı kaldı",disabled:"NFT kontratı hazırlanıyor",connect:"Önce cüzdanını bağla",notReady:"Rütbe NFT sistemi henüz hazır değil",sign:"Rozet hakkın kontrol ediliyor...",approve:"Cüzdanında NFT mint işlemini onayla",sent:"NFT mint işlemi gönderildi",fail:"NFT rozeti alınamadı",claimReady:"Rozetin hazır",claimHint:"NFT otomatik düşmez; almak için ROZETİ AL'a bas."},
+  en:{title:"RANK NFT BADGES",subtitle:"Centradar achievement collection",ready:"LIVE",setup:"PREPARING",note:"NFTs are not dropped automatically. Press CLAIM BADGE on an unlocked badge and approve the mint in your wallet.",claim:"CLAIM BADGE",owned:"OWNED",pending:"PENDING",locked:"LOCKED",need:"contribution left",disabled:"NFT contract is being prepared",connect:"Connect your wallet first",notReady:"Rank NFT system is not ready yet",sign:"Checking your badge eligibility...",approve:"Approve the NFT mint in your wallet",sent:"NFT mint transaction sent",fail:"NFT badge claim failed",claimReady:"Badge ready",claimHint:"NFTs are not automatic; press CLAIM BADGE to mint."},
+  ru:{title:"NFT ЗНАЧКИ РАНГА",subtitle:"Коллекция достижений Centradar",ready:"LIVE",setup:"PREPARING",note:"NFT is not automatic. Press CLAIM BADGE on an unlocked badge and approve the mint in your wallet.",claim:"CLAIM BADGE",owned:"OWNED",pending:"PENDING",locked:"LOCKED",need:"points left",disabled:"NFT contract is being prepared",connect:"Connect wallet first",notReady:"Rank NFT system is not ready yet",sign:"Checking badge eligibility...",approve:"Approve mint in wallet",sent:"NFT mint transaction sent",fail:"NFT badge claim failed",claimReady:"Badge ready",claimHint:"NFT is not automatic; press CLAIM BADGE to mint."}
 };
 let rankNftStatus=null,rankNftContribution=0,rankNftOwned=new Set(),rankNftPending=new Set(),rankNftPendingAt={},rankNftPendingTx={},rankNftLastWallet=null;
 const SAFE_NETWORK=window.ABSWAR_APP_NETWORK||(typeof APP_NETWORK!=="undefined"?APP_NETWORK:"mainnet");

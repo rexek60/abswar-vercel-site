@@ -1,5 +1,5 @@
 {
-  "name": "abswar-v10-final-demo",
+  "name": "centradar-tactical-gridwar",
   "version": "10.0.0",
   "scripts": {
     "start": "vite --host 0.0.0.0",

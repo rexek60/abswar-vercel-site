@@ -1,4 +1,4 @@
-# ABSWAR Final Demo Build
+# Centradar Tactical Gridwar Build
 
 Frontend final demo package.
 
@@ -14,7 +14,7 @@ Includes:
 - Socket.io realtime listener
 
 Backend:
-https://api.abswar.xyz
+https://api.centradar.xyz
 
 Deploy:
 Upload files to GitHub frontend repo and redeploy on Vercel.
