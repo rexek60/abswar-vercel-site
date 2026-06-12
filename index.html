@@ -3519,7 +3519,7 @@ function updateCountryCard(country) {
   if (badge) badge.classList.toggle('show', isSuperpowerCountry(country));
 }
 
-function updateHP(code, hp, meta={}) {
+function updateHP(code, hp, meta={}, skipRender=false) {
   const idx = gameCountries.findIndex(x=>x.code===code);
   if (idx>=0) {
     gameCountries[idx].hp = hp;
@@ -3529,7 +3529,7 @@ function updateHP(code, hp, meta={}) {
   if (code === myCountry) {
     updateCountryCard(gameCountries[idx] || { hp, max_hp: meta.maxHP || meta.max_hp || MAX_HP_FE, isSuperpower: meta.isSuperpower });
   }
-  renderLabels();
+  if (!skipRender) renderLabels();
 }
 
 function addAttackHistory(code, dmg) {
@@ -3953,11 +3953,7 @@ document.getElementById('allianceModal').addEventListener('click',function(e){if
 document.getElementById('radioModal').addEventListener('click',function(e){if(e.target===this)closeRadioModal();});
 
 /* ── LB ── */
-function setLbTab(tab,el) {  document.querySelectorAll('.lb-tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-}
-
-function updateLeaderboard(countries) {
+function updateLeaderboardLegacyUnused(countries) {
   gameCountries = countries;
   const sorted=[...countries]
     .filter(c=> c.is_alive!==false && c.eliminated!==true)
@@ -4013,8 +4009,10 @@ function renderPlayerLeaderboard() {
     const country=CD[p.country_code];
     const name=p.nickname || (p.wallet ? shortAdminAddr(p.wallet) : 'Oyuncu');
     const score=(Number(p.contribution)||0).toLocaleString('tr-TR');
-    const meta=`${country?.f||''} ${Number(p.kills)||0}K/${Number(p.attacks)||0}A`;
-    row.innerHTML=`<span class="lb-num">${escapeHtml(String(i+1))}</span><span style="font-size:13px">${escapeHtml(country?.f||'👤')}</span><span class="lb-name">${escapeHtml(name)}</span><span class="lb-hp" title="${escapeHtml(meta)}">${escapeHtml(score)} KP</span>`;
+    const kills=Number(p.kills)||0;
+    const attacks=Number(p.attacks)||0;
+    const meta=`${country?.f||''} ${kills}K/${attacks}A`;
+    row.innerHTML=`<span class="lb-num">${escapeHtml(String(i+1))}</span><span style="font-size:13px">${escapeHtml(country?.f||'👤')}</span><span class="lb-name">${escapeHtml(name)}</span><span class="lb-hp" title="${escapeHtml(meta)}">${escapeHtml(score)} KP · ${escapeHtml(kills.toLocaleString('tr-TR'))} KILL</span>`;
     list.appendChild(row);
   });
 }
@@ -4081,7 +4079,7 @@ async function pollState() {
     const data=await res.json();
     _consecutiveFailures = 0;
     setBackendStatus(true);
-    if (data?.countries) updateLeaderboard(data.countries, data.players || data.playerLeaderboard || data.leaderboard?.players);
+    if (data?.countries) updateLeaderboard(data.countries, data.players || data.playerLeaderboard || data.leaderboard?.players || data.leaderboard);
     if (data?.onlinePlayers!=null) document.getElementById('onlineCount').textContent=Number(data.onlinePlayers).toLocaleString('tr-TR');
     if (data?.economy) updateEconomyUI(data.economy);
     // Hediye mermi rozeti (welcome ekranı)
@@ -5000,9 +4998,10 @@ ioScript.onload=()=>{
       requestAnimationFrame(()=>{
         hpFlushScheduled = false;
         for (const [countryCode, payload] of pendingHp) {
-          updateHP(countryCode, payload.newHP ?? payload.hp, payload);
+          updateHP(countryCode, payload.newHP ?? payload.hp, payload, true);
         }
         pendingHp.clear();
+        renderLabels();
       });
     }
   });
@@ -5011,7 +5010,7 @@ ioScript.onload=()=>{
     addNewsTicker(null, d.country, null, 'superpower', d.message);
     showToast(d.message || `🌟 ${CD[d.country]?.n||d.country} SÜPER GÜÇ oldu!`, 'success');
   });
-  warSocket.on('war:state',(d)=>{ if(d?.countries) updateLeaderboard(d.countries, d.players); if(d?.round) setRoundFromState(d.round); });
+  warSocket.on('war:state',(d)=>{ if(d?.countries) updateLeaderboard(d.countries, d.players || d.playerLeaderboard || d.leaderboard?.players || d.leaderboard); if(d?.round) setRoundFromState(d.round); });
   warSocket.on('round:ended',(result)=>{ playSound('victory'); showRoundEndModal(result); fetchRewardStatus(); });
   warSocket.on('round:started',(d)=>{
     showToast(`🎯 TUR ${d.roundNumber} BAŞLADI!`,'success');
