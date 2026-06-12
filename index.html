@@ -3214,6 +3214,7 @@ async function registerPlayer() {
     updatePlayerUI(p);
     if (authToken) refreshSocketAuth();
     if (authToken && myAlliance) loadAllianceFeed();
+    resumePendingPurchase();
     // İlk 100 kullanıcı hediye mermi bildirimi
     if (data.gift) {
       setTimeout(()=>{
@@ -3577,6 +3578,8 @@ const AMMO_PRICE_ETH = {
   2000: '0.1',
   9999: '1.0'
 };
+const LAST_PURCHASE_KEY = `abswar-last-purchase:${APP_NETWORK}`;
+let pendingPurchaseResumeAttempted = false;
 
 // ETH -> wei hex çevirici
 function ethToWeiHex(ethStr) {
@@ -3608,12 +3611,12 @@ async function buyAmmo(pack) {
 
     showToast(`✅ İşlem gönderildi! ${pack.toLocaleString('tr-TR')} mermi alınıyor...`,'success');
     playSound('purchase');
-    localStorage.setItem(`abswar-last-purchase:${APP_NETWORK}`, JSON.stringify({ pack, txHash, wallet, createdAt:Date.now() }));
+    localStorage.setItem(LAST_PURCHASE_KEY, JSON.stringify({ pack, txHash, wallet, createdAt:Date.now() }));
 
     // 3. Backend'e de bildir (oyun içi kayıt) + bakiyeyi al
     const receipt = await confirmAmmoPurchase(pack, txHash);
     if (receipt?.player) updatePlayerUI(receipt.player);
-    localStorage.removeItem(`abswar-last-purchase:${APP_NETWORK}`);
+    localStorage.removeItem(LAST_PURCHASE_KEY);
     await updateWalletBalance();
 
     // 4. Sohbete sistem mesajı
@@ -3639,14 +3642,56 @@ async function confirmAmmoPurchase(pack, txHash) {
     let data = {};
     try { data = await res.json(); } catch(e) {}
     if (res.status === 202) continue;
-    if (!res.ok || data.error) throw new Error(tErr(data) || data.error || ('HTTP '+res.status));
+    if (!res.ok || data.error) {
+      const err = new Error(tErr(data) || data.error || ('HTTP '+res.status));
+      err.code = data.code || data.errorCode || '';
+      err.status = res.status;
+      err.data = data;
+      throw err;
+    }
     return data;
   }
   throw new Error('İşlem onayı zaman aşımına uğradı');
 }
 
-function sendChatLegacy() {
-  return sendChat();
+async function resumePendingPurchase() {
+  if (pendingPurchaseResumeAttempted) return;
+  pendingPurchaseResumeAttempted = true;
+  if (!wallet || !authToken) return;
+
+  let record = null;
+  try {
+    const raw = localStorage.getItem(LAST_PURCHASE_KEY);
+    if (!raw) return;
+    record = JSON.parse(raw);
+  } catch(e) {
+    try { localStorage.removeItem(LAST_PURCHASE_KEY); } catch(_) {}
+    return;
+  }
+
+  const recordWallet = String(record && record.wallet || '').toLowerCase();
+  const currentWallet = String(wallet || '').toLowerCase();
+  if (!recordWallet || recordWallet !== currentWallet) return;
+
+  const createdAt = Number(record.createdAt || 0);
+  if (!createdAt || Date.now() - createdAt > 24 * 60 * 60 * 1000) {
+    try { localStorage.removeItem(LAST_PURCHASE_KEY); } catch(e) {}
+    return;
+  }
+
+  showToast('⏳ Yarım kalan mermi alımı kontrol ediliyor...','info');
+  try {
+    const data = await confirmAmmoPurchase(Number(record.pack), String(record.txHash || ''));
+    if (data?.player) updatePlayerUI(data.player);
+    try { localStorage.removeItem(LAST_PURCHASE_KEY); } catch(e) {}
+    showToast('✅ Önceki alımın mermileri yazıldı','success');
+  } catch(e) {
+    if (e && e.code === 'TX_ALREADY_USED') {
+      try { localStorage.removeItem(LAST_PURCHASE_KEY); } catch(_) {}
+      return;
+    }
+    showToast('Önceki mermi alımı henüz yazılamadı; sonraki açılışta tekrar denenecek.','info');
+  }
 }
 
 /* ── ALLIANCE ── */
@@ -3811,18 +3856,6 @@ async function radioCommand(cmd) {
   } catch(e) { showToast('Telsiz yayını başarısız.','error'); }
 }
 
-function addChatSystemLegacy(text) {
-  const row = document.createElement('div');
-  row.className='chat-msg anim-new';
-  row.style.background='rgba(0,200,83,0.06)';
-  row.innerHTML=`<div class="chat-who"><span style="font-size:11px">📡</span><span class="chat-name" style="color:var(--green)">SİSTEM</span><span class="chat-t">şimdi</span></div><div class="chat-txt" style="color:var(--green)">${escapeHtml(text)}</div>`;
-  const body=document.getElementById('chatBody');
-  const empty = document.getElementById('chatEmpty');
-  if (empty) empty.style.display = 'none';
-  body.insertBefore(row,body.firstChild);
-  if (body.children.length > 40) body.removeChild(body.lastChild);
-}
-
 function addChatSystem(text) {
   const row = document.createElement('div');
   row.className = 'chat-msg anim-new';
@@ -3834,9 +3867,6 @@ function addChatSystem(text) {
   body.insertBefore(row, body.firstChild);
   if (body.children.length > 40) body.removeChild(body.lastChild);
 }
-
-sendChatLegacy = sendChat;
-addChatSystemLegacy = addChatSystem;
 
 function resetAllianceChat(message='İttifak sohbeti boş — ilk mesajı sen yaz') {
   const body = document.getElementById('chatBody');
