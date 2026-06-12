@@ -3212,6 +3212,8 @@ async function registerPlayer() {
       setTimeout(()=>openModal('nation'),700);
     }
     updatePlayerUI(p);
+    if (authToken) refreshSocketAuth();
+    if (authToken && myAlliance) loadAllianceFeed();
     // İlk 100 kullanıcı hediye mermi bildirimi
     if (data.gift) {
       setTimeout(()=>{
