@@ -3122,6 +3122,9 @@ function drawAttackLine(fromCode, toCode) {
 let agwConnectInProgress = false;
 
 async function waitForAbstractWallet(requireAccount=false) {
+  if (typeof warmupAbswarAgw === 'function') {
+    warmupAbswarAgw();
+  }
   for (let attempt = 0; attempt < 100; attempt++) {
     const agw = window.abswarAgw;
     if (agw?.ready && (!requireAccount || (agw.address && agw.signMessage && agw.sendTransaction))) {
@@ -6404,6 +6407,18 @@ let abswarAgwProvider = null;
 let abswarDisposeProvider = null;
 let abswarLastAddress = null;
 let abswarProviderEventsBound = false;
+let abswarAgwWarmupPromise = null;
+const ABSWAR_AGW_CONNECT_TIMEOUT_MS = 45000;
+
+function withAbswarTimeout(promise, ms, message) {
+  let timer;
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => {
+      timer = setTimeout(() => reject(new Error(message)), ms);
+    })
+  ]).finally(() => clearTimeout(timer));
+}
 
 async function loadAbswarAgwModules() {
   if (abswarAgwModules) return abswarAgwModules;
@@ -6415,6 +6430,19 @@ async function loadAbswarAgwModules() {
   const chain = window.ABSWAR_APP_NETWORK === 'testnet' ? chainsModule.abstractTestnet : chainsModule.abstract;
   abswarAgwModules = { agwWebModule, viemModule, chain };
   return abswarAgwModules;
+}
+
+function warmupAbswarAgw() {
+  if (!abswarAgwWarmupPromise) {
+    abswarAgwWarmupPromise = loadAbswarAgwModules()
+      .then(() => true)
+      .catch(error => {
+        abswarAgwWarmupPromise = null;
+        console.error('[CENTRADAR AGW WARMUP]', error);
+        throw error;
+      });
+  }
+  return abswarAgwWarmupPromise;
 }
 
 function bindAbswarProviderEvents() {
@@ -6465,7 +6493,12 @@ async function refreshAbswarAgwBridge(address) {
     address,
     login: async () => {
       const provider = await ensureAbswarAgwProvider();
-      const accounts = await provider.request({ method:'eth_requestAccounts' });
+      const accounts = await withAbswarTimeout(
+        provider.request({ method:'eth_requestAccounts' }),
+        ABSWAR_AGW_CONNECT_TIMEOUT_MS,
+        'Abstract Global Wallet baglanti penceresi zaman asimina ugradi'
+      );
+      if (!accounts?.[0]) throw new Error('Abstract Global Wallet hesabi secilmedi');
       await refreshAbswarAgwBridge(accounts?.[0] || null);
     },
     logout: async () => {
@@ -6509,6 +6542,17 @@ async function refreshAbswarAgwBridge(address) {
     }));
   }
 }
+
+if ('requestIdleCallback' in window) {
+  requestIdleCallback(() => warmupAbswarAgw().catch(() => {}), { timeout: 2000 });
+} else {
+  setTimeout(() => warmupAbswarAgw().catch(() => {}), 1200);
+}
+document.addEventListener('pointerdown', event => {
+  if (event.target?.closest?.('#walletBtn,[data-i18n="welcome.cta"],.btn-join')) {
+    warmupAbswarAgw().catch(() => {});
+  }
+}, { passive: true });
 
 refreshAbswarAgwBridge().catch(error => {
   console.error('[CENTRADAR AGW]', error);
