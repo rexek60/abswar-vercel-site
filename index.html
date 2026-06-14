@@ -6409,6 +6409,7 @@ let abswarLastAddress = null;
 let abswarProviderEventsBound = false;
 let abswarAgwWarmupPromise = null;
 const ABSWAR_AGW_CONNECT_TIMEOUT_MS = 45000;
+const ABSWAR_AGW_POPUP_PLACEHOLDER = 'https://portal.abs.xyz/';
 
 function withAbswarTimeout(promise, ms, message) {
   let timer;
@@ -6418,6 +6419,19 @@ function withAbswarTimeout(promise, ms, message) {
       timer = setTimeout(() => reject(new Error(message)), ms);
     })
   ]).finally(() => clearTimeout(timer));
+}
+
+async function withAbswarPopupGuard(run) {
+  const originalOpen = window.open;
+  window.open = function(url, target, features) {
+    const safeUrl = url == null || url === '' ? ABSWAR_AGW_POPUP_PLACEHOLDER : url;
+    return originalOpen.call(window, safeUrl, target, features);
+  };
+  try {
+    return await run();
+  } finally {
+    window.open = originalOpen;
+  }
 }
 
 async function loadAbswarAgwModules() {
@@ -6494,7 +6508,7 @@ async function refreshAbswarAgwBridge(address) {
     login: async () => {
       const provider = await ensureAbswarAgwProvider();
       const accounts = await withAbswarTimeout(
-        provider.request({ method:'eth_requestAccounts' }),
+        withAbswarPopupGuard(() => provider.request({ method:'eth_requestAccounts' })),
         ABSWAR_AGW_CONNECT_TIMEOUT_MS,
         'Abstract Global Wallet baglanti penceresi zaman asimina ugradi'
       );
@@ -6515,24 +6529,24 @@ async function refreshAbswarAgwBridge(address) {
       const { stringToHex } = await loadAbswarAgwModules().then(modules => modules.viemModule);
       const account = window.abswarAgw.address || await readAbswarAgwAddress();
       if (!account) throw new Error('Abstract Global Wallet bagli degil');
-      return provider.request({
+      return withAbswarPopupGuard(() => provider.request({
         method:'personal_sign',
         params:[stringToHex(message), account]
-      });
+      }));
     },
     sendTransaction: async tx => {
       const provider = await ensureAbswarAgwProvider();
       const { toHex } = await loadAbswarAgwModules().then(modules => modules.viemModule);
       const account = window.abswarAgw.address || await readAbswarAgwAddress();
       if (!account) throw new Error('Abstract Global Wallet bagli degil');
-      return provider.request({
+      return withAbswarPopupGuard(() => provider.request({
         method:'eth_sendTransaction',
         params:[{
           ...tx,
           from:account,
           value:typeof tx.value === 'bigint' ? toHex(tx.value) : tx.value
         }]
-      });
+      }));
     }
   };
   if (address !== abswarLastAddress) {
