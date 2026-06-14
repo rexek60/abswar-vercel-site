@@ -1204,7 +1204,7 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
       <div style="font-family:var(--hud);font-size:10px;color:#66b3ff;letter-spacing:1px;margin-bottom:8px">MERMİ HEDİYE ET</div>
       <input id="adminGrantWalletInput" type="text" placeholder="Cüzdan adresi (0x...)" autocomplete="off" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:11px;padding:9px;outline:none;margin-bottom:7px">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px">
-        <input id="adminGrantBulletsInput" type="number" min="1" max="1000000" step="1" placeholder="Mermi miktarı" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:11px;padding:9px;outline:none">
+        <input id="adminGrantBulletsInput" type="number" min="1" max="100000" step="1" placeholder="Mermi miktarı" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:11px;padding:9px;outline:none">
         <input id="adminGrantReasonInput" type="text" maxlength="120" placeholder="Not (isteğe bağlı)" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:11px;padding:9px;outline:none">
       </div>
       <button class="btn-sm" onclick="adminGrantBullets()" style="margin-top:8px;width:100%;padding:10px;background:rgba(102,179,255,.13);border:1px solid rgba(102,179,255,.65);color:#66b3ff;font-family:var(--hud);font-size:10px;cursor:pointer;text-align:left">
@@ -1278,12 +1278,15 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
 <script>
 const API_ENDPOINTS = {
   production: 'https://abswar-clean-backend-production.up.railway.app',
-  staging: 'https://STAGING-URL-BURAYA.up.railway.app'
+  staging: 'https://abswar-clean-backend-production.up.railway.app'
 };
 const API_ENV = new URLSearchParams(location.search).get('env') === 'staging'
   ? 'staging'
   : 'production';
 const API = API_ENDPOINTS[API_ENV];
+const WS_URL = window.CENTRADAR_WS_URL || window.CENTRADAR_BACKEND_URL || API;
+const SOCKET_RECONNECT_BASE_DELAY = 1000;
+const SOCKET_RECONNECT_MAX_DELAY = 30000;
 const START_HP_FE = 1000;
 const MAX_HP_FE = 100000;
 const APP_NETWORK = new URLSearchParams(location.search).get('network') === 'testnet' ? 'testnet' : 'mainnet';
@@ -1875,7 +1878,26 @@ try {
 const OWNER_WALLET = '0x9C5e9dB5836e9c95be7cBec023D543c36E865B5B'.toLowerCase();
 let roundEndShown = false;
 let adminPurchasesTimer = null;
+let adminTokenSession = '';
 let rewardStatusCache = null;
+let backendStatusCache = null;
+let backendStatusFetchedAt = 0;
+const BACKEND_STATUS_TTL_MS = 15000;
+
+async function fetchBackendStatus(force=false) {
+  if (!force && backendStatusCache && Date.now() - backendStatusFetchedAt < BACKEND_STATUS_TTL_MS) {
+    return backendStatusCache;
+  }
+  try {
+    const res = await fetch(API + '/api/status', { signal: AbortSignal.timeout(6000) });
+    const data = await res.json();
+    backendStatusCache = data || null;
+    backendStatusFetchedAt = Date.now();
+    return backendStatusCache;
+  } catch (_e) {
+    return force ? null : backendStatusCache;
+  }
+}
 
 function shortPayoutTx(tx) {
   const value = String(tx || '');
@@ -2009,8 +2031,8 @@ function openAdminPanel() {
     return;
   }
   // Kayıtlı token'ı yükle
-  const saved = localStorage.getItem('abswar-admin-token');
-  if (saved) document.getElementById('adminTokenInput').value = saved;
+  const tokenInput = document.getElementById('adminTokenInput');
+  if (tokenInput) tokenInput.value = adminTokenSession;
   document.getElementById('adminResult').innerHTML = '';
   document.getElementById('adminModal').classList.add('show');
   refreshAdminRoundInfo();
@@ -2151,7 +2173,7 @@ async function refreshAdminPurchases(silent=false) {
     box.innerHTML = '<span style="color:var(--dim)">Odeme kayitlari icin admin token gir.</span>';
     return;
   }
-  try { localStorage.setItem('abswar-admin-token', token); } catch(e) {}
+  adminTokenSession = token;
   if (!silent) box.innerHTML = '<span style="color:var(--dim)">Odeme kayitlari yukleniyor...</span>';
   try {
     await ensureAuthSession(false);
@@ -2187,6 +2209,8 @@ async function refreshAdminRoundInfo() {
     box.innerHTML = `Tur #${roundLabel} · ${roundStatus}${roundTime}`;
     try {
       const sys = await fetch(API+'/api/status').then(r=>r.json());
+      backendStatusCache = sys || backendStatusCache;
+      backendStatusFetchedAt = Date.now();
       if (sys && sys.dbEnabled === false) {
         box.innerHTML += '<br><span style="color:var(--gold);font-size:10px">Uyari: Kalici veri sistemi kapali. Railway DATABASE_URL/Postgres baglantisini kontrol et.</span>';
       }
@@ -2204,8 +2228,7 @@ function _getAdminToken() {
     showToast('Önce admin token gir','error');
     return null;
   }
-  // Tarayıcıda sakla (bir daha girme)
-  localStorage.setItem('abswar-admin-token', token);
+  adminTokenSession = token;
   return token;
 }
 
@@ -2316,8 +2339,8 @@ async function adminGrantBullets() {
     showToast('Geçerli bir cüzdan adresi gir','error');
     return;
   }
-  if (!Number.isSafeInteger(bullets) || bullets < 1 || bullets > 1000000) {
-    showToast('Mermi miktarı 1 ile 1000000 arasında olmalı','error');
+  if (!Number.isSafeInteger(bullets) || bullets < 1 || bullets > 100000) {
+    showToast('Mermi miktarı 1 ile 100000 arasında olmalı','error');
     return;
   }
   if (!confirm(`${targetWallet} adresine ${bullets.toLocaleString('tr-TR')} mermi hediyesi verilsin mi?`)) return;
@@ -3122,8 +3145,12 @@ function drawAttackLine(fromCode, toCode) {
 let agwConnectInProgress = false;
 
 async function waitForAbstractWallet(requireAccount=false) {
-  if (typeof warmupAbswarAgw === 'function') {
-    warmupAbswarAgw();
+  const prepare = window.prepareAbswarAgwProvider || (typeof prepareAbswarAgwProvider === 'function' ? prepareAbswarAgwProvider : null);
+  const warmup = window.warmupAbswarAgw || (typeof warmupAbswarAgw === 'function' ? warmupAbswarAgw : null);
+  if (prepare) {
+    prepare().catch(() => {});
+  } else if (warmup) {
+    warmup().catch(() => {});
   }
   for (let attempt = 0; attempt < 100; attempt++) {
     const agw = window.abswarAgw;
@@ -3601,6 +3628,16 @@ async function buyAmmo(pack) {
   const ethAmount = AMMO_PRICE_ETH[pack];
   if (!ethAmount) { showToast('Geçersiz paket.','error'); return; }
 
+  const backendStatus = await fetchBackendStatus(true);
+  if (APP_NETWORK === 'mainnet' && backendStatus?.dbEnabled === false) {
+    showToast(t('toast.marketMainnetBlocked'),'error');
+    return;
+  }
+  if (APP_NETWORK === 'mainnet' && (!backendStatus || backendStatus.dbEnabled == null)) {
+    showToast(t('toast.marketServerUnknown'),'error');
+    return;
+  }
+
   showLoader(`${pack.toLocaleString('tr-TR')} MERMİ SATIN ALINIYOR...`);
   try {
     const agw = await waitForAbstractWallet(true);
@@ -3680,6 +3717,12 @@ async function resumePendingPurchase() {
   const createdAt = Number(record.createdAt || 0);
   if (!createdAt || Date.now() - createdAt > 24 * 60 * 60 * 1000) {
     try { localStorage.removeItem(LAST_PURCHASE_KEY); } catch(e) {}
+    return;
+  }
+
+  const backendStatus = await fetchBackendStatus(true);
+  if (APP_NETWORK === 'mainnet' && (!backendStatus || backendStatus.dbEnabled === false)) {
+    showToast(t('toast.pendingPurchaseServerNotReady'),'info');
     return;
   }
 
@@ -4924,12 +4967,13 @@ let attackVisualCount = 0;
 const ioScript=document.createElement('script');
 ioScript.src='https://cdn.socket.io/4.7.2/socket.io.min.js';
 ioScript.onload=()=>{
-  warSocket=io(API,{
+  warSocket=io(WS_URL,{
     auth:{ token:authToken || '' },
     transports:['websocket','polling'],
     reconnection:true,
-    reconnectionDelay:2000,
-    reconnectionDelayMax:10000,
+    reconnectionDelay:SOCKET_RECONNECT_BASE_DELAY,
+    reconnectionDelayMax:SOCKET_RECONNECT_MAX_DELAY,
+    randomizationFactor:0,
     reconnectionAttempts:Infinity,
     timeout:8000
   });
@@ -5204,6 +5248,9 @@ const I18N = {
     'toast.bulkCancelled': '⏹ Durduruldu — {ok}/{total} saldırı yapıldı',
     'toast.bulkBulletEnd': '⚠️ Mermin bitti — {ok}/{total} saldırı yapıldı',
     'toast.bulkOnlyHave': '⚠️ Sadece {n} mermin var, {n} atılacak',
+    'toast.marketMainnetBlocked': 'Kalıcı veri sistemi kapalı. Ana ağ alımı geçici olarak durduruldu.',
+    'toast.marketServerUnknown': 'Sunucu sağlığı doğrulanamadı. Lütfen tekrar dene.',
+    'toast.pendingPurchaseServerNotReady': 'Yarım kalan alım için sunucu hazır değil. Sonraki açılışta tekrar denenecek.',
     // Toast — negatif
     'toast.connectFirst': 'Önce cüzdan bağla!',
     'toast.selectCountryFirst': 'Önce ülke seç!',
@@ -5243,6 +5290,10 @@ const I18N = {
     'err.NOT_IN_ALLIANCE': 'İttifakta değilsin',
     'err.INVALID_COMMAND': 'Geçersiz komut',
     'err.UNAUTHORIZED': 'Yetkin yok',
+    'err.INVALID_AMOUNT': 'Geçersiz mermi miktarı',
+    'err.INVALID_BULLET_AMOUNT': 'Geçersiz mermi miktarı',
+    'err.ADMIN_BULLET_GRANT_LIMIT': 'Tek seferde en fazla 100.000 mermi gönderebilirsin',
+    'err.PLAYER_BULLET_CAP': 'Oyuncu mermi sınırında',
     'err.TARGET_NOT_FOUND': 'Hedef ülke bulunamadı',
     'err.CANT_ATTACK_SELF': 'Kendi ülkeni vuramazsın',
     'err.YOUR_COUNTRY_ELIMINATED': 'Ülken elenmiş — saldıramazsın',
@@ -5506,6 +5557,9 @@ const I18N = {
     'toast.bulkCancelled': '⏹ Stopped — {ok}/{total} attacks done',
     'toast.bulkBulletEnd': '⚠️ Ammo depleted — {ok}/{total} attacks done',
     'toast.bulkOnlyHave': '⚠️ Only {n} ammo, will fire {n}',
+    'toast.marketMainnetBlocked': 'Persistent data is down. Mainnet buying is temporarily disabled.',
+    'toast.marketServerUnknown': 'Server health could not be verified. Please try again.',
+    'toast.pendingPurchaseServerNotReady': 'Server is not ready for the pending purchase. It will be retried on the next launch.',
     'toast.connectFirst': 'Connect wallet first!',
     'toast.selectCountryFirst': 'Select a country first!',
     'toast.selectTargetFirst': 'Select a target from the map!',
@@ -5543,6 +5597,10 @@ const I18N = {
     'err.NOT_IN_ALLIANCE': 'Not in an alliance',
     'err.INVALID_COMMAND': 'Invalid command',
     'err.UNAUTHORIZED': 'Unauthorized',
+    'err.INVALID_AMOUNT': 'Invalid ammo amount',
+    'err.INVALID_BULLET_AMOUNT': 'Invalid ammo amount',
+    'err.ADMIN_BULLET_GRANT_LIMIT': 'You can send at most 100,000 ammo at once',
+    'err.PLAYER_BULLET_CAP': 'Player is at the ammo cap',
     'err.TARGET_NOT_FOUND': 'Target country not found',
     'err.CANT_ATTACK_SELF': 'Cannot attack your own country',
     'err.YOUR_COUNTRY_ELIMINATED': 'Your country eliminated — cannot attack',
@@ -5795,6 +5853,9 @@ const I18N = {
     'toast.bulkCancelled': '⏹ Остановлено — {ok}/{total} атак',
     'toast.bulkBulletEnd': '⚠️ Патроны кончились — {ok}/{total}',
     'toast.bulkOnlyHave': '⚠️ Только {n} патронов, выпустим {n}',
+    'toast.marketMainnetBlocked': 'Постоянное хранилище отключено. Покупка в mainnet временно недоступна.',
+    'toast.marketServerUnknown': 'Не удалось проверить состояние сервера. Попробуйте еще раз.',
+    'toast.pendingPurchaseServerNotReady': 'Сервер пока не готов для незавершенной покупки. Повторим при следующем запуске.',
     'toast.connectFirst': 'Сначала подключите кошелёк!',
     'toast.selectCountryFirst': 'Сначала выберите страну!',
     'toast.selectTargetFirst': 'Выберите цель на карте!',
@@ -5832,6 +5893,10 @@ const I18N = {
     'err.NOT_IN_ALLIANCE': 'Вы не в альянсе',
     'err.INVALID_COMMAND': 'Неверная команда',
     'err.UNAUTHORIZED': 'Нет доступа',
+    'err.INVALID_AMOUNT': 'Неверное количество патронов',
+    'err.INVALID_BULLET_AMOUNT': 'Неверное количество патронов',
+    'err.ADMIN_BULLET_GRANT_LIMIT': 'За раз можно отправить максимум 100 000 патронов',
+    'err.PLAYER_BULLET_CAP': 'Игрок достиг лимита патронов',
     'err.TARGET_NOT_FOUND': 'Цель не найдена',
     'err.CANT_ATTACK_SELF': 'Нельзя атаковать свою страну',
     'err.YOUR_COUNTRY_ELIMINATED': 'Ваша страна устранена',
@@ -6222,6 +6287,7 @@ async function disconnectWallet() {
   myAllianceData = null;
   myNickname = null;
   myBulletsCount = 0;
+  adminTokenSession = '';
 
   // UI'yı sıfırla
   document.getElementById('walletBtn').textContent = 'CÜZDAN BAĞLA';
@@ -6408,8 +6474,10 @@ let abswarDisposeProvider = null;
 let abswarLastAddress = null;
 let abswarProviderEventsBound = false;
 let abswarAgwWarmupPromise = null;
+let abswarAgwProviderPromise = null;
 const ABSWAR_AGW_CONNECT_TIMEOUT_MS = 45000;
-const ABSWAR_AGW_POPUP_PLACEHOLDER = 'https://portal.abs.xyz/';
+const ABSWAR_AGW_PROVIDER_TIMEOUT_MS = 15000;
+const ABSWAR_AGW_POPUP_PLACEHOLDER = 'https://portal.abs.xyz/login';
 
 function withAbswarTimeout(promise, ms, message) {
   let timer;
@@ -6424,7 +6492,9 @@ function withAbswarTimeout(promise, ms, message) {
 async function withAbswarPopupGuard(run) {
   const originalOpen = window.open;
   window.open = function(url, target, features) {
-    const safeUrl = url == null || url === '' ? ABSWAR_AGW_POPUP_PLACEHOLDER : url;
+    const safeUrl = url == null || url === '' || url === 'about:blank'
+      ? ABSWAR_AGW_POPUP_PLACEHOLDER
+      : url;
     return originalOpen.call(window, safeUrl, target, features);
   };
   try {
@@ -6467,28 +6537,81 @@ function bindAbswarProviderEvents() {
   abswarAgwProvider.on?.('chainChanged', refresh);
 }
 
+function isAbswarAgwProviderInfo(info) {
+  const rdns = String(info?.rdns || '').toLowerCase();
+  const name = String(info?.name || '').toLowerCase();
+  return rdns === 'xyz.abs.privy'
+    || rdns.includes('abs')
+    || name.includes('abstract')
+    || name.includes('global wallet');
+}
+
+function extractAbswarProvider(value) {
+  if (value?.request) return value;
+  if (value?.provider?.request) return value.provider;
+  if (value?.ethereum?.request) return value.ethereum;
+  return null;
+}
+
 async function ensureAbswarAgwProvider() {
   if (abswarAgwProvider) return abswarAgwProvider;
+  if (abswarAgwProviderPromise) return abswarAgwProviderPromise;
   const { agwWebModule, chain } = await loadAbswarAgwModules();
-  const provider = await new Promise((resolve, reject) => {
-    const timeout = setTimeout(() => {
-      window.removeEventListener('eip6963:announceProvider', onProvider);
-      reject(new Error('Abstract Global Wallet saglayicisi bulunamadi'));
-    }, 5000);
-    function onProvider(event) {
-      if (event.detail?.info?.rdns !== 'xyz.abs.privy') return;
+  abswarAgwProviderPromise = new Promise((resolve, reject) => {
+    let settled = false;
+    const finish = provider => {
+      if (settled) return;
+      settled = true;
       clearTimeout(timeout);
       window.removeEventListener('eip6963:announceProvider', onProvider);
-      resolve(event.detail.provider);
+      resolve(provider);
+    };
+    const fail = error => {
+      if (settled) return;
+      settled = true;
+      window.removeEventListener('eip6963:announceProvider', onProvider);
+      reject(error);
+    };
+    const timeout = setTimeout(() => {
+      fail(new Error('Abstract Global Wallet saglayicisi bulunamadi'));
+    }, ABSWAR_AGW_PROVIDER_TIMEOUT_MS);
+    function onProvider(event) {
+      if (!isAbswarAgwProviderInfo(event.detail?.info)) return;
+      const announcedProvider = extractAbswarProvider(event.detail?.provider);
+      if (announcedProvider) finish(announcedProvider);
     }
     window.addEventListener('eip6963:announceProvider', onProvider);
-    abswarDisposeProvider = agwWebModule.initAbstractGlobalWallet({ chain });
+    const initResult = agwWebModule.initAbstractGlobalWallet({ chain });
+    abswarDisposeProvider = initResult;
+    const directProvider = extractAbswarProvider(initResult);
+    if (directProvider) finish(directProvider);
     window.dispatchEvent(new Event('eip6963:requestProvider'));
+  }).catch(error => {
+    abswarAgwProviderPromise = null;
+    throw error;
   });
+  const provider = await abswarAgwProviderPromise;
   abswarAgwProvider = provider;
   bindAbswarProviderEvents();
   return abswarAgwProvider;
 }
+
+function prepareAbswarAgwProvider() {
+  return warmupAbswarAgw()
+    .then(() => ensureAbswarAgwProvider())
+    .catch(error => {
+      console.error('[CENTRADAR AGW PREPARE]', error);
+      throw error;
+    });
+}
+
+Object.assign(window, {
+  loadAbswarAgwModules,
+  warmupAbswarAgw,
+  ensureAbswarAgwProvider,
+  prepareAbswarAgwProvider,
+  withAbswarPopupGuard
+});
 
 async function readAbswarAgwAddress() {
   if (!abswarAgwProvider) return null;
@@ -6558,13 +6681,13 @@ async function refreshAbswarAgwBridge(address) {
 }
 
 if ('requestIdleCallback' in window) {
-  requestIdleCallback(() => warmupAbswarAgw().catch(() => {}), { timeout: 2000 });
+  requestIdleCallback(() => prepareAbswarAgwProvider().catch(() => {}), { timeout: 2000 });
 } else {
-  setTimeout(() => warmupAbswarAgw().catch(() => {}), 1200);
+  setTimeout(() => prepareAbswarAgwProvider().catch(() => {}), 1200);
 }
 document.addEventListener('pointerdown', event => {
   if (event.target?.closest?.('#walletBtn,[data-i18n="welcome.cta"],.btn-join')) {
-    warmupAbswarAgw().catch(() => {});
+    prepareAbswarAgwProvider().catch(() => {});
   }
 }, { passive: true });
 
