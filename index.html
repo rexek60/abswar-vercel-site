@@ -2393,7 +2393,7 @@ async function adminDownloadBackup() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `abswar-backup-${Date.now()}.json`;
+    a.download = `centradar-backup-${Date.now()}.json`;
     document.body.appendChild(a);
     a.click();
     a.remove();
