@@ -428,16 +428,16 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
   </div>
   <div style="display:flex;gap:8px;max-width:520px;width:100%;margin:-10px 0 22px;justify-content:center;flex-wrap:wrap">
     <div style="flex:1;min-width:138px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.09);padding:9px 10px;text-align:left">
-      <div style="font-family:var(--hud);font-size:9px;color:var(--green);letter-spacing:1px">1 · BAGLAN</div>
-      <div style="font-size:10px;color:var(--dim);margin-top:4px;line-height:1.35">Abstract cuzdaninla giris yap.</div>
+      <div style="font-family:var(--hud);font-size:9px;color:var(--green);letter-spacing:1px">1 · BAĞLAN</div>
+      <div style="font-size:10px;color:var(--dim);margin-top:4px;line-height:1.35">Abstract cüzdanınla giriş yap.</div>
     </div>
     <div style="flex:1;min-width:138px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.09);padding:9px 10px;text-align:left">
-      <div style="font-family:var(--hud);font-size:9px;color:var(--gold);letter-spacing:1px">2 · ULKE SEC</div>
-      <div style="font-size:10px;color:var(--dim);margin-top:4px;line-height:1.35">119 ulkeden birini komuta et.</div>
+      <div style="font-family:var(--hud);font-size:9px;color:var(--gold);letter-spacing:1px">2 · ÜLKE SEÇ</div>
+      <div style="font-size:10px;color:var(--dim);margin-top:4px;line-height:1.35">119 ülkeden birini komuta et.</div>
     </div>
     <div style="flex:1;min-width:138px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.09);padding:9px 10px;text-align:left">
       <div style="font-family:var(--hud);font-size:9px;color:var(--red);letter-spacing:1px">3 · SALDIR</div>
-      <div style="font-size:10px;color:var(--dim);margin-top:4px;line-height:1.35">Mermi al, hedef sec, savasa gir.</div>
+      <div style="font-size:10px;color:var(--dim);margin-top:4px;line-height:1.35">Mermi al, hedef seç, savaşa gir.</div>
     </div>
   </div>
   <button onclick="connectWallet()" style="background:linear-gradient(180deg,#e8162a,#a01020);border:none;color:#fff;font-family:var(--hud);font-size:13px;letter-spacing:3px;padding:14px 36px;cursor:pointer;font-weight:700;box-shadow:0 4px 20px rgba(232,22,42,0.4),inset 0 1px 0 rgba(255,255,255,0.15)" data-i18n="welcome.cta">
@@ -512,7 +512,7 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
   </div>
   <div style="padding:6px 10px;border-bottom:1px solid var(--border);flex-shrink:0">
     <div class="sl">KALAN SÜRE</div>
-    <div style="font-family:var(--mono);font-size:14px;color:var(--red);letter-spacing:2px;margin-top:3px" id="timerVal">23G 14S 42D 18S</div>
+    <div style="font-family:var(--mono);font-size:14px;color:var(--red);letter-spacing:2px;margin-top:3px" id="timerVal">—</div>
   </div>
   <div class="sh" style="flex-shrink:0"><span data-i18n="panel.activity">SAVAŞ FAALİYETİ</span> <span id="activityCount" style="font-size:9px;color:var(--dim);margin-left:6px">(0)</span></div>
   <div style="flex:1;overflow-y:auto" id="activityList">
@@ -1190,7 +1190,7 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
     </div>
 
     <div id="adminPurchasesInfo" style="margin-top:10px;padding:12px;background:linear-gradient(180deg,rgba(0,200,83,0.08),rgba(0,200,83,0.02));border:1px solid rgba(0,200,83,.28);font-family:var(--mono);font-size:10px;color:var(--text);text-align:left;line-height:1.55;max-height:260px;overflow:auto">
-      Odeme kayitlari icin admin token gir.
+      Ödeme kayıtları için admin token gir.
     </div>
 
     <!-- Token alanı -->
@@ -1225,16 +1225,16 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
         🏆 KAZANANLARI GÖR <span style="color:var(--dim);font-size:9px">— İlk 3 ülke ve ödül payları</span>
       </button>
       <button class="btn-sm" onclick="adminGrantAllRankNfts()" style="width:100%;padding:11px;background:rgba(245,200,66,0.12);border:1px solid var(--gold);color:var(--gold);font-family:var(--hud);font-size:11px;cursor:pointer;text-align:left">
-        RUTBE NFTLERINI CUZDANA AL <span style="color:var(--dim);font-size:9px">- Sadece owner cuzdanina, oyun katkisini degistirmez</span>
+        RÜTBE NFT'LERİNİ CÜZDANA AL <span style="color:var(--dim);font-size:9px">- Sadece owner cüzdanına, oyun katkısını değiştirmez</span>
       </button>
       <button class="btn-sm" onclick="adminDownloadBackup()" style="width:100%;padding:11px;background:transparent;border:1px solid rgba(102,179,255,.45);color:#66b3ff;font-family:var(--hud);font-size:11px;cursor:pointer;text-align:left">
-        YEDEK INDIR <span style="color:var(--dim);font-size:9px">- Oyuncu, ulke, tur ve odul durumunu JSON olarak alir</span>
+        YEDEK İNDİR <span style="color:var(--dim);font-size:9px">- Oyuncu, ülke, tur ve ödül durumunu JSON olarak alır</span>
       </button>
       <button class="btn-sm" onclick="adminShowMetrics()" style="width:100%;padding:11px;background:transparent;border:1px solid rgba(0,200,83,.35);color:var(--green);font-family:var(--hud);font-size:11px;cursor:pointer;text-align:left">
-        SISTEM METRIKLERI <span style="color:var(--dim);font-size:9px">- Canli izleme ozeti</span>
+        SİSTEM METRİKLERİ <span style="color:var(--dim);font-size:9px">- Canlı izleme özeti</span>
       </button>
       <button class="btn-sm" onclick="refreshAdminPurchases()" style="width:100%;padding:11px;background:transparent;border:1px solid rgba(0,200,83,.35);color:var(--green);font-family:var(--hud);font-size:11px;cursor:pointer;text-align:left">
-        ODEME KAYITLARI <span style="color:var(--dim);font-size:9px">- Hangi cuzdan ne kadar ETH yatirdi</span>
+        ÖDEME KAYITLARI <span style="color:var(--dim);font-size:9px">- Hangi cüzdan ne kadar ETH yatırdı</span>
       </button>
       <button class="btn-sm" onclick="adminConfirmReset()" style="width:100%;padding:11px;background:rgba(245,66,66,0.1);border:1px solid var(--red);color:var(--red);font-family:var(--hud);font-size:11px;cursor:pointer;text-align:left">
         ⚠️ TAM RESET <span style="color:var(--dim);font-size:9px">— Sadece tur bittikten sonra tüm kayıtları siler</span>
@@ -1277,8 +1277,8 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
 
 <script>
 const API_ENDPOINTS = {
-  production: 'https://abswar-clean-backend-production.up.railway.app',
-  staging: 'https://abswar-clean-backend-production.up.railway.app'
+  production: 'https://api.centradar.xyz',
+  staging: 'https://api.centradar.xyz'
 };
 const API_ENV = new URLSearchParams(location.search).get('env') === 'staging'
   ? 'staging'
@@ -1298,7 +1298,7 @@ const CHAINS = {
     rpcUrls: ['https://api.testnet.abs.xyz'],
     explorerUrl: 'https://sepolia.abscan.org',
     contractAddress: '0x325b18816734210e9fEbAA0516030A8Ec74bE3d4',
-    warning: 'Test aginda calisir. Gercek para gerekmez.'
+    warning: 'Test ağında çalışır. Gerçek para gerekmez.'
   },
   mainnet: {
     label: 'Abstract',
@@ -2152,15 +2152,15 @@ function renderAdminPurchases(data) {
 
   box.innerHTML = `
     <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:8px">
-      <div style="font-family:var(--hud);font-size:10px;color:var(--green);letter-spacing:1px">ODEME KAYITLARI</div>
-      <div style="color:var(--dim);font-size:9px">Son guncelleme: ${escapeHtml(generatedAt)}</div>
+      <div style="font-family:var(--hud);font-size:10px;color:var(--green);letter-spacing:1px">ÖDEME KAYITLARI</div>
+      <div style="color:var(--dim);font-size:9px">Son güncelleme: ${escapeHtml(generatedAt)}</div>
     </div>
-    <div style="color:var(--dim);margin-bottom:8px">Toplam yatirilan: <b style="color:var(--gold)">${escapeHtml(totalEth)}</b> · Kaynak: ${data?.dbEnabled ? 'PostgreSQL' : 'bellek modu'}</div>
-    <div style="font-family:var(--hud);font-size:9px;color:var(--gold);letter-spacing:1px;margin:8px 0 4px">CUZDAN BAZLI TOPLAM</div>
+    <div style="color:var(--dim);margin-bottom:8px">Toplam yatırılan: <b style="color:var(--gold)">${escapeHtml(totalEth)}</b> · Kaynak: ${data?.dbEnabled ? 'PostgreSQL' : 'bellek modu'}</div>
+    <div style="font-family:var(--hud);font-size:9px;color:var(--gold);letter-spacing:1px;margin:8px 0 4px">CÜZDAN BAZLI TOPLAM</div>
     ${walletRows}
-    <div style="font-family:var(--hud);font-size:9px;color:#66b3ff;letter-spacing:1px;margin:12px 0 4px">SON ISLEMLER</div>
+    <div style="font-family:var(--hud);font-size:9px;color:#66b3ff;letter-spacing:1px;margin:12px 0 4px">SON İŞLEMLER</div>
     ${txRows}
-    <div style="font-family:var(--hud);font-size:9px;color:#66b3ff;letter-spacing:1px;margin:12px 0 4px">SON ADMIN MERMI ODULLERI</div>
+    <div style="font-family:var(--hud);font-size:9px;color:#66b3ff;letter-spacing:1px;margin:12px 0 4px">SON ADMIN MERMİ ÖDÜLLERİ</div>
     ${grantRows}
   `;
 }
@@ -2170,11 +2170,11 @@ async function refreshAdminPurchases(silent=false) {
   if (!box) return;
   const token = document.getElementById('adminTokenInput')?.value?.trim();
   if (!token) {
-    box.innerHTML = '<span style="color:var(--dim)">Odeme kayitlari icin admin token gir.</span>';
+    box.innerHTML = '<span style="color:var(--dim)">Ödeme kayıtları için admin token gir.</span>';
     return;
   }
   adminTokenSession = token;
-  if (!silent) box.innerHTML = '<span style="color:var(--dim)">Odeme kayitlari yukleniyor...</span>';
+  if (!silent) box.innerHTML = '<span style="color:var(--dim)">Ödeme kayıtları yükleniyor...</span>';
   try {
     await ensureAuthSession(false);
     const res = await fetch(API+'/api/admin/purchases?limit=50',{
@@ -2187,7 +2187,7 @@ async function refreshAdminPurchases(silent=false) {
     }
     renderAdminPurchases(data);
   } catch(e) {
-    box.innerHTML = '<span style="color:var(--red)">HATA: Odeme kayitlari alinamadi</span>';
+    box.innerHTML = '<span style="color:var(--red)">HATA: Ödeme kayıtları alınamadı</span>';
   }
 }
 
@@ -2212,7 +2212,7 @@ async function refreshAdminRoundInfo() {
       backendStatusCache = sys || backendStatusCache;
       backendStatusFetchedAt = Date.now();
       if (sys && sys.dbEnabled === false) {
-        box.innerHTML += '<br><span style="color:var(--gold);font-size:10px">Uyari: Kalici veri sistemi kapali. Railway DATABASE_URL/Postgres baglantisini kontrol et.</span>';
+        box.innerHTML += '<br><span style="color:var(--gold);font-size:10px">Uyarı: Kalıcı veri sistemi kapalı. Railway DATABASE_URL/Postgres bağlantısını kontrol et.</span>';
       }
     } catch(_e) {}
     const state = await fetch(API+'/api/game/state').then(r=>r.json());
@@ -2312,7 +2312,7 @@ async function adminShowMetrics() {
     }
     const eth = data.economy?.rewardPoolEth || '0';
     result.innerHTML = `
-      <div style="color:var(--green);font-family:var(--hud);margin-bottom:6px">SISTEM METRIKLERI</div>
+      <div style="color:var(--green);font-family:var(--hud);margin-bottom:6px">SİSTEM METRİKLERİ</div>
       <div style="line-height:1.7;color:var(--text)">
         Uptime: <b>${Math.floor((data.uptimeSec||0)/60)}</b> dk<br>
         DB: <b>${data.dbEnabled?'aktif':'bellek modu'}</b><br>
@@ -2408,10 +2408,10 @@ async function adminGrantAllRankNfts() {
   const token = _getAdminToken();
   if (!token) return;
   if (!wallet || wallet.toLowerCase() !== OWNER_WALLET) {
-    showToast('Bu islem sadece owner cuzdanıyla yapılır.','error');
+    showToast('Bu işlem sadece owner cüzdanıyla yapılır.','error');
     return;
   }
-  if (!confirm('Eksik rutbe NFTleri icin cuzdaninda mint onayi acilacak. Her islem 0 ETH degerinde olmali; yalnizca ag gas ucreti olabilir. Devam edilsin mi?')) return;
+  if (!confirm('Eksik rütbe NFT\'leri için cüzdanında mint onayı açılacak. Her işlem 0 ETH değerinde olmalı; yalnızca ağ gas ücreti olabilir. Devam edilsin mi?')) return;
 
   const result = document.getElementById('adminResult');
   const adminEsc = v => typeof escapeHtml === 'function'
@@ -2420,7 +2420,7 @@ async function adminGrantAllRankNfts() {
   const shortAdminTx = tx => tx && String(tx).startsWith('0x')
     ? String(tx).slice(0,10)+'...'+String(tx).slice(-6)
     : '';
-  result.innerHTML = '<span style="color:var(--dim)">Rutbe NFT imzalari hazirlaniyor...</span>';
+  result.innerHTML = '<span style="color:var(--dim)">Rütbe NFT imzaları hazırlanıyor...</span>';
   try {
     await ensureAuthSession(false);
     const res = await fetch(API+'/api/admin/nft/rank-grant',{
@@ -2445,9 +2445,9 @@ async function adminGrantAllRankNfts() {
     result.innerHTML = `<span style="color:var(--gold)">${escapeHtml(String(claims.length))} rozet mint edilecek. Cüzdan onaylarını sırayla ver.</span>`;
     const minted = [];
     for (const claim of claims) {
-      const name = claim.rank?.name || ('Rutbe '+claim.rank?.index);
-      showToast(`${name} NFT mint onayini cuzdaninda ver`, 'info');
-      if (typeof abswarMintRankNftClaim !== 'function') throw new Error('NFT mint yardimcisi hazir degil');
+      const name = claim.rank?.name || ('Rütbe '+claim.rank?.index);
+      showToast(`${name} NFT mint onayını cüzdanında ver`, 'info');
+      if (typeof abswarMintRankNftClaim !== 'function') throw new Error('NFT mint yardımcısı hazır değil');
       const txHash = await abswarMintRankNftClaim(claim);
       const txLabel = shortAdminTx(txHash);
       minted.push(txLabel ? `${name} (${txLabel})` : name);
@@ -2455,7 +2455,7 @@ async function adminGrantAllRankNfts() {
       result.innerHTML = `<span style="color:var(--green)">İşlem gönderildi:</span> ${minted.map(adminEsc).join(', ')}<br><span style="color:var(--dim);font-size:10px">Kalan: ${escapeHtml(String(claims.length-minted.length))}</span>`;
     }
 
-    showToast('Rutbe NFT mint islemleri gonderildi','success');
+    showToast('Rütbe NFT mint işlemleri gönderildi','success');
     result.innerHTML = `<span style="color:var(--green)">Gönderildi:</span> ${minted.map(adminEsc).join(', ')}<br><span style="color:var(--dim);font-size:10px">Cüzdan ve explorer tarafında işlenmesi biraz sürebilir.</span>`;
     if (typeof abswarRefreshRankNftOwned === 'function') setTimeout(abswarRefreshRankNftOwned, 15000);
   } catch(e) {
@@ -3907,7 +3907,7 @@ function addChatSystem(text) {
   const row = document.createElement('div');
   row.className = 'chat-msg anim-new';
   row.style.background = 'rgba(0,200,83,0.06)';
-  row.innerHTML = `<div class="chat-who"><span style="font-size:11px">📡</span><span class="chat-name" style="color:var(--green)">SISTEM</span><span class="chat-t">simdi</span></div><div class="chat-txt" style="color:var(--green)">${escapeHtml(text)}</div>`;
+  row.innerHTML = `<div class="chat-who"><span style="font-size:11px">📡</span><span class="chat-name" style="color:var(--green)">SİSTEM</span><span class="chat-t">şimdi</span></div><div class="chat-txt" style="color:var(--green)">${escapeHtml(text)}</div>`;
   const body = document.getElementById('chatBody');
   const empty = document.getElementById('chatEmpty');
   if (empty) empty.style.display = 'none';
@@ -4246,7 +4246,7 @@ function showToast(msg,type='info') {
   if (type === 'error') { try { playSound('error'); } catch(e){} }
 }
 
-/* ── SES SİSTEMİ (Web Audio API ile sentezleniyor — dosya yok) ── */
+/* ── SES SİSTEMİ (MP3 arka fon + Web Audio efektleri) ── */
 let _audioCtx = null;
 let _soundEnabled = true;
 let _audioUnlocked = false;
@@ -4932,7 +4932,10 @@ let roundStatus_FE = 'active';
 
 function setRoundFromState(round) {
   if (!round) return;
-  roundEndAt = round.endTime || (Date.now() + (round.remainingMs||0));
+  const endRaw = Number(round.endTime ?? round.end_time ?? 0);
+  roundEndAt = Number.isFinite(endRaw) && endRaw > 0
+    ? (endRaw < 1000000000000 ? endRaw * 1000 : endRaw)
+    : null;
   roundNumber_FE = round.number || 1;
   roundStatus_FE = round.status || 'active';
   const titleEl = document.querySelector('.logo-sub');
@@ -4945,7 +4948,7 @@ function setRoundFromState(round) {
 setInterval(()=>{
   const el = document.getElementById('timerVal');
   if (!el) return;
-  if (roundEndAt == null) { el.textContent = '— — —'; return; }
+  if (roundEndAt == null) { el.textContent = '—'; return; }
   const ms = Math.max(0, roundEndAt - Date.now());
   const secs = Math.floor(ms/1000);
   const d = Math.floor(secs/86400);
@@ -4985,6 +4988,11 @@ ioScript.onload=()=>{
       if (wallet && warSocket?.connected) warSocket.emit('heartbeat', { wallet });
     }, 30000);
   };
+  const stopHeartbeatTimer = () => {
+    if (!_heartbeatTimer) return;
+    clearInterval(_heartbeatTimer);
+    _heartbeatTimer = null;
+  };
   warSocket.on('connect',()=>{
     document.querySelector('.gdot').style.background='#00c853';
     setBackendStatus(true);
@@ -5001,6 +5009,7 @@ ioScript.onload=()=>{
   warSocket.on('disconnect',(reason)=>{
     document.querySelector('.gdot').style.background='#e8162a';
     setBackendStatus(false);
+    stopHeartbeatTimer();
   });
   warSocket.on('connect_error',()=>{ setBackendStatus(false); });
   warSocket.on('war:attack',(d)=>{
@@ -6633,9 +6642,9 @@ async function refreshAbswarAgwBridge(address) {
       const accounts = await withAbswarTimeout(
         withAbswarPopupGuard(() => provider.request({ method:'eth_requestAccounts' })),
         ABSWAR_AGW_CONNECT_TIMEOUT_MS,
-        'Abstract Global Wallet baglanti penceresi zaman asimina ugradi'
+        'Abstract Global Wallet bağlantı penceresi zaman aşımına uğradı'
       );
-      if (!accounts?.[0]) throw new Error('Abstract Global Wallet hesabi secilmedi');
+      if (!accounts?.[0]) throw new Error('Abstract Global Wallet hesabı seçilmedi');
       await refreshAbswarAgwBridge(accounts?.[0] || null);
     },
     logout: async () => {
