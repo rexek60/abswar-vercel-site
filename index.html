@@ -4972,11 +4972,11 @@ ioScript.src='https://cdn.socket.io/4.7.2/socket.io.min.js';
 ioScript.onload=()=>{
   warSocket=io(WS_URL,{
     auth:{ token:authToken || '' },
-    transports:['websocket','polling'],
+    transports:['websocket'],
     reconnection:true,
     reconnectionDelay:SOCKET_RECONNECT_BASE_DELAY,
     reconnectionDelayMax:SOCKET_RECONNECT_MAX_DELAY,
-    randomizationFactor:0,
+    randomizationFactor:0.5,
     reconnectionAttempts:Infinity,
     timeout:8000
   });
