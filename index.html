@@ -1394,7 +1394,7 @@ async function ensureAuthSession(force=false) {
   const verifyRes = await fetch(API+'/api/auth/verify', {
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({ wallet, message:challenge.message, signature })
+    body:JSON.stringify({ wallet, signerWallet:agw.signerAddress || null, message:challenge.message, signature })
   });
   const verified = await verifyRes.json();
   if (!verifyRes.ok || verified.error) throw new Error(tErr(verified) || verified.error || 'Auth verify failed');
@@ -6653,24 +6653,41 @@ Object.assign(window, {
   warmupAbswarAgw,
   ensureAbswarAgwProvider,
   prepareAbswarAgwProvider,
+  readAbswarAgwAccounts,
   withAbswarPopupGuard
 });
 
-async function readAbswarAgwAddress() {
+async function readAbswarAgwAccounts() {
   if (!abswarAgwProvider) return null;
   try {
     const accounts = await abswarAgwProvider.request({ method:'eth_accounts' });
-    return accounts?.[0] || null;
+    return {
+      address: accounts?.[0] || null,
+      signerAddress: accounts?.[1] || null,
+      accounts: Array.isArray(accounts) ? accounts : []
+    };
   } catch(e) {
     return null;
   }
 }
 
-async function refreshAbswarAgwBridge(address) {
-  if (address === undefined) address = await readAbswarAgwAddress();
+async function readAbswarAgwAddress() {
+  const info = await readAbswarAgwAccounts();
+  return info?.address || null;
+}
+
+async function refreshAbswarAgwBridge(accountInfo) {
+  if (accountInfo === undefined) accountInfo = await readAbswarAgwAccounts();
+  if (typeof accountInfo === 'string' || accountInfo === null) {
+    accountInfo = { address: accountInfo || null, signerAddress: null, accounts: accountInfo ? [accountInfo] : [] };
+  }
+  const address = accountInfo?.address || null;
+  const signerAddress = accountInfo?.signerAddress || null;
   window.abswarAgw = {
     ready: true,
     address,
+    signerAddress,
+    accounts: accountInfo?.accounts || [],
     login: async () => {
       const provider = await ensureAbswarAgwProvider();
       const accounts = await withAbswarTimeout(
@@ -6679,7 +6696,11 @@ async function refreshAbswarAgwBridge(address) {
         'Abstract Global Wallet bağlantı penceresi zaman aşımına uğradı'
       );
       if (!accounts?.[0]) throw new Error('Abstract Global Wallet hesabı seçilmedi');
-      await refreshAbswarAgwBridge(accounts?.[0] || null);
+      await refreshAbswarAgwBridge({
+        address: accounts?.[0] || null,
+        signerAddress: accounts?.[1] || null,
+        accounts: Array.isArray(accounts) ? accounts : []
+      });
     },
     logout: async () => {
       try {
@@ -6693,7 +6714,8 @@ async function refreshAbswarAgwBridge(address) {
     signMessage: async message => {
       const provider = await ensureAbswarAgwProvider();
       const { stringToHex } = await loadAbswarAgwModules().then(modules => modules.viemModule);
-      const account = window.abswarAgw.address || await readAbswarAgwAddress();
+      const latest = await readAbswarAgwAccounts();
+      const account = window.abswarAgw.signerAddress || latest?.signerAddress || window.abswarAgw.address || latest?.address;
       if (!account) throw new Error('Abstract Global Wallet bagli degil');
       return withAbswarPopupGuard(() => provider.request({
         method:'personal_sign',
@@ -6718,7 +6740,7 @@ async function refreshAbswarAgwBridge(address) {
   if (address !== abswarLastAddress) {
     abswarLastAddress = address;
     window.dispatchEvent(new CustomEvent('abswar:agw-account', {
-      detail: { address }
+      detail: { address, signerAddress }
     }));
   }
 }
