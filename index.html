@@ -1318,6 +1318,7 @@ const AUTH_SESSION_KEY = `abswar-auth:${APP_NETWORK}:${API_ENV}`;
 let authToken = null;
 let authTokenExpiresAt = 0;
 let warSocket = null;
+let socketAuthReconnectInProgress = false;
 
 function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>"']/g, ch => ({
@@ -1360,7 +1361,9 @@ function clearAuthSession() {
 function refreshSocketAuth() {
   if (!warSocket) return;
   warSocket.auth = { token: authToken || '' };
+  socketAuthReconnectInProgress = true;
   warSocket.disconnect().connect();
+  setTimeout(() => { socketAuthReconnectInProgress = false; }, 5000);
 }
 
 async function ensureAuthSession(force=false) {
@@ -3202,6 +3205,7 @@ async function updateWalletBalance(address=wallet) {
 }
 
 async function connectWallet() {
+  openAbswarPopupShell();
   showLoader(t('loader.connecting'));
   agwConnectInProgress = true;
   try {
@@ -3227,10 +3231,10 @@ async function registerPlayer() {
   showLoader('OYUNCU YÜKLENİYOR...');
   try {
     const res = await authJson('/api/player/connect',{wallet},{
-      signal:AbortSignal.timeout(8000)
+      signal:AbortSignal.timeout(15000)
     });
-    if (!res.ok) throw new Error('HTTP '+res.status);
-    const data = await res.json();
+    const data = await res.json().catch(()=>({}));
+    if (!res.ok || data.error) throw new Error(tErr(data) || data.error || 'HTTP '+res.status);
     setBackendStatus(true);
     const p = data.player || data;
     const cc = p.countryCode || p.country_code;
@@ -3254,8 +3258,10 @@ async function registerPlayer() {
       }, 1400);
     }
   } catch(e) {
-    setBackendStatus(false);
-    showToast(t('toast.serverDown'),'error');
+    const msg = String(e?.shortMessage || e?.message || '').trim();
+    const serverDown = e?.name === 'AbortError' || /Failed to fetch|NetworkError|timeout|HTTP 5\d\d/i.test(msg);
+    setBackendStatus(!serverDown);
+    showToast(serverDown ? t('toast.serverDown') : t('toast.connectionError', { msg: msg ? msg.slice(0, 90) : 'Cüzdan doğrulaması tamamlanamadı' }),'error');
   } finally { hideLoader(); }
 }
 
@@ -4994,6 +5000,7 @@ ioScript.onload=()=>{
     _heartbeatTimer = null;
   };
   warSocket.on('connect',()=>{
+    socketAuthReconnectInProgress = false;
     document.querySelector('.gdot').style.background='#00c853';
     setBackendStatus(true);
     if (!_firstConnect) {
@@ -5008,10 +5015,10 @@ ioScript.onload=()=>{
   });
   warSocket.on('disconnect',(reason)=>{
     document.querySelector('.gdot').style.background='#e8162a';
-    setBackendStatus(false);
+    if (!socketAuthReconnectInProgress) setBackendStatus(false);
     stopHeartbeatTimer();
   });
-  warSocket.on('connect_error',()=>{ setBackendStatus(false); });
+  warSocket.on('connect_error',()=>{ if (!socketAuthReconnectInProgress) setBackendStatus(false); });
   warSocket.on('war:attack',(d)=>{
     const from=d.attackerCountry||d.from||'', to=d.targetCountry||d.to||'';
     if(from&&to){
@@ -6484,6 +6491,7 @@ let abswarLastAddress = null;
 let abswarProviderEventsBound = false;
 let abswarAgwWarmupPromise = null;
 let abswarAgwProviderPromise = null;
+let abswarAgwPopupRef = null;
 const ABSWAR_AGW_CONNECT_TIMEOUT_MS = 45000;
 const ABSWAR_AGW_PROVIDER_TIMEOUT_MS = 15000;
 const ABSWAR_AGW_POPUP_PLACEHOLDER = 'https://portal.abs.xyz/login';
@@ -6498,13 +6506,39 @@ function withAbswarTimeout(promise, ms, message) {
   ]).finally(() => clearTimeout(timer));
 }
 
+function openAbswarPopupShell() {
+  try {
+    if (abswarAgwPopupRef && !abswarAgwPopupRef.closed) {
+      abswarAgwPopupRef.focus?.();
+      return abswarAgwPopupRef;
+    }
+    abswarAgwPopupRef = window.open(
+      ABSWAR_AGW_POPUP_PLACEHOLDER,
+      'centradar_abstract_wallet',
+      'popup,width=430,height=720'
+    );
+  } catch(e) {
+    abswarAgwPopupRef = null;
+  }
+  return abswarAgwPopupRef;
+}
+
 async function withAbswarPopupGuard(run) {
   const originalOpen = window.open;
   window.open = function(url, target, features) {
     const safeUrl = url == null || url === '' || url === 'about:blank'
       ? ABSWAR_AGW_POPUP_PLACEHOLDER
       : url;
-    return originalOpen.call(window, safeUrl, target, features);
+    if (abswarAgwPopupRef && !abswarAgwPopupRef.closed) {
+      try {
+        abswarAgwPopupRef.location.href = safeUrl;
+        abswarAgwPopupRef.focus?.();
+        return abswarAgwPopupRef;
+      } catch(e) {}
+    }
+    const opened = originalOpen.call(window, safeUrl, target || 'centradar_abstract_wallet', features || 'popup,width=430,height=720');
+    if (opened) abswarAgwPopupRef = opened;
+    return opened;
   };
   try {
     return await run();
