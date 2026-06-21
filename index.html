@@ -1315,6 +1315,7 @@ window.ABSWAR_APP_NETWORK = APP_NETWORK;
 window.ABSWAR_API_ENV = API_ENV;
 window.abswarAgw = { ready:false, address:null };
 const AUTH_SESSION_KEY = `abswar-auth:${APP_NETWORK}:${API_ENV}`;
+const WALLET_CONNECT_INTENT_KEY = `centradar-wallet-connect:${APP_NETWORK}:${API_ENV}`;
 let authToken = null;
 let authTokenExpiresAt = 0;
 let warSocket = null;
@@ -1430,6 +1431,29 @@ async function authJson(path, body, options={}) {
 
 function wait(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function markWalletConnectIntent() {
+  try { sessionStorage.setItem(WALLET_CONNECT_INTENT_KEY, String(Date.now())); } catch(e) {}
+}
+
+function clearWalletConnectIntent() {
+  try { sessionStorage.removeItem(WALLET_CONNECT_INTENT_KEY); } catch(e) {}
+}
+
+function walletConnectIntentActive(maxAgeMs=10*60*1000) {
+  try {
+    const raw = sessionStorage.getItem(WALLET_CONNECT_INTENT_KEY);
+    if (!raw) return false;
+    const age = Date.now() - Number(raw);
+    if (!Number.isFinite(age) || age < 0 || age > maxAgeMs) {
+      clearWalletConnectIntent();
+      return false;
+    }
+    return true;
+  } catch(e) {
+    return false;
+  }
 }
 
 // Gerçek coğrafi harita verisi — 119 ülke (equirectangular, 1000x500)
@@ -3226,6 +3250,7 @@ async function updateWalletBalance(address=wallet) {
 }
 
 async function connectWallet() {
+  markWalletConnectIntent();
   showLoader(t('loader.connecting'));
   agwConnectInProgress = true;
   try {
@@ -3236,6 +3261,7 @@ async function connectWallet() {
   } catch(e) {
     console.error('[CENTRADAR WALLET]', e);
     const msg = String(e?.shortMessage || e?.message || '').trim();
+    if (/reject|denied|cancel/i.test(msg)) clearWalletConnectIntent();
     showToast(msg ? t('toast.connectionError', { msg: msg.slice(0, 90) }) : t('toast.connectionCancelled'), 'error');
   }
   finally {
@@ -3252,11 +3278,35 @@ async function finalizeWalletConnection(address) {
     await ensureAuthSession();
     dismissWelcome();
     await registerPlayer();
+    clearWalletConnectIntent();
   })();
   try {
     return await walletFinalizePromise;
   } finally {
     walletFinalizePromise = null;
+  }
+}
+
+async function resumePendingWalletConnection(reason='resume') {
+  if (agwConnectInProgress || walletFinalizePromise) return false;
+  const hasIntent = walletConnectIntentActive();
+  const cached = loadAuthSession();
+  if (!hasIntent && !cached) return false;
+  try {
+    await prepareAbswarAgwProvider();
+    const info = await readAbswarAgwAccounts();
+    if (!info?.address) return false;
+    await refreshAbswarAgwBridge(info);
+    showLoader('CÜZDAN BAĞLANTISI TAMAMLANIYOR...');
+    await finalizeWalletConnection(info.address);
+    return true;
+  } catch(e) {
+    console.error('[CENTRADAR WALLET RESUME]', reason, e);
+    const msg = String(e?.shortMessage || e?.message || '').trim();
+    if (hasIntent) showToast(msg ? t('toast.connectionError', { msg: msg.slice(0, 90) }) : t('toast.connectionCancelled'), 'error');
+    return false;
+  } finally {
+    hideLoader();
   }
 }
 
@@ -5150,6 +5200,19 @@ window.addEventListener('abswar:agw-account', async event => {
     }
   }
 });
+
+window.addEventListener('focus', () => {
+  resumePendingWalletConnection('focus').catch(error => console.error('[CENTRADAR WALLET RESUME]', error));
+});
+window.addEventListener('pageshow', () => {
+  setTimeout(() => resumePendingWalletConnection('pageshow').catch(error => console.error('[CENTRADAR WALLET RESUME]', error)), 500);
+});
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) resumePendingWalletConnection('visible').catch(error => console.error('[CENTRADAR WALLET RESUME]', error));
+});
+setInterval(() => {
+  if (walletConnectIntentActive()) resumePendingWalletConnection('poll').catch(error => console.error('[CENTRADAR WALLET RESUME]', error));
+}, 3000);
 
 /* ── DİL SİSTEMİ (TR / EN / RU) ── */
 const I18N = {
