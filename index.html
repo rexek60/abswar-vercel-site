@@ -1681,6 +1681,7 @@ const LAND_PATHS = ["M557,134L558,137L557,139L555,139L554,135L554,133L556,132L55
 
 let wallet=null, myCountry=null, targetCountry=null, toastTimer=null, modalMode='nation';
 let gameCountries=[], attackLineTimer=null;
+let walletFinalizePromise = null;
 
 /* ── YÜKLEME GÖSTERGESİ ── */
 function showLoader(text='YÜKLENİYOR...') {
@@ -3165,6 +3166,26 @@ async function waitForAbstractWallet(requireAccount=false) {
   throw new Error('Abstract Global Wallet yuklenemedi');
 }
 
+async function waitForConnectedAbstractWallet(timeoutMs=ABSWAR_AGW_CONNECT_TIMEOUT_MS) {
+  const deadline = Date.now() + timeoutMs;
+  let lastError = null;
+  while (Date.now() < deadline) {
+    try {
+      const agw = await waitForAbstractWallet(false);
+      const info = await readAbswarAgwAccounts();
+      if (info?.address) {
+        await refreshAbswarAgwBridge(info);
+        return window.abswarAgw;
+      }
+      if (agw?.address) return agw;
+    } catch(e) {
+      lastError = e;
+    }
+    await wait(250);
+  }
+  throw lastError || new Error('Abstract Global Wallet hesap bilgisi alinamadi');
+}
+
 function applyConnectedWallet(address) {
   wallet = address;
   window.ABSWAR_WALLET = address;
@@ -3205,17 +3226,13 @@ async function updateWalletBalance(address=wallet) {
 }
 
 async function connectWallet() {
-  openAbswarPopupShell();
   showLoader(t('loader.connecting'));
   agwConnectInProgress = true;
   try {
     const agw = await waitForAbstractWallet();
     await agw.login();
-    const connectedAgw = await waitForAbstractWallet(true);
-    applyConnectedWallet(connectedAgw.address);
-    await ensureAuthSession();
-    dismissWelcome();
-    await registerPlayer();
+    const connectedAgw = await waitForConnectedAbstractWallet();
+    await finalizeWalletConnection(connectedAgw.address);
   } catch(e) {
     console.error('[CENTRADAR WALLET]', e);
     const msg = String(e?.shortMessage || e?.message || '').trim();
@@ -3224,6 +3241,22 @@ async function connectWallet() {
   finally {
     agwConnectInProgress = false;
     hideLoader();
+  }
+}
+
+async function finalizeWalletConnection(address) {
+  if (!address) throw new Error('Abstract Global Wallet hesabı alınamadı');
+  if (walletFinalizePromise) return walletFinalizePromise;
+  walletFinalizePromise = (async () => {
+    applyConnectedWallet(address);
+    await ensureAuthSession();
+    dismissWelcome();
+    await registerPlayer();
+  })();
+  try {
+    return await walletFinalizePromise;
+  } finally {
+    walletFinalizePromise = null;
   }
 }
 
@@ -5110,11 +5143,10 @@ window.addEventListener('abswar:agw-account', async event => {
   applyConnectedWallet(newWallet);
   if (!agwConnectInProgress) {
     try {
-      await ensureAuthSession();
-      dismissWelcome();
-      await registerPlayer();
+      await finalizeWalletConnection(newWallet);
     } catch(e) {
-      showToast(t('toast.connectionCancelled'),'error');
+      const msg = String(e?.shortMessage || e?.message || '').trim();
+      showToast(msg ? t('toast.connectionError', { msg: msg.slice(0, 90) }) : t('toast.connectionCancelled'),'error');
     }
   }
 });
@@ -6494,6 +6526,7 @@ let abswarAgwProviderPromise = null;
 let abswarAgwPopupRef = null;
 const ABSWAR_AGW_CONNECT_TIMEOUT_MS = 45000;
 const ABSWAR_AGW_PROVIDER_TIMEOUT_MS = 15000;
+const ABSWAR_AGW_SIGN_TIMEOUT_MS = 45000;
 const ABSWAR_AGW_POPUP_PLACEHOLDER = 'https://portal.abs.xyz/login';
 
 function withAbswarTimeout(promise, ms, message) {
@@ -6524,6 +6557,9 @@ function openAbswarPopupShell() {
 }
 
 async function withAbswarPopupGuard(run) {
+  if (!abswarAgwPopupRef || abswarAgwPopupRef.closed || abswarAgwPopupRef === window) {
+    return run();
+  }
   const originalOpen = window.open;
   window.open = function(url, target, features) {
     const safeUrl = url == null || url === '' || url === 'about:blank'
@@ -6715,12 +6751,32 @@ async function refreshAbswarAgwBridge(accountInfo) {
       const provider = await ensureAbswarAgwProvider();
       const { stringToHex } = await loadAbswarAgwModules().then(modules => modules.viemModule);
       const latest = await readAbswarAgwAccounts();
-      const account = window.abswarAgw.signerAddress || latest?.signerAddress || window.abswarAgw.address || latest?.address;
-      if (!account) throw new Error('Abstract Global Wallet bagli degil');
-      return withAbswarPopupGuard(() => provider.request({
-        method:'personal_sign',
-        params:[stringToHex(message), account]
-      }));
+      const candidates = [
+        window.abswarAgw.signerAddress,
+        latest?.signerAddress,
+        window.abswarAgw.address,
+        latest?.address
+      ].filter(Boolean);
+      const accounts = [...new Set(candidates.map(a => String(a)))];
+      if (!accounts.length) throw new Error('Abstract Global Wallet bagli degil');
+      let lastError = null;
+      for (const account of accounts) {
+        try {
+          return await withAbswarTimeout(
+            withAbswarPopupGuard(() => provider.request({
+              method:'personal_sign',
+              params:[stringToHex(message), account]
+            })),
+            ABSWAR_AGW_SIGN_TIMEOUT_MS,
+            'Abstract Global Wallet imza penceresi zaman asimina ugradi'
+          );
+        } catch(e) {
+          lastError = e;
+          const msg = String(e?.message || e?.shortMessage || '');
+          if (/reject|denied|cancel/i.test(msg)) throw e;
+        }
+      }
+      throw lastError || new Error('Abstract Global Wallet imzasi alinamadi');
     },
     sendTransaction: async tx => {
       const provider = await ensureAbswarAgwProvider();
