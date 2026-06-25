@@ -5127,7 +5127,7 @@ ioScript.src='https://cdn.socket.io/4.7.5/socket.io.min.js';
 ioScript.onload=()=>{
   warSocket=io(WS_URL,{
     auth:{ token:authToken || '' },
-    transports:['polling','websocket'],   // server ile aynı: polling handshake + websocket upgrade
+    transports:['polling','websocket'],   // polling ile bağlan, websocket'e upgrade et (Railway'in önerdiği varsayılan)
     upgrade:true,
     reconnection:true,
     reconnectionDelay:SOCKET_RECONNECT_BASE_DELAY,
