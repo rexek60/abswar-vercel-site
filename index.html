@@ -1042,7 +1042,7 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
         <span style="color:var(--dim);font-size:11px">
         🛢️ <b>Petrol</b> — %100'e ulaşırsa <b>+10 mermi</b> (sıfırlanır)<br>
         ⚙️ <b>Metal</b> — Her seviye için <b>+%1 ekstra hasar</b> (max %10)<br>
-        ☢️ <b>Uranyum</b> — Her seviye için <b>+%1 kalkan</b> (savunma)<br>
+        ☢️ <b>Uranyum</b> — Onun seviyesi <b>+%10 kalkan</b> sağlar (savunma için)<br>
         ⚡ <b>Enerji</b> — %100'e ulaşırsa ülkene <b>+50 HP</b> verir; ülke HP'si en fazla <b>100.000</b> olur
         </span></span>
       </div>
@@ -2589,7 +2589,7 @@ async function upgradeRadar() {
 const RESOURCES = [
   { id:'oil',     name:'PETROL',  icon:'🛢️', val:0, effect:'%100 → +10 mermi',         grad:'linear-gradient(90deg,#a05020,#ff8040)' },
   { id:'metal',   name:'METAL',   icon:'⚙️', val:0, effect:'Seviye×%1 ekstra hasar',    grad:'linear-gradient(90deg,#666,#bbb)' },
-  { id:'uranium', name:'URANYUM', icon:'☢️', val:0, effect:'Seviye×%1 kalkan (savunma)', grad:'linear-gradient(90deg,#00aa55,#66ff99)' },
+  { id:'uranium', name:'URANYUM', icon:'☢️', val:0, effect:'Onun seviyesi +%10 kalkan sağlar (savunma için)', grad:'linear-gradient(90deg,#00aa55,#66ff99)' },
   { id:'energy',  name:'ENERJİ',  icon:'⚡', val:0, effect:'%100 → ülkene +50 HP',       grad:'linear-gradient(90deg,#f5c842,#ffee55)' },
 ];
 
@@ -5123,17 +5123,18 @@ let attackVisualWindowStart = 0;
 let attackVisualCount = 0;
 
 const ioScript=document.createElement('script');
-ioScript.src='https://cdn.socket.io/4.7.2/socket.io.min.js';
+ioScript.src='https://cdn.socket.io/4.7.5/socket.io.min.js';
 ioScript.onload=()=>{
   warSocket=io(WS_URL,{
     auth:{ token:authToken || '' },
-    transports:['websocket'],
+    transports:['polling','websocket'],   // server ile aynı: polling handshake + websocket upgrade
+    upgrade:true,
     reconnection:true,
     reconnectionDelay:SOCKET_RECONNECT_BASE_DELAY,
     reconnectionDelayMax:SOCKET_RECONNECT_MAX_DELAY,
     randomizationFactor:0.5,
     reconnectionAttempts:Infinity,
-    timeout:8000
+    timeout:20000                          // Railway cold start için 8s -> 20s
   });
   let _firstConnect = true;
   let _heartbeatTimer = null;
@@ -5343,7 +5344,7 @@ const I18N = {
     'res.energy': 'ENERJİ',
     'res.oilDesc': '%100 → +10 mermi',
     'res.metalDesc': 'Seviye×%1 ekstra hasar',
-    'res.uraniumDesc': 'Seviye×%1 kalkan (savunma)',
+    'res.uraniumDesc': 'Onun seviyesi +%10 kalkan sağlar (savunma için)',
     'res.energyDesc': '%100 → ülkene +50 HP',
     'stat.online': 'ÇEVRİMİÇİ',
     'btn.joinWar': 'SAVAŞA KATIL',
@@ -5539,7 +5540,7 @@ const I18N = {
     'help.b3': '"MERMİ SATIN AL" panelinden paket seç. Mermi satın alma <b>blockchain işlemidir</b> — Abstract Global Wallet onayı gerekir, gas ödenir.<br><br><span style="color:var(--dim);font-size:11px">Temel: 0.001 ETH → 100 mermi<br>Gelişmiş: 0.01 ETH → 1.000 mermi<br>Prim: 0.1 ETH → 10.000 mermi<br>Efsanevi: 1.0 ETH → 100.000 mermi</span>',
     'help.b4': 'Haritada hedef ülkeye tıkla → kırmızı vurgu çıkar → "SALDIRI BAŞLAT" butonuna bas. Her saldırı 1 mermi harcar. Hasar, mermi düşümü ve HP artışı sunucuda hesaplanır; hedefin HP\'si düşer, senin ülkenin HP\'si 100.000\'e kadar artabilir.',
     'help.b5': '"İTTİFAK KUR" ile kendi ittifakını başlat veya "İTTİFAKA KATIL" ile mevcut bir ittifaka gir. Telsiz komutlarıyla müttefiklere sinyal gönder.',
-    'help.b6': 'Her kaynak farklı işe yarar (1 mermi → +10 seviye):<br><span style="color:var(--dim);font-size:11px">🛢️ <b>Petrol</b> — %100\'e ulaşırsa <b>+10 mermi</b> (sıfırlanır)<br>⚙️ <b>Metal</b> — Her seviye için <b>+%1 ekstra hasar</b> (max %10)<br>☢️ <b>Uranyum</b> — Her seviye için <b>+%1 kalkan</b> (savunma)<br>⚡ <b>Enerji</b> — %100\'e ulaşırsa ülkene <b>+50 HP</b> verir; ülke HP\'si en fazla <b>100.000</b> olur</span>',
+    'help.b6': 'Her kaynak farklı işe yarar (1 mermi → +10 seviye):<br><span style="color:var(--dim);font-size:11px">🛢️ <b>Petrol</b> — %100\'e ulaşırsa <b>+10 mermi</b> (sıfırlanır)<br>⚙️ <b>Metal</b> — Her seviye için <b>+%1 ekstra hasar</b> (max %10)<br>☢️ <b>Uranyum</b> — Onun seviyesi <b>+%10 kalkan</b> sağlar (savunma için)<br>⚡ <b>Enerji</b> — %100\'e ulaşırsa ülkene <b>+50 HP</b> verir; ülke HP\'si en fazla <b>100.000</b> olur</span>',
     'help.b7': 'Bir ülke <b>100.000 HP</b>\'ye ulaşınca <b>⚡ SÜPER GÜÇ</b> olur. Bu durum tur sonuna kadar kalıcıdır: verdiği hasar <b>+%50</b>, aldığı hasar <b>-%25</b> olur. Yenilmez değildir; birleşen ülkeler yine devirebilir.',
     'help.b8': 'Katkı puanına göre rütben yükselir. Her rütbe <b>katkı bonusu</b> verir — saldırı başına daha çok puan kazanırsın:<br><span style="color:var(--dim);font-size:11px;line-height:1.7">🪖 Asker (0) · 🎖 Onbaşı (50, +%5) · 🎖🎖 Çavuş (200, +%10)<br>⭐ Teğmen (500, +%15) · ⭐⭐ Yüzbaşı (1.500, +%20)<br>⭐⭐⭐ Binbaşı (5.000, +%25) · ⭐⭐⭐⭐ General (15.000, +%30)</span>',
     'help.b9': 'Harita renkleri 100.000 maksimum HP\'ye göre yüzdelik hesaplanır. Yeşil = güçlü · Sarı = hasarlı · Turuncu = kritik · Kırmızı = düşmek üzere · Altın/⚡ = süper güç · Gri = elenen.',
