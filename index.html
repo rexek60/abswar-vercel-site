@@ -1407,7 +1407,8 @@ async function ensureAuthSession(force=false) {
   const challengeRes = await fetch(API+'/api/auth/challenge', {
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({ wallet })
+    body:JSON.stringify({ wallet }),
+    signal:timeoutSignal(15000)
   });
   const challenge = await challengeRes.json();
   if (!challengeRes.ok || challenge.error) throw new Error(tErr(challenge) || challenge.error || 'Auth challenge failed');
@@ -1419,7 +1420,8 @@ async function ensureAuthSession(force=false) {
   const verifyRes = await fetch(API+'/api/auth/verify', {
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({ wallet, signerWallet:agw.signerAddress || null, message:challenge.message, signature })
+    body:JSON.stringify({ wallet, signerWallet:agw.signerAddress || null, message:challenge.message, signature }),
+    signal:timeoutSignal(20000)
   });
   const verified = await verifyRes.json();
   if (!verifyRes.ok || verified.error) throw new Error(tErr(verified) || verified.error || 'Auth verify failed');
