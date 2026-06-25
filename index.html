@@ -6655,9 +6655,9 @@ let abswarProviderEventsBound = false;
 let abswarAgwWarmupPromise = null;
 let abswarAgwProviderPromise = null;
 let abswarAgwPopupRef = null;
-const ABSWAR_AGW_CONNECT_TIMEOUT_MS = 45000;
+const ABSWAR_AGW_CONNECT_TIMEOUT_MS = 120000;
 const ABSWAR_AGW_PROVIDER_TIMEOUT_MS = 15000;
-const ABSWAR_AGW_SIGN_TIMEOUT_MS = 45000;
+const ABSWAR_AGW_SIGN_TIMEOUT_MS = 120000;
 const ABSWAR_AGW_POPUP_PLACEHOLDER = 'https://portal.abs.xyz/login';
 
 function withAbswarTimeout(promise, ms, message) {
@@ -6690,7 +6690,7 @@ function openAbswarPopupShell() {
 async function withAbswarPopupGuard(run) {
   const originalOpen = window.open;
   window.open = function(url, target, features) {
-    const safeUrl = url == null || url === '' || url === 'about:blank'
+    const safeUrl = url == null || url === ''
       ? ABSWAR_AGW_POPUP_PLACEHOLDER
       : url;
     const safeTarget = 'centradar_abstract_wallet';
@@ -6715,7 +6715,7 @@ async function withAbswarPopupGuard(run) {
 async function loadAbswarAgwModules() {
   if (abswarAgwModules) return abswarAgwModules;
   const [agwWebModule, viemModule, chainsModule] = await Promise.all([
-    import('https://esm.sh/@abstract-foundation/agw-web@1.8.6?deps=viem@2.52.0,@privy-io/cross-app-connect@0.2.2'),
+    import('https://esm.sh/@abstract-foundation/agw-web@1.10.4?deps=viem@2.52.0,@privy-io/cross-app-connect@0.5.2'),
     import('https://esm.sh/viem@2.52.0'),
     import('https://esm.sh/viem@2.52.0/chains')
   ]);
