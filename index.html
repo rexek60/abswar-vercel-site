@@ -4261,8 +4261,13 @@ function updateLeaderboard(countries, players) {
 
 let _backendOnline = true;
 let _consecutiveFailures = 0;
+let _backendOfflineTimer = null;
 
 function setBackendStatus(online) {
+  if (online && _backendOfflineTimer) {
+    clearTimeout(_backendOfflineTimer);
+    _backendOfflineTimer = null;
+  }
   if (online === _backendOnline) return;
   _backendOnline = online;
   const banner = document.getElementById('offlineBanner');
@@ -4272,6 +4277,14 @@ function setBackendStatus(online) {
   } else {
     showToast(t('toast.serverBack'),'success');
   }
+}
+
+function scheduleBackendOffline(delayMs=6000) {
+  if (_backendOfflineTimer || !_backendOnline) return;
+  _backendOfflineTimer = setTimeout(() => {
+    _backendOfflineTimer = null;
+    setBackendStatus(false);
+  }, delayMs);
 }
 
 async function pollState() {
@@ -4338,7 +4351,7 @@ async function pollState() {
     }
   } catch(e){
     _consecutiveFailures++;
-    if (_consecutiveFailures >= 2) setBackendStatus(false);
+    if (_consecutiveFailures >= 3) scheduleBackendOffline(2500);
   }
 }
 let _initialLoadDone = false;
@@ -5165,10 +5178,10 @@ ioScript.onload=()=>{
   });
   warSocket.on('disconnect',(reason)=>{
     document.querySelector('.gdot').style.background='#e8162a';
-    if (!socketAuthReconnectInProgress) setBackendStatus(false);
+    if (!socketAuthReconnectInProgress) scheduleBackendOffline(6000);
     stopHeartbeatTimer();
   });
-  warSocket.on('connect_error',()=>{ if (!socketAuthReconnectInProgress) setBackendStatus(false); });
+  warSocket.on('connect_error',()=>{ if (!socketAuthReconnectInProgress) scheduleBackendOffline(6000); });
   warSocket.on('war:attack',(d)=>{
     const from=d.attackerCountry||d.from||'', to=d.targetCountry||d.to||'';
     if(from&&to){
