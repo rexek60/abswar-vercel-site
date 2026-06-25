@@ -1322,6 +1322,7 @@ window.ABSWAR_API_ENV = API_ENV;
 window.abswarAgw = { ready:false, address:null };
 const AUTH_SESSION_KEY = `abswar-auth:${APP_NETWORK}:${API_ENV}`;
 const WALLET_CONNECT_INTENT_KEY = `centradar-wallet-connect:${APP_NETWORK}:${API_ENV}`;
+const SOCKET_CLIENT_ID_KEY = `centradar-socket-client:${APP_NETWORK}:${API_ENV}`;
 let authToken = null;
 let authTokenExpiresAt = 0;
 let warSocket = null;
@@ -1331,6 +1332,23 @@ function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>"']/g, ch => ({
     '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
   }[ch]));
+}
+
+function getSocketClientId() {
+  try {
+    let id = localStorage.getItem(SOCKET_CLIENT_ID_KEY);
+    if (!id) {
+      id = (crypto?.randomUUID?.() || `client-${Date.now()}-${Math.random().toString(16).slice(2)}`);
+      localStorage.setItem(SOCKET_CLIENT_ID_KEY, id);
+    }
+    return id;
+  } catch(e) {
+    return `client-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  }
+}
+
+function socketAuthPayload() {
+  return { token: authToken || '', clientId: getSocketClientId() };
 }
 
 function loadAuthSession() {
@@ -1367,7 +1385,7 @@ function clearAuthSession() {
 
 function refreshSocketAuth() {
   if (!warSocket) return;
-  warSocket.auth = { token: authToken || '' };
+  warSocket.auth = socketAuthPayload();
   socketAuthReconnectInProgress = true;
   warSocket.disconnect().connect();
   setTimeout(() => { socketAuthReconnectInProgress = false; }, 5000);
@@ -5139,9 +5157,10 @@ const ioScript=document.createElement('script');
 ioScript.src='https://cdn.socket.io/4.7.5/socket.io.min.js';
 ioScript.onload=()=>{
   warSocket=io(WS_URL,{
-    auth:{ token:authToken || '' },
+    auth:socketAuthPayload(),
     transports:['polling','websocket'],   // polling ile bağlan, websocket'e upgrade et (Railway'in önerdiği varsayılan)
     upgrade:true,
+    rememberUpgrade:true,
     reconnection:true,
     reconnectionDelay:SOCKET_RECONNECT_BASE_DELAY,
     reconnectionDelayMax:SOCKET_RECONNECT_MAX_DELAY,
