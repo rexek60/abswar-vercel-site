@@ -3231,38 +3231,65 @@ async function waitForAbstractWallet(requireAccount=false) {
   const prepare = window.prepareAbswarAgwProvider || (typeof prepareAbswarAgwProvider === 'function' ? prepareAbswarAgwProvider : null);
   const warmup = window.warmupAbswarAgw || (typeof warmupAbswarAgw === 'function' ? warmupAbswarAgw : null);
   if (prepare) {
-    prepare().catch(() => {});
+    await prepare();
   } else if (warmup) {
-    warmup().catch(() => {});
+    await warmup();
   }
-  for (let attempt = 0; attempt < 100; attempt++) {
-    const agw = window.abswarAgw;
-    if (agw?.ready && (!requireAccount || (agw.address && agw.signMessage && agw.sendTransaction))) {
-      return agw;
-    }
-    await new Promise(resolve => setTimeout(resolve, 100));
+  if (typeof refreshAbswarAgwBridge === 'function') {
+    await refreshAbswarAgwBridge();
   }
-  throw new Error('Abstract Global Wallet yuklenemedi');
+  const agw = window.abswarAgw;
+  if (agw?.ready && (!requireAccount || (agw.address && agw.signMessage && agw.sendTransaction))) {
+    return agw;
+  }
+  throw new Error(requireAccount ? 'Önce Abstract cüzdanını bağla' : 'Abstract Global Wallet yüklenemedi');
 }
 
-async function waitForConnectedAbstractWallet(timeoutMs=ABSWAR_AGW_CONNECT_TIMEOUT_MS) {
-  const deadline = Date.now() + timeoutMs;
-  let lastError = null;
-  while (Date.now() < deadline) {
-    try {
-      const agw = await waitForAbstractWallet(false);
-      const info = await readAbswarAgwAccounts();
-      if (info?.address) {
-        await refreshAbswarAgwBridge(info);
-        return window.abswarAgw;
-      }
-      if (agw?.address) return agw;
-    } catch(e) {
-      lastError = e;
-    }
-    await wait(250);
+async function requestAbstractWalletAccounts() {
+  const provider = await ensureAbswarAgwProvider();
+  const accounts = await withAbswarTimeout(
+    withAbswarPopupGuard(() => provider.request({ method:'eth_requestAccounts' })),
+    ABSWAR_AGW_CONNECT_TIMEOUT_MS,
+    'Abstract Global Wallet bağlantı penceresi zaman aşımına uğradı'
+  );
+  if (!accounts?.[0]) throw new Error('Abstract Global Wallet hesabı seçilmedi');
+  const info = {
+    address: accounts?.[0] || null,
+    signerAddress: accounts?.[1] || null,
+    accounts: Array.isArray(accounts) ? accounts : []
+  };
+  await refreshAbswarAgwBridge(info);
+  return window.abswarAgw;
+}
+
+function resetConnectedPlayerUi() {
+  myCountry = null;
+  targetCountry = null;
+  myAlliance = null;
+  myAllianceData = null;
+  myNickname = null;
+  myBulletsCount = 0;
+  resetAllianceChat('İTTİFAK YOK — sohbet için ittifaka katıl');
+  document.getElementById('myBullets').textContent = '0';
+  document.getElementById('myContrib').textContent = '0';
+  document.getElementById('myAttacks').textContent = '0';
+  document.getElementById('ysKills').textContent = '0';
+  document.getElementById('ysDeaths').textContent = '0';
+  document.getElementById('ysScore').textContent = '0';
+  const nb = document.getElementById('nicknameBtn');
+  if (nb) nb.style.display = wallet ? 'inline-block' : 'none';
+}
+
+function handleWalletConnectError(error) {
+  console.error('[CENTRADAR WALLET]', error);
+  const msg = String(error?.shortMessage || error?.message || '').trim();
+  if (/reject|denied|cancel/i.test(msg)) {
+    clearWalletConnectIntent();
+    showToast(msg ? t('toast.connectionError', { msg: msg.slice(0, 90) }) : t('toast.connectionCancelled'), 'error');
+    return;
   }
-  throw lastError || new Error('Abstract Global Wallet hesap bilgisi alinamadi');
+  showWalletResumeHint('Bağlantı tamamlanmadıysa ABSTRACT İLE BAĞLAN düğmesine tekrar basıp cüzdan penceresini onayla.');
+  showToast(msg ? t('toast.connectionError', { msg: msg.slice(0, 90) }) : 'Cüzdan bağlantısı tamamlanamadı.', 'error');
 }
 
 function applyConnectedWallet(address) {
@@ -3305,31 +3332,19 @@ async function updateWalletBalance(address=wallet) {
 }
 
 async function connectWallet() {
+  if (agwConnectInProgress || walletFinalizePromise) return false;
   markWalletConnectIntent();
   hideWalletResumeHint();
   showLoader(t('loader.connecting'));
   agwConnectInProgress = true;
   try {
-    const agw = await waitForAbstractWallet();
-    await agw.login();
-    const info = await readAbswarAgwAccounts();
-    if (info?.address) {
-      await refreshAbswarAgwBridge(info);
-      await finalizeWalletConnection(info.address);
-      return;
-    }
-    const connectedAgw = await waitForConnectedAbstractWallet();
-    await finalizeWalletConnection(connectedAgw.address);
+    const agw = await requestAbstractWalletAccounts();
+    resetConnectedPlayerUi();
+    const ok = await finalizeWalletConnection(agw.address, { forceAuth:true });
+    return !!ok;
   } catch(e) {
-    console.error('[CENTRADAR WALLET]', e);
-    const msg = String(e?.shortMessage || e?.message || '').trim();
-    if (/reject|denied|cancel/i.test(msg)) {
-      clearWalletConnectIntent();
-      showToast(msg ? t('toast.connectionError', { msg: msg.slice(0, 90) }) : t('toast.connectionCancelled'), 'error');
-    } else {
-      showWalletResumeHint('Abstract onayını tamamladıysan BAĞLANTIYI TAMAMLA düğmesine bas.');
-      showToast('Cüzdan onayı tamamlandıysa bağlantıyı tamamla düğmesine bas.', 'info');
-    }
+    handleWalletConnectError(e);
+    return false;
   }
   finally {
     agwConnectInProgress = false;
@@ -3337,12 +3352,13 @@ async function connectWallet() {
   }
 }
 
-async function finalizeWalletConnection(address) {
+async function finalizeWalletConnection(address, options={}) {
   if (!address) throw new Error('Abstract Global Wallet hesabı alınamadı');
   if (walletFinalizePromise) return walletFinalizePromise;
   walletFinalizePromise = (async () => {
+    if (options.forceAuth) clearAuthSession();
     applyConnectedWallet(address);
-    await ensureAuthSession();
+    await ensureAuthSession(!!options.forceAuth);
     const registered = await registerPlayer();
     if (!registered) return false;
     dismissWelcome();
@@ -3358,57 +3374,14 @@ async function finalizeWalletConnection(address) {
 }
 
 async function requestAbswarAccountsForResume(force=false) {
-  if (walletResumeRequestInProgress) return null;
-  const now = Date.now();
-  if (!force && now - walletResumeLastRequestAt < 12000) return null;
-  walletResumeLastRequestAt = now;
-  walletResumeRequestInProgress = true;
-  try {
-    const agw = await waitForAbstractWallet(false);
-    if (typeof agw.login !== 'function') return null;
-    await agw.login();
-    const info = await readAbswarAgwAccounts();
-    if (info?.address) await refreshAbswarAgwBridge(info);
-    return info;
-  } finally {
-    walletResumeRequestInProgress = false;
-  }
+  if (!force) return null;
+  const agw = await requestAbstractWalletAccounts();
+  return { address: agw.address, signerAddress: agw.signerAddress, accounts: agw.accounts || [] };
 }
 
 async function resumePendingWalletConnection(reason='resume', options={}) {
-  if (agwConnectInProgress || walletFinalizePromise) return false;
-  const hasIntent = walletConnectIntentActive();
-  const cached = loadAuthSession();
-  const force = !!options.force;
-  const shouldRequestAccounts = options.requestAccounts === true || (hasIntent && reason !== 'poll');
-  try {
-    await prepareAbswarAgwProvider();
-    let info = await readAbswarAgwAccounts();
-    if (!info?.address && (hasIntent || force) && shouldRequestAccounts) {
-      showWalletResumeHint('Abstract onayını tamamladıysan bağlantıyı burada bitir.');
-      showLoader('ABSTRACT CÜZDAN ONAYI BEKLENİYOR...');
-      info = await requestAbswarAccountsForResume(force || reason === 'manual');
-    }
-    if (!info?.address) {
-      if (hasIntent || force) showWalletResumeHint('Cüzdan bağlı kaldıysa BAĞLANTIYI TAMAMLA düğmesine bas.');
-      if (!hasIntent && !cached && !force) return false;
-      return false;
-    }
-    await refreshAbswarAgwBridge(info);
-    showLoader('CÜZDAN BAĞLANTISI TAMAMLANIYOR...');
-    return await finalizeWalletConnection(info.address);
-  } catch(e) {
-    console.error('[CENTRADAR WALLET RESUME]', reason, e);
-    const msg = String(e?.shortMessage || e?.message || '').trim();
-    if (hasIntent || force) {
-      showWalletResumeHint('Bağlantı tamamlanmadıysa Abstract penceresini onayla ve tekrar dene.');
-      if (/reject|denied|cancel/i.test(msg)) clearWalletConnectIntent();
-      showToast(msg ? t('toast.connectionError', { msg: msg.slice(0, 90) }) : t('toast.connectionCancelled'), 'error');
-    }
-    return false;
-  } finally {
-    hideLoader();
-  }
+  if (reason !== 'manual' && !options.force) return false;
+  return connectWallet();
 }
 
 async function registerPlayer() {
@@ -5311,6 +5284,7 @@ window.addEventListener('abswar:agw-account', async event => {
   const newWallet = event.detail?.address || null;
   if (!newWallet) return;
   if (wallet && wallet.toLowerCase() === newWallet.toLowerCase()) return;
+  if (agwConnectInProgress || walletFinalizePromise) return;
   clearAuthSession();
   refreshSocketAuth();
   myCountry = null;
@@ -5321,28 +5295,9 @@ window.addEventListener('abswar:agw-account', async event => {
   document.getElementById('myBullets').textContent = '0';
   document.getElementById('myContrib').textContent = '0';
   applyConnectedWallet(newWallet);
-  if (!agwConnectInProgress) {
-    try {
-      await finalizeWalletConnection(newWallet);
-    } catch(e) {
-      const msg = String(e?.shortMessage || e?.message || '').trim();
-      showToast(msg ? t('toast.connectionError', { msg: msg.slice(0, 90) }) : t('toast.connectionCancelled'),'error');
-    }
-  }
+  showWalletResumeHint('Cüzdan değişti. Oyuna devam etmek için ABSTRACT İLE BAĞLAN düğmesine bas.');
 });
 
-window.addEventListener('focus', () => {
-  resumePendingWalletConnection('focus').catch(error => console.error('[CENTRADAR WALLET RESUME]', error));
-});
-window.addEventListener('pageshow', () => {
-  setTimeout(() => resumePendingWalletConnection('pageshow').catch(error => console.error('[CENTRADAR WALLET RESUME]', error)), 500);
-});
-document.addEventListener('visibilitychange', () => {
-  if (!document.hidden) resumePendingWalletConnection('visible').catch(error => console.error('[CENTRADAR WALLET RESUME]', error));
-});
-setInterval(() => {
-  if (walletConnectIntentActive()) resumePendingWalletConnection('poll').catch(error => console.error('[CENTRADAR WALLET RESUME]', error));
-}, 3000);
 
 /* ── DİL SİSTEMİ (TR / EN / RU) ── */
 const I18N = {
