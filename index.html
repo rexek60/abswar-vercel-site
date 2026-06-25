@@ -3335,16 +3335,15 @@ async function connectWallet() {
   if (agwConnectInProgress || walletFinalizePromise) return false;
   markWalletConnectIntent();
   hideWalletResumeHint();
-  const popup = openAbswarPopupShell();
-  if (!popup) {
-    showWalletResumeHint('Tarayıcı Abstract penceresini engelledi. Popup izni verip tekrar ABSTRACT İLE BAĞLAN düğmesine bas.');
-  }
   showLoader(t('loader.connecting'));
   agwConnectInProgress = true;
   try {
     const agw = await requestAbstractWalletAccounts();
     resetConnectedPlayerUi();
-    const ok = await finalizeWalletConnection(agw.address, { forceAuth:true });
+    const cached = loadAuthSession();
+    const walletLower = String(agw.address || '').toLowerCase();
+    const hasFreshSession = cached && cached.wallet === walletLower && Number(cached.expiresAt) > Date.now() + 60000;
+    const ok = await finalizeWalletConnection(agw.address, { forceAuth:!hasFreshSession });
     return !!ok;
   } catch(e) {
     handleWalletConnectError(e);
@@ -3353,7 +3352,6 @@ async function connectWallet() {
   finally {
     agwConnectInProgress = false;
     hideLoader();
-    closeBlankAbswarPopupShell();
   }
 }
 
@@ -6700,27 +6698,14 @@ function openAbswarPopupShell() {
       return abswarAgwPopupRef;
     }
     abswarAgwPopupRef = window.open(
-      'about:blank',
+      ABSWAR_AGW_POPUP_PLACEHOLDER,
       'centradar_abstract_wallet',
       'popup,width=430,height=720'
     );
-    try {
-      abswarAgwPopupRef?.document?.write('<!doctype html><title>Abstract Wallet</title><body style="margin:0;background:#060a0f;color:#00c853;font-family:monospace;display:grid;place-items:center;height:100vh;text-align:center"><div>Abstract cüzdan açılıyor...<br><small>Lütfen bu pencereyi kapatma.</small></div></body>');
-      abswarAgwPopupRef?.document?.close();
-    } catch(e) {}
   } catch(e) {
     abswarAgwPopupRef = null;
   }
   return abswarAgwPopupRef;
-}
-
-function closeBlankAbswarPopupShell() {
-  try {
-    if (abswarAgwPopupRef && !abswarAgwPopupRef.closed && abswarAgwPopupRef.location?.href === 'about:blank') {
-      abswarAgwPopupRef.close();
-      abswarAgwPopupRef = null;
-    }
-  } catch(e) {}
 }
 
 async function withAbswarPopupGuard(run) {
