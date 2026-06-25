@@ -3061,7 +3061,7 @@ function renderLabels() {
     txt.setAttribute('fill', color);
     txt.setAttribute('font-size', isMe || isTgt ? '7.5' : '6.2');
     txt.setAttribute('font-weight', isMe || isTgt ? '700' : '400');
-    txt.textContent = (superCls ? '⚡ ' : '') + c.f + ' ' + code;
+    txt.textContent = (superCls ? '⚡ ' : '') + code;
     g.appendChild(txt);
 
     if (isMe || isTgt) {
@@ -3105,7 +3105,7 @@ function renderLabels_OLD() {
     txt.setAttribute('fill', color);
     txt.setAttribute('font-size', isMe || isTgt ? '7.5' : '6.5');
     txt.setAttribute('font-weight', isMe || isTgt ? '700' : '400');
-    txt.textContent = c.f + ' ' + code;
+    txt.textContent = code;
     g.appendChild(txt);
 
     if (isMe || isTgt) {
