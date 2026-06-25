@@ -1453,6 +1453,20 @@ async function authJson(path, body, options={}) {
   });
 }
 
+function timeoutSignal(ms) {
+  if (typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function') {
+    return AbortSignal.timeout(ms);
+  }
+  const controller = new AbortController();
+  setTimeout(() => controller.abort(), ms);
+  return controller.signal;
+}
+
+function isTimeoutLikeError(error) {
+  const msg = String(error?.shortMessage || error?.message || '').trim();
+  return error?.name === 'AbortError' || error?.name === 'TimeoutError' || /aborted|timeout|zaman a[şs][ıi]m[ıi]/i.test(msg);
+}
+
 function wait(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -3327,10 +3341,12 @@ async function finalizeWalletConnection(address) {
   walletFinalizePromise = (async () => {
     applyConnectedWallet(address);
     await ensureAuthSession();
+    const registered = await registerPlayer();
+    if (!registered) return false;
     dismissWelcome();
-    await registerPlayer();
     clearWalletConnectIntent();
     hideWalletResumeHint();
+    return true;
   })();
   try {
     return await walletFinalizePromise;
@@ -3378,8 +3394,7 @@ async function resumePendingWalletConnection(reason='resume', options={}) {
     }
     await refreshAbswarAgwBridge(info);
     showLoader('CÜZDAN BAĞLANTISI TAMAMLANIYOR...');
-    await finalizeWalletConnection(info.address);
-    return true;
+    return await finalizeWalletConnection(info.address);
   } catch(e) {
     console.error('[CENTRADAR WALLET RESUME]', reason, e);
     const msg = String(e?.shortMessage || e?.message || '').trim();
@@ -3397,10 +3412,19 @@ async function resumePendingWalletConnection(reason='resume', options={}) {
 async function registerPlayer() {
   showLoader('OYUNCU YÜKLENİYOR...');
   try {
-    const res = await authJson('/api/player/connect',{wallet},{
-      signal:AbortSignal.timeout(15000)
+    if (!authToken) await ensureAuthSession(false);
+    const res = await fetch(API + '/api/player/connect', {
+      method:'POST',
+      headers:authHeaders({ 'Content-Type':'application/json' }),
+      body:JSON.stringify({ wallet }),
+      signal:timeoutSignal(20000)
     });
     const data = await res.json().catch(()=>({}));
+    if (res.status === 401) {
+      clearAuthSession();
+      showWalletResumeHint('Oturum yenilenemedi. ABSTRACT İLE BAĞLAN düğmesine tekrar basıp cüzdan imzasını onayla.');
+      throw new Error(tErr(data) || data.error || 'Oturum süresi doldu. Lütfen tekrar bağlan.');
+    }
     if (!res.ok || data.error) throw new Error(tErr(data) || data.error || 'HTTP '+res.status);
     setBackendStatus(true);
     const p = data.player || data;
@@ -3424,11 +3448,16 @@ async function registerPlayer() {
         playSound && playSound('purchase');
       }, 1400);
     }
+    return true;
   } catch(e) {
     const msg = String(e?.shortMessage || e?.message || '').trim();
-    const serverDown = e?.name === 'AbortError' || /Failed to fetch|NetworkError|timeout|HTTP 5\d\d/i.test(msg);
+    const serverDown = isTimeoutLikeError(e) || /Failed to fetch|NetworkError|HTTP 5\d\d/i.test(msg);
     setBackendStatus(!serverDown);
+    if (serverDown) {
+      showWalletResumeHint('Sunucu cevabı gecikti. Birkaç saniye sonra ABSTRACT İLE BAĞLAN düğmesine tekrar bas.');
+    }
     showToast(serverDown ? t('toast.serverDown') : t('toast.connectionError', { msg: msg ? msg.slice(0, 90) : 'Cüzdan doğrulaması tamamlanamadı' }),'error');
+    return false;
   } finally { hideLoader(); }
 }
 
