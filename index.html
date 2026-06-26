@@ -226,6 +226,11 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .quest-claim:disabled{opacity:.45;cursor:not-allowed}
 .reward-estimate{margin:8px 10px;padding:10px;background:linear-gradient(180deg,rgba(245,200,66,.09),rgba(255,255,255,.018));border:1px solid rgba(245,200,66,.28);font-family:var(--mono);font-size:10px;color:var(--dim);line-height:1.45}
 .reward-estimate strong{font-family:var(--hud);font-size:13px;color:var(--gold);letter-spacing:1px}
+.profile-card{margin:8px 10px;padding:10px;background:linear-gradient(180deg,rgba(232,22,42,.08),rgba(255,255,255,.018));border:1px solid rgba(232,22,42,.25);font-family:var(--mono);font-size:10px;color:var(--dim);line-height:1.45}
+.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:7px}
+.profile-item{background:rgba(0,0,0,.16);border:1px solid rgba(255,255,255,.07);padding:6px;min-width:0}
+.profile-k{font-family:var(--hud);font-size:8px;letter-spacing:1px;color:var(--dim);margin-bottom:2px}
+.profile-v{font-family:var(--mono);font-size:10px;color:var(--text);word-break:break-word}
 .purchase-status{margin:8px 10px;padding:10px;border:1px solid rgba(102,179,255,.30);background:linear-gradient(180deg,rgba(102,179,255,.08),rgba(102,179,255,.02));font-family:var(--mono);font-size:10px;color:var(--dim);line-height:1.5}
 .purchase-status.success{border-color:rgba(0,200,83,.38);background:linear-gradient(180deg,rgba(0,200,83,.09),rgba(0,200,83,.02))}
 .purchase-status.error{border-color:rgba(232,22,42,.45);background:linear-gradient(180deg,rgba(232,22,42,.10),rgba(232,22,42,.02))}
@@ -238,6 +243,16 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .admin-health-k,.trust-k{font-family:var(--hud);font-size:8px;letter-spacing:1px;color:var(--dim);margin-bottom:3px}
 .admin-health-v,.trust-v{font-family:var(--mono);font-size:10px;color:var(--text);word-break:break-all}
 .status-ok{color:var(--green)}.status-warn{color:var(--gold)}.status-bad{color:#ff6b7a}
+.tutorial-coach{position:fixed;right:18px;bottom:44px;width:300px;max-width:calc(100vw - 28px);z-index:950;background:rgba(7,11,14,.97);border:1px solid rgba(245,200,66,.36);box-shadow:0 10px 36px rgba(0,0,0,.55);padding:12px;font-family:var(--mono);font-size:10px;color:var(--text);display:none}
+.tutorial-coach.show{display:block}
+.tutorial-coach h4{margin:0 0 5px;font-family:var(--hud);font-size:10px;letter-spacing:2px;color:var(--gold)}
+.tutorial-actions{display:flex;gap:7px;margin-top:9px}
+.tutorial-actions button{flex:1;padding:7px;background:rgba(245,200,66,.12);border:1px solid rgba(245,200,66,.45);color:var(--gold);font-family:var(--hud);font-size:8px;letter-spacing:1px;cursor:pointer}
+.mobile-battle-bar{display:none;position:fixed;left:8px;right:8px;bottom:62px;z-index:920;align-items:center;gap:8px;padding:8px;background:rgba(7,11,14,.96);border:1px solid rgba(232,22,42,.38);box-shadow:0 8px 26px rgba(0,0,0,.45);font-family:var(--mono);font-size:10px;color:var(--dim)}
+.mobile-battle-meta{flex:1;min-width:0;line-height:1.35}
+.mobile-battle-title{font-family:var(--hud);font-size:8px;letter-spacing:1px;color:var(--red)}
+.mobile-battle-action{background:var(--red);border:none;color:white;font-family:var(--hud);font-size:9px;letter-spacing:1px;padding:8px 10px;cursor:pointer;white-space:nowrap}
+.mobile-battle-action:disabled{opacity:.45;cursor:not-allowed}
 .c-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
 .c-btn{padding:8px 4px;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:var(--hud);font-size:8px;letter-spacing:1px;cursor:pointer;text-align:center;transition:all .15s;border-radius:1px}
 .c-btn:hover{border-color:var(--red);color:white;background:rgba(232,22,42,0.1)}
@@ -340,6 +355,12 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 
   /* Yardım modalı uzun olabilir */
   #helpModal .modal-box{max-height:84vh !important}
+}
+
+@media (max-width:767px){
+  .mobile-battle-bar{display:flex}
+  .tutorial-coach{left:8px;right:8px;bottom:124px;width:auto}
+  .profile-grid{grid-template-columns:1fr}
 }
 
 /* ≤ 480px — sadece dar telefonlar — ekstra sıkıştırma */
@@ -525,7 +546,7 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
     <button onclick="cycleLang()" id="langBtn" title="Dil / Language / Язык" style="background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--hud);font-size:10px;padding:5px 8px;cursor:pointer">🇹🇷 TR</button>
     <button onclick="toggleSound()" id="soundBtn" title="Ses / müzik aç-kapa" style="background:transparent;border:1px solid var(--border);color:var(--text);font-size:14px;width:30px;height:28px;cursor:pointer;padding:0">🔊</button>
     <button onclick="openFeedbackModal()" title="Geri bildirim / bug rapor" style="background:transparent;border:1px solid var(--border);color:var(--text);font-size:14px;width:30px;height:28px;cursor:pointer;padding:0">💬</button>
-    <button id="docsNavBtn" onclick="document.getElementById('helpModal').classList.add('show');['How','Reward','Security'].forEach(k=>{document.getElementById('docsTab'+k)?.classList.toggle('active',k==='How');document.getElementById('docsPanel'+k)?.classList.toggle('active',k==='How')})" title="Centradar Docs" style="background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer" data-i18n="nav.docs">📚 DOCS</button>
+    <button id="docsNavBtn" onclick="openDocs('how')" title="Centradar Docs" style="background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer" data-i18n="nav.docs">📚 DOCS</button>
     <span style="font-family:var(--mono);font-size:11px;color:var(--red)" id="ethBal">0.000 ETH</span>
     <button id="nicknameBtn" onclick="openNicknameModal()" title="Nickname ayarla" style="display:none;background:transparent;border:1px solid var(--border);color:var(--green);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer">👤 <span id="nicknameLabel" data-i18n="nav.nickname">İSİM EKLE</span></button>
     <button id="adminBtn" onclick="openAdminPanel()" title="Admin Paneli" style="display:none;background:linear-gradient(180deg,rgba(245,200,66,0.15),rgba(245,200,66,0.05));border:1px solid var(--gold);color:var(--gold);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer;letter-spacing:1px">⚙️ ADMIN</button>
@@ -898,6 +919,15 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
     <div class="ys-row"><span class="ys-l" data-i18n="stat.next">SONRAKI</span><span class="ys-v" id="ysNextRank" style="font-size:10px;color:var(--dim)">Onbaşı (50 katkı)</span></div>
     <div class="ys-row"><span class="ys-l" data-i18n="stat.country">ÜLKE</span><span class="ys-v" id="ysCountry">— SEÇİLMEDİ —</span></div>
   </div>
+  <div class="profile-card" id="playerProfileCard">
+    <div class="flow-title" style="margin-bottom:4px"><span>OYUNCU PROFİLİ</span><span id="profileReadiness">Hazırlanıyor</span></div>
+    <div class="profile-grid">
+      <div class="profile-item"><div class="profile-k">CÜZDAN</div><div class="profile-v" id="profileWallet">Bağlı değil</div></div>
+      <div class="profile-item"><div class="profile-k">ÜLKE</div><div class="profile-v" id="profileCountry">Seçilmedi</div></div>
+      <div class="profile-item"><div class="profile-k">RÜTBE</div><div class="profile-v" id="profileRank">Asker</div></div>
+      <div class="profile-item"><div class="profile-k">GÜNLÜK</div><div class="profile-v" id="profileDaily">0/0 görev</div></div>
+    </div>
+  </div>
   </div>
 </div>
 
@@ -1058,6 +1088,9 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
       <button class="docs-tab" id="docsTabReward" onclick="setDocsTab('reward')" type="button">ÖDÜL</button>
       <button class="docs-tab" id="docsTabSecurity" onclick="setDocsTab('security')" type="button">GÜVENLİK</button>
       <button class="docs-tab" id="docsTabTrust" onclick="setDocsTab('trust')" type="button">ŞEFFAFLIK</button>
+      <button class="docs-tab" id="docsTabAudit" onclick="setDocsTab('audit')" type="button">AUDIT</button>
+      <button class="docs-tab" id="docsTabEconomy" onclick="setDocsTab('economy')" type="button">EKONOMİ</button>
+      <button class="docs-tab" id="docsTabHistory" onclick="setDocsTab('history')" type="button">GEÇMİŞ</button>
     </div>
 
     <div id="docsPanelHow" class="docs-panel active">
@@ -1212,6 +1245,52 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
         <p>Blockchain işlemleri geri alınamaz. Ağı, kontrat adresini ve ETH tutarını cüzdan ekranında kontrol etmeden onay verme.</p>
       </div>
     </div>
+
+    <div id="docsPanelAudit" class="docs-panel">
+      <div class="docs-card" style="border-left-color:var(--gold)">
+        <h4>LANSMAN KONTROLÜ</h4>
+        <p>Satın alma doğrulaması, admin yetkisi, rate-limit, cüzdan imzası, HP/mermi hesapları ve websocket canlılığı kod içinde kontrol edildi.</p>
+        <p>Bağımsız smart contract/security audit hâlâ ayrı bir resmi çalışma olarak önerilir; bu panel iç denetim ve canlı kontrol özetidir.</p>
+      </div>
+      <div class="docs-card" style="border-left-color:var(--green)">
+        <h4>GÜÇLÜ TARAF</h4>
+        <p>Client mermi/HP/kazanç göndermez; saldırı sonucu, kaynak bonusu, rütbe bonusu ve mermi düşümü backend tarafından hesaplanır.</p>
+      </div>
+      <div class="docs-card" style="border-left-color:#66b3ff">
+        <h4>CANLI İZLEME</h4>
+        <p>Admin panelindeki sağlık ekranı backend commit, websocket, DB, son satın alma, son hata ve başarısız ödeme doğrulama denemelerini gösterir.</p>
+      </div>
+      <div class="docs-card" style="border-left-color:var(--red)">
+        <h4>AÇIK RİSK</h4>
+        <p>Ödül ödemesi bu sürümde admin tarafından kontrat işlemiyle kaydedilir. Tam otomatik escrow için yeni kontrat ve bağımsız audit gerekir.</p>
+      </div>
+    </div>
+
+    <div id="docsPanelEconomy" class="docs-panel">
+      <div class="docs-card" style="border-left-color:var(--gold)">
+        <h4>EKONOMİ ŞEFFAFLIĞI</h4>
+        <div id="docsEconomyTransparency" style="font-family:var(--mono);font-size:11px;color:var(--dim)">Ekonomi bilgisi yükleniyor...</div>
+      </div>
+      <div class="docs-card" style="border-left-color:var(--green)">
+        <h4>HAVUZ MODELİ</h4>
+        <p>Satın alma toplamı backend tarafından kaydedilir. Kullanıcı ana ekranda ödül havuzunu, admin panelinde toplam yatırılan ETH ve ödeme kayıtlarını görür.</p>
+      </div>
+      <div class="docs-card" style="border-left-color:#66b3ff">
+        <h4>ALIM KURTARMA</h4>
+        <p>Cüzdan onayından sonra sekme kapanırsa son işlem hash'i yerelde saklanır ve sonraki girişte backend doğrulaması tekrar denenir.</p>
+      </div>
+    </div>
+
+    <div id="docsPanelHistory" class="docs-panel">
+      <div class="docs-card" style="border-left-color:var(--gold)">
+        <h4>SEZON / TUR GEÇMİŞİ</h4>
+        <div id="docsSeasonHistory" style="font-family:var(--mono);font-size:11px;color:var(--dim)">Tur geçmişi yükleniyor...</div>
+      </div>
+      <div class="docs-card" style="border-left-color:var(--green)">
+        <h4>NASIL OKUNUR?</h4>
+        <p>Her biten tur için ilk 3 ülke, ödül havuzu ve ödeme durumu burada listelenir. Ödeme hashleri ÖDÜL sekmesindeki “Son Tur Ödemeleri” alanında görünür.</p>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1363,6 +1442,23 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
       <div id="rendLastPayouts" style="font-family:var(--mono);font-size:11px;color:var(--dim)" data-i18n="payouts.waiting">Ödemeler admin onayını bekliyor</div>
     </div>
   </div>
+</div>
+
+<div class="tutorial-coach" id="tutorialCoach">
+  <h4 id="tutorialTitle">KOMUTAN BRİFİNGİ</h4>
+  <div id="tutorialText">Cüzdanını bağla, ülke seç ve ilk hedefini kilitle.</div>
+  <div class="tutorial-actions">
+    <button type="button" onclick="nextTutorialStep()">DEVAM</button>
+    <button type="button" onclick="closeTutorialCoach(true)">KAPAT</button>
+  </div>
+</div>
+
+<div class="mobile-battle-bar" id="mobileBattleBar">
+  <div class="mobile-battle-meta">
+    <div class="mobile-battle-title" id="mobileBattleTitle">SAVAŞ HAZIRLIĞI</div>
+    <div id="mobileBattleDetail">Cüzdan bağla, ülke seç ve hedef kilitle.</div>
+  </div>
+  <button class="mobile-battle-action" id="mobileBattleAction" onclick="attackTarget()" disabled>SALDIR</button>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -1986,6 +2082,7 @@ function dismissWelcome() {
   const ov = document.getElementById('welcomeOverlay');
   if (ov) { ov.style.transition='opacity 0.4s'; ov.style.opacity='0'; setTimeout(()=>ov.remove(), 450); }
   try { startWarMusic(); } catch(e) {}
+  maybeShowTutorial();
   if (!wallet) showToast('İzleyici modu açık: haritayı gezebilirsin. Saldırı ve satın alma için cüzdan bağla.','info');
 }
 
@@ -2023,13 +2120,15 @@ function notifyTab(msg) {
 
 /* ── DOCS EKRANI ── */
 function setDocsTab(tab='how') {
-  const keys = ['how','reward','security','trust'];
+  const keys = ['how','reward','security','trust','audit','economy','history'];
   const active = keys.includes(tab) ? tab : 'how';
   for (const key of keys) {
     document.getElementById('docsTab'+key[0].toUpperCase()+key.slice(1))?.classList.toggle('active', key === active);
     document.getElementById('docsPanel'+key[0].toUpperCase()+key.slice(1))?.classList.toggle('active', key === active);
   }
   if (active === 'trust') updateTrustPanel();
+  if (active === 'economy') updateEconomyTransparency();
+  if (active === 'history') renderSeasonHistory();
 }
 function openDocs(tab='how') {
   setDocsTab(tab);
@@ -2116,6 +2215,69 @@ function updatePayoutPanels(status = rewardStatusCache) {
   const roundEl = document.getElementById('rendLastPayouts');
   if (docsEl) docsEl.innerHTML = html;
   if (roundEl) roundEl.innerHTML = html;
+  renderSeasonHistory(status);
+  updateEconomyTransparency(status?.economy || lastEconomyState);
+}
+
+function roundHistorySource(status = rewardStatusCache) {
+  const history = Array.isArray(status?.history) ? status.history : [];
+  if (history.length) return history;
+  const last = status?.round?.lastResult;
+  if (!last) return [];
+  return [{
+    roundNumber: last.roundNumber || status?.round?.number,
+    endedAt: last.endedAt,
+    rewardPoolEth: status?.economy?.rewardPoolEth || last.totalPool || '0',
+    payoutCount: Array.isArray(last.payouts) ? last.payouts.length : 0,
+    payoutStatus: Array.isArray(last.payouts) && last.payouts.length ? 'partial' : 'awaiting_admin',
+    winners: Array.isArray(last.winners) ? last.winners : []
+  }];
+}
+
+function renderSeasonHistory(status = rewardStatusCache) {
+  const box = document.getElementById('docsSeasonHistory');
+  if (!box) return;
+  const rows = roundHistorySource(status);
+  if (!rows.length) {
+    box.innerHTML = '<div style="color:var(--dim)">Henüz biten tur yok. İlk tur tamamlanınca geçmiş burada görünecek.</div>';
+    return;
+  }
+  box.innerHTML = rows.slice(0, 8).map(item => {
+    const winners = Array.isArray(item.winners) ? item.winners.slice(0, 3) : [];
+    const statusText = item.payoutStatus === 'paid' ? 'Ödendi'
+      : item.payoutStatus === 'partial' ? 'Kısmi ödeme kaydı var'
+      : 'Admin ödemesi bekleniyor';
+    const winnerText = winners.length
+      ? winners.map(w => escapeHtml(`${w.rank || '-'} · ${w.flag || ''} ${w.countryName || w.country || '-'} (%${w.sharePct || 0})`)).join('<br>')
+      : 'Kazanan bilgisi yok';
+    return `<div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,.07)">
+      <div style="display:flex;justify-content:space-between;gap:10px;color:var(--text)">
+        <b>Tur ${escapeHtml(String(item.roundNumber || '-'))}</b>
+        <span style="color:var(--dim)">${escapeHtml(formatAdminTime(item.endedAt))}</span>
+      </div>
+      <div style="margin-top:4px;color:var(--dim)">${winnerText}</div>
+      <div style="margin-top:5px;color:var(--gold)">Havuz: ${escapeHtml(formatEthAmount(item.rewardPoolEth || 0))} · ${escapeHtml(statusText)} (${Number(item.payoutCount || 0)}/3)</div>
+    </div>`;
+  }).join('');
+}
+
+function updateEconomyTransparency(economy = lastEconomyState) {
+  const box = document.getElementById('docsEconomyTransparency');
+  if (!box) return;
+  const src = economy || rewardStatusCache?.economy || {};
+  const rewardEth = formatEthAmount(src.rewardPoolEth || 0);
+  const totalEth = formatEthAmount(src.totalEth || 0);
+  const purchaseCount = Number(src.purchaseCount || 0).toLocaleString('tr-TR');
+  const totalBullets = Number(src.totalBullets || 0).toLocaleString('tr-TR');
+  box.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px">
+      <div class="trust-item"><div class="trust-k">ÖDÜL HAVUZU</div><div class="trust-v" style="color:var(--green)">${escapeHtml(rewardEth)}</div></div>
+      <div class="trust-item"><div class="trust-k">TOPLAM YATIRILAN</div><div class="trust-v" style="color:var(--gold)">${escapeHtml(totalEth)}</div></div>
+      <div class="trust-item"><div class="trust-k">SATIN ALMA</div><div class="trust-v">${escapeHtml(purchaseCount)} tx</div></div>
+      <div class="trust-item"><div class="trust-k">SATILAN MERMİ</div><div class="trust-v">${escapeHtml(totalBullets)}</div></div>
+    </div>
+    <div style="margin-top:8px;color:var(--dim)">Dağılım kuralı: ödül havuzu %70, operasyon/treasury payları backend kayıtlarından izlenir.</div>
+  `;
 }
 
 async function fetchRewardStatus() {
@@ -2264,6 +2426,7 @@ function updateEconomyUI(economy) {
       <div style="color:var(--dim)">Satın alma: ${purchaseCount} işlem · Satılan mermi: ${totalBullets}</div>
     `;
   }
+  updateEconomyTransparency(economy);
   updateRewardEstimate();
 }
 
@@ -2309,6 +2472,109 @@ function getPlayerNumber(field) {
   const p = lastPlayerSnapshot || {};
   if (p[field] != null) return Number(p[field]) || 0;
   return 0;
+}
+
+function shortDisplayWallet(addr) {
+  const v = String(addr || '');
+  return v.startsWith('0x') && v.length > 14 ? `${v.slice(0,6)}...${v.slice(-4)}` : v;
+}
+
+function updateProfileCard() {
+  const profileWallet = document.getElementById('profileWallet');
+  const profileCountry = document.getElementById('profileCountry');
+  const profileRank = document.getElementById('profileRank');
+  const profileDaily = document.getElementById('profileDaily');
+  const readiness = document.getElementById('profileReadiness');
+  const playerOk = !!wallet && playerLoadedWalletLower === wallet.toLowerCase();
+  const dailyDone = Number(dailyQuestState?.completed || 0);
+  const dailyTotal = Array.isArray(dailyQuestState?.quests) ? dailyQuestState.quests.length : 0;
+  const rankText = document.getElementById('ysRank')?.textContent || 'Asker';
+  if (profileWallet) profileWallet.textContent = wallet ? shortDisplayWallet(wallet) : 'Bağlı değil';
+  if (profileCountry) profileCountry.textContent = myCountry ? `${CD[myCountry]?.f || ''} ${CD[myCountry]?.n || myCountry}` : 'Seçilmedi';
+  if (profileRank) profileRank.textContent = rankText;
+  if (profileDaily) profileDaily.textContent = dailyTotal ? `${dailyDone}/${dailyTotal} görev` : (wallet ? 'Yükleniyor' : 'Pasif');
+  if (readiness) {
+    const txt = !wallet ? 'İzleyici'
+      : !playerOk ? 'Oyuncu yükleniyor'
+      : !myCountry ? 'Ülke seç'
+      : myBulletsCount <= 0 ? 'Mermi al'
+      : targetCountry ? 'Saldırı hazır'
+      : 'Hedef seç';
+    readiness.textContent = txt;
+    readiness.className = targetCountry && myBulletsCount > 0 ? 'status-ok' : 'status-warn';
+  }
+  updateMobileBattleBar();
+}
+
+function updateMobileBattleBar() {
+  const bar = document.getElementById('mobileBattleBar');
+  if (!bar) return;
+  const title = document.getElementById('mobileBattleTitle');
+  const detail = document.getElementById('mobileBattleDetail');
+  const action = document.getElementById('mobileBattleAction');
+  const targetName = targetCountry ? `${CD[targetCountry]?.f || ''} ${CD[targetCountry]?.n || targetCountry}` : 'Hedef yok';
+  const countryName = myCountry ? `${CD[myCountry]?.f || ''} ${CD[myCountry]?.n || myCountry}` : 'Ülke yok';
+  const ready = !!wallet && !!myCountry && !!targetCountry && myBulletsCount > 0 && !_bulkActive;
+  if (title) title.textContent = ready ? 'SALDIRI HAZIR' : 'SAVAŞ HAZIRLIĞI';
+  if (detail) {
+    detail.textContent = !wallet ? 'Cüzdan bağla ve savaşa katıl.'
+      : !myCountry ? 'Önce ülkeni seç.'
+      : !targetCountry ? `${countryName} hazır · haritadan hedef seç.`
+      : myBulletsCount <= 0 ? `${targetName} kilitli · mermi satın al.`
+      : `${countryName} → ${targetName} · ${myBulletsCount.toLocaleString('tr-TR')} mermi`;
+  }
+  if (action) {
+    action.disabled = !ready;
+    action.textContent = ready ? 'SALDIR' : (!targetCountry ? 'HEDEF SEÇ' : 'BEKLE');
+  }
+}
+
+const TUTORIAL_KEY = 'centradar-tutorial-seen-v1';
+let tutorialStepIndex = 0;
+const TUTORIAL_STEPS = [
+  ['KOMUTAN BRİFİNGİ', 'Önce cüzdanı bağla. Bağlantı tamamlanınca ülke seçimi açılır.'],
+  ['ÜLKE VE HEDEF', 'Ülkeni seçtikten sonra haritadaki rakip ülkeye tıkla; kırmızı hedef kilidi görünür.'],
+  ['MERMİ VE SALDIRI', 'Saldırı için en az 1 mermi gerekir. Mobilde alttaki savaş barı sana sıradaki adımı gösterir.'],
+  ['GÜVENLİK', 'Mermi satın alma gerçek Abstract Mainnet işlemidir; cüzdan ekranında tutarı ve ağı kontrol et.']
+];
+
+function renderTutorialStep() {
+  const box = document.getElementById('tutorialCoach');
+  if (!box) return;
+  const step = TUTORIAL_STEPS[tutorialStepIndex] || TUTORIAL_STEPS[0];
+  const title = document.getElementById('tutorialTitle');
+  const text = document.getElementById('tutorialText');
+  if (title) title.textContent = `${tutorialStepIndex + 1}/${TUTORIAL_STEPS.length} · ${step[0]}`;
+  if (text) text.textContent = step[1];
+}
+
+function openTutorialCoach(force=false) {
+  try {
+    if (!force && localStorage.getItem(TUTORIAL_KEY)) return;
+  } catch(e) {}
+  tutorialStepIndex = 0;
+  renderTutorialStep();
+  document.getElementById('tutorialCoach')?.classList.add('show');
+}
+
+function closeTutorialCoach(markSeen=false) {
+  document.getElementById('tutorialCoach')?.classList.remove('show');
+  if (markSeen) {
+    try { localStorage.setItem(TUTORIAL_KEY, '1'); } catch(e) {}
+  }
+}
+
+function nextTutorialStep() {
+  tutorialStepIndex++;
+  if (tutorialStepIndex >= TUTORIAL_STEPS.length) {
+    closeTutorialCoach(true);
+    return;
+  }
+  renderTutorialStep();
+}
+
+function maybeShowTutorial() {
+  setTimeout(() => openTutorialCoach(false), 650);
 }
 
 function renderQuestRow(label, ok, sub='', actionHtml='') {
@@ -2437,6 +2703,7 @@ function updateProgressPanels() {
     ].join('');
   }
   updateRewardEstimate();
+  updateProfileCard();
 }
 
 function setPurchaseStatus(step='idle', title='SATIN ALMA GÜVEN EKRANI', detail='Mermi alırken işlem adımları burada görünür: cüzdan onayı, blockchain onayı ve mermi yazımı.', type='idle') {
@@ -2506,6 +2773,8 @@ function renderAdminHealth(data) {
   const socket = data?.socket || {};
   const lastPurchase = data?.lastPurchase || null;
   const lastError = data?.lastError || null;
+  const recentErrors = Array.isArray(data?.recentErrors) ? data.recentErrors : [];
+  const failedPurchases = Array.isArray(data?.failedPurchases) ? data.failedPurchases : [];
   const transport = warSocket?.io?.engine?.transport?.name || '-';
   const rows = [
     ['BACKEND', backend.ok ? 'ÇALIŞIYOR' : 'SORUN', backend.ok ? 'status-ok' : 'status-bad'],
@@ -2518,6 +2787,12 @@ function renderAdminHealth(data) {
     ['UPTIME', formatUptime(backend.uptimeSec), ''],
     ['SON SATIN ALMA', lastPurchase ? `${shortAdminAddr(lastPurchase.wallet)} · ${formatEthAmount(lastPurchase.valueEth || 0)}` : 'Yok', lastPurchase ? 'status-ok' : '']
   ];
+  const errorRows = recentErrors.length
+    ? recentErrors.slice(0, 5).map(e => `<div style="padding:4px 0;border-bottom:1px solid rgba(255,255,255,.05)"><b style="color:#ff6b7a">${escapeHtml(e.code || 'HATA')}</b> · ${escapeHtml(e.message || '-')} <span style="color:var(--dim)">(${escapeHtml(formatAdminTime(e.at))})</span></div>`).join('')
+    : '<div style="color:var(--dim)">Son hata yok.</div>';
+  const failedRows = failedPurchases.length
+    ? failedPurchases.slice(0, 5).map(p => `<div style="padding:4px 0;border-bottom:1px solid rgba(255,255,255,.05)"><b style="color:var(--gold)">${escapeHtml(p.code || 'BUY_FAILED')}</b> · ${escapeHtml(shortAdminAddr(p.wallet))} · paket ${escapeHtml(String(p.pack || '-'))} <span style="color:var(--dim)">(${escapeHtml(formatAdminTime(p.at))})</span></div>`).join('')
+    : '<div style="color:var(--dim)">Başarısız satın alma denemesi yok.</div>';
   box.innerHTML = `
     <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:8px">
       <div style="font-family:var(--hud);font-size:10px;color:#66b3ff;letter-spacing:1px">CANLI SAĞLIK</div>
@@ -2527,6 +2802,14 @@ function renderAdminHealth(data) {
       ${rows.map(([k,v,cls]) => `<div class="admin-health-item"><div class="admin-health-k">${escapeHtml(k)}</div><div class="admin-health-v ${cls}">${escapeHtml(v)}</div></div>`).join('')}
     </div>
     <div style="margin-top:8px;color:${lastError?'#ff6b7a':'var(--dim)'}">Son hata: ${escapeHtml(lastError ? `${lastError.message || lastError.code || 'Hata'} · ${formatAdminTime(lastError.at)}` : 'Yok')}</div>
+    <div style="margin-top:10px;border-top:1px solid rgba(255,255,255,.08);padding-top:8px">
+      <div style="font-family:var(--hud);font-size:9px;color:#ff6b7a;letter-spacing:1px;margin-bottom:4px">SON HATALAR</div>
+      ${errorRows}
+    </div>
+    <div style="margin-top:10px;border-top:1px solid rgba(255,255,255,.08);padding-top:8px">
+      <div style="font-family:var(--hud);font-size:9px;color:var(--gold);letter-spacing:1px;margin-bottom:4px">BAŞARISIZ ÖDEME DOĞRULAMALARI</div>
+      ${failedRows}
+    </div>
   `;
 }
 
@@ -3561,7 +3844,8 @@ function selectTarget(code) {
   });
 
   renderLabels();
-  const mobileHint = window.matchMedia && window.matchMedia('(max-width:1023px)').matches ? ' · Savas sekmesinden saldir' : '';
+  updateMobileBattleBar();
+  const mobileHint = window.matchMedia && window.matchMedia('(max-width:1023px)').matches ? ' · Savaş barından saldır' : '';
   showToast(`🎯 ${CD[code]?.f||''} ${CD[code]?.n||code} hedef kilitlendi${mobileHint}`, 'info');
 }
 
@@ -3954,6 +4238,7 @@ function applyMyCountry(code) {
     document.getElementById('mcCircle').setAttribute('cy',0);
   }
   renderLabels();
+  updateMobileBattleBar();
 }
 
 /* ── ATTACK ── */
@@ -4035,6 +4320,7 @@ function _setBulkUI(running, remaining=0) {
   } else {
     document.body.style.cursor = '';
   }
+  updateMobileBattleBar();
 }
 
 let _bulkOriginal = 0;
@@ -7123,10 +7409,17 @@ Object.assign(window, {
   updateWalletBalance,
   updateRankUI,
   updateProgressPanels,
+  updateProfileCard,
+  updateMobileBattleBar,
   loadDailyQuests,
   claimDailyQuest,
+  openTutorialCoach,
+  closeTutorialCoach,
+  nextTutorialStep,
   setPurchaseStatus,
-  updateTrustPanel
+  updateTrustPanel,
+  renderSeasonHistory,
+  updateEconomyTransparency
 });
 window.loadDailyQuests = loadDailyQuests;
 window.claimDailyQuest = claimDailyQuest;
@@ -7518,15 +7811,18 @@ ensureRiskInfo();setInterval(ensureRiskInfo,1000);
 </script>
 <script>
 (function(){
-function docsKey(tab){return tab==="reward"?"Reward":tab==="security"?"Security":tab==="trust"?"Trust":"How"}
+function docsKey(tab){return tab==="reward"?"Reward":tab==="security"?"Security":tab==="trust"?"Trust":tab==="audit"?"Audit":tab==="economy"?"Economy":tab==="history"?"History":"How"}
 function setDocs(tab="how"){
-  const active=["how","reward","security","trust"].includes(tab)?tab:"how";
-  ["how","reward","security","trust"].forEach(key=>{
+  const keys=["how","reward","security","trust","audit","economy","history"];
+  const active=keys.includes(tab)?tab:"how";
+  keys.forEach(key=>{
     const suffix=docsKey(key);
     document.getElementById("docsTab"+suffix)?.classList.toggle("active",key===active);
     document.getElementById("docsPanel"+suffix)?.classList.toggle("active",key===active);
   });
   if(active==="trust" && typeof updateTrustPanel==="function") updateTrustPanel();
+  if(active==="economy" && typeof updateEconomyTransparency==="function") updateEconomyTransparency();
+  if(active==="history" && typeof renderSeasonHistory==="function") renderSeasonHistory();
 }
 function openDocsSafe(tab="how"){setDocs(tab);document.getElementById("helpModal")?.classList.add("show")}
 function closeDocsSafe(){document.getElementById("helpModal")?.classList.remove("show")}
@@ -7546,7 +7842,7 @@ function bindDocs(){
   if(nav&&!nav.dataset.docsBound){nav.dataset.docsBound="1";nav.addEventListener("click",e=>{e.preventDefault();openDocsSafe("how")})}
   const modal=document.getElementById("helpModal");
   if(modal&&!modal.dataset.docsBound){modal.dataset.docsBound="1";modal.addEventListener("click",e=>{if(e.target===modal)closeDocsSafe()})}
-  [["docsTabHow","how"],["docsTabReward","reward"],["docsTabSecurity","security"],["docsTabTrust","trust"]].forEach(([id,key])=>{
+  [["docsTabHow","how"],["docsTabReward","reward"],["docsTabSecurity","security"],["docsTabTrust","trust"],["docsTabAudit","audit"],["docsTabEconomy","economy"],["docsTabHistory","history"]].forEach(([id,key])=>{
     const btn=document.getElementById(id);
     if(btn&&!btn.dataset.docsBound){btn.dataset.docsBound="1";btn.addEventListener("click",e=>{e.preventDefault();setDocs(key)})}
   });
