@@ -5466,10 +5466,9 @@ let hpFlushScheduled = false;
 let attackVisualWindowStart = 0;
 let attackVisualCount = 0;
 
-const ioScript=document.createElement('script');
-ioScript.src='https://cdn.socket.io/4.7.5/socket.io.min.js';
-ioScript.onload=()=>{
-  warSocket=io(WS_URL,{
+function startWarSocket(){
+  if (warSocket || typeof window.io !== 'function') return;
+  warSocket=window.io(WS_URL,{
     auth:socketAuthPayload(),
     transports:['polling','websocket'],   // polling ile bağlan, websocket'e upgrade et (Railway'in önerdiği varsayılan)
     upgrade:true,
@@ -5588,8 +5587,20 @@ ioScript.onload=()=>{
 
   warSocket.on('game:over',(d)=>{ playSound('victory'); showToast(`🏆 OYUN BİTTİ! Kazanan: ${CD[d.winner]?.f||''} ${CD[d.winner]?.n||d.winner}`,'success'); });
   warSocket.on('alliance:feed',(d)=>{ renderAllianceFeedEntry(d, 'prepend'); });
-};
-document.head.appendChild(ioScript);
+}
+
+function loadSocketIoClient(src, fallbackSrc=null) {
+  const ioScript=document.createElement('script');
+  ioScript.src=src;
+  ioScript.async=true;
+  ioScript.onload=startWarSocket;
+  ioScript.onerror=()=>{
+    if (fallbackSrc) loadSocketIoClient(fallbackSrc);
+    else scheduleBackendOffline(1000);
+  };
+  document.head.appendChild(ioScript);
+}
+loadSocketIoClient('/socket.io.min.js','https://cdn.socket.io/4.7.5/socket.io.min.js');
 
 /* ── ABSTRACT GLOBAL WALLET EVENTS ── */
 window.addEventListener('abswar:agw-account', async event => {
