@@ -12,6 +12,9 @@ Includes:
 - Docs / countries / alliances / market / ranking modal layer
 - Railway backend API wiring
 - Socket.io realtime listener
+- Wallet diagnostics panel
+- Player purchase / grant history panel
+- Admin payout checklist
 
 Backend:
 https://api.centradar.xyz

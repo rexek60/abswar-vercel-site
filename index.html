@@ -342,6 +342,9 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 
   /* Modal'lar tam ekrana yakın */
   .modal-box{width:94vw !important;max-height:80vh !important}
+  .modal-box button{min-height:34px}
+  #playerHistoryMini{max-height:180px;overflow:auto;-webkit-overflow-scrolling:touch}
+  #adminPayoutChecklist,#adminPurchasesInfo,#adminHealthInfo{max-height:240px;overflow:auto}
 
   /* Hoş geldin overlay daha kompakt */
   #welcomeOverlay > div{padding:0 12px}
@@ -384,6 +387,8 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   .boost-grid{grid-template-columns:1fr 1fr}
   .flow-steps,.ps-steps,.admin-health-grid,.trust-grid{grid-template-columns:1fr}
   .flow-panel,.quest-panel,.purchase-status{margin-left:8px;margin-right:8px}
+  #walletDiagModal .modal-box > div:last-child{flex-direction:column}
+  #walletDiagModal .modal-box > div:last-child button{width:100%}
 }
 
 @media (min-width:481px) and (max-width:767px){
@@ -504,6 +509,9 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
     <div id="walletResumeText" style="margin-bottom:10px">Abstract onayını tamamladıysan bağlantıyı burada bitir.</div>
     <button onclick="resumePendingWalletConnection('manual',{force:true,requestAccounts:true})" style="background:rgba(245,200,66,0.16);border:1px solid rgba(245,200,66,0.55);color:var(--gold);font-family:var(--hud);font-size:10px;letter-spacing:2px;padding:9px 14px;cursor:pointer">
       BAĞLANTIYI TAMAMLA
+    </button>
+    <button onclick="openWalletDiagnostics()" style="margin-left:6px;background:rgba(102,179,255,0.12);border:1px solid rgba(102,179,255,0.45);color:#66b3ff;font-family:var(--hud);font-size:10px;letter-spacing:2px;padding:9px 14px;cursor:pointer">
+      KONTROL ET
     </button>
   </div>
   <button onclick="dismissWelcome()" style="background:transparent;border:none;color:var(--dim);font-family:var(--mono);font-size:10px;padding:14px;margin-top:8px;cursor:pointer" data-i18n="welcome.skip">
@@ -927,6 +935,11 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
       <div class="profile-item"><div class="profile-k">RÜTBE</div><div class="profile-v" id="profileRank">Asker</div></div>
       <div class="profile-item"><div class="profile-k">GÜNLÜK</div><div class="profile-v" id="profileDaily">0/0 görev</div></div>
     </div>
+    <div style="display:flex;gap:6px;margin-top:8px">
+      <button class="btn-sm btn-out" style="flex:1;font-size:7px" onclick="openWalletDiagnostics()">CÜZDAN KONTROL</button>
+      <button class="btn-sm btn-out" style="flex:1;font-size:7px" onclick="loadPlayerHistory(true)">İŞLEM GEÇMİŞİ</button>
+    </div>
+    <div id="playerHistoryMini" style="margin-top:8px;border-top:1px solid rgba(255,255,255,.06);padding-top:7px;color:var(--dim)">İşlem geçmişi cüzdan bağlanınca yüklenir.</div>
   </div>
   </div>
 </div>
@@ -1294,6 +1307,20 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
   </div>
 </div>
 
+<!-- CÜZDAN TANILAMA MODALI -->
+<div class="modal" id="walletDiagModal">
+  <div class="modal-box" style="width:500px;max-width:94vw;max-height:88vh;overflow-y:auto">
+    <button class="modal-close" onclick="closeWalletDiagnostics()">✕ KAPAT</button>
+    <div class="modal-title" style="color:#66b3ff">🔎 CÜZDAN BAĞLANTI KONTROLÜ</div>
+    <div class="modal-sub">Bağlantı takılırsa burada hangi adımda kaldığını görebilirsin.</div>
+    <div id="walletDiagContent" style="margin-top:14px;font-family:var(--mono);font-size:11px;color:var(--text);line-height:1.65;text-align:left"></div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="btn-sm btn-red" style="flex:1;padding:10px" onclick="connectWallet()">TEKRAR BAĞLAN</button>
+      <button class="btn-sm btn-out" style="flex:1;padding:10px" onclick="copyWalletDiagnostics()">RAPORU KOPYALA</button>
+    </div>
+  </div>
+</div>
+
 <!-- GERİ BİLDİRİM / BUG RAPOR MODALI -->
 <div class="modal" id="feedbackModal">
   <div class="modal-box" style="width:440px;max-width:92vw;max-height:88vh;overflow-y:auto">
@@ -1313,7 +1340,7 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
         <span id="fbCount">0 / 500</span>
       </div>
       <div style="margin-top:14px;padding:10px;background:rgba(102,179,255,0.08);border:1px solid rgba(102,179,255,0.3);font-size:11px;color:var(--text);line-height:1.5">
-        <b style="color:#66b3ff">📝 Not:</b> Mesajın panoya kopyalanır. Sahibe iletmek için Twitter / Discord / e-postaya yapıştırabilirsin.
+        <b style="color:#66b3ff">📝 Not:</b> Mesajın güvenli şekilde backend'e gönderilir. Sunucuya ulaşılamazsa panoya yedek rapor kopyalanır.
       </div>
       <div style="margin-top:14px;display:flex;gap:8px">
         <button class="btn-sm btn-red" style="flex:1;padding:10px" onclick="submitFeedback()" data-i18n="fb.submit">GÖNDER</button>
@@ -1362,6 +1389,26 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
 
     <div id="adminPurchasesInfo" style="margin-top:10px;padding:12px;background:linear-gradient(180deg,rgba(0,200,83,0.08),rgba(0,200,83,0.02));border:1px solid rgba(0,200,83,.28);font-family:var(--mono);font-size:10px;color:var(--text);text-align:left;line-height:1.55;max-height:260px;overflow:auto">
       Ödeme kayıtları için admin token gir.
+    </div>
+
+    <div id="adminPayoutChecklist" style="margin-top:10px;padding:12px;background:linear-gradient(180deg,rgba(245,200,66,.10),rgba(245,200,66,.025));border:1px solid rgba(245,200,66,.32);font-family:var(--mono);font-size:10px;color:var(--text);text-align:left;line-height:1.55">
+      Ödeme kontrol listesi tur bitince görünür.
+    </div>
+
+    <div id="adminPayoutLogBox" style="margin-top:10px;padding:12px;background:linear-gradient(180deg,rgba(245,200,66,.08),rgba(0,0,0,.06));border:1px solid rgba(245,200,66,.30);text-align:left">
+      <div style="font-family:var(--hud);font-size:10px;color:var(--gold);letter-spacing:1px;margin-bottom:8px">ÖDEME HASH KAYDI</div>
+      <div style="display:grid;grid-template-columns:80px 1fr;gap:7px">
+        <select id="adminPayoutRankInput" style="background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:11px;padding:9px;outline:none">
+          <option value="1">1.</option>
+          <option value="2">2.</option>
+          <option value="3">3.</option>
+        </select>
+        <input id="adminPayoutTxInput" type="text" placeholder="payReward işlem hash'i (0x...)" autocomplete="off" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:11px;padding:9px;outline:none">
+      </div>
+      <button class="btn-sm" onclick="adminRecordPayout()" style="margin-top:8px;width:100%;padding:10px;background:rgba(245,200,66,.12);border:1px solid rgba(245,200,66,.60);color:var(--gold);font-family:var(--hud);font-size:10px;cursor:pointer;text-align:left">
+        🔍 ÖDEME HASH'İNİ KAYDET
+      </button>
+      <div style="margin-top:6px;font-size:9px;color:var(--dim)">Önce kontratta payReward işlemini cüzdandan onayla, sonra oluşan tx hash'i buraya kaydet.</div>
     </div>
 
     <!-- Token alanı -->
@@ -1584,9 +1631,11 @@ async function ensureAuthSession(force=false) {
     authToken = cached.token;
     authTokenExpiresAt = Number(cached.expiresAt);
     refreshSocketAuth();
+    setWalletDiag('Oturum bulundu', 'Kayıtlı cüzdan oturumu kullanılıyor.', 'success');
     return true;
   }
 
+  setWalletDiag('Auth challenge', 'Sunucudan cüzdan imza mesajı isteniyor.', 'info');
   const challengeRes = await fetch(API+'/api/auth/challenge', {
     method:'POST',
     headers:{'Content-Type':'application/json'},
@@ -1597,9 +1646,11 @@ async function ensureAuthSession(force=false) {
   if (!challengeRes.ok || challenge.error) throw new Error(tErr(challenge) || challenge.error || 'Auth challenge failed');
 
   showToast('Cüzdan imzası bekleniyor...','info');
+  setWalletDiag('Cüzdan imzası', 'Abstract cüzdanında imza penceresini onayla.', 'info');
   const agw = await waitForAbstractWallet(true);
   const signature = await agw.signMessage(challenge.message);
 
+  setWalletDiag('İmza doğrulanıyor', 'İmza backend tarafından doğrulanıyor.', 'info');
   const verifyRes = await fetch(API+'/api/auth/verify', {
     method:'POST',
     headers:{'Content-Type':'application/json'},
@@ -1610,6 +1661,7 @@ async function ensureAuthSession(force=false) {
   if (!verifyRes.ok || verified.error) throw new Error(tErr(verified) || verified.error || 'Auth verify failed');
 
   saveAuthSession(verified);
+  setWalletDiag('Oturum hazır', 'Cüzdan imzası doğrulandı.', 'success');
   return true;
 }
 
@@ -2217,6 +2269,38 @@ function updatePayoutPanels(status = rewardStatusCache) {
   if (roundEl) roundEl.innerHTML = html;
   renderSeasonHistory(status);
   updateEconomyTransparency(status?.economy || lastEconomyState);
+  renderAdminPayoutChecklist(status);
+}
+
+function renderAdminPayoutChecklist(status = rewardStatusCache) {
+  const box = document.getElementById('adminPayoutChecklist');
+  if (!box) return;
+  const result = status?.round?.lastResult || status?.lastRoundResult || null;
+  const winners = Array.isArray(result?.winners) ? result.winners : [];
+  const payouts = getRewardPayouts(status || {});
+  if (!result || !winners.length) {
+    box.innerHTML = '<b style="color:var(--gold)">ÖDEME KONTROL LİSTESİ</b><br><span style="color:var(--dim)">Tur bitince kazananlar ve ödeme hash durumları burada görünür.</span>';
+    return;
+  }
+  const pool = Number(status?.economy?.rewardPoolEth || result.totalPool || result.rewardPoolEth || 0);
+  const rows = winners.slice(0,3).map((w,i) => {
+    const rank = Number(w.rank || i + 1);
+    const paid = payouts.find(p => Number(p.rank) === rank);
+    const sharePct = Number(w.sharePct || w.share || (rank === 1 ? 60 : rank === 2 ? 25 : 15));
+    const est = Number.isFinite(pool) && pool > 0 ? (pool * sharePct / 100).toFixed(6) : '-';
+    const addr = w.topPlayer || w.wallet || '';
+    const tx = paid?.txHash || paid?.tx_hash || '';
+    const url = paid?.explorerUrl || paid?.explorer_url || '';
+    return `<div style="padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06)">
+      <div style="display:flex;justify-content:space-between;gap:8px">
+        <b style="color:${paid?'var(--green)':'var(--gold)'}">${rank}. ${escapeHtml(w.flag || '')} ${escapeHtml(w.country || w.countryCode || '-')}</b>
+        <span>${paid ? 'ÖDENDİ' : 'BEKLİYOR'}</span>
+      </div>
+      <div style="color:var(--dim)">Oyuncu: ${escapeHtml(shortDisplayWallet(addr) || '(oyuncu yok)')} · Pay: %${escapeHtml(String(sharePct))} · Tahmini: ${escapeHtml(est)} ETH</div>
+      <div style="color:var(--dim)">${tx ? `Hash: <a href="${escapeHtml(url || '#')}" target="_blank" rel="noopener" style="color:#66b3ff">${escapeHtml(shortPayoutTx(tx))}</a>` : 'Adım: kontratta payReward yap → tx hashini Ödeme Kaydı olarak gir.'}</div>
+    </div>`;
+  }).join('');
+  box.innerHTML = `<b style="color:var(--gold)">ÖDEME KONTROL LİSTESİ</b>${rows}<div style="margin-top:7px;color:var(--dim)">Kontrol: cüzdan adresi, ETH miktarı, Abstract Mainnet ve tx hash kaydı eşleşmeden yeni tur başlatma.</div>`;
 }
 
 function roundHistorySource(status = rewardStatusCache) {
@@ -2380,6 +2464,8 @@ function openAdminPanel() {
   if (tokenInput) tokenInput.value = adminTokenSession;
   document.getElementById('adminResult').innerHTML = '';
   document.getElementById('adminModal').classList.add('show');
+  renderAdminPayoutChecklist(rewardStatusCache);
+  fetchRewardStatus();
   refreshAdminRoundInfo();
   refreshAdminHealth(true);
   refreshAdminPurchases(true);
@@ -2482,6 +2568,198 @@ function getPlayerNumber(field) {
 function shortDisplayWallet(addr) {
   const v = String(addr || '');
   return v.startsWith('0x') && v.length > 14 ? `${v.slice(0,6)}...${v.slice(-4)}` : v;
+}
+
+let walletDiagState = {
+  stage:'Hazır',
+  detail:'Henüz bağlantı denenmedi.',
+  level:'info',
+  updatedAt:Date.now(),
+  errors:[]
+};
+
+function setWalletDiag(stage, detail='', level='info') {
+  walletDiagState = {
+    ...walletDiagState,
+    stage: String(stage || walletDiagState.stage || 'Hazır'),
+    detail: String(detail || ''),
+    level,
+    updatedAt: Date.now()
+  };
+  if (level === 'error' && detail) {
+    walletDiagState.errors = [
+      { at:Date.now(), stage:walletDiagState.stage, detail:String(detail).slice(0,180) },
+      ...(walletDiagState.errors || [])
+    ].slice(0,5);
+  }
+  renderWalletDiagnostics();
+}
+
+function walletDiagBool(label, ok, warn=false) {
+  const color = ok ? 'var(--green)' : warn ? 'var(--gold)' : 'var(--red)';
+  const text = ok ? 'OK' : warn ? 'BEKLİYOR' : 'YOK';
+  return `<div class="trust-item"><div class="trust-k">${escapeHtml(label)}</div><div class="trust-v" style="color:${color}">${text}</div></div>`;
+}
+
+function walletDiagReportText() {
+  const agwReady = !!window.abswarAgw?.ready;
+  const providerReady = typeof abswarAgwProvider !== 'undefined' && !!abswarAgwProvider;
+  return [
+    `URL: ${location.href}`,
+    `API: ${API}`,
+    `Ağ: ${ACTIVE_CHAIN?.label || APP_NETWORK}`,
+    `Cüzdan: ${wallet || '-'}`,
+    `AGW hazır: ${agwReady}`,
+    `Provider: ${providerReady}`,
+    `Auth token: ${!!authToken}`,
+    `Oyuncu yüklendi: ${!!wallet && playerLoadedWalletLower === wallet.toLowerCase()}`,
+    `Sunucu: ${!!_backendOnline || !!warSocket?.connected}`,
+    `Socket: ${warSocket?.connected ? 'connected' : 'offline'} / ${warSocket?.io?.engine?.transport?.name || '-'}`,
+    `Son adım: ${walletDiagState.stage}`,
+    `Detay: ${walletDiagState.detail || '-'}`,
+    `Son hatalar: ${(walletDiagState.errors || []).map(e => `${new Date(e.at).toISOString()} ${e.stage}: ${e.detail}`).join(' | ') || '-'}`
+  ].join('\n');
+}
+
+function renderWalletDiagnostics() {
+  const box = document.getElementById('walletDiagContent');
+  if (!box) return;
+  const agwReady = !!window.abswarAgw?.ready;
+  const providerReady = typeof abswarAgwProvider !== 'undefined' && !!abswarAgwProvider;
+  const playerOk = !!wallet && playerLoadedWalletLower === wallet.toLowerCase();
+  const serverOk = !!_backendOnline || !!warSocket?.connected;
+  const authOk = !!authToken && (!authTokenExpiresAt || authTokenExpiresAt > Date.now() + 30000);
+  const hint = !agwReady ? 'Abstract penceresi açılmazsa popup engelini kapatıp tekrar dene.'
+    : !wallet ? 'Cüzdan seçimi bekleniyor. Abstract penceresinde hesabını onayla.'
+    : !authOk ? 'Cüzdan imzası bekleniyor. İmza penceresini onayla.'
+    : !playerOk ? 'Oyuncu kaydı backend tarafında yükleniyor. 10 saniyeden uzun sürerse tekrar bağlan.'
+    : !serverOk ? 'Oyun sunucusu geç cevap veriyor. Sayfayı yenilemeden birkaç saniye bekle.'
+    : 'Bağlantı sağlıklı görünüyor.';
+  const errorRows = (walletDiagState.errors || []).map(e => `
+    <div style="padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+      <b style="color:#ff6b7a">${escapeHtml(e.stage)}</b> · ${escapeHtml(e.detail)}
+    </div>
+  `).join('') || '<span style="color:var(--dim)">Son hata yok.</span>';
+  box.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px">
+      ${walletDiagBool('AGW', agwReady)}
+      ${walletDiagBool('PROVIDER', providerReady, agwReady)}
+      ${walletDiagBool('CÜZDAN', !!wallet)}
+      ${walletDiagBool('İMZA', authOk, !!wallet)}
+      ${walletDiagBool('OYUNCU', playerOk, !!authToken)}
+      ${walletDiagBool('SUNUCU', serverOk)}
+    </div>
+    <div style="padding:9px;background:rgba(102,179,255,.08);border:1px solid rgba(102,179,255,.28);margin-bottom:9px">
+      <b style="color:#66b3ff">SON ADIM:</b> ${escapeHtml(walletDiagState.stage)}<br>
+      <span style="color:var(--dim)">${escapeHtml(walletDiagState.detail || hint)}</span>
+    </div>
+    <div style="padding:9px;background:rgba(245,200,66,.08);border:1px solid rgba(245,200,66,.28);margin-bottom:9px">
+      <b style="color:var(--gold)">ÖNERİ:</b> ${escapeHtml(hint)}
+    </div>
+    <div><b style="color:var(--dim)">SON HATALAR</b><br>${errorRows}</div>
+  `;
+}
+
+function openWalletDiagnostics() {
+  renderWalletDiagnostics();
+  document.getElementById('walletDiagModal')?.classList.add('show');
+}
+
+function closeWalletDiagnostics() {
+  document.getElementById('walletDiagModal')?.classList.remove('show');
+}
+
+async function copyWalletDiagnostics() {
+  try {
+    await navigator.clipboard.writeText(walletDiagReportText());
+    showToast('Cüzdan kontrol raporu kopyalandı.','success');
+  } catch(e) {
+    prompt('Cüzdan kontrol raporu:', walletDiagReportText());
+  }
+}
+
+let playerHistoryCache = null;
+
+function formatMiniTime(ts) {
+  const n = Number(ts || 0);
+  if (!n) return '-';
+  try {
+    return new Date(n).toLocaleDateString('tr-TR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+  } catch(e) {
+    return '-';
+  }
+}
+
+function renderPlayerHistoryMini(data = playerHistoryCache) {
+  const box = document.getElementById('playerHistoryMini');
+  if (!box) return;
+  if (!wallet) {
+    box.innerHTML = 'İşlem geçmişi cüzdan bağlanınca yüklenir.';
+    return;
+  }
+  if (!data) {
+    box.innerHTML = '<span style="color:var(--dim)">İşlem geçmişi yükleniyor...</span>';
+    return;
+  }
+  const purchases = Array.isArray(data.purchases) ? data.purchases : [];
+  const grants = Array.isArray(data.grants) ? data.grants : [];
+  const rows = [
+    ...purchases.slice(0, 4).map(p => ({
+      type:'SATIN ALMA',
+      color:'var(--green)',
+      ts:Number(p.createdAt || 0),
+      time:formatMiniTime(p.createdAt),
+      main:`+${Number(p.bullets || 0).toLocaleString('tr-TR')} mermi`,
+      sub:`${formatEthAmount(p.valueEth || 0)} · ${shortPayoutTx(p.txHash)}`,
+      url:p.explorerUrl
+    })),
+    ...grants.slice(0, 3).map(g => ({
+      type:'HEDİYE',
+      color:'var(--gold)',
+      ts:Number(g.createdAt || 0),
+      time:formatMiniTime(g.createdAt),
+      main:`+${Number(g.bullets || 0).toLocaleString('tr-TR')} mermi`,
+      sub:g.reason || 'Admin hediyesi',
+      url:null
+    }))
+  ].sort((a,b) => Number(b.ts || 0) - Number(a.ts || 0)).slice(0, 5);
+  if (!rows.length) {
+    box.innerHTML = '<span style="color:var(--dim)">Henüz satın alma veya hediye kaydı yok.</span>';
+    return;
+  }
+  box.innerHTML = rows.map(r => `
+    <div style="display:grid;grid-template-columns:58px 1fr;gap:6px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04)">
+      <span style="color:var(--dim)">${escapeHtml(r.time)}</span>
+      <span><b style="color:${r.color}">${escapeHtml(r.type)}</b> · ${escapeHtml(r.main)}<br><span style="color:var(--dim)">${r.url ? `<a href="${escapeHtml(r.url)}" target="_blank" rel="noopener" style="color:#66b3ff;text-decoration:none">${escapeHtml(r.sub)}</a>` : escapeHtml(r.sub)}</span></span>
+    </div>
+  `).join('');
+}
+
+async function loadPlayerHistory(force=false) {
+  if (!wallet || !authToken) {
+    renderPlayerHistoryMini(null);
+    if (force) showToast('Önce cüzdanını bağla.','error');
+    return null;
+  }
+  if (!force && playerHistoryCache?.wallet && playerHistoryCache.wallet.toLowerCase() === wallet.toLowerCase()) {
+    renderPlayerHistoryMini(playerHistoryCache);
+    return playerHistoryCache;
+  }
+  renderPlayerHistoryMini(null);
+  try {
+    const res = await fetch(API+'/api/player/history?limit=20', { headers:authHeaders(), signal:timeoutSignal(10000) });
+    const data = await res.json().catch(()=>({}));
+    if (!res.ok || data.error) throw new Error(tErr(data) || data.error || 'HTTP '+res.status);
+    playerHistoryCache = data;
+    renderPlayerHistoryMini(playerHistoryCache);
+    if (force) showToast('İşlem geçmişi güncellendi.','success');
+    return data;
+  } catch(e) {
+    const box = document.getElementById('playerHistoryMini');
+    if (box) box.innerHTML = '<span style="color:var(--red)">İşlem geçmişi alınamadı.</span>';
+    if (force) showToast('İşlem geçmişi alınamadı: '+String(e.message||'').slice(0,70),'error');
+    return null;
+  }
 }
 
 function updateProfileCard() {
@@ -3144,6 +3422,40 @@ async function adminDownloadBackup() {
     result.innerHTML = `<span style="color:var(--green)">Yedek hazırlandı.</span><br><span style="color:var(--dim);font-size:10px">Oyuncu: ${escapeHtml(String((data.players||[]).length))} · Ülke: ${escapeHtml(String((data.countries||[]).length))} · Tur: ${escapeHtml(String(data.round?.number||'?'))}</span>`;
   } catch(e) {
     result.innerHTML = '<span style="color:var(--red)">HATA: Yedek alinamadi</span>';
+  }
+}
+
+async function adminRecordPayout() {
+  const token = _getAdminToken();
+  if (!token) return;
+  const rank = Number(document.getElementById('adminPayoutRankInput')?.value || 0);
+  const txHash = String(document.getElementById('adminPayoutTxInput')?.value || '').trim();
+  const result = document.getElementById('adminResult');
+  if (![1,2,3].includes(rank)) { showToast('Sıra 1, 2 veya 3 olmalı.','error'); return; }
+  if (!/^0x[a-fA-F0-9]{64}$/.test(txHash)) { showToast('Geçerli bir tx hash gir.','error'); return; }
+  if (result) result.innerHTML = '<span style="color:var(--dim)">Ödeme hash kaydı gönderiliyor...</span>';
+  try {
+    await ensureAuthSession(false);
+    const res = await fetch(API+'/api/admin/round/payout-log', {
+      method:'POST',
+      headers:authHeaders({'Content-Type':'application/json','x-admin-token':token}),
+      body:JSON.stringify({ rank, txHash })
+    });
+    const data = await res.json().catch(()=>({}));
+    if (!res.ok || data.error) {
+      const msg = tErr(data) || data.error || ('HTTP '+res.status);
+      if (result) result.innerHTML = `<span style="color:var(--red)">HATA: ${escapeHtml(msg)}</span>`;
+      showToast(msg,'error');
+      return;
+    }
+    document.getElementById('adminPayoutTxInput').value = '';
+    if (result) result.innerHTML = `<span style="color:var(--green)">Ödeme kaydı eklendi:</span> ${escapeHtml(shortPayoutTx(txHash))}`;
+    showToast('Ödeme hash kaydı eklendi.','success');
+    await fetchRewardStatus();
+    renderAdminPayoutChecklist(rewardStatusCache);
+  } catch(e) {
+    if (result) result.innerHTML = '<span style="color:var(--red)">HATA: Ödeme hash kaydı gönderilemedi</span>';
+    showToast('Ödeme hash kaydı gönderilemedi.','error');
   }
 }
 
@@ -3930,7 +4242,9 @@ async function waitForAbstractWallet(requireAccount=false) {
 }
 
 async function requestAbstractWalletAccounts() {
+  setWalletDiag('AGW provider', 'Abstract Global Wallet sağlayıcısı aranıyor.', 'info');
   const provider = await ensureAbswarAgwProvider();
+  setWalletDiag('Hesap izni', 'Abstract penceresinde hesap bağlantısını onayla.', 'info');
   const accounts = await withAbswarTimeout(
     withAbswarPopupGuard(() => provider.request({ method:'eth_requestAccounts' })),
     ABSWAR_AGW_CONNECT_TIMEOUT_MS,
@@ -4025,9 +4339,11 @@ async function connectWallet() {
   markWalletConnectIntent();
   hideWalletResumeHint();
   showLoader(t('loader.connecting'));
+  setWalletDiag('Bağlantı başlatıldı', 'Abstract Global Wallet hesap penceresi hazırlanıyor.', 'info');
   agwConnectInProgress = true;
   try {
     const agw = await requestAbstractWalletAccounts();
+    setWalletDiag('Hesap alındı', `${shortDisplayWallet(agw.address)} hesabı seçildi.`, 'success');
     resetConnectedPlayerUi();
     const cached = loadAuthSession();
     const walletLower = String(agw.address || '').toLowerCase();
@@ -4035,6 +4351,7 @@ async function connectWallet() {
     const ok = await finalizeWalletConnection(agw.address, { forceAuth:!hasFreshSession });
     return !!ok;
   } catch(e) {
+    setWalletDiag('Bağlantı hatası', String(e?.shortMessage || e?.message || 'Cüzdan bağlantısı tamamlanamadı'), 'error');
     handleWalletConnectError(e);
     return false;
   }
@@ -4048,6 +4365,7 @@ async function finalizeWalletConnection(address, options={}) {
   if (!address) throw new Error('Abstract Global Wallet hesabı alınamadı');
   if (walletFinalizePromise) return walletFinalizePromise;
   walletFinalizePromise = (async () => {
+    setWalletDiag('Oyuncu hazırlanıyor', `${shortDisplayWallet(address)} için oturum kuruluyor.`, 'info');
     if (options.forceAuth) clearAuthSession();
     applyConnectedWallet(address);
     await ensureAuthSession(!!options.forceAuth);
@@ -4080,6 +4398,7 @@ async function registerPlayer() {
   if (playerConnectPromise) return playerConnectPromise;
   playerConnectPromise = (async () => {
   showLoader('OYUNCU YÜKLENİYOR...');
+  setWalletDiag('Oyuncu yükleniyor', 'Backend oyuncu kaydı ve bonus durumu kontrol ediliyor.', 'info');
   try {
     if (!authToken) await ensureAuthSession(false);
     const res = await fetch(API + '/api/player/connect', {
@@ -4109,9 +4428,11 @@ async function registerPlayer() {
     }
     updatePlayerUI(p);
     playerLoadedWalletLower = wallet ? wallet.toLowerCase() : null;
+    setWalletDiag('Oyuncu yüklendi', 'Oyuncu profili ve oyun verileri hazır.', 'success');
     loadDailyQuests(true);
     if (authToken && myAlliance) loadAllianceFeed();
     resumePendingPurchase();
+    loadPlayerHistory();
     // İlk 100 kullanıcı hediye mermi bildirimi
     if (data.gift) {
       setTimeout(()=>{
@@ -4127,6 +4448,7 @@ async function registerPlayer() {
     if (serverDown) {
       showWalletResumeHint('Sunucu cevabı gecikti. Birkaç saniye sonra ABSTRACT İLE BAĞLAN düğmesine tekrar bas.');
     }
+    setWalletDiag(serverDown ? 'Sunucu gecikti' : 'Oyuncu yükleme hatası', msg || 'Cüzdan doğrulaması tamamlanamadı', 'error');
     showToast(serverDown ? t('toast.serverDown') : t('toast.connectionError', { msg: msg ? msg.slice(0, 90) : 'Cüzdan doğrulaması tamamlanamadı' }),'error');
     return false;
   } finally { hideLoader(); }
@@ -4561,6 +4883,7 @@ async function buyAmmo(pack) {
     if (receipt?.player) updatePlayerUI(receipt.player);
     localStorage.removeItem(LAST_PURCHASE_KEY);
     await updateWalletBalance();
+    loadPlayerHistory();
     setPurchaseStatus('done', 'MERMİLER YAZILDI', `${bulletLabel} mermi bakiyene eklendi.`, 'success');
     setTimeout(()=>showToast('3/3 Hazırsın: hedef seçip ilk saldırını başlat.','info'), 500);
 
@@ -4640,6 +4963,7 @@ async function resumePendingPurchase() {
     const data = await confirmAmmoPurchase(Number(record.pack), String(record.txHash || ''));
     if (data?.player) updatePlayerUI(data.player);
     try { localStorage.removeItem(LAST_PURCHASE_KEY); } catch(e) {}
+    loadPlayerHistory();
     setPurchaseStatus('done', 'ÖNCEKİ ALIM TAMAMLANDI', 'Yarım kalan işlemin mermileri bakiyene yazıldı.', 'success');
     showToast('✅ Önceki alımın mermileri yazıldı','success');
   } catch(e) {
@@ -7248,6 +7572,7 @@ async function disconnectWallet() {
   myNickname = null;
   myBulletsCount = 0;
   adminTokenSession = '';
+  playerHistoryCache = null;
 
   // UI'yı sıfırla
   document.getElementById('walletBtn').textContent = 'CÜZDAN BAĞLA';
@@ -7263,6 +7588,7 @@ async function disconnectWallet() {
   if (nb) nb.style.display = 'none';
   if (typeof _updateAllianceUI === 'function') _updateAllianceUI(null);
   if (typeof resetAllianceChat === 'function') resetAllianceChat('İTTİFAK YOK — sohbet için ittifaka katıl');
+  renderPlayerHistoryMini(null);
   const atk = document.getElementById('attackBtn');
   if (atk) { atk.disabled = true; atk.style.opacity = '0.4'; atk.textContent = '⚡ SALDIRI BAŞLAT'; }
   document.querySelectorAll('.bulk-atk-btn').forEach(b => b.disabled = true);
@@ -7400,6 +7726,7 @@ Object.assign(window, {
   adminGrantBullets,
   refreshAdminPurchases,
   adminDownloadBackup,
+  adminRecordPayout,
   adminGrantAllRankNfts,
   adminConfirmReset,
   setDocsTab,
@@ -7430,7 +7757,11 @@ Object.assign(window, {
   setPurchaseStatus,
   updateTrustPanel,
   renderSeasonHistory,
-  updateEconomyTransparency
+  updateEconomyTransparency,
+  loadPlayerHistory,
+  openWalletDiagnostics,
+  closeWalletDiagnostics,
+  copyWalletDiagnostics
 });
 window.loadDailyQuests = loadDailyQuests;
 window.claimDailyQuest = claimDailyQuest;
