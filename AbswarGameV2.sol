@@ -11,6 +11,9 @@ pragma solidity ^0.8.20;
  *   %70 -> Reward Pool (kazanan ulkeye dagitilir)
  *   %20 -> Treasury (proje payi)
  *   %10 -> Operations (sunucu/bakim)
+ *
+ * Not: AmmoPurchased.amount kontrattaki 0.001 ETH temel birimini gosterir.
+ * Oyun ici bonuslu mermi paketleri backend tarafinda tx tutarina gore hesaplanir.
  */
 contract AbswarGameV2 {
 

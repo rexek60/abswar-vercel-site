@@ -1,4 +1,10 @@
 {
+  "rewrites": [
+    { "source": "/admin", "destination": "/?page=kontrol" },
+    { "source": "/play", "destination": "/?page=harita" },
+    { "source": "/reward", "destination": "/?page=siralama" },
+    { "source": "/docs", "destination": "/?docs=how" }
+  ],
   "headers": [
     {
       "source": "/assets/(.*)",

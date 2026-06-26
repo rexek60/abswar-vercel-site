@@ -1465,8 +1465,8 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
 
 <script>
 const API_ENDPOINTS = {
-  production: 'https://abswar-clean-backend-production.up.railway.app',
-  staging: 'https://abswar-clean-backend-production.up.railway.app'
+  production: 'https://api.centradar.xyz',
+  staging: 'https://api.centradar.xyz'
 };
 const API_ENV = new URLSearchParams(location.search).get('env') === 'staging'
   ? 'staging'
@@ -2267,6 +2267,9 @@ function updateEconomyTransparency(economy = lastEconomyState) {
   const src = economy || rewardStatusCache?.economy || {};
   const rewardEth = formatEthAmount(src.rewardPoolEth || 0);
   const totalEth = formatEthAmount(src.totalEth || 0);
+  const recordedEth = formatEthAmount(src.recordedTotalEth || 0);
+  const onchainPoolEth = formatEthAmount(src.onchainRewardPoolEth || 0);
+  const sourceText = src.rewardPoolSource === 'onchain' ? 'Zincir havuzu' : 'Kayıtlı alımlar';
   const purchaseCount = Number(src.purchaseCount || 0).toLocaleString('tr-TR');
   const totalBullets = Number(src.totalBullets || 0).toLocaleString('tr-TR');
   box.innerHTML = `
@@ -2275,8 +2278,10 @@ function updateEconomyTransparency(economy = lastEconomyState) {
       <div class="trust-item"><div class="trust-k">TOPLAM YATIRILAN</div><div class="trust-v" style="color:var(--gold)">${escapeHtml(totalEth)}</div></div>
       <div class="trust-item"><div class="trust-k">SATIN ALMA</div><div class="trust-v">${escapeHtml(purchaseCount)} tx</div></div>
       <div class="trust-item"><div class="trust-k">SATILAN MERMİ</div><div class="trust-v">${escapeHtml(totalBullets)}</div></div>
+      <div class="trust-item"><div class="trust-k">KAYITLI ALIM</div><div class="trust-v">${escapeHtml(recordedEth)}</div></div>
+      <div class="trust-item"><div class="trust-k">ZİNCİR HAVUZU</div><div class="trust-v">${escapeHtml(onchainPoolEth)}</div></div>
     </div>
-    <div style="margin-top:8px;color:var(--dim)">Dağılım kuralı: ödül havuzu %70, operasyon/treasury payları backend kayıtlarından izlenir.</div>
+    <div style="margin-top:8px;color:var(--dim)">Kaynak: ${escapeHtml(sourceText)}. Dağılım kuralı: ödül havuzu %70, operasyon/treasury payları backend kayıtlarından izlenir.</div>
   `;
 }
 
@@ -4489,12 +4494,15 @@ const CONTRACT_ADDRESS = ACTIVE_CHAIN.contractAddress;
 const BUY_AMMO_SELECTOR = '0x499eb3de';
 
 // Paket -> ETH miktarı (ondalık string)
-const AMMO_PRICE_ETH = {
-  100:  '0.001',
-  500:  '0.01',
-  2000: '0.1',
-  9999: '1.0'
+const AMMO_PACKS_FE = {
+  100:  { bullets:100,    eth:'0.001' },
+  500:  { bullets:1000,   eth:'0.01' },
+  2000: { bullets:10000,  eth:'0.1' },
+  9999: { bullets:100000, eth:'1.0' }
 };
+const AMMO_PRICE_ETH = Object.fromEntries(
+  Object.entries(AMMO_PACKS_FE).map(([pack, cfg]) => [pack, cfg.eth])
+);
 const LAST_PURCHASE_KEY = `abswar-last-purchase:${APP_NETWORK}`;
 let pendingPurchaseResumeAttempted = false;
 
@@ -4511,9 +4519,12 @@ async function buyAmmo(pack) {
   if (!wallet) { showToast(t('toast.connectFirst'),'error'); return; }
   if (!CONTRACT_ADDRESS) { showToast('Kontrat adresi ayarli degil.','error'); return; }
 
-  const ethAmount = AMMO_PRICE_ETH[pack];
+  const ammoPack = AMMO_PACKS_FE[pack];
+  const ethAmount = ammoPack?.eth;
+  const bulletAmount = Number(ammoPack?.bullets || pack);
+  const bulletLabel = bulletAmount.toLocaleString('tr-TR');
   if (!ethAmount) { showToast('Geçersiz paket.','error'); return; }
-  setPurchaseStatus('wallet', 'SATIN ALMA HAZIRLANIYOR', `${pack.toLocaleString('tr-TR')} mermi paketi için sunucu ve cüzdan kontrol ediliyor.`, 'active');
+  setPurchaseStatus('wallet', 'SATIN ALMA HAZIRLANIYOR', `${bulletLabel} mermi paketi için sunucu ve cüzdan kontrol ediliyor.`, 'active');
 
   const backendStatus = await fetchBackendStatus(true);
   if (APP_NETWORK === 'mainnet' && backendStatus?.dbEnabled === false) {
@@ -4527,7 +4538,7 @@ async function buyAmmo(pack) {
     return;
   }
 
-  showLoader(`${pack.toLocaleString('tr-TR')} MERMİ SATIN ALINIYOR...`);
+  showLoader(`${bulletLabel} MERMİ SATIN ALINIYOR...`);
   try {
     const agw = await waitForAbstractWallet(true);
     const valueHex = ethToWeiHex(ethAmount);
@@ -4541,7 +4552,7 @@ async function buyAmmo(pack) {
     });
 
     setPurchaseStatus('chain', 'BLOCKCHAIN ONAYI BEKLENİYOR', `İşlem gönderildi: ${shortPayoutTx(txHash)}. Mermi yazımı için on-chain doğrulama bekleniyor.`, 'active');
-    showToast(`✅ İşlem gönderildi! ${pack.toLocaleString('tr-TR')} mermi alınıyor...`,'success');
+    showToast(`✅ İşlem gönderildi! ${bulletLabel} mermi alınıyor...`,'success');
     playSound('purchase');
     localStorage.setItem(LAST_PURCHASE_KEY, JSON.stringify({ pack, txHash, wallet, createdAt:Date.now() }));
 
@@ -4550,11 +4561,11 @@ async function buyAmmo(pack) {
     if (receipt?.player) updatePlayerUI(receipt.player);
     localStorage.removeItem(LAST_PURCHASE_KEY);
     await updateWalletBalance();
-    setPurchaseStatus('done', 'MERMİLER YAZILDI', `${pack.toLocaleString('tr-TR')} mermi bakiyene eklendi.`, 'success');
+    setPurchaseStatus('done', 'MERMİLER YAZILDI', `${bulletLabel} mermi bakiyene eklendi.`, 'success');
     setTimeout(()=>showToast('3/3 Hazırsın: hedef seçip ilk saldırını başlat.','info'), 500);
 
     // 4. Sohbete sistem mesajı
-    addChatSystem(`💳 ${pack.toLocaleString('tr-TR')} mermi satın alındı (${ethAmount} ETH)`);
+    addChatSystem(`💳 ${bulletLabel} mermi satın alındı (${ethAmount} ETH)`);
 
   } catch(e) {
     setPurchaseStatus('server', 'SATIN ALMA KONTROL GEREKTİRİYOR', 'İşlem gönderildiyse sistem sonraki açılışta tekrar kurtarmayı deneyecek.', 'error');
