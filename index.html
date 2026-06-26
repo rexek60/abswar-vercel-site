@@ -221,6 +221,11 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .quest-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04)}
 .quest-row:last-child{border-bottom:none}.quest-row.done{color:var(--green)}.quest-row.pending{color:var(--dim)}
 .quest-check{font-family:var(--hud);font-size:9px;color:inherit;white-space:nowrap}
+.quest-sub{display:block;margin-top:2px;color:var(--dim);font-size:8px}
+.quest-claim{background:rgba(245,200,66,.14);border:1px solid rgba(245,200,66,.42);color:var(--gold);font-family:var(--hud);font-size:8px;padding:4px 7px;cursor:pointer;white-space:nowrap}
+.quest-claim:disabled{opacity:.45;cursor:not-allowed}
+.reward-estimate{margin:8px 10px;padding:10px;background:linear-gradient(180deg,rgba(245,200,66,.09),rgba(255,255,255,.018));border:1px solid rgba(245,200,66,.28);font-family:var(--mono);font-size:10px;color:var(--dim);line-height:1.45}
+.reward-estimate strong{font-family:var(--hud);font-size:13px;color:var(--gold);letter-spacing:1px}
 .purchase-status{margin:8px 10px;padding:10px;border:1px solid rgba(102,179,255,.30);background:linear-gradient(180deg,rgba(102,179,255,.08),rgba(102,179,255,.02));font-family:var(--mono);font-size:10px;color:var(--dim);line-height:1.5}
 .purchase-status.success{border-color:rgba(0,200,83,.38);background:linear-gradient(180deg,rgba(0,200,83,.09),rgba(0,200,83,.02))}
 .purchase-status.error{border-color:rgba(232,22,42,.45);background:linear-gradient(180deg,rgba(232,22,42,.10),rgba(232,22,42,.02))}
@@ -830,6 +835,11 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
     <div class="stat-cell"><div class="stat-label" data-i18n="stat.bullets">🔫 Mermilerim</div><div class="stat-val" id="myBullets" style="color:var(--green)">0</div></div>
     <div class="stat-cell"><div class="stat-label" data-i18n="stat.attacks">⚔️ Saldırılarım</div><div class="stat-val" id="myAttacks">0</div></div>
     <div class="stat-cell"><div class="stat-label" data-i18n="stat.contrib">📊 Katkı</div><div class="stat-val" id="myContrib">0</div></div>
+  </div>
+  <div class="reward-estimate" id="rewardEstimatePanel">
+    <div class="flow-title" style="margin-bottom:4px"><span>TAHMİNİ ÖDÜL</span><span id="rewardEstimateRank">Ülke seç</span></div>
+    <div><strong id="rewardEstimateValue">—</strong></div>
+    <div id="rewardEstimateDetail">Ülke seçince mevcut havuza göre tahmini ödül payı görünür.</div>
   </div>
   <!-- AKTİF BUFFLAR (kaynak + rütbe bonusları) -->
   <div class="boost-grid">
@@ -1826,6 +1836,8 @@ let walletFinalizePromise = null;
 let playerConnectPromise = null;
 let playerLoadedWalletLower = null;
 let lastPlayerSnapshot = null;
+let dailyQuestState = null;
+let lastEconomyState = null;
 let currentPurchaseStatus = { step:'idle', type:'idle', title:'SATIN ALMA GÜVEN EKRANI', detail:'Mermi alırken işlem adımları burada görünür: cüzdan onayı, blockchain onayı ve mermi yazımı.' };
 let walletResumeRequestInProgress = false;
 let walletResumeLastRequestAt = 0;
@@ -1974,6 +1986,7 @@ function dismissWelcome() {
   const ov = document.getElementById('welcomeOverlay');
   if (ov) { ov.style.transition='opacity 0.4s'; ov.style.opacity='0'; setTimeout(()=>ov.remove(), 450); }
   try { startWarMusic(); } catch(e) {}
+  if (!wallet) showToast('İzleyici modu açık: haritayı gezebilirsin. Saldırı ve satın alma için cüzdan bağla.','info');
 }
 
 /* ── SEKME BAŞLIĞI BİLDİRİM SAYACI ── */
@@ -2229,6 +2242,7 @@ function formatEthAmount(value) {
 
 function updateEconomyUI(economy) {
   if (!economy) return;
+  lastEconomyState = economy;
   const rewardEth = formatEthAmount(economy.rewardPoolEth || 0);
   const totalEth = formatEthAmount(economy.totalEth || 0);
   const purchaseCount = Number(economy.purchaseCount || 0).toLocaleString('tr-TR');
@@ -2250,6 +2264,39 @@ function updateEconomyUI(economy) {
       <div style="color:var(--dim)">Satın alma: ${purchaseCount} işlem · Satılan mermi: ${totalBullets}</div>
     `;
   }
+  updateRewardEstimate();
+}
+
+function numericRewardPoolEth() {
+  const raw = lastEconomyState?.rewardPoolEth ?? rewardStatusCache?.economy?.rewardPoolEth ?? 0;
+  const n = Number(raw);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function updateRewardEstimate() {
+  const rankEl = document.getElementById('rewardEstimateRank');
+  const valueEl = document.getElementById('rewardEstimateValue');
+  const detailEl = document.getElementById('rewardEstimateDetail');
+  if (!rankEl || !valueEl || !detailEl) return;
+  const rewardPool = numericRewardPoolEth();
+  if (!myCountry) {
+    rankEl.textContent = 'Ülke seç';
+    valueEl.textContent = rewardPool ? `${formatEthAmount(rewardPool)} havuz` : '—';
+    detailEl.textContent = 'Ülke seçince mevcut havuza göre tahmini ülke ödül payı görünür.';
+    return;
+  }
+  const sorted = [...latestLeaderboardCountries]
+    .filter(c => c.is_alive !== false && c.eliminated !== true)
+    .sort((a,b)=>(Number(b.hp)||0)-(Number(a.hp)||0));
+  const rank = sorted.findIndex(c => c.code === myCountry) + 1;
+  const shares = [60, 25, 15];
+  const share = rank > 0 && rank <= 3 ? shares[rank - 1] : 0;
+  const est = rewardPool * share / 100;
+  rankEl.textContent = rank ? `#${rank}` : 'Sıra yok';
+  valueEl.textContent = share ? `~${formatEthAmount(est)}` : `${formatEthAmount(rewardPool)} havuz`;
+  detailEl.textContent = share
+    ? `Ülken turu bu sırada bitirirse ülke payı yaklaşık %${share}. Ödeme kazanan ülkenin en yüksek katkılı oyuncusuna kaydedilir.`
+    : 'İlk 3 ülkeye ödül payı ayrılır. Sıralamada yükselmek için saldırı ve ittifak koordinasyonu önemli.';
 }
 
 function renderFlowStep(label, ok, active=false, error=false) {
@@ -2262,6 +2309,79 @@ function getPlayerNumber(field) {
   const p = lastPlayerSnapshot || {};
   if (p[field] != null) return Number(p[field]) || 0;
   return 0;
+}
+
+function renderQuestRow(label, ok, sub='', actionHtml='') {
+  return `<div class="quest-row ${ok ? 'done' : 'pending'}">
+    <span>${escapeHtml(label)}${sub ? `<span class="quest-sub">${escapeHtml(sub)}</span>` : ''}</span>
+    ${actionHtml || `<span class="quest-check">${ok ? 'TAMAM' : 'BEKLİYOR'}</span>`}
+  </div>`;
+}
+
+function dailyQuestButton(q) {
+  if (!q) return '';
+  if (q.claimed) return '<span class="quest-check">ALINDI</span>';
+  if (!q.claimable) return '<span class="quest-check">BEKLİYOR</span>';
+  return `<button class="quest-claim" onclick="claimDailyQuest('${escapeHtml(q.id)}')">+${Number(q.rewardBullets||0).toLocaleString('tr-TR')} MERMİ AL</button>`;
+}
+
+function renderDailyQuestRows() {
+  const quests = Array.isArray(dailyQuestState?.quests) ? dailyQuestState.quests : [];
+  if (!wallet) return renderQuestRow('Günlük görevler', false, 'Cüzdan bağlayınca aktif olur.');
+  if (!quests.length) return renderQuestRow('Günlük görevler yükleniyor', false, 'Birazdan otomatik güncellenir.');
+  const rows = [`<div style="font-family:var(--hud);font-size:8px;color:var(--gold);letter-spacing:1px;margin:7px 0 3px">GÜNLÜK GÖREVLER</div>`];
+  for (const q of quests) {
+    const progress = `${Number(q.progress||0).toLocaleString('tr-TR')}/${Number(q.target||0).toLocaleString('tr-TR')}`;
+    const sub = `${progress} · ödül +${Number(q.rewardBullets||0).toLocaleString('tr-TR')} mermi`;
+    rows.push(renderQuestRow(q.label || q.id, q.completed, sub, dailyQuestButton(q)));
+  }
+  return rows.join('');
+}
+
+async function loadDailyQuests(silent=false) {
+  if (!wallet || !authToken) {
+    dailyQuestState = null;
+    updateProgressPanels();
+    return null;
+  }
+  try {
+    const res = await fetch(API+'/api/player/daily-quests', { headers:authHeaders(), signal:AbortSignal.timeout(8000) });
+    const data = await res.json().catch(()=>({}));
+    if (!res.ok || data.error) throw new Error(tErr(data) || data.error || ('HTTP '+res.status));
+    dailyQuestState = data;
+    updateProgressPanels();
+    return data;
+  } catch(e) {
+    if (!silent) showToast('Günlük görevler yüklenemedi','error');
+    return null;
+  }
+}
+
+async function claimDailyQuest(questId) {
+  if (!wallet) { showToast(t('toast.connectFirst'),'error'); return; }
+  try {
+    await ensureAuthSession(false);
+    const res = await fetch(API+'/api/player/daily-quests/claim', {
+      method:'POST',
+      headers:authHeaders({'Content-Type':'application/json'}),
+      body:JSON.stringify({ questId }),
+      signal:AbortSignal.timeout(10000)
+    });
+    const data = await res.json().catch(()=>({}));
+    if (!res.ok || data.error) {
+      if (data.daily) dailyQuestState = data.daily;
+      updateProgressPanels();
+      showToast(tErr(data) || data.error || 'Günlük ödül alınamadı','error');
+      return;
+    }
+    if (data.player) updatePlayerUI(data.player);
+    if (data.daily) dailyQuestState = data.daily;
+    updateProgressPanels();
+    showToast(`✅ Günlük ödül: +${Number(data.added||0).toLocaleString('tr-TR')} mermi`,'success');
+    playSound && playSound('purchase');
+  } catch(e) {
+    showToast('Günlük ödül alınamadı','error');
+  }
 }
 
 function updateProgressPanels() {
@@ -2304,16 +2424,19 @@ function updateProgressPanels() {
     ['İttifak kur / katıl', allianceOk]
   ];
   const doneCount = quests.filter(([,ok]) => ok).length;
+  const dailyDone = Number(dailyQuestState?.completed || 0);
+  const dailyTotal = Array.isArray(dailyQuestState?.quests) ? dailyQuestState.quests.length : 0;
   const questProgress = document.getElementById('questProgress');
-  if (questProgress) questProgress.textContent = `${doneCount}/${quests.length}`;
+  if (questProgress) questProgress.textContent = dailyTotal ? `${doneCount}/${quests.length} · Günlük ${dailyDone}/${dailyTotal}` : `${doneCount}/${quests.length}`;
   const questList = document.getElementById('questList');
   if (questList) {
-    questList.innerHTML = quests.map(([label, ok]) => `
-      <div class="quest-row ${ok ? 'done' : 'pending'}">
-        <span>${escapeHtml(label)}</span>
-        <span class="quest-check">${ok ? 'TAMAM' : 'BEKLİYOR'}</span>
-      </div>`).join('');
+    questList.innerHTML = [
+      `<div style="font-family:var(--hud);font-size:8px;color:var(--green);letter-spacing:1px;margin:2px 0 3px">BAŞLANGIÇ</div>`,
+      ...quests.map(([label, ok]) => renderQuestRow(label, ok)),
+      renderDailyQuestRows()
+    ].join('');
   }
+  updateRewardEstimate();
 }
 
 function setPurchaseStatus(step='idle', title='SATIN ALMA GÜVEN EKRANI', detail='Mermi alırken işlem adımları burada görünür: cüzdan onayı, blockchain onayı ve mermi yazımı.', type='idle') {
@@ -2391,6 +2514,7 @@ function renderAdminHealth(data) {
     ['ONLINE', Number(socket.onlinePlayers || 0).toLocaleString('tr-TR'), 'status-ok'],
     ['BACKEND COMMIT', backend.commit || '-', ''],
     ['FRONTEND BUILD', FRONTEND_BUILD_ID, ''],
+    ['API', data?.frontend?.apiDomain || API, String(data?.frontend?.apiDomain || API).includes('up.railway.app') ? 'status-warn' : 'status-ok'],
     ['UPTIME', formatUptime(backend.uptimeSec), ''],
     ['SON SATIN ALMA', lastPurchase ? `${shortAdminAddr(lastPurchase.wallet)} · ${formatEthAmount(lastPurchase.valueEth || 0)}` : 'Yok', lastPurchase ? 'status-ok' : '']
   ];
@@ -2941,6 +3065,7 @@ async function produceResource(id) {
     if (data.player) {
       updatePlayerUI(data.player);
       _applyResourcesFromPlayer(data.player);
+      loadDailyQuests(true);
     }
     // Bonus ödülü mü tetiklendi?
     if (data.bonus) {
@@ -3535,6 +3660,7 @@ async function requestAbstractWalletAccounts() {
 function resetConnectedPlayerUi() {
   playerLoadedWalletLower = null;
   lastPlayerSnapshot = null;
+  dailyQuestState = null;
   myCountry = null;
   targetCountry = null;
   myAlliance = null;
@@ -3689,10 +3815,12 @@ async function registerPlayer() {
       showToast('Hoş geldin Komutan! '+( CD[cc]?.f||'')+' '+cc,'success');
     } else {
       showToast(t('toast.connected'),'success');
+      setTimeout(()=>showToast('1/3 Ülke seç: haritadan veya ülke listesinden komutanlığını belirle.','info'), 500);
       setTimeout(()=>openModal('nation'),700);
     }
     updatePlayerUI(p);
     playerLoadedWalletLower = wallet ? wallet.toLowerCase() : null;
+    loadDailyQuests(true);
     if (authToken && myAlliance) loadAllianceFeed();
     resumePendingPurchase();
     // İlk 100 kullanıcı hediye mermi bildirimi
@@ -3788,6 +3916,7 @@ async function refreshPlayerState() {
     const data = await res.json();
     updatePlayerUI(data.player || data);
     playerLoadedWalletLower = wallet ? wallet.toLowerCase() : null;
+    loadDailyQuests(true);
   } catch(e) {}
 }
 
@@ -3803,7 +3932,9 @@ async function chooseCountry(code) {
     lastPlayerSnapshot = { ...(lastPlayerSnapshot || {}), country_code:code, countryCode:code };
     applyMyCountry(code);
     showToast('Ülke seçildi: '+(CD[code]?.f||'')+' '+(CD[code]?.n||code),'success');
+    setTimeout(()=>showToast('2/3 Hedef seç: haritadan rakip ülkeye tıkla, sonra saldırıya başla.','info'), 450);
     updateProgressPanels();
+    loadDailyQuests(true);
   } catch(e) { showToast('Ülke seçilemedi.','error'); }
   finally { hideLoader(); }
 }
@@ -3867,6 +3998,7 @@ async function attackTarget() {
       if (data.player) updatePlayerUI(data.player);
       else refreshPlayerState();
       updateProgressPanels();
+      loadDailyQuests(true);
       pollState();
     }
   } catch(e) {
@@ -4133,6 +4265,7 @@ async function buyAmmo(pack) {
     localStorage.removeItem(LAST_PURCHASE_KEY);
     await updateWalletBalance();
     setPurchaseStatus('done', 'MERMİLER YAZILDI', `${pack.toLocaleString('tr-TR')} mermi bakiyene eklendi.`, 'success');
+    setTimeout(()=>showToast('3/3 Hazırsın: hedef seçip ilk saldırını başlat.','info'), 500);
 
     // 4. Sohbete sistem mesajı
     addChatSystem(`💳 ${pack.toLocaleString('tr-TR')} mermi satın alındı (${ethAmount} ETH)`);
@@ -4268,6 +4401,7 @@ function _updateAllianceUI(data) {
   }
   _toggleAllianceButtons();
   updateProgressPanels();
+  if (wallet) loadDailyQuests(true);
 }
 
 function openAllianceModal(mode) {
@@ -4578,6 +4712,7 @@ function renderCountryLeaderboard() {
 function renderLeaderboard() {
   if (lbCurrentTab === 'players') renderPlayerLeaderboard();
   else renderCountryLeaderboard();
+  updateRewardEstimate();
 }
 
 function updateLeaderboard(countries, players) {
@@ -5612,6 +5747,7 @@ window.addEventListener('abswar:agw-account', async event => {
   refreshSocketAuth();
   playerLoadedWalletLower = null;
   lastPlayerSnapshot = null;
+  dailyQuestState = null;
   myCountry = null;
   targetCountry = null;
   myAlliance = null;
@@ -6807,6 +6943,7 @@ async function disconnectWallet() {
   window.ABSWAR_WALLET = null;
   playerLoadedWalletLower = null;
   lastPlayerSnapshot = null;
+  dailyQuestState = null;
   myCountry = null;
   targetCountry = null;
   myAlliance = null;
@@ -6986,9 +7123,13 @@ Object.assign(window, {
   updateWalletBalance,
   updateRankUI,
   updateProgressPanels,
+  loadDailyQuests,
+  claimDailyQuest,
   setPurchaseStatus,
   updateTrustPanel
 });
+window.loadDailyQuests = loadDailyQuests;
+window.claimDailyQuest = claimDailyQuest;
 buildMap();
 renderLabels();
 renderResources();
