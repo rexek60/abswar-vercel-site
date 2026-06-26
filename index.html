@@ -1746,6 +1746,8 @@ const LAND_PATHS = ["M557,134L558,137L557,139L555,139L554,135L554,133L556,132L55
 let wallet=null, myCountry=null, targetCountry=null, toastTimer=null, modalMode='nation';
 let gameCountries=[], attackLineTimer=null;
 let walletFinalizePromise = null;
+let playerConnectPromise = null;
+let playerLoadedWalletLower = null;
 let walletResumeRequestInProgress = false;
 let walletResumeLastRequestAt = 0;
 
@@ -3263,6 +3265,7 @@ async function requestAbstractWalletAccounts() {
 }
 
 function resetConnectedPlayerUi() {
+  playerLoadedWalletLower = null;
   myCountry = null;
   targetCountry = null;
   myAlliance = null;
@@ -3388,6 +3391,8 @@ async function resumePendingWalletConnection(reason='resume', options={}) {
 }
 
 async function registerPlayer() {
+  if (playerConnectPromise) return playerConnectPromise;
+  playerConnectPromise = (async () => {
   showLoader('OYUNCU YÜKLENİYOR...');
   try {
     if (!authToken) await ensureAuthSession(false);
@@ -3416,7 +3421,7 @@ async function registerPlayer() {
       setTimeout(()=>openModal('nation'),700);
     }
     updatePlayerUI(p);
-    if (authToken) refreshSocketAuth();
+    playerLoadedWalletLower = wallet ? wallet.toLowerCase() : null;
     if (authToken && myAlliance) loadAllianceFeed();
     resumePendingPurchase();
     // İlk 100 kullanıcı hediye mermi bildirimi
@@ -3437,6 +3442,12 @@ async function registerPlayer() {
     showToast(serverDown ? t('toast.serverDown') : t('toast.connectionError', { msg: msg ? msg.slice(0, 90) : 'Cüzdan doğrulaması tamamlanamadı' }),'error');
     return false;
   } finally { hideLoader(); }
+  })();
+  try {
+    return await playerConnectPromise;
+  } finally {
+    playerConnectPromise = null;
+  }
 }
 
 /* ── OYUNCU STATS GÜNCELLEME ── */
@@ -3503,6 +3514,7 @@ async function refreshPlayerState() {
     const res = await authJson('/api/player/connect',{wallet});
     const data = await res.json();
     updatePlayerUI(data.player || data);
+    playerLoadedWalletLower = wallet ? wallet.toLowerCase() : null;
   } catch(e) {}
 }
 
@@ -5193,8 +5205,9 @@ ioScript.onload=()=>{
     document.querySelector('.gdot').style.background='#00c853';
     setBackendStatus(true);
     if (!_firstConnect) {
-      showToast('🟢 Sunucu bağlantısı kuruldu','success');
-      if (wallet) registerPlayer();
+      if (wallet && !walletFinalizePromise && playerLoadedWalletLower === wallet.toLowerCase()) {
+        refreshPlayerState();
+      }
       pollState();
     }
     _firstConnect = false;
@@ -5290,6 +5303,7 @@ window.addEventListener('abswar:agw-account', async event => {
   if (agwConnectInProgress || walletFinalizePromise) return;
   clearAuthSession();
   refreshSocketAuth();
+  playerLoadedWalletLower = null;
   myCountry = null;
   targetCountry = null;
   myAlliance = null;
@@ -6480,6 +6494,7 @@ async function disconnectWallet() {
   refreshSocketAuth();
   wallet = null;
   window.ABSWAR_WALLET = null;
+  playerLoadedWalletLower = null;
   myCountry = null;
   targetCountry = null;
   myAlliance = null;
