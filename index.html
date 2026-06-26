@@ -208,6 +208,31 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .docs-card{border-left:3px solid var(--gold);padding:10px 12px;background:rgba(255,255,255,.025)}
 .docs-card h4{margin:0 0 6px;font-family:var(--hud);font-size:11px;letter-spacing:2px;color:var(--gold)}
 .docs-card p{margin:0 0 7px}.docs-card p:last-child{margin-bottom:0}
+.flow-panel{margin:8px 10px;padding:9px;background:linear-gradient(180deg,rgba(0,200,83,.075),rgba(255,255,255,.018));border:1px solid rgba(0,200,83,.22);font-family:var(--mono);font-size:10px;color:var(--text);line-height:1.45}
+.flow-title{font-family:var(--hud);font-size:9px;letter-spacing:1.5px;color:var(--green);margin-bottom:7px;display:flex;justify-content:space-between;gap:8px}
+.flow-steps{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.flow-step{display:flex;align-items:center;gap:5px;min-width:0;color:var(--dim)}
+.flow-step.done{color:var(--green)}.flow-step.active{color:var(--gold)}.flow-step.error{color:#ff6b7a}
+.flow-dot{width:7px;height:7px;border-radius:50%;background:var(--dim);box-shadow:0 0 7px rgba(255,255,255,.05);flex:0 0 auto}
+.flow-step.done .flow-dot{background:var(--green);box-shadow:0 0 8px var(--green)}
+.flow-step.active .flow-dot{background:var(--gold);box-shadow:0 0 8px var(--gold)}
+.flow-step.error .flow-dot{background:var(--red);box-shadow:0 0 8px var(--red)}
+.quest-panel{margin:0 10px 8px;padding:9px;background:rgba(255,255,255,.025);border:1px solid var(--border);font-family:var(--mono);font-size:10px;color:var(--dim)}
+.quest-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.quest-row:last-child{border-bottom:none}.quest-row.done{color:var(--green)}.quest-row.pending{color:var(--dim)}
+.quest-check{font-family:var(--hud);font-size:9px;color:inherit;white-space:nowrap}
+.purchase-status{margin:8px 10px;padding:10px;border:1px solid rgba(102,179,255,.30);background:linear-gradient(180deg,rgba(102,179,255,.08),rgba(102,179,255,.02));font-family:var(--mono);font-size:10px;color:var(--dim);line-height:1.5}
+.purchase-status.success{border-color:rgba(0,200,83,.38);background:linear-gradient(180deg,rgba(0,200,83,.09),rgba(0,200,83,.02))}
+.purchase-status.error{border-color:rgba(232,22,42,.45);background:linear-gradient(180deg,rgba(232,22,42,.10),rgba(232,22,42,.02))}
+.purchase-status .ps-title{font-family:var(--hud);font-size:9px;letter-spacing:1.5px;color:#66b3ff;margin-bottom:4px}
+.purchase-status.success .ps-title{color:var(--green)}.purchase-status.error .ps-title{color:#ff6b7a}
+.ps-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:7px}
+.ps-step{height:4px;background:rgba(255,255,255,.08);border-radius:1px}.ps-step.done{background:var(--green);box-shadow:0 0 8px rgba(0,200,83,.35)}.ps-step.active{background:var(--gold);box-shadow:0 0 8px rgba(245,200,66,.35)}.ps-step.error{background:var(--red);box-shadow:0 0 8px rgba(232,22,42,.35)}
+.admin-health-grid,.trust-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.admin-health-item,.trust-item{background:rgba(0,0,0,.16);border:1px solid rgba(255,255,255,.07);padding:7px;min-width:0}
+.admin-health-k,.trust-k{font-family:var(--hud);font-size:8px;letter-spacing:1px;color:var(--dim);margin-bottom:3px}
+.admin-health-v,.trust-v{font-family:var(--mono);font-size:10px;color:var(--text);word-break:break-all}
+.status-ok{color:var(--green)}.status-warn{color:var(--gold)}.status-bad{color:#ff6b7a}
 .c-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
 .c-btn{padding:8px 4px;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:var(--hud);font-size:8px;letter-spacing:1px;cursor:pointer;text-align:center;transition:all .15s;border-radius:1px}
 .c-btn:hover{border-color:var(--red);color:white;background:rgba(232,22,42,0.1)}
@@ -331,6 +356,8 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   .mob-bottom-nav .mb-icon{font-size:16px}
   /* Boost grid tek kolon */
   .boost-grid{grid-template-columns:1fr 1fr}
+  .flow-steps,.ps-steps,.admin-health-grid,.trust-grid{grid-template-columns:1fr}
+  .flow-panel,.quest-panel,.purchase-status{margin-left:8px;margin-right:8px}
 }
 
 @media (min-width:481px) and (max-width:767px){
@@ -811,9 +838,24 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
     <div class="boost-card" id="buffRank" title="Rütbene göre"><span class="boost-icon">🎖</span><div class="boost-type" data-i18n="buff.contrib">KATKI</div><div class="boost-val" id="buffRankVal">+%0</div><div class="boost-timer" id="buffRankName">Asker</div></div>
     <div class="boost-card" id="buffRadar" title="Radar seviyene göre"><span class="boost-icon">📡</span><div class="boost-type" data-i18n="buff.radar">RADAR</div><div class="boost-val" id="buffRadarVal">Lv 3</div><div class="boost-timer" id="buffRadarTime">12sn</div></div>
   </div>
+  <div class="flow-panel" id="commanderStatusPanel">
+    <div class="flow-title"><span>BAĞLANTI DURUMU</span><span id="commanderNextStep">Hazırlanıyor</span></div>
+    <div class="flow-steps" id="commanderStatusList"></div>
+  </div>
+  <div class="quest-panel">
+    <div class="flow-title" style="margin-bottom:5px"><span>BAŞLANGIÇ GÖREVLERİ</span><span id="questProgress">0/6</span></div>
+    <div id="questList"></div>
+  </div>
   </div>
   <div class="market-page-block">
   <div class="sh" style="flex-shrink:0" data-i18n="panel.market">MERMİ SATIN AL</div>
+  <div class="purchase-status" id="purchaseStatusPanel">
+    <div class="ps-title" id="purchaseStatusTitle">SATIN ALMA GÜVEN EKRANI</div>
+    <div id="purchaseStatusDetail">Mermi alırken işlem adımları burada görünür: cüzdan onayı, blockchain onayı ve mermi yazımı.</div>
+    <div class="ps-steps" id="purchaseStatusSteps">
+      <span class="ps-step"></span><span class="ps-step"></span><span class="ps-step"></span><span class="ps-step"></span>
+    </div>
+  </div>
   <div style="flex:1;overflow-y:auto">
     <div class="ammo-row"><span style="font-size:16px">🔹</span><div class="ammo-info"><div class="ammo-name" data-i18n="pack.basicName">TEMEL CEPHANE</div><div class="ammo-sub"><span data-i18n="pack.ammoCount100">100 mermi</span></div></div><span class="ammo-price">0.001 ETH</span><button class="btn-sm btn-red" id="b1" onclick="buyAmmo(100)" data-i18n="btn.buy">SATIN AL</button></div>
     <div class="ammo-row"><span style="font-size:16px">🔶</span><div class="ammo-info"><div class="ammo-name" data-i18n="pack.advancedName">GELİŞMİŞ CEPHANE</div><div class="ammo-sub"><span data-i18n="pack.ammoCount1000">1,000 mermi</span></div></div><span class="ammo-price">0.01 ETH</span><button class="btn-sm btn-red" id="b2" onclick="buyAmmo(500)" data-i18n="btn.buy">SATIN AL</button></div>
@@ -1002,9 +1044,10 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
     <div class="modal-title" data-i18n="modal.docs">📚 CENTRADAR DOCS</div>
     <div class="modal-sub" data-i18n="sub.docs">Oyunu, ödülleri ve güvenlik notlarını tek yerde oku.</div>
     <div class="docs-tabs" role="tablist">
-      <button class="docs-tab active" id="docsTabHow" onclick="['How','Reward','Security'].forEach(k=>{document.getElementById('docsTab'+k)?.classList.toggle('active',k==='How');document.getElementById('docsPanel'+k)?.classList.toggle('active',k==='How')})" type="button">NASIL OYNANIR</button>
-      <button class="docs-tab" id="docsTabReward" onclick="['How','Reward','Security'].forEach(k=>{document.getElementById('docsTab'+k)?.classList.toggle('active',k==='Reward');document.getElementById('docsPanel'+k)?.classList.toggle('active',k==='Reward')})" type="button">ÖDÜL</button>
-      <button class="docs-tab" id="docsTabSecurity" onclick="['How','Reward','Security'].forEach(k=>{document.getElementById('docsTab'+k)?.classList.toggle('active',k==='Security');document.getElementById('docsPanel'+k)?.classList.toggle('active',k==='Security')})" type="button">GÜVENLİK</button>
+      <button class="docs-tab active" id="docsTabHow" onclick="setDocsTab('how')" type="button">NASIL OYNANIR</button>
+      <button class="docs-tab" id="docsTabReward" onclick="setDocsTab('reward')" type="button">ÖDÜL</button>
+      <button class="docs-tab" id="docsTabSecurity" onclick="setDocsTab('security')" type="button">GÜVENLİK</button>
+      <button class="docs-tab" id="docsTabTrust" onclick="setDocsTab('trust')" type="button">ŞEFFAFLIK</button>
     </div>
 
     <div id="docsPanelHow" class="docs-panel active">
@@ -1134,6 +1177,31 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
         <p>Kaybetmeyi göze alamayacağın miktarla işlem yapma; blockchain işlemleri geri alınamaz.</p>
       </div>
     </div>
+
+    <div id="docsPanelTrust" class="docs-panel">
+      <div class="docs-card" style="border-left-color:#66b3ff">
+        <h4>CANLI BİLGİLER</h4>
+        <div class="trust-grid">
+          <div class="trust-item"><div class="trust-k">AĞ</div><div class="trust-v" id="trustNetwork">Abstract Mainnet</div></div>
+          <div class="trust-item"><div class="trust-k">CHAIN ID</div><div class="trust-v" id="trustChainId">2741</div></div>
+          <div class="trust-item"><div class="trust-k">KONTRAT</div><div class="trust-v" id="trustContract">-</div></div>
+          <div class="trust-item"><div class="trust-k">BACKEND</div><div class="trust-v" id="trustBackend">-</div></div>
+        </div>
+      </div>
+      <div class="docs-card" style="border-left-color:var(--green)">
+        <h4>SATIN ALMA AKIŞI</h4>
+        <p>Mermi alımı gerçek Abstract Mainnet işlemidir. Cüzdan onayı verilir, backend transaction hash'i on-chain doğrular, sonra mermi bakiyesi yazılır.</p>
+        <p>Sekme kapanırsa son işlem yerelde saklanır ve sonraki girişte otomatik kurtarma denenir.</p>
+      </div>
+      <div class="docs-card" style="border-left-color:var(--gold)">
+        <h4>ÖDÜL MODELİ</h4>
+        <p>Ödül havuzu, mermi alımlarından ayrılan payla izlenir. Tur sonunda kazanan ülkelerin en çok katkı veren oyuncuları admin ödeme kaydıyla şeffaf şekilde listelenir.</p>
+      </div>
+      <div class="docs-card" style="border-left-color:var(--red)">
+        <h4>RİSK NOTU</h4>
+        <p>Blockchain işlemleri geri alınamaz. Ağı, kontrat adresini ve ETH tutarını cüzdan ekranında kontrol etmeden onay verme.</p>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1199,6 +1267,10 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
       Ekonomi bilgisi yükleniyor...
     </div>
 
+    <div id="adminHealthInfo" style="margin-top:10px;padding:12px;background:linear-gradient(180deg,rgba(102,179,255,.08),rgba(102,179,255,.02));border:1px solid rgba(102,179,255,.30);font-family:var(--mono);font-size:10px;color:var(--text);text-align:left;line-height:1.55">
+      Canlı sağlık bilgisi için admin token gir.
+    </div>
+
     <div id="adminPurchasesInfo" style="margin-top:10px;padding:12px;background:linear-gradient(180deg,rgba(0,200,83,0.08),rgba(0,200,83,0.02));border:1px solid rgba(0,200,83,.28);font-family:var(--mono);font-size:10px;color:var(--text);text-align:left;line-height:1.55;max-height:260px;overflow:auto">
       Ödeme kayıtları için admin token gir.
     </div>
@@ -1240,10 +1312,10 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
       <button class="btn-sm" onclick="adminDownloadBackup()" style="width:100%;padding:11px;background:transparent;border:1px solid rgba(102,179,255,.45);color:#66b3ff;font-family:var(--hud);font-size:11px;cursor:pointer;text-align:left">
         YEDEK İNDİR <span style="color:var(--dim);font-size:9px">- Oyuncu, ülke, tur ve ödül durumunu JSON olarak alır</span>
       </button>
-      <button class="btn-sm" onclick="adminShowMetrics()" style="width:100%;padding:11px;background:transparent;border:1px solid rgba(0,200,83,.35);color:var(--green);font-family:var(--hud);font-size:11px;cursor:pointer;text-align:left">
+      <button class="btn-sm" onclick="adminShowMetrics();refreshAdminHealth()" style="width:100%;padding:11px;background:transparent;border:1px solid rgba(0,200,83,.35);color:var(--green);font-family:var(--hud);font-size:11px;cursor:pointer;text-align:left">
         SİSTEM METRİKLERİ <span style="color:var(--dim);font-size:9px">- Canlı izleme özeti</span>
       </button>
-      <button class="btn-sm" onclick="refreshAdminPurchases()" style="width:100%;padding:11px;background:transparent;border:1px solid rgba(0,200,83,.35);color:var(--green);font-family:var(--hud);font-size:11px;cursor:pointer;text-align:left">
+      <button class="btn-sm" onclick="refreshAdminHealth();refreshAdminPurchases()" style="width:100%;padding:11px;background:transparent;border:1px solid rgba(0,200,83,.35);color:var(--green);font-family:var(--hud);font-size:11px;cursor:pointer;text-align:left">
         ÖDEME KAYITLARI <span style="color:var(--dim);font-size:9px">- Hangi cüzdan ne kadar ETH yatırdı</span>
       </button>
       <button class="btn-sm" onclick="adminConfirmReset()" style="width:100%;padding:11px;background:rgba(245,66,66,0.1);border:1px solid var(--red);color:var(--red);font-family:var(--hud);font-size:11px;cursor:pointer;text-align:left">
@@ -1295,6 +1367,7 @@ const API_ENV = new URLSearchParams(location.search).get('env') === 'staging'
   : 'production';
 const API = API_ENDPOINTS[API_ENV];
 const WS_URL = window.CENTRADAR_WS_URL || window.CENTRADAR_BACKEND_URL || API;
+const FRONTEND_BUILD_ID = window.CENTRADAR_FRONTEND_COMMIT || 'static-html';
 const SOCKET_RECONNECT_BASE_DELAY = 1000;
 const SOCKET_RECONNECT_MAX_DELAY = 30000;
 const START_HP_FE = 1000;
@@ -1752,6 +1825,8 @@ let gameCountries=[], attackLineTimer=null;
 let walletFinalizePromise = null;
 let playerConnectPromise = null;
 let playerLoadedWalletLower = null;
+let lastPlayerSnapshot = null;
+let currentPurchaseStatus = { step:'idle', type:'idle', title:'SATIN ALMA GÜVEN EKRANI', detail:'Mermi alırken işlem adımları burada görünür: cüzdan onayı, blockchain onayı ve mermi yazımı.' };
 let walletResumeRequestInProgress = false;
 let walletResumeLastRequestAt = 0;
 
@@ -1935,12 +2010,13 @@ function notifyTab(msg) {
 
 /* ── DOCS EKRANI ── */
 function setDocsTab(tab='how') {
-  const keys = ['how','reward','security'];
+  const keys = ['how','reward','security','trust'];
   const active = keys.includes(tab) ? tab : 'how';
   for (const key of keys) {
     document.getElementById('docsTab'+key[0].toUpperCase()+key.slice(1))?.classList.toggle('active', key === active);
     document.getElementById('docsPanel'+key[0].toUpperCase()+key.slice(1))?.classList.toggle('active', key === active);
   }
+  if (active === 'trust') updateTrustPanel();
 }
 function openDocs(tab='how') {
   setDocsTab(tab);
@@ -2125,9 +2201,13 @@ function openAdminPanel() {
   document.getElementById('adminResult').innerHTML = '';
   document.getElementById('adminModal').classList.add('show');
   refreshAdminRoundInfo();
+  refreshAdminHealth(true);
   refreshAdminPurchases(true);
   if (adminPurchasesTimer) clearInterval(adminPurchasesTimer);
-  adminPurchasesTimer = setInterval(()=>refreshAdminPurchases(true), 15000);
+  adminPurchasesTimer = setInterval(()=>{
+    refreshAdminHealth(true);
+    refreshAdminPurchases(true);
+  }, 15000);
 }
 
 function closeAdminPanel() {
@@ -2172,6 +2252,103 @@ function updateEconomyUI(economy) {
   }
 }
 
+function renderFlowStep(label, ok, active=false, error=false) {
+  const cls = error ? 'error' : ok ? 'done' : active ? 'active' : 'pending';
+  const mark = ok ? '✓' : active ? '•' : '○';
+  return `<div class="flow-step ${cls}"><span class="flow-dot"></span><span>${escapeHtml(mark + ' ' + label)}</span></div>`;
+}
+
+function getPlayerNumber(field) {
+  const p = lastPlayerSnapshot || {};
+  if (p[field] != null) return Number(p[field]) || 0;
+  return 0;
+}
+
+function updateProgressPanels() {
+  const walletOk = !!wallet;
+  const serverOk = !!_backendOnline || !!warSocket?.connected;
+  const playerOk = walletOk && playerLoadedWalletLower === wallet.toLowerCase();
+  const countryOk = !!myCountry;
+  const bulletsOk = myBulletsCount > 0;
+  const attackOk = getPlayerNumber('attacks') > 0;
+  const resourceOk = RESOURCES.some(r => Number(r.val || 0) > 0);
+  const allianceOk = !!myAlliance;
+
+  const statusList = document.getElementById('commanderStatusList');
+  if (statusList) {
+    statusList.innerHTML = [
+      renderFlowStep('Cüzdan bağlı', walletOk, !walletOk),
+      renderFlowStep('Oyuncu yüklendi', playerOk, walletOk && !playerOk),
+      renderFlowStep('Sunucu bağlı', serverOk, !serverOk, !serverOk),
+      renderFlowStep('Ülke seçildi', countryOk, playerOk && !countryOk)
+    ].join('');
+  }
+
+  const next = document.getElementById('commanderNextStep');
+  if (next) {
+    const nextText = !walletOk ? 'Cüzdan bağla'
+      : !playerOk ? 'Oyuncu yükleniyor'
+      : !serverOk ? 'Sunucu bekleniyor'
+      : !countryOk ? 'Ülke seç'
+      : 'Savaşa hazır';
+    next.textContent = nextText;
+    next.className = serverOk ? 'status-ok' : 'status-warn';
+  }
+
+  const quests = [
+    ['Cüzdanı bağla', walletOk],
+    ['Ülke seç', countryOk],
+    ['Mermi al', bulletsOk],
+    ['İlk saldırını yap', attackOk],
+    ['Kaynak üret', resourceOk],
+    ['İttifak kur / katıl', allianceOk]
+  ];
+  const doneCount = quests.filter(([,ok]) => ok).length;
+  const questProgress = document.getElementById('questProgress');
+  if (questProgress) questProgress.textContent = `${doneCount}/${quests.length}`;
+  const questList = document.getElementById('questList');
+  if (questList) {
+    questList.innerHTML = quests.map(([label, ok]) => `
+      <div class="quest-row ${ok ? 'done' : 'pending'}">
+        <span>${escapeHtml(label)}</span>
+        <span class="quest-check">${ok ? 'TAMAM' : 'BEKLİYOR'}</span>
+      </div>`).join('');
+  }
+}
+
+function setPurchaseStatus(step='idle', title='SATIN ALMA GÜVEN EKRANI', detail='Mermi alırken işlem adımları burada görünür: cüzdan onayı, blockchain onayı ve mermi yazımı.', type='idle') {
+  currentPurchaseStatus = { step, title, detail, type };
+  const panel = document.getElementById('purchaseStatusPanel');
+  if (!panel) return;
+  panel.className = `purchase-status ${type === 'success' ? 'success' : type === 'error' ? 'error' : ''}`.trim();
+  const titleEl = document.getElementById('purchaseStatusTitle');
+  const detailEl = document.getElementById('purchaseStatusDetail');
+  if (titleEl) titleEl.textContent = title;
+  if (detailEl) detailEl.textContent = detail;
+  const order = ['wallet','chain','server','done'];
+  const idx = order.indexOf(step);
+  const steps = document.querySelectorAll('#purchaseStatusSteps .ps-step');
+  steps.forEach((el, i) => {
+    el.className = 'ps-step';
+    if (type === 'error' && i === Math.max(0, idx)) el.classList.add('error');
+    else if (type === 'success' || (idx >= 0 && i < idx)) el.classList.add('done');
+    else if (idx >= 0 && i === idx) el.classList.add('active');
+  });
+}
+
+function updateTrustPanel() {
+  const pairs = [
+    ['trustNetwork', ACTIVE_CHAIN.shortLabel || ACTIVE_CHAIN.label || APP_NETWORK],
+    ['trustChainId', String(parseInt(ACTIVE_CHAIN.chainIdHex, 16))],
+    ['trustContract', ACTIVE_CHAIN.contractAddress || '-'],
+    ['trustBackend', API]
+  ];
+  pairs.forEach(([id, value]) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+  });
+}
+
 function shortAdminAddr(addr) {
   const v = String(addr || '');
   return v.startsWith('0x') && v.length > 14 ? `${v.slice(0,10)}...${v.slice(-6)}` : v;
@@ -2189,6 +2366,70 @@ function formatAdminTime(ts) {
     });
   } catch(e) {
     return '-';
+  }
+}
+
+function formatUptime(sec) {
+  const n = Math.max(0, Number(sec || 0));
+  const h = Math.floor(n / 3600);
+  const m = Math.floor((n % 3600) / 60);
+  return h ? `${h}s ${m}dk` : `${m}dk`;
+}
+
+function renderAdminHealth(data) {
+  const box = document.getElementById('adminHealthInfo');
+  if (!box) return;
+  const backend = data?.backend || {};
+  const socket = data?.socket || {};
+  const lastPurchase = data?.lastPurchase || null;
+  const lastError = data?.lastError || null;
+  const transport = warSocket?.io?.engine?.transport?.name || '-';
+  const rows = [
+    ['BACKEND', backend.ok ? 'ÇALIŞIYOR' : 'SORUN', backend.ok ? 'status-ok' : 'status-bad'],
+    ['SOCKET', `${warSocket?.connected ? 'BAĞLI' : 'KOPUK'} · ${transport}`, warSocket?.connected ? 'status-ok' : 'status-warn'],
+    ['DB', data?.dbEnabled ? 'POSTGRES AKTİF' : 'BELLEK MODU', data?.dbEnabled ? 'status-ok' : 'status-warn'],
+    ['ONLINE', Number(socket.onlinePlayers || 0).toLocaleString('tr-TR'), 'status-ok'],
+    ['BACKEND COMMIT', backend.commit || '-', ''],
+    ['FRONTEND BUILD', FRONTEND_BUILD_ID, ''],
+    ['UPTIME', formatUptime(backend.uptimeSec), ''],
+    ['SON SATIN ALMA', lastPurchase ? `${shortAdminAddr(lastPurchase.wallet)} · ${formatEthAmount(lastPurchase.valueEth || 0)}` : 'Yok', lastPurchase ? 'status-ok' : '']
+  ];
+  box.innerHTML = `
+    <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:8px">
+      <div style="font-family:var(--hud);font-size:10px;color:#66b3ff;letter-spacing:1px">CANLI SAĞLIK</div>
+      <div style="color:var(--dim);font-size:9px">Güncelleme: ${escapeHtml(formatAdminTime(data?.generatedAt))}</div>
+    </div>
+    <div class="admin-health-grid">
+      ${rows.map(([k,v,cls]) => `<div class="admin-health-item"><div class="admin-health-k">${escapeHtml(k)}</div><div class="admin-health-v ${cls}">${escapeHtml(v)}</div></div>`).join('')}
+    </div>
+    <div style="margin-top:8px;color:${lastError?'#ff6b7a':'var(--dim)'}">Son hata: ${escapeHtml(lastError ? `${lastError.message || lastError.code || 'Hata'} · ${formatAdminTime(lastError.at)}` : 'Yok')}</div>
+  `;
+}
+
+async function refreshAdminHealth(silent=false) {
+  const box = document.getElementById('adminHealthInfo');
+  if (!box) return;
+  const token = document.getElementById('adminTokenInput')?.value?.trim();
+  if (!token) {
+    box.innerHTML = '<span style="color:var(--dim)">Canlı sağlık bilgisi için admin token gir.</span>';
+    return;
+  }
+  adminTokenSession = token;
+  if (!silent) box.innerHTML = '<span style="color:var(--dim)">Canlı sağlık bilgisi yükleniyor...</span>';
+  try {
+    await ensureAuthSession(false);
+    const res = await fetch(API+'/api/admin/health', {
+      headers:authHeaders({'x-admin-token':token}),
+      signal:AbortSignal.timeout(8000)
+    });
+    const data = await res.json().catch(()=>({}));
+    if (!res.ok || data.error) {
+      box.innerHTML = `<span style="color:var(--red)">HATA: ${escapeHtml(tErr(data)||data.error||('HTTP '+res.status))}</span>`;
+      return;
+    }
+    renderAdminHealth(data);
+  } catch(e) {
+    box.innerHTML = '<span style="color:var(--red)">HATA: Canlı sağlık bilgisi alınamadı</span>';
   }
 }
 
@@ -2346,6 +2587,7 @@ async function adminAction(path) {
       showToast('⏹ Tur bitirildi','info');
     }
     refreshAdminRoundInfo();
+    refreshAdminHealth(true);
     refreshAdminPurchases(true);
     pollState();
   } catch(e) {
@@ -2729,6 +2971,7 @@ function _applyResourcesFromPlayer(p) {
     shdEl.textContent = `+%${shieldPct}`;
     shdEl.style.color = shieldPct ? 'var(--green)' : 'var(--text)';
   }
+  updateProgressPanels();
 }
 
 function updateBuffPanelFromPlayer(p) {
@@ -3291,6 +3534,7 @@ async function requestAbstractWalletAccounts() {
 
 function resetConnectedPlayerUi() {
   playerLoadedWalletLower = null;
+  lastPlayerSnapshot = null;
   myCountry = null;
   targetCountry = null;
   myAlliance = null;
@@ -3306,6 +3550,7 @@ function resetConnectedPlayerUi() {
   document.getElementById('ysScore').textContent = '0';
   const nb = document.getElementById('nicknameBtn');
   if (nb) nb.style.display = wallet ? 'inline-block' : 'none';
+  updateProgressPanels();
 }
 
 function handleWalletConnectError(error) {
@@ -3327,6 +3572,7 @@ function applyConnectedWallet(address) {
   btn.textContent = wallet.slice(0,6)+'...'+wallet.slice(-4);
   btn.className = 'btn-wallet connected';
   updateWalletBalance(address);
+  updateProgressPanels();
 }
 
 function formatEthBalanceFromWeiHex(balanceHex) {
@@ -3478,6 +3724,7 @@ async function registerPlayer() {
 /* ── OYUNCU STATS GÜNCELLEME ── */
 function updatePlayerUI(p) {
   if (!p) return;
+  lastPlayerSnapshot = { ...(lastPlayerSnapshot || {}), ...p, resources:p.resources || (lastPlayerSnapshot && lastPlayerSnapshot.resources) || null };
   // Nickname senkronizasyonu (backend'den)
   if (p.nickname !== undefined) {
     myNickname = p.nickname;
@@ -3531,6 +3778,7 @@ function updatePlayerUI(p) {
   if (p.resources) _applyResourcesFromPlayer(p);
   // Aktif buff özet paneli (rütbe + radar)
   updateBuffPanelFromPlayer(p);
+  updateProgressPanels();
 }
 
 async function refreshPlayerState() {
@@ -3552,8 +3800,10 @@ async function chooseCountry(code) {
     const data = await res.json();
     if (data.error) { showToast(tErr(data),'error'); return; }
     myCountry = code;
+    lastPlayerSnapshot = { ...(lastPlayerSnapshot || {}), country_code:code, countryCode:code };
     applyMyCountry(code);
     showToast('Ülke seçildi: '+(CD[code]?.f||'')+' '+(CD[code]?.n||code),'success');
+    updateProgressPanels();
   } catch(e) { showToast('Ülke seçilemedi.','error'); }
   finally { hideLoader(); }
 }
@@ -3616,6 +3866,7 @@ async function attackTarget() {
       btn.disabled=false; btn.textContent=`⚡ ${targetCountry} SALDIRI BAŞLAT`;
       if (data.player) updatePlayerUI(data.player);
       else refreshPlayerState();
+      updateProgressPanels();
       pollState();
     }
   } catch(e) {
@@ -3844,13 +4095,16 @@ async function buyAmmo(pack) {
 
   const ethAmount = AMMO_PRICE_ETH[pack];
   if (!ethAmount) { showToast('Geçersiz paket.','error'); return; }
+  setPurchaseStatus('wallet', 'SATIN ALMA HAZIRLANIYOR', `${pack.toLocaleString('tr-TR')} mermi paketi için sunucu ve cüzdan kontrol ediliyor.`, 'active');
 
   const backendStatus = await fetchBackendStatus(true);
   if (APP_NETWORK === 'mainnet' && backendStatus?.dbEnabled === false) {
+    setPurchaseStatus('wallet', 'SATIN ALMA DURDURULDU', 'Kalıcı veri sistemi kapalı olduğu için mainnet alımı güvenli değil.', 'error');
     showToast(t('toast.marketMainnetBlocked'),'error');
     return;
   }
   if (APP_NETWORK === 'mainnet' && (!backendStatus || backendStatus.dbEnabled == null)) {
+    setPurchaseStatus('wallet', 'SUNUCU DOĞRULANAMADI', 'Backend sağlık bilgisi alınamadı; ödeme başlatılmadı.', 'error');
     showToast(t('toast.marketServerUnknown'),'error');
     return;
   }
@@ -3859,6 +4113,7 @@ async function buyAmmo(pack) {
   try {
     const agw = await waitForAbstractWallet(true);
     const valueHex = ethToWeiHex(ethAmount);
+    setPurchaseStatus('wallet', 'CÜZDAN ONAYI BEKLENİYOR', `${ethAmount} ETH için Abstract onay ekranını kontrol et.`, 'active');
     showToast(`💳 ${ethAmount} ETH ödeme onayı bekleniyor...`,'info');
 
     const txHash = await agw.sendTransaction({
@@ -3867,6 +4122,7 @@ async function buyAmmo(pack) {
       data: BUY_AMMO_SELECTOR
     });
 
+    setPurchaseStatus('chain', 'BLOCKCHAIN ONAYI BEKLENİYOR', `İşlem gönderildi: ${shortPayoutTx(txHash)}. Mermi yazımı için on-chain doğrulama bekleniyor.`, 'active');
     showToast(`✅ İşlem gönderildi! ${pack.toLocaleString('tr-TR')} mermi alınıyor...`,'success');
     playSound('purchase');
     localStorage.setItem(LAST_PURCHASE_KEY, JSON.stringify({ pack, txHash, wallet, createdAt:Date.now() }));
@@ -3876,11 +4132,13 @@ async function buyAmmo(pack) {
     if (receipt?.player) updatePlayerUI(receipt.player);
     localStorage.removeItem(LAST_PURCHASE_KEY);
     await updateWalletBalance();
+    setPurchaseStatus('done', 'MERMİLER YAZILDI', `${pack.toLocaleString('tr-TR')} mermi bakiyene eklendi.`, 'success');
 
     // 4. Sohbete sistem mesajı
     addChatSystem(`💳 ${pack.toLocaleString('tr-TR')} mermi satın alındı (${ethAmount} ETH)`);
 
   } catch(e) {
+    setPurchaseStatus('server', 'SATIN ALMA KONTROL GEREKTİRİYOR', 'İşlem gönderildiyse sistem sonraki açılışta tekrar kurtarmayı deneyecek.', 'error');
     if (e.code === 4001) showToast(t('toast.txCancelled'),'error');
     else showToast('İşlem gönderildiyse mermi biraz geç yazılabilir. Hata: ' + (e.message||'').slice(0,40),'error');
     await updateWalletBalance();
@@ -3892,6 +4150,7 @@ async function buyAmmo(pack) {
 /* ── CHAT ── */
 async function confirmAmmoPurchase(pack, txHash) {
   for (let attempt = 0; attempt < 15; attempt++) {
+    setPurchaseStatus('server', 'BACKEND DOĞRULUYOR', `${shortPayoutTx(txHash)} işlemi kontrol ediliyor (${attempt+1}/15).`, 'active');
     if (attempt > 0) {
       showToast('Blockchain onayi bekleniyor...','info');
       await wait(3000);
@@ -3909,6 +4168,7 @@ async function confirmAmmoPurchase(pack, txHash) {
     }
     return data;
   }
+  setPurchaseStatus('server', 'ONAY ZAMAN AŞIMI', 'Blockchain onayı beklenenden uzun sürdü; sonraki girişte kurtarma tekrar denenecek.', 'error');
   throw new Error('İşlem onayı zaman aşımına uğradı');
 }
 
@@ -3939,21 +4199,26 @@ async function resumePendingPurchase() {
 
   const backendStatus = await fetchBackendStatus(true);
   if (APP_NETWORK === 'mainnet' && (!backendStatus || backendStatus.dbEnabled === false)) {
+    setPurchaseStatus('server', 'YARIM ALIM BEKLEMEDE', 'Sunucu hazır değil; önceki satın alma sonraki açılışta tekrar kontrol edilecek.', 'active');
     showToast(t('toast.pendingPurchaseServerNotReady'),'info');
     return;
   }
 
+  setPurchaseStatus('server', 'YARIM ALIM KONTROL EDİLİYOR', `${shortPayoutTx(record.txHash)} işlemi yeniden doğrulanıyor.`, 'active');
   showToast('⏳ Yarım kalan mermi alımı kontrol ediliyor...','info');
   try {
     const data = await confirmAmmoPurchase(Number(record.pack), String(record.txHash || ''));
     if (data?.player) updatePlayerUI(data.player);
     try { localStorage.removeItem(LAST_PURCHASE_KEY); } catch(e) {}
+    setPurchaseStatus('done', 'ÖNCEKİ ALIM TAMAMLANDI', 'Yarım kalan işlemin mermileri bakiyene yazıldı.', 'success');
     showToast('✅ Önceki alımın mermileri yazıldı','success');
   } catch(e) {
     if (e && e.code === 'TX_ALREADY_USED') {
       try { localStorage.removeItem(LAST_PURCHASE_KEY); } catch(_) {}
+      setPurchaseStatus('done', 'ÖNCEKİ ALIM ZATEN YAZILMIŞ', 'Bu transaction daha önce işlenmiş; kayıt temizlendi.', 'success');
       return;
     }
+    setPurchaseStatus('server', 'YARIM ALIM BEKLEMEDE', 'Önceki işlem henüz yazılamadı; sonraki açılışta tekrar denenecek.', 'error');
     showToast('Önceki mermi alımı henüz yazılamadı; sonraki açılışta tekrar denenecek.','info');
   }
 }
@@ -4002,6 +4267,7 @@ function _updateAllianceUI(data) {
     meta.textContent = '';
   }
   _toggleAllianceButtons();
+  updateProgressPanels();
 }
 
 function openAllianceModal(mode) {
@@ -4339,6 +4605,7 @@ function setBackendStatus(online) {
   } else {
     showToast(t('toast.serverBack'),'success');
   }
+  updateProgressPanels();
 }
 
 function scheduleBackendOffline(delayMs=6000) {
@@ -4411,9 +4678,11 @@ async function pollState() {
         loadAllianceFeed();
       }
     }
+    updateProgressPanels();
   } catch(e){
     _consecutiveFailures++;
     if (_consecutiveFailures >= 3) scheduleBackendOffline(2500);
+    updateProgressPanels();
   }
 }
 let _initialLoadDone = false;
@@ -5239,11 +5508,13 @@ ioScript.onload=()=>{
     if (wallet) warSocket.emit('heartbeat', { wallet });
     if (authToken && myAlliance) loadAllianceFeed();
     ensureHeartbeatTimer();
+    updateProgressPanels();
   });
   warSocket.on('disconnect',(reason)=>{
     document.querySelector('.gdot').style.background='#e8162a';
     if (!socketAuthReconnectInProgress) scheduleBackendOffline(6000);
     stopHeartbeatTimer();
+    updateProgressPanels();
   });
   warSocket.on('connect_error',()=>{ if (!socketAuthReconnectInProgress) scheduleBackendOffline(6000); });
   warSocket.on('war:attack',(d)=>{
@@ -5329,6 +5600,7 @@ window.addEventListener('abswar:agw-account', async event => {
   clearAuthSession();
   refreshSocketAuth();
   playerLoadedWalletLower = null;
+  lastPlayerSnapshot = null;
   myCountry = null;
   targetCountry = null;
   myAlliance = null;
@@ -5338,6 +5610,7 @@ window.addEventListener('abswar:agw-account', async event => {
   document.getElementById('myContrib').textContent = '0';
   applyConnectedWallet(newWallet);
   showWalletResumeHint('Cüzdan değişti. Oyuna devam etmek için ABSTRACT İLE BAĞLAN düğmesine bas.');
+  updateProgressPanels();
 });
 
 
@@ -6298,6 +6571,8 @@ function setLang(lang) {
   const btn = document.getElementById('langBtn');
   if (btn) btn.textContent = lang === 'tr' ? '🇹🇷 TR' : lang === 'en' ? '🇬🇧 EN' : '🇷🇺 RU';
   if (typeof updatePayoutPanels === 'function') updatePayoutPanels();
+  if (typeof updateTrustPanel === 'function') updateTrustPanel();
+  if (typeof updateProgressPanels === 'function') updateProgressPanels();
   if (typeof showToast === 'function') showToast(`✓ ${lang.toUpperCase()}`, 'info');
 }
 
@@ -6520,6 +6795,7 @@ async function disconnectWallet() {
   wallet = null;
   window.ABSWAR_WALLET = null;
   playerLoadedWalletLower = null;
+  lastPlayerSnapshot = null;
   myCountry = null;
   targetCountry = null;
   myAlliance = null;
@@ -6547,6 +6823,7 @@ async function disconnectWallet() {
   document.querySelectorAll('.bulk-atk-btn').forEach(b => b.disabled = true);
 
   closeWalletMenu();
+  updateProgressPanels();
 
   try { await window.abswarAgw?.logout?.(); } catch(e) {}
   showToast(t('toast.disconnected'),'info');
@@ -6674,6 +6951,7 @@ Object.assign(window, {
   adminAction,
   adminShowWinners,
   adminShowMetrics,
+  refreshAdminHealth,
   adminGrantBullets,
   refreshAdminPurchases,
   adminDownloadBackup,
@@ -6695,11 +6973,16 @@ Object.assign(window, {
   waitForAbstractWallet,
   resumePendingWalletConnection,
   updateWalletBalance,
-  updateRankUI
+  updateRankUI,
+  updateProgressPanels,
+  setPurchaseStatus,
+  updateTrustPanel
 });
 buildMap();
 renderLabels();
 renderResources();
+updateProgressPanels();
+updateTrustPanel();
 pollState();
 fetchRewardStatus();
 _applyUrlParams();
@@ -7083,14 +7366,15 @@ ensureRiskInfo();setInterval(ensureRiskInfo,1000);
 </script>
 <script>
 (function(){
-function docsKey(tab){return tab==="reward"?"Reward":tab==="security"?"Security":"How"}
+function docsKey(tab){return tab==="reward"?"Reward":tab==="security"?"Security":tab==="trust"?"Trust":"How"}
 function setDocs(tab="how"){
-  const active=["how","reward","security"].includes(tab)?tab:"how";
-  ["how","reward","security"].forEach(key=>{
+  const active=["how","reward","security","trust"].includes(tab)?tab:"how";
+  ["how","reward","security","trust"].forEach(key=>{
     const suffix=docsKey(key);
     document.getElementById("docsTab"+suffix)?.classList.toggle("active",key===active);
     document.getElementById("docsPanel"+suffix)?.classList.toggle("active",key===active);
   });
+  if(active==="trust" && typeof updateTrustPanel==="function") updateTrustPanel();
 }
 function openDocsSafe(tab="how"){setDocs(tab);document.getElementById("helpModal")?.classList.add("show")}
 function closeDocsSafe(){document.getElementById("helpModal")?.classList.remove("show")}
@@ -7110,7 +7394,7 @@ function bindDocs(){
   if(nav&&!nav.dataset.docsBound){nav.dataset.docsBound="1";nav.addEventListener("click",e=>{e.preventDefault();openDocsSafe("how")})}
   const modal=document.getElementById("helpModal");
   if(modal&&!modal.dataset.docsBound){modal.dataset.docsBound="1";modal.addEventListener("click",e=>{if(e.target===modal)closeDocsSafe()})}
-  [["docsTabHow","how"],["docsTabReward","reward"],["docsTabSecurity","security"]].forEach(([id,key])=>{
+  [["docsTabHow","how"],["docsTabReward","reward"],["docsTabSecurity","security"],["docsTabTrust","trust"]].forEach(([id,key])=>{
     const btn=document.getElementById(id);
     if(btn&&!btn.dataset.docsBound){btn.dataset.docsBound="1";btn.addEventListener("click",e=>{e.preventDefault();setDocs(key)})}
   });
