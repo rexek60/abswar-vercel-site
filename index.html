@@ -490,27 +490,27 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
   </div>
   <div style="display:flex;gap:8px;max-width:520px;width:100%;margin:-10px 0 22px;justify-content:center;flex-wrap:wrap">
     <div style="flex:1;min-width:138px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.09);padding:9px 10px;text-align:left">
-      <div style="font-family:var(--hud);font-size:9px;color:var(--green);letter-spacing:1px">1 · BAĞLAN</div>
-      <div style="font-size:10px;color:var(--dim);margin-top:4px;line-height:1.35">Abstract cüzdanınla giriş yap.</div>
+      <div style="font-family:var(--hud);font-size:9px;color:var(--green);letter-spacing:1px" data-i18n="welcome.stepConnect">1 · BAĞLAN</div>
+      <div style="font-size:10px;color:var(--dim);margin-top:4px;line-height:1.35" data-i18n="welcome.stepConnectBody">Abstract cüzdanınla giriş yap.</div>
     </div>
     <div style="flex:1;min-width:138px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.09);padding:9px 10px;text-align:left">
-      <div style="font-family:var(--hud);font-size:9px;color:var(--gold);letter-spacing:1px">2 · ÜLKE SEÇ</div>
-      <div style="font-size:10px;color:var(--dim);margin-top:4px;line-height:1.35">119 ülkeden birini komuta et.</div>
+      <div style="font-family:var(--hud);font-size:9px;color:var(--gold);letter-spacing:1px" data-i18n="welcome.stepCountry">2 · ÜLKE SEÇ</div>
+      <div style="font-size:10px;color:var(--dim);margin-top:4px;line-height:1.35" data-i18n="welcome.stepCountryBody">119 ülkeden birini komuta et.</div>
     </div>
     <div style="flex:1;min-width:138px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.09);padding:9px 10px;text-align:left">
-      <div style="font-family:var(--hud);font-size:9px;color:var(--red);letter-spacing:1px">3 · SALDIR</div>
-      <div style="font-size:10px;color:var(--dim);margin-top:4px;line-height:1.35">Mermi al, hedef seç, savaşa gir.</div>
+      <div style="font-family:var(--hud);font-size:9px;color:var(--red);letter-spacing:1px" data-i18n="welcome.stepAttack">3 · SALDIR</div>
+      <div style="font-size:10px;color:var(--dim);margin-top:4px;line-height:1.35" data-i18n="welcome.stepAttackBody">Mermi al, hedef seç, savaşa gir.</div>
     </div>
   </div>
   <button onclick="connectWallet()" style="background:linear-gradient(180deg,#e8162a,#a01020);border:none;color:#fff;font-family:var(--hud);font-size:13px;letter-spacing:3px;padding:14px 36px;cursor:pointer;font-weight:700;box-shadow:0 4px 20px rgba(232,22,42,0.4),inset 0 1px 0 rgba(255,255,255,0.15)" data-i18n="welcome.cta">
     🔗 CÜZDAN BAĞLA & SAVAŞA KATIL
   </button>
   <div id="walletResumeHint" style="display:none;margin-top:12px;max-width:440px;background:rgba(245,200,66,0.08);border:1px solid rgba(245,200,66,0.35);padding:12px 14px;color:var(--gold);font-family:var(--mono);font-size:10px;line-height:1.5">
-    <div id="walletResumeText" style="margin-bottom:10px">Abstract onayını tamamladıysan bağlantıyı burada bitir.</div>
-    <button onclick="resumePendingWalletConnection('manual',{force:true,requestAccounts:true})" style="background:rgba(245,200,66,0.16);border:1px solid rgba(245,200,66,0.55);color:var(--gold);font-family:var(--hud);font-size:10px;letter-spacing:2px;padding:9px 14px;cursor:pointer">
+    <div id="walletResumeText" style="margin-bottom:10px" data-i18n="wallet.resumeText">Abstract onayını tamamladıysan bağlantıyı burada bitir.</div>
+    <button onclick="resumePendingWalletConnection('manual',{force:true,requestAccounts:true})" style="background:rgba(245,200,66,0.16);border:1px solid rgba(245,200,66,0.55);color:var(--gold);font-family:var(--hud);font-size:10px;letter-spacing:2px;padding:9px 14px;cursor:pointer" data-i18n="wallet.resumeButton">
       BAĞLANTIYI TAMAMLA
     </button>
-    <button onclick="openWalletDiagnostics()" style="margin-left:6px;background:rgba(102,179,255,0.12);border:1px solid rgba(102,179,255,0.45);color:#66b3ff;font-family:var(--hud);font-size:10px;letter-spacing:2px;padding:9px 14px;cursor:pointer">
+    <button onclick="openWalletDiagnostics()" style="margin-left:6px;background:rgba(102,179,255,0.12);border:1px solid rgba(102,179,255,0.45);color:#66b3ff;font-family:var(--hud);font-size:10px;letter-spacing:2px;padding:9px 14px;cursor:pointer" data-i18n="wallet.checkButton">
       KONTROL ET
     </button>
   </div>
@@ -552,21 +552,21 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
   </div>
   <div class="nav-actions" style="margin-left:auto;display:flex;align-items:center;gap:10px">
     <button onclick="cycleLang()" id="langBtn" title="Dil / Language / Язык" style="background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--hud);font-size:10px;padding:5px 8px;cursor:pointer">🇹🇷 TR</button>
-    <button onclick="toggleSound()" id="soundBtn" title="Ses / müzik aç-kapa" style="background:transparent;border:1px solid var(--border);color:var(--text);font-size:14px;width:30px;height:28px;cursor:pointer;padding:0">🔊</button>
-    <button onclick="openFeedbackModal()" title="Geri bildirim / bug rapor" style="background:transparent;border:1px solid var(--border);color:var(--text);font-size:14px;width:30px;height:28px;cursor:pointer;padding:0">💬</button>
+    <button onclick="toggleSound()" id="soundBtn" title="Ses / müzik aç-kapa" data-i18n-title="nav.sound" style="background:transparent;border:1px solid var(--border);color:var(--text);font-size:14px;width:30px;height:28px;cursor:pointer;padding:0">🔊</button>
+    <button onclick="openFeedbackModal()" title="Geri bildirim / bug rapor" data-i18n-title="nav.feedback" style="background:transparent;border:1px solid var(--border);color:var(--text);font-size:14px;width:30px;height:28px;cursor:pointer;padding:0">💬</button>
     <button id="docsNavBtn" onclick="openDocs('how')" title="Centradar Docs" style="background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer" data-i18n="nav.docs">📚 DOCS</button>
     <span style="font-family:var(--mono);font-size:11px;color:var(--red)" id="ethBal">0.000 ETH</span>
-    <button id="nicknameBtn" onclick="openNicknameModal()" title="Nickname ayarla" style="display:none;background:transparent;border:1px solid var(--border);color:var(--green);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer">👤 <span id="nicknameLabel" data-i18n="nav.nickname">İSİM EKLE</span></button>
+    <button id="nicknameBtn" onclick="openNicknameModal()" title="Nickname ayarla" data-i18n-title="wallet.nickname" style="display:none;background:transparent;border:1px solid var(--border);color:var(--green);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer">👤 <span id="nicknameLabel" data-i18n="nav.nickname">İSİM EKLE</span></button>
     <button id="adminBtn" onclick="openAdminPanel()" title="Admin Paneli" style="display:none;background:linear-gradient(180deg,rgba(245,200,66,0.15),rgba(245,200,66,0.05));border:1px solid var(--gold);color:var(--gold);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer;letter-spacing:1px">⚙️ ADMIN</button>
     <div style="position:relative">
       <button class="btn-wallet" id="walletBtn" onclick="handleWalletBtn(event)" data-i18n="wallet.connect">CÜZDAN BAĞLA</button>
       <div id="walletMenu" style="display:none;position:absolute;top:calc(100% + 4px);right:0;min-width:200px;background:var(--bg1);border:1px solid var(--border);box-shadow:0 6px 20px rgba(0,0,0,0.6);z-index:1500;font-family:var(--hud)">
         <div style="padding:10px 12px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:10px;color:var(--dim);word-break:break-all" id="walletMenuAddr">0x0000...</div>
-        <button class="wm-item" onclick="copyWalletAddress()">📋 ADRESİ KOPYALA</button>
-        <button class="wm-item" onclick="openNicknameModal();closeWalletMenu()">👤 NICKNAME DEĞİŞTİR</button>
-        <button class="wm-item" onclick="openExplorer()">🔍 EXPLORER'DA GÖR</button>
+        <button class="wm-item" onclick="copyWalletAddress()" data-i18n="wallet.copy">📋 ADRESİ KOPYALA</button>
+        <button class="wm-item" onclick="openNicknameModal();closeWalletMenu()" data-i18n="wallet.nickname">👤 NICKNAME DEĞİŞTİR</button>
+        <button class="wm-item" onclick="openExplorer()" data-i18n="wallet.explorer">🔍 EXPLORER'DA GÖR</button>
         <div style="border-top:1px solid var(--border)"></div>
-        <button class="wm-item wm-danger" onclick="disconnectWallet()">⏏ ÇIKIŞ YAP</button>
+        <button class="wm-item wm-danger" onclick="disconnectWallet()" data-i18n="wallet.disconnect">⏏ ÇIKIŞ YAP</button>
       </div>
     </div>
   </div>
@@ -808,7 +808,7 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
 
   <!-- Map bottom bar -->
   <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(7,11,14,0.92);border-top:1px solid var(--border);display:flex;align-items:center;gap:10px;padding:5px 10px;z-index:10">
-    <span style="font-family:var(--mono);font-size:8px;color:var(--dim)">HARİTA: 119 ÜLKE</span>
+    <span style="font-family:var(--mono);font-size:8px;color:var(--dim)" data-i18n="map.countryCount">HARİTA: 119 ÜLKE</span>
     <span class="gdot"></span><span style="font-family:var(--mono);font-size:8px;color:var(--green)" data-i18n="live.short">CANLI</span>
     <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
       <button id="attackBtn" onclick="attackTarget()" disabled
@@ -832,7 +832,7 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
 
   <!-- Radar badge -->
   <div style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.75);border:1px solid rgba(0,200,83,0.3);padding:5px 8px;z-index:10;text-align:center;min-width:90px">
-    <div style="font-family:var(--hud);font-size:7px;color:var(--dim);letter-spacing:2px">RADAR SEVİYE <span id="radarLevel" style="color:var(--green)">3</span></div>
+    <div style="font-family:var(--hud);font-size:7px;color:var(--dim);letter-spacing:2px"><span data-i18n="radar.levelLabel">RADAR SEVİYE</span> <span id="radarLevel" style="color:var(--green)">3</span></div>
     <button id="radarUpgradeBtn" onclick="upgradeRadar()" style="margin-top:3px;padding:3px 8px;background:var(--green);color:#000;font-family:var(--hud);font-size:7px;border:none;cursor:pointer;width:100%" data-i18n="btn.upgradeRadar">YÜKSELT (5 MERMİ)</button>
   </div>
 </div>
@@ -848,7 +848,7 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
       <span id="coSuperBadge" class="super-badge">⚡ SÜPER GÜÇ</span>
     </div>
     <div style="display:flex;align-items:center;gap:6px">
-      <button onclick="copyCountryLink(myCountry)" title="Bu ülkenin linkini kopyala" style="background:transparent;border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.6);font-size:10px;padding:3px 7px;cursor:pointer;border-radius:1px">🔗</button>
+      <button onclick="copyCountryLink(myCountry)" title="Bu ülkenin linkini kopyala" data-i18n-title="country.copyLink" style="background:transparent;border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.6);font-size:10px;padding:3px 7px;cursor:pointer;border-radius:1px">🔗</button>
       <div class="co-rank"><div style="font-size:6px;color:rgba(255,255,255,0.7);letter-spacing:1px">SIRA</div><div style="font-size:14px;font-weight:900" id="coRank">#5</div></div>
     </div>
   </div>
@@ -3352,7 +3352,7 @@ async function adminShowMetrics() {
   const token = _getAdminToken();
   if (!token) return;
   const result = document.getElementById('adminResult');
-  result.innerHTML = '<span style="color:var(--dim)">Metrikler yukleniyor...</span>';
+  result.innerHTML = '<span style="color:var(--dim)">Metrikler yükleniyor...</span>';
   try {
     await ensureAuthSession(false);
     const res = await fetch(API+'/api/admin/metrics',{
@@ -3431,7 +3431,7 @@ async function adminDownloadBackup() {
   const token = _getAdminToken();
   if (!token) return;
   const result = document.getElementById('adminResult');
-  result.innerHTML = '<span style="color:var(--dim)">Yedek hazirlaniyor...</span>';
+  result.innerHTML = '<span style="color:var(--dim)">Yedek hazırlanıyor...</span>';
   try {
     await ensureAuthSession(false);
     const res = await fetch(API+'/api/admin/backup',{
@@ -4952,7 +4952,7 @@ async function confirmAmmoPurchase(pack, txHash) {
   for (let attempt = 0; attempt < 15; attempt++) {
     setPurchaseStatus('server', 'BACKEND DOĞRULUYOR', `${shortPayoutTx(txHash)} işlemi kontrol ediliyor (${attempt+1}/15).`, 'active');
     if (attempt > 0) {
-      showToast('Blockchain onayi bekleniyor...','info');
+      showToast('Blockchain onayı bekleniyor...','info');
       await wait(3000);
     }
     const res = await authJson('/api/market/buy', { wallet, pack, txHash });
@@ -6437,6 +6437,12 @@ const I18N = {
     'wallet.copy': '📋 ADRESİ KOPYALA',
     'wallet.explorer': '🔍 EXPLORER\'DA GÖR',
     'wallet.nickname': '👤 NICKNAME DEĞİŞTİR',
+    'wallet.resumeText': 'Abstract onayını tamamladıysan bağlantıyı burada bitir.',
+    'wallet.resumeButton': 'BAĞLANTIYI TAMAMLA',
+    'wallet.checkButton': 'KONTROL ET',
+    'country.copyLink': 'Bu ülkenin linkini kopyala',
+    'map.countryCount': 'HARİTA: 119 ÜLKE',
+    'radar.levelLabel': 'RADAR SEVİYE',
     'nav.controls': 'KONTROL PANELİ',
     'nav.map': 'HARİTA',
     'nav.countries': 'ÜLKELER',
@@ -6730,6 +6736,12 @@ const I18N = {
     // Welcome overlay
     'welcome.subtitle': 'KÜRESEL SAVAŞ MMO · ABSTRACT MAINNET',
     'welcome.body': '119 ülkeden birini seç, ittifak kur, savaş alanına gir. Web3 cüzdanınla bağlan, mermi al, hedeflerinin elenmesi için saldır.',
+    'welcome.stepConnect': '1 · BAĞLAN',
+    'welcome.stepConnectBody': 'Abstract cüzdanınla giriş yap.',
+    'welcome.stepCountry': '2 · ÜLKE SEÇ',
+    'welcome.stepCountryBody': '119 ülkeden birini komuta et.',
+    'welcome.stepAttack': '3 · SALDIR',
+    'welcome.stepAttackBody': 'Mermi al, hedef seç, savaşa gir.',
     'welcome.cta': '🔗 ABSTRACT İLE BAĞLAN & SAVAŞA KATIL',
     'welcome.skip': 'Önce çevreyi gözden geçirmek istiyorum →',
     'welcome.warning': '⚠️ Abstract mainnet üzerinde çalışır. Mermi alımlarında gerçek ETH kullanılır; cüzdan onay ekranını her zaman kontrol et.',
@@ -6761,6 +6773,12 @@ const I18N = {
     'wallet.copy': '📋 COPY ADDRESS',
     'wallet.explorer': '🔍 VIEW ON EXPLORER',
     'wallet.nickname': '👤 CHANGE NICKNAME',
+    'wallet.resumeText': 'If you completed the Abstract approval, finish the connection here.',
+    'wallet.resumeButton': 'COMPLETE CONNECTION',
+    'wallet.checkButton': 'CHECK',
+    'country.copyLink': 'Copy this country link',
+    'map.countryCount': 'MAP: 119 COUNTRIES',
+    'radar.levelLabel': 'RADAR LEVEL',
     'nav.controls': 'CONTROL PANEL',
     'nav.map': 'MAP',
     'nav.countries': 'COUNTRIES',
@@ -7038,6 +7056,12 @@ const I18N = {
     'pack.bullets': 'ammo',
     'welcome.subtitle': 'GLOBAL WAR MMO · ABSTRACT MAINNET',
     'welcome.body': 'Pick one of 119 countries, form alliances, enter the battlefield. Connect your Web3 wallet, buy ammo, attack to crush your targets.',
+    'welcome.stepConnect': '1 · CONNECT',
+    'welcome.stepConnectBody': 'Sign in with your Abstract wallet.',
+    'welcome.stepCountry': '2 · PICK COUNTRY',
+    'welcome.stepCountryBody': 'Command one of 119 countries.',
+    'welcome.stepAttack': '3 · ATTACK',
+    'welcome.stepAttackBody': 'Buy ammo, choose a target, enter the war.',
     'welcome.cta': '🔗 CONNECT ABSTRACT WALLET & JOIN WAR',
     'welcome.skip': 'Let me look around first →',
     'welcome.warning': '⚠️ Runs on Abstract mainnet. Ammo purchases use real ETH; always review wallet confirmations.',
@@ -7065,6 +7089,12 @@ const I18N = {
     'wallet.copy': '📋 КОПИРОВАТЬ АДРЕС',
     'wallet.explorer': '🔍 СМОТРЕТЬ В EXPLORER',
     'wallet.nickname': '👤 СМЕНИТЬ НИК',
+    'wallet.resumeText': 'Если подтверждение Abstract завершено, закончите подключение здесь.',
+    'wallet.resumeButton': 'ЗАВЕРШИТЬ ПОДКЛЮЧЕНИЕ',
+    'wallet.checkButton': 'ПРОВЕРИТЬ',
+    'country.copyLink': 'Скопировать ссылку страны',
+    'map.countryCount': 'КАРТА: 119 СТРАН',
+    'radar.levelLabel': 'УРОВЕНЬ РАДАРА',
     'nav.controls': 'УПРАВЛЕНИЕ',
     'nav.map': 'КАРТА',
     'nav.countries': 'СТРАНЫ',
@@ -7341,6 +7371,12 @@ const I18N = {
     'pack.bullets': 'патронов',
     'welcome.subtitle': 'ГЛОБАЛЬНАЯ ВОЕННАЯ MMO · ABSTRACT TESTNET',
     'welcome.body': 'Выберите одну из 119 стран, создайте альянс, выходите в бой. Подключите Web3-кошелёк, купите патроны, атакуйте цели.',
+    'welcome.stepConnect': '1 · ПОДКЛЮЧИТЬ',
+    'welcome.stepConnectBody': 'Войдите через Abstract wallet.',
+    'welcome.stepCountry': '2 · ВЫБРАТЬ СТРАНУ',
+    'welcome.stepCountryBody': 'Командуйте одной из 119 стран.',
+    'welcome.stepAttack': '3 · АТАКА',
+    'welcome.stepAttackBody': 'Купите патроны, выберите цель и вступайте в бой.',
     'welcome.cta': '🔗 ПОДКЛЮЧИТЬ ABSTRACT WALLET',
     'welcome.skip': 'Сначала осмотрюсь →',
     'welcome.warning': '⚠️ Работает в Abstract mainnet. Покупка патронов использует реальный ETH; проверяйте подтверждения кошелька.',
