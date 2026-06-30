@@ -522,7 +522,7 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
   </div>
 </div>
 <!-- Bağlantı kayıp uyarısı -->
-<div id="offlineBanner" style="display:none;position:fixed;top:0;left:0;right:0;background:var(--red);color:#fff;font-family:var(--hud);font-size:11px;padding:8px 14px;z-index:9999;align-items:center;justify-content:center;gap:10px;letter-spacing:1.5px">
+<div id="offlineBanner" role="status" aria-live="polite" style="display:none;position:fixed;top:0;left:0;right:0;background:var(--red);color:#fff;font-family:var(--hud);font-size:11px;padding:8px 14px;z-index:9999;align-items:center;justify-content:center;gap:10px;letter-spacing:1.5px">
   <span style="font-size:14px">⚠️</span>
   <span data-i18n="conn.lost">SUNUCU BAĞLANTISI KAYIP — OTOMATİK YENİDEN DENENİYOR</span>
   <button onclick="location.reload()" style="background:rgba(255,255,255,0.2);border:1px solid #fff;color:#fff;padding:3px 10px;font-family:var(--hud);font-size:10px;cursor:pointer" data-i18n="conn.reload">🔄 SAYFAYI YENİLE</button>
@@ -1508,7 +1508,7 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
   <button class="mobile-battle-action" id="mobileBattleAction" onclick="attackTarget()" disabled>SALDIR</button>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
 const API_ENDPOINTS = {
@@ -4268,6 +4268,8 @@ function drawAttackLine(fromCode, toCode) {
 
 /* ── WALLET ── */
 let agwConnectInProgress = false;
+let lastWelcomeToastWallet = '';
+let lastCountryHintWallet = '';
 
 async function waitForAbstractWallet(requireAccount=false) {
   const prepare = window.prepareAbswarAgwProvider || (typeof prepareAbswarAgwProvider === 'function' ? prepareAbswarAgwProvider : null);
@@ -4443,7 +4445,7 @@ async function resumePendingWalletConnection(reason='resume', options={}) {
 async function registerPlayer() {
   if (playerConnectPromise) return playerConnectPromise;
   playerConnectPromise = (async () => {
-  showLoader('OYUNCU YÜKLENİYOR...');
+  showLoader(t('load.player'));
   setWalletDiag('Oyuncu yükleniyor', 'Backend oyuncu kaydı ve bonus durumu kontrol ediliyor.', 'info');
   try {
     if (!authToken) await ensureAuthSession(false);
@@ -4463,13 +4465,22 @@ async function registerPlayer() {
     setBackendStatus(true);
     const p = data.player || data;
     const cc = normalizeCountryCode(p.countryCode || p.country_code);
+    const walletKey = wallet ? wallet.toLowerCase() : '';
     if (cc) {
       setMyCountry(cc);
-      showToast('Hoş geldin Komutan! '+( CD[cc]?.f||'')+' '+(CD[cc]?.n||cc),'success');
+      if (walletKey && lastWelcomeToastWallet !== walletKey) {
+        lastWelcomeToastWallet = walletKey;
+        showToast(`${t('toast.welcome')} ${(CD[cc]?.f||'')} ${(CD[cc]?.n||cc)}`,'success');
+      }
     } else {
-      showToast(t('toast.connected'),'success');
-      setTimeout(()=>showToast('1/3 Ülke seç: haritadan veya ülke listesinden komutanlığını belirle.','info'), 500);
-      setTimeout(()=>openModal('nation'),700);
+      showToastOnce(`wallet-connected-${walletKey || 'anon'}`, t('toast.connected'), 'success', 20000);
+      if (walletKey && lastCountryHintWallet !== walletKey) {
+        lastCountryHintWallet = walletKey;
+        setTimeout(()=>showToast('1/3 Ülke seç: haritadan veya ülke listesinden komutanlığını belirle.','info'), 500);
+        setTimeout(()=>openModal('nation'),700);
+      } else if (!walletKey) {
+        setTimeout(()=>openModal('nation'),700);
+      }
     }
     updatePlayerUI(p);
     playerLoadedWalletLower = wallet ? wallet.toLowerCase() : null;
@@ -4494,7 +4505,8 @@ async function registerPlayer() {
       showWalletResumeHint('Sunucu cevabı gecikti. Birkaç saniye sonra ABSTRACT İLE BAĞLAN düğmesine tekrar bas.');
     }
     setWalletDiag(serverDown ? 'Sunucu gecikti' : 'Oyuncu yükleme hatası', msg || 'Cüzdan doğrulaması tamamlanamadı', 'error');
-    showToast(serverDown ? t('toast.serverDown') : t('toast.connectionError', { msg: msg ? msg.slice(0, 90) : 'Cüzdan doğrulaması tamamlanamadı' }),'error');
+    if (serverDown) showToastOnce('player-connect-server-down', t('toast.serverDown'), 'error', 20000);
+    else showToast(t('toast.connectionError', { msg: msg ? msg.slice(0, 90) : 'Cüzdan doğrulaması tamamlanamadı' }),'error');
     return false;
   } finally { hideLoader(); }
   })();
@@ -5393,6 +5405,8 @@ function updateLeaderboard(countries, players) {
 let _backendOnline = true;
 let _consecutiveFailures = 0;
 let _backendOfflineTimer = null;
+let _backendOfflineSince = 0;
+const BACKEND_STATUS_TOAST_COOLDOWN_MS = 30000;
 
 function setBackendStatus(online) {
   if (online && _backendOfflineTimer) {
@@ -5404,9 +5418,14 @@ function setBackendStatus(online) {
   const banner = document.getElementById('offlineBanner');
   if (banner) banner.style.display = online ? 'none' : 'flex';
   if (!online) {
-    showToast(t('toast.serverOffline'),'error');
+    _backendOfflineSince = Date.now();
+    showToastOnce('backend-offline', t('toast.serverOffline'), 'error', BACKEND_STATUS_TOAST_COOLDOWN_MS);
   } else {
-    showToast(t('toast.serverBack'),'success');
+    const offlineFor = _backendOfflineSince ? Date.now() - _backendOfflineSince : 0;
+    if (offlineFor > 8000) {
+      showToastOnce('backend-back', t('toast.serverBack'), 'success', BACKEND_STATUS_TOAST_COOLDOWN_MS);
+    }
+    _backendOfflineSince = 0;
   }
   updateProgressPanels();
 }
@@ -5534,6 +5553,14 @@ document.getElementById('countryModal').addEventListener('click',function(e){if(
 
 /* ── TOAST ── */
 let _lastToast = { msg:'', at:0 };
+const _toastOnceMap = new Map();
+function showToastOnce(key, msg, type='info', cooldownMs=12000) {
+  const now = Date.now();
+  const last = Number(_toastOnceMap.get(key) || 0);
+  if (now - last < cooldownMs) return;
+  _toastOnceMap.set(key, now);
+  showToast(msg, type);
+}
 function showToast(msg,type='info') {
   // Aynı mesaj 1.5sn içinde tekrar gelirse görmezden gel
   const now = Date.now();
@@ -7674,6 +7701,7 @@ function openExplorer() {
 
 async function disconnectWallet() {
   if (!confirm('Çıkış yapmak istediğinden emin misin?')) return;
+  const disconnectedWalletKey = wallet ? wallet.toLowerCase() : '';
 
   // Tam session sıfırla
   clearAuthSession();
@@ -7691,6 +7719,10 @@ async function disconnectWallet() {
   myBulletsCount = 0;
   adminTokenSession = '';
   playerHistoryCache = null;
+  if (disconnectedWalletKey) {
+    if (lastWelcomeToastWallet === disconnectedWalletKey) lastWelcomeToastWallet = '';
+    if (lastCountryHintWallet === disconnectedWalletKey) lastCountryHintWallet = '';
+  }
 
   // UI'yı sıfırla
   document.getElementById('walletBtn').textContent = 'CÜZDAN BAĞLA';
