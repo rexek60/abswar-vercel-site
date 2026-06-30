@@ -3168,7 +3168,7 @@ function renderAdminPurchases(data) {
           <b style="color:#66b3ff;text-align:right">+${Number(item.bullets||0).toLocaleString('tr-TR')}</b>
         </div>`;
       }).join('')
-    : '<div style="color:var(--dim);padding:8px 0">Son admin mermi odulu yok.</div>';
+    : '<div style="color:var(--dim);padding:8px 0">Son admin mermi ödülü yok.</div>';
 
   box.innerHTML = `
     <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:8px">
@@ -3338,13 +3338,13 @@ async function adminShowMetrics() {
         Uptime: <b>${Math.floor((data.uptimeSec||0)/60)}</b> dk<br>
         DB: <b>${data.dbEnabled?'aktif':'bellek modu'}</b><br>
         Oyuncu: <b>${data.playerCount||0}</b> · Online: <b>${data.onlinePlayers||0}</b><br>
-        Ittifak: <b>${data.allianceCount||0}</b> · Saldiri kaydi: <b>${data.recentAttackCount||0}</b><br>
+        İttifak: <b>${data.allianceCount||0}</b> · Saldırı kaydı: <b>${data.recentAttackCount||0}</b><br>
         Ulke: <b>${data.countries?.alive||0}</b> aktif / <b>${data.countries?.eliminated||0}</b> elenmis · Super guc: <b>${data.countries?.superpowers||0}</b><br>
         Odul havuzu: <b style="color:var(--gold)">${eth} ETH</b><br>
         Tur: <b>${data.round?.number||'?'} / ${data.round?.status||'?'}</b>
       </div>`;
   } catch(e) {
-    result.innerHTML = '<span style="color:var(--red)">HATA: Metrikler alinamadi</span>';
+    result.innerHTML = '<span style="color:var(--red)">HATA: Metrikler alınamadı</span>';
   }
 }
 
@@ -3421,7 +3421,7 @@ async function adminDownloadBackup() {
     URL.revokeObjectURL(url);
     result.innerHTML = `<span style="color:var(--green)">Yedek hazırlandı.</span><br><span style="color:var(--dim);font-size:10px">Oyuncu: ${escapeHtml(String((data.players||[]).length))} · Ülke: ${escapeHtml(String((data.countries||[]).length))} · Tur: ${escapeHtml(String(data.round?.number||'?'))}</span>`;
   } catch(e) {
-    result.innerHTML = '<span style="color:var(--red)">HATA: Yedek alinamadi</span>';
+    result.innerHTML = '<span style="color:var(--red)">HATA: Yedek alınamadı</span>';
   }
 }
 
@@ -4839,7 +4839,7 @@ function ethToWeiHex(ethStr) {
 
 async function buyAmmo(pack) {
   if (!wallet) { showToast(t('toast.connectFirst'),'error'); return; }
-  if (!CONTRACT_ADDRESS) { showToast('Kontrat adresi ayarli degil.','error'); return; }
+  if (!CONTRACT_ADDRESS) { showToast('Kontrat adresi ayarlı değil.','error'); return; }
 
   const ammoPack = AMMO_PACKS_FE[pack];
   const ethAmount = ammoPack?.eth;
@@ -4992,7 +4992,7 @@ function sendChat() {
     }
     inp.value = '';
   }).catch(e => {
-    showToast((e && e.message) ? e.message : 'Sohbet gonderilemedi', 'error');
+    showToast((e && e.message) ? e.message : 'Sohbet gönderilemedi', 'error');
   });
 }
 
@@ -6336,7 +6336,7 @@ function startWarSocket(){
   });
   warSocket.on('admin:bullet-grant',(d)=>{
     if (!wallet || !d?.wallet || d.wallet.toLowerCase() !== wallet.toLowerCase()) return;
-    showToast(`Admin odulu: +${Number(d.bullets||0).toLocaleString('tr-TR')} mermi`, 'success');
+    showToast(`Admin ödülü: +${Number(d.bullets||0).toLocaleString('tr-TR')} mermi`, 'success');
     playSound && playSound('purchase');
     refreshPlayerState();
   });
@@ -7912,7 +7912,7 @@ async function ensureAbswarAgwProvider() {
       reject(error);
     };
     const timeout = setTimeout(() => {
-      fail(new Error('Abstract Global Wallet saglayicisi bulunamadi'));
+      fail(new Error('Abstract Global Wallet sağlayıcısı bulunamadı'));
     }, ABSWAR_AGW_PROVIDER_TIMEOUT_MS);
     function onProvider(event) {
       if (!isAbswarAgwProviderInfo(event.detail?.info)) return;
@@ -8018,7 +8018,7 @@ async function refreshAbswarAgwBridge(accountInfo) {
         latest?.address
       ].filter(Boolean);
       const accounts = [...new Set(candidates.map(a => String(a)))];
-      if (!accounts.length) throw new Error('Abstract Global Wallet bagli degil');
+      if (!accounts.length) throw new Error('Abstract Global Wallet bağlı değil');
       let lastError = null;
       for (const account of accounts) {
         try {
@@ -8028,7 +8028,7 @@ async function refreshAbswarAgwBridge(accountInfo) {
               params:[stringToHex(message), account]
             })),
             ABSWAR_AGW_SIGN_TIMEOUT_MS,
-            'Abstract Global Wallet imza penceresi zaman asimina ugradi'
+            'Abstract Global Wallet imza penceresi zaman aşımına uğradı'
           );
         } catch(e) {
           lastError = e;
@@ -8036,13 +8036,13 @@ async function refreshAbswarAgwBridge(accountInfo) {
           if (/reject|denied|cancel/i.test(msg)) throw e;
         }
       }
-      throw lastError || new Error('Abstract Global Wallet imzasi alinamadi');
+      throw lastError || new Error('Abstract Global Wallet imzası alınamadı');
     },
     sendTransaction: async tx => {
       const provider = await ensureAbswarAgwProvider();
       const { toHex } = await loadAbswarAgwModules().then(modules => modules.viemModule);
       const account = window.abswarAgw.address || await readAbswarAgwAddress();
-      if (!account) throw new Error('Abstract Global Wallet bagli degil');
+      if (!account) throw new Error('Abstract Global Wallet bağlı değil');
       return withAbswarPopupGuard(() => provider.request({
         method:'eth_sendTransaction',
         params:[{
