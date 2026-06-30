@@ -168,7 +168,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .det-act{font-size:8px;margin-top:1px}
 .massive{color:var(--red)}.nuclear{color:#ff6b35}.movement{color:var(--gold)}.alliance-m{color:var(--green)}
 .res-row{margin-bottom:8px;padding:0 12px}
-.res-row.uranium{padding:8px 12px;border:1px solid rgba(0,200,83,.18);background:linear-gradient(90deg,rgba(0,200,83,.08),rgba(0,200,83,0))}
+.res-row.resource-active{padding:8px 12px;border:1px solid rgba(0,200,83,.18);background:linear-gradient(90deg,rgba(0,200,83,.08),rgba(0,200,83,0))}
 .res-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
 .res-name{font-family:var(--hud);font-size:8px;letter-spacing:1px;color:var(--text)}
 .res-pct{font-family:var(--mono);font-size:9px;color:var(--text)}
@@ -909,8 +909,8 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
   <div class="leaderboard-page-block">
   <div class="sh" data-i18n="panel.leaderboard">LİDERLİK TABLOSU</div>
   <div class="lb-tabs">
-    <div class="lb-tab active" onclick="setLbTab('countries',this)">ÜLKELER</div>
-    <div class="lb-tab" onclick="setLbTab('players',this)">OYUNCULAR</div>
+    <div class="lb-tab active" onclick="setLbTab('countries',this)" data-i18n="lb.countries">ÜLKELER</div>
+    <div class="lb-tab" onclick="setLbTab('players',this)" data-i18n="lb.players">OYUNCULAR</div>
   </div>
   <div style="flex:0 1 220px;min-height:120px;overflow-y:auto" id="lbList">
     <div style="padding:20px;text-align:center;color:var(--dim);font-size:11px">Canlı sıralama yükleniyor...</div>
@@ -1989,6 +1989,38 @@ let lastEconomyState = null;
 let currentPurchaseStatus = { step:'idle', type:'idle', title:'SATIN ALMA GÜVEN EKRANI', detail:'Mermi alırken işlem adımları burada görünür: cüzdan onayı, blockchain onayı ve mermi yazımı.' };
 let walletResumeRequestInProgress = false;
 let walletResumeLastRequestAt = 0;
+const COUNTRY_CACHE_PREFIX = `centradar-country:${APP_NETWORK}:`;
+
+function normalizeCountryCode(code) {
+  const cc = String(code || '').trim().toUpperCase();
+  return CD[cc] ? cc : '';
+}
+
+function countryCacheKey(addr=wallet) {
+  const safe = String(addr || '').toLowerCase();
+  return safe ? COUNTRY_CACHE_PREFIX + safe : '';
+}
+
+function cacheCountrySelection(code, addr=wallet) {
+  const cc = normalizeCountryCode(code);
+  const key = countryCacheKey(addr);
+  if (!cc || !key) return;
+  try { localStorage.setItem(key, cc); } catch(e) {}
+}
+
+function setMyCountry(code, options={}) {
+  const cc = normalizeCountryCode(code);
+  if (!cc) return false;
+  myCountry = cc;
+  if (options.cache !== false) cacheCountrySelection(cc);
+  applyMyCountry(cc);
+  const modal = document.getElementById('countryModal');
+  if (modal?.classList.contains('show') && modalMode === 'nation') closeModal();
+  updateProgressPanels();
+  updateProfileCard();
+  updateMobileBattleBar();
+  return true;
+}
 
 /* ── YÜKLEME GÖSTERGESİ ── */
 function showLoader(text='YÜKLENİYOR...') {
@@ -3607,10 +3639,23 @@ function getResourceBonusPercent(resource) {
 }
 
 function renderResourceBadge(resource) {
-  if (!resource || resource.id !== 'uranium') return '';
-  const shieldPct = getResourceBonusPercent(resource);
-  const label = t('buff.shield') || 'KALKAN';
-  return `<span class="res-badge ${shieldPct ? '' : 'inactive'}">${label} +%${shieldPct} / %10</span>`;
+  if (!resource) return '';
+  const val = Math.max(0, Math.min(100, Number(resource.val || 0)));
+  if (resource.id === 'oil') {
+    return `<span class="res-badge ${val ? '' : 'inactive'}">${escapeHtml(t('res.oilBadge'))} ${val.toFixed(0)}% / %100</span>`;
+  }
+  if (resource.id === 'metal') {
+    const dmgPct = getResourceBonusPercent(resource);
+    return `<span class="res-badge ${dmgPct ? '' : 'inactive'}">${escapeHtml(t('res.metalBadge'))} +%${dmgPct} / %10</span>`;
+  }
+  if (resource.id === 'uranium') {
+    const shieldPct = getResourceBonusPercent(resource);
+    return `<span class="res-badge ${shieldPct ? '' : 'inactive'}">${escapeHtml(t('res.uraniumBadge'))} +%${shieldPct} / %10</span>`;
+  }
+  if (resource.id === 'energy') {
+    return `<span class="res-badge ${val ? '' : 'inactive'}">${escapeHtml(t('res.energyBadge'))} ${val.toFixed(0)}% / %100</span>`;
+  }
+  return '';
 }
 
 function renderResources() {
@@ -3624,7 +3669,8 @@ function renderResources() {
     const rName = t(nameKey[r.id]) || r.name;
     const rDesc = t(descKey[r.id]) || r.effect;
     const row = document.createElement('div');
-    row.className = 'res-row' + (r.id === 'uranium' ? ' uranium' : '');
+    const isActive = Number(r.val || 0) > 0;
+    row.className = 'res-row' + (isActive ? ' resource-active' : '');
     row.style.cursor = 'pointer';
     row.title = `${rDesc}`;
     row.onclick = ()=>produceResource(r.id);
@@ -4416,11 +4462,10 @@ async function registerPlayer() {
     if (!res.ok || data.error) throw new Error(tErr(data) || data.error || 'HTTP '+res.status);
     setBackendStatus(true);
     const p = data.player || data;
-    const cc = p.countryCode || p.country_code;
+    const cc = normalizeCountryCode(p.countryCode || p.country_code);
     if (cc) {
-      myCountry = cc;
-      applyMyCountry(cc);
-      showToast('Hoş geldin Komutan! '+( CD[cc]?.f||'')+' '+cc,'success');
+      setMyCountry(cc);
+      showToast('Hoş geldin Komutan! '+( CD[cc]?.f||'')+' '+(CD[cc]?.n||cc),'success');
     } else {
       showToast(t('toast.connected'),'success');
       setTimeout(()=>showToast('1/3 Ülke seç: haritadan veya ülke listesinden komutanlığını belirle.','info'), 500);
@@ -4464,6 +4509,8 @@ async function registerPlayer() {
 function updatePlayerUI(p) {
   if (!p) return;
   lastPlayerSnapshot = { ...(lastPlayerSnapshot || {}), ...p, resources:p.resources || (lastPlayerSnapshot && lastPlayerSnapshot.resources) || null };
+  const playerCountry = normalizeCountryCode(p.countryCode || p.country_code);
+  if (playerCountry) setMyCountry(playerCountry);
   // Nickname senkronizasyonu (backend'den)
   if (p.nickname !== undefined) {
     myNickname = p.nickname;
@@ -4538,11 +4585,11 @@ async function chooseCountry(code) {
   try {
     const res = await authJson('/api/player/choose-country',{wallet,countryCode:code});
     const data = await res.json();
-    if (data.error) { showToast(tErr(data),'error'); return; }
-    myCountry = code;
-    lastPlayerSnapshot = { ...(lastPlayerSnapshot || {}), country_code:code, countryCode:code };
-    applyMyCountry(code);
-    showToast('Ülke seçildi: '+(CD[code]?.f||'')+' '+(CD[code]?.n||code),'success');
+    if (!res.ok || data.error) { showToast(tErr(data) || data.error || ('HTTP '+res.status),'error'); return; }
+    const selectedCode = normalizeCountryCode(data.player?.country_code || data.player?.countryCode || code);
+    setMyCountry(selectedCode);
+    lastPlayerSnapshot = { ...(lastPlayerSnapshot || {}), ...(data.player || {}), country_code:selectedCode, countryCode:selectedCode };
+    showToast('Ülke seçildi: '+(CD[selectedCode]?.f||'')+' '+(CD[selectedCode]?.n||selectedCode),'success');
     setTimeout(()=>showToast('2/3 Hedef seç: haritadan rakip ülkeye tıkla, sonra saldırıya başla.','info'), 450);
     updateProgressPanels();
     loadDailyQuests(true);
@@ -5471,8 +5518,7 @@ function filterCountries() {
 
 function openModal(mode) {
   modalMode = mode || (myCountry ? 'target' : 'nation');
-  document.getElementById('modalTitle').textContent = modalMode==='nation' ? 'ÜLKENİ SEÇ' : 'HEDEF ÜLKE SEÇ';
-  document.getElementById('modalSub').textContent = modalMode==='nation' ? 'Bir kez seçince ülken elenene kadar değiştiremezsin.' : 'Saldırmak istediğin ülkeyi seç.';
+  updateCountryModalText();
   buildCountryGrid();
   document.getElementById('countrySearch').value = '';
   document.querySelectorAll('#cGrid .c-btn').forEach(btn=>{
@@ -6416,6 +6462,8 @@ const I18N = {
     'panel.alliance': 'İTTİFAK YÖNETİMİ',
     'panel.allianceChat': 'İTTİFAK SOHBETİ',
     'panel.leaderboard': 'LİDER TABLOSU',
+    'lb.countries': 'ÜLKELER',
+    'lb.players': 'OYUNCULAR',
     'panel.mystats': 'İSTATİSTİKLERİM',
     'panel.history': 'SALDIRI TARİHİ',
     'panel.activity': 'SAVAŞ FAALİYETİ',
@@ -6447,6 +6495,10 @@ const I18N = {
     'res.metalDesc': 'Seviye×%1 ekstra hasar',
     'res.uraniumDesc': 'İlk üretimde +%10 kalkan aktif olur (savunma için)',
     'res.energyDesc': '%100 → ülkene +50 HP',
+    'res.oilBadge': 'MERMİ',
+    'res.metalBadge': 'HASAR',
+    'res.uraniumBadge': 'KALKAN',
+    'res.energyBadge': 'HP',
     'stat.online': 'ÇEVRİMİÇİ',
     'btn.joinWar': 'SAVAŞA KATIL',
     'stat.country': 'ÜLKE',
@@ -6604,6 +6656,7 @@ const I18N = {
     'modal.help': '❓ NASIL OYNANIR',
     'modal.docs': '📚 CENTRADAR DOCS',
     'modal.country': 'ÜLKE SEÇ',
+    'modal.countryTarget': 'HEDEF ÜLKE SEÇ',
     'modal.roundEnd': '🏆 TUR BİTTİ',
     'payouts.lastRound': 'SON TUR ÖDEMELERİ',
     'payouts.waiting': 'Ödemeler admin onayını bekliyor',
@@ -6614,6 +6667,7 @@ const I18N = {
     'sub.nickname': 'Diğer oyuncular seni nasıl görsün?',
     'sub.feedback': 'Bir sorun mu var? Bir fikrin mi var? Bize yaz.',
     'sub.country': 'Hangi ülkenin komutanı olacaksın?',
+    'sub.countryTarget': 'Saldırmak istediğin ülkeyi seç.',
     'sub.help': 'Centradar\'a hoş geldin Komutan. Adımları takip et:',
     'sub.docs': 'Oyunu, ödülleri ve güvenlik notlarını tek yerde oku.',
     // Yardım modal adımları (kısa, anahtar)
@@ -6730,6 +6784,8 @@ const I18N = {
     'panel.alliance': 'ALLIANCE MGMT',
     'panel.allianceChat': 'ALLIANCE CHAT',
     'panel.leaderboard': 'LEADERBOARD',
+    'lb.countries': 'COUNTRIES',
+    'lb.players': 'PLAYERS',
     'panel.mystats': 'MY STATS',
     'panel.history': 'ATTACK HISTORY',
     'panel.activity': 'WAR ACTIVITY',
@@ -6761,6 +6817,10 @@ const I18N = {
     'res.metalDesc': 'Level×1% extra damage',
     'res.uraniumDesc': 'First production activates +10% shield (defense)',
     'res.energyDesc': '100% → +50 HP to your country',
+    'res.oilBadge': 'AMMO',
+    'res.metalBadge': 'DAMAGE',
+    'res.uraniumBadge': 'SHIELD',
+    'res.energyBadge': 'HP',
     'stat.online': 'ONLINE',
     'btn.joinWar': 'JOIN WAR',
     'stat.country': 'COUNTRY',
@@ -6911,6 +6971,7 @@ const I18N = {
     'modal.help': '❓ HOW TO PLAY',
     'modal.docs': '📚 CENTRADAR DOCS',
     'modal.country': 'SELECT COUNTRY',
+    'modal.countryTarget': 'SELECT TARGET COUNTRY',
     'modal.roundEnd': '🏆 ROUND ENDED',
     'payouts.lastRound': 'LAST ROUND PAYOUTS',
     'payouts.waiting': 'Payouts are waiting for admin approval',
@@ -6920,6 +6981,7 @@ const I18N = {
     'sub.nickname': 'How should other players see you?',
     'sub.feedback': 'Got a problem? Got an idea? Tell us.',
     'sub.country': 'Which country will you command?',
+    'sub.countryTarget': 'Choose the country you want to attack.',
     'sub.help': 'Welcome to Centradar, Commander. Follow the steps:',
     'sub.docs': 'Read how to play, rewards, and safety notes in one place.',
     'help.step1': '1 · CONNECT WALLET',
@@ -7026,6 +7088,8 @@ const I18N = {
     'panel.alliance': 'УПРАВЛЕНИЕ АЛЬЯНСОМ',
     'panel.allianceChat': 'ЧАТ АЛЬЯНСА',
     'panel.leaderboard': 'ТАБЛИЦА ЛИДЕРОВ',
+    'lb.countries': 'СТРАНЫ',
+    'lb.players': 'ИГРОКИ',
     'panel.mystats': 'МОЯ СТАТИСТИКА',
     'panel.history': 'ИСТОРИЯ АТАК',
     'panel.activity': 'ВОЕННАЯ АКТИВНОСТЬ',
@@ -7057,6 +7121,10 @@ const I18N = {
     'res.metalDesc': 'Уровень×1% доп. урон',
     'res.uraniumDesc': 'Первое производство активирует +10% щит (защита)',
     'res.energyDesc': '100% → +50 HP вашей стране',
+    'res.oilBadge': 'ПАТРОНЫ',
+    'res.metalBadge': 'УРОН',
+    'res.uraniumBadge': 'ЩИТ',
+    'res.energyBadge': 'HP',
     'stat.online': 'ОНЛАЙН',
     'btn.joinWar': 'ВСТУПИТЬ В ВОЙНУ',
     'stat.country': 'СТРАНА',
@@ -7206,6 +7274,7 @@ const I18N = {
     'modal.help': '❓ КАК ИГРАТЬ',
     'modal.docs': '📚 CENTRADAR DOCS',
     'modal.country': 'ВЫБРАТЬ СТРАНУ',
+    'modal.countryTarget': 'ВЫБРАТЬ ЦЕЛЬ',
     'modal.roundEnd': '🏆 РАУНД ЗАВЕРШЁН',
     'payouts.lastRound': 'ПОСЛЕДНИЕ ВЫПЛАТЫ',
     'payouts.waiting': 'Выплаты ожидают подтверждения администратора',
@@ -7215,6 +7284,7 @@ const I18N = {
     'sub.nickname': 'Как вас будут видеть другие игроки?',
     'sub.feedback': 'Есть проблема? Есть идея? Напишите нам.',
     'sub.country': 'Какой страной вы будете командовать?',
+    'sub.countryTarget': 'Выберите страну для атаки.',
     'sub.help': 'Добро пожаловать в Centradar, Командир. Следуйте шагам:',
     'sub.docs': 'Правила игры, награды и безопасность собраны в одном месте.',
     'help.step1': '1 · ПОДКЛЮЧИТЬ КОШЕЛЁК',
@@ -7333,6 +7403,7 @@ function tErr(payload) {
 function setLang(lang) {
   if (!I18N[lang]) return;
   _lang = lang;
+  document.documentElement.lang = lang;
   try { localStorage.setItem('abswar-lang', lang); } catch(e){}
   applyI18nToDOM();
   // Dil butonu güncelle
@@ -7341,6 +7412,9 @@ function setLang(lang) {
   if (typeof updatePayoutPanels === 'function') updatePayoutPanels();
   if (typeof updateTrustPanel === 'function') updateTrustPanel();
   if (typeof updateProgressPanels === 'function') updateProgressPanels();
+  if (typeof updateProfileCard === 'function') updateProfileCard();
+  if (typeof updateMobileBattleBar === 'function') updateMobileBattleBar();
+  if (typeof renderLeaderboard === 'function') renderLeaderboard();
   if (typeof showToast === 'function') showToast(`✓ ${lang.toUpperCase()}`, 'info');
 }
 
@@ -7374,6 +7448,14 @@ function applyI18nToDOM() {
   });
   // Re-render dinamik metinler
   if (typeof renderResources === 'function') renderResources();
+  if (typeof updateCountryModalText === 'function') updateCountryModalText();
+}
+
+function updateCountryModalText() {
+  const title = document.getElementById('modalTitle');
+  const sub = document.getElementById('modalSub');
+  if (title) title.textContent = modalMode === 'nation' ? t('modal.country') : t('modal.countryTarget');
+  if (sub) sub.textContent = modalMode === 'nation' ? t('sub.country') : t('sub.countryTarget');
 }
 
 /* ── MOBİL SEKME GEÇİŞİ ── */
@@ -7729,6 +7811,8 @@ Object.assign(window, {
   adminRecordPayout,
   adminGrantAllRankNfts,
   adminConfirmReset,
+  setLang,
+  cycleLang,
   setDocsTab,
   openDocs,
   closeDocs,
