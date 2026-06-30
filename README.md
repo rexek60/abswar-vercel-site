@@ -17,7 +17,7 @@ Includes:
 - Admin payout checklist
 
 Backend:
-https://api.centradar.xyz
+https://abswar-clean-backend-production.up.railway.app
 
 Deploy:
 Upload files to GitHub frontend repo and redeploy on Vercel.
