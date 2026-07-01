@@ -627,6 +627,18 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
     <div class="sl">KALAN SÜRE</div>
     <div style="font-family:var(--mono);font-size:14px;color:var(--red);letter-spacing:2px;margin-top:3px" id="timerVal">—</div>
   </div>
+  <div class="first-minute" id="firstMinutePanel">
+    <div class="first-minute-top"><span>İLK 60 SANİYE PLANI</span><span id="firstMinuteScore">0/6</span></div>
+    <div id="firstMinuteText">Cüzdan bağla, ülke seç, hedef kilitle ve ilk saldırını yap.</div>
+    <div class="first-minute-meter"><span id="firstMinuteMeter" style="width:0%"></span></div>
+    <button class="first-minute-cta" id="firstMinuteCta" onclick="runFirstMinuteAction()">SIRADAKİ ADIM</button>
+  </div>
+  <div class="target-intel" id="targetIntelPanel">
+    <div class="flow-title" style="margin-bottom:4px"><span>AKILLI HEDEF ÖNERİLERİ</span><span id="targetIntelStatus">Canlı veri</span></div>
+    <div id="targetIntelList" class="target-intel-list">
+      <div style="color:var(--dim)">Ülke seçince en zayıf, lider, sıcak cephe ve intikam hedefleri burada görünür.</div>
+    </div>
+  </div>
   <div class="sh" style="flex-shrink:0"><span data-i18n="panel.activity">SAVAŞ FAALİYETİ</span> <span id="activityCount" style="font-size:9px;color:var(--dim);margin-left:6px">(0)</span></div>
   <div style="flex:1;overflow-y:auto" id="activityList">
     <div style="padding:20px;text-align:center;color:var(--dim);font-size:10px" id="activityEmpty" data-i18n="empty.activity">Henüz savaş faaliyeti yok</div>
@@ -924,12 +936,6 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
     <div><strong id="rewardEstimateValue">—</strong></div>
     <div id="rewardEstimateDetail">Ülke seçince mevcut havuza göre tahmini ödül payı görünür.</div>
   </div>
-  <div class="target-intel" id="targetIntelPanel">
-    <div class="flow-title" style="margin-bottom:4px"><span>AKILLI HEDEF ÖNERİLERİ</span><span id="targetIntelStatus">Canlı veri</span></div>
-    <div id="targetIntelList" class="target-intel-list">
-      <div style="color:var(--dim)">Ülke seçince en zayıf, lider, sıcak cephe ve intikam hedefleri burada görünür.</div>
-    </div>
-  </div>
   <!-- AKTİF BUFFLAR (kaynak + rütbe bonusları) -->
   <div class="boost-grid">
     <div class="boost-card" id="buffAttack" title="Metal kaynak seviyene göre"><span class="boost-icon">⚔️</span><div class="boost-type" data-i18n="buff.damage">HASAR</div><div class="boost-val" id="buffAttackVal">+%0</div><div class="boost-timer">Metal</div></div>
@@ -940,12 +946,6 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
   <div class="flow-panel" id="commanderStatusPanel">
     <div class="flow-title"><span>BAĞLANTI DURUMU</span><span id="commanderNextStep">Hazırlanıyor</span></div>
     <div class="flow-steps" id="commanderStatusList"></div>
-  </div>
-  <div class="first-minute" id="firstMinutePanel">
-    <div class="first-minute-top"><span>İLK 60 SANİYE PLANI</span><span id="firstMinuteScore">0/6</span></div>
-    <div id="firstMinuteText">Cüzdan bağla, ülke seç, hedef kilitle ve ilk saldırını yap.</div>
-    <div class="first-minute-meter"><span id="firstMinuteMeter" style="width:0%"></span></div>
-    <button class="first-minute-cta" id="firstMinuteCta" onclick="runFirstMinuteAction()">SIRADAKİ ADIM</button>
   </div>
   <div class="quest-panel">
     <div class="flow-title" style="margin-bottom:5px"><span>BAŞLANGIÇ GÖREVLERİ</span><span id="questProgress">0/6</span></div>
