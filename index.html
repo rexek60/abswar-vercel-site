@@ -238,8 +238,18 @@ body.perf-lite .ticker-inner{animation-duration:60s}
 .quest-sub{display:block;margin-top:2px;color:var(--dim);font-size:8px}
 .quest-claim{background:rgba(245,200,66,.14);border:1px solid rgba(245,200,66,.42);color:var(--gold);font-family:var(--hud);font-size:8px;padding:4px 7px;cursor:pointer;white-space:nowrap}
 .quest-claim:disabled{opacity:.45;cursor:not-allowed}
+.first-minute{margin:8px 10px;padding:10px;background:linear-gradient(135deg,rgba(232,22,42,.13),rgba(245,200,66,.07));border:1px solid rgba(232,22,42,.32);font-family:var(--mono);font-size:10px;color:var(--dim);line-height:1.45}
+.first-minute-top{display:flex;justify-content:space-between;gap:8px;margin-bottom:7px;font-family:var(--hud);font-size:9px;letter-spacing:1px;color:var(--gold)}
+.first-minute-meter{height:5px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;margin:7px 0}.first-minute-meter span{display:block;height:100%;background:linear-gradient(90deg,var(--red),var(--gold),var(--green));box-shadow:0 0 12px rgba(245,200,66,.35)}
+.first-minute-cta{margin-top:8px;width:100%;padding:8px;background:linear-gradient(90deg,rgba(232,22,42,.95),rgba(245,200,66,.70));border:0;color:white;font-family:var(--hud);font-size:9px;letter-spacing:1.5px;cursor:pointer}
 .reward-estimate{margin:8px 10px;padding:10px;background:linear-gradient(180deg,rgba(245,200,66,.09),rgba(255,255,255,.018));border:1px solid rgba(245,200,66,.28);font-family:var(--mono);font-size:10px;color:var(--dim);line-height:1.45}
 .reward-estimate strong{font-family:var(--hud);font-size:13px;color:var(--gold);letter-spacing:1px}
+.target-intel{margin:8px 10px;padding:10px;background:linear-gradient(180deg,rgba(102,179,255,.08),rgba(255,255,255,.015));border:1px solid rgba(102,179,255,.25);font-family:var(--mono);font-size:10px;color:var(--dim);line-height:1.45}
+.target-intel-list{display:grid;grid-template-columns:1fr;gap:6px;margin-top:7px}
+.target-intel-card{border:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.18);padding:7px;display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+.target-intel-card b{font-family:var(--hud);font-size:10px;letter-spacing:1px;color:var(--text)}.target-intel-card span{display:block;margin-top:2px;font-size:8px;color:var(--dim)}
+.target-intel-card.hot{border-color:rgba(232,22,42,.32);background:rgba(232,22,42,.08)}.target-intel-card.value{border-color:rgba(245,200,66,.34);background:rgba(245,200,66,.07)}
+.target-intel-card button{background:rgba(102,179,255,.12);border:1px solid rgba(102,179,255,.38);color:#66b3ff;font-family:var(--hud);font-size:8px;padding:6px 8px;cursor:pointer;white-space:nowrap}
 .profile-card{margin:8px 10px;padding:10px;background:linear-gradient(180deg,rgba(232,22,42,.08),rgba(255,255,255,.018));border:1px solid rgba(232,22,42,.25);font-family:var(--mono);font-size:10px;color:var(--dim);line-height:1.45}
 .profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:7px}
 .profile-item{background:rgba(0,0,0,.16);border:1px solid rgba(255,255,255,.07);padding:6px;min-width:0}
@@ -272,11 +282,12 @@ body.perf-lite .ticker-inner{animation-duration:60s}
 .tutorial-coach h4{margin:0 0 5px;font-family:var(--hud);font-size:10px;letter-spacing:2px;color:var(--gold)}
 .tutorial-actions{display:flex;gap:7px;margin-top:9px}
 .tutorial-actions button{flex:1;padding:7px;background:rgba(245,200,66,.12);border:1px solid rgba(245,200,66,.45);color:var(--gold);font-family:var(--hud);font-size:8px;letter-spacing:1px;cursor:pointer}
-.mobile-battle-bar{display:none;position:fixed;left:8px;right:8px;bottom:62px;z-index:920;align-items:center;gap:8px;padding:8px;background:rgba(7,11,14,.96);border:1px solid rgba(232,22,42,.38);box-shadow:0 8px 26px rgba(0,0,0,.45);font-family:var(--mono);font-size:10px;color:var(--dim)}
+.mobile-battle-bar{display:none;position:fixed;left:8px;right:8px;bottom:62px;z-index:920;align-items:center;gap:8px;padding:9px;background:rgba(7,11,14,.96);border:1px solid rgba(232,22,42,.38);box-shadow:0 8px 26px rgba(0,0,0,.45);font-family:var(--mono);font-size:10px;color:var(--dim)}
 .mobile-battle-meta{flex:1;min-width:0;line-height:1.35}
 .mobile-battle-title{font-family:var(--hud);font-size:8px;letter-spacing:1px;color:var(--red)}
-.mobile-battle-action{background:var(--red);border:none;color:white;font-family:var(--hud);font-size:9px;letter-spacing:1px;padding:8px 10px;cursor:pointer;white-space:nowrap}
+.mobile-battle-action{background:var(--red);border:none;color:white;font-family:var(--hud);font-size:10px;letter-spacing:1px;padding:10px 12px;cursor:pointer;white-space:nowrap;box-shadow:0 0 18px rgba(232,22,42,.24)}
 .mobile-battle-action:disabled{opacity:.45;cursor:not-allowed}
+.mobile-battle-quick{display:flex;gap:5px}.mobile-battle-quick button{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);color:var(--dim);font-family:var(--hud);font-size:7px;letter-spacing:.8px;padding:6px;cursor:pointer;white-space:nowrap}
 .c-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
 .c-btn{padding:8px 4px;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:var(--hud);font-size:8px;letter-spacing:1px;cursor:pointer;text-align:center;transition:all .15s;border-radius:1px}
 .c-btn:hover{border-color:var(--red);color:white;background:rgba(232,22,42,0.1)}
@@ -387,6 +398,8 @@ body.perf-lite .ticker-inner{animation-duration:60s}
 
 @media (max-width:767px){
   .mobile-battle-bar{display:flex}
+  .mobile-battle-quick{flex-direction:column}
+  .mobile-battle-quick button{font-size:6px;padding:5px}
   .tutorial-coach{left:8px;right:8px;bottom:124px;width:auto}
   .profile-grid{grid-template-columns:1fr}
 }
@@ -401,6 +414,9 @@ body.perf-lite .ticker-inner{animation-duration:60s}
   nav.topnav .nav-actions #prizeOnlyNav,
   nav.topnav .nav-actions #ethBal{display:none !important}
   nav.topnav .nav-actions #walletBtn{min-width:110px;max-width:128px}
+  .mobile-battle-bar{gap:6px;padding:7px}
+  .mobile-battle-action{padding:9px 10px;font-size:9px}
+  .mobile-battle-quick button{max-width:68px;overflow:hidden;text-overflow:ellipsis}
   #walletBtn{font-size:8px;padding:4px 7px}
   #soundBtn{width:26px;height:24px;font-size:12px}
   /* Saldırı butonları daha sıkı */
@@ -853,6 +869,10 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
         style="padding:5px 10px;background:var(--bg2);color:var(--dim);font-family:var(--hud);font-size:9px;letter-spacing:1px;border:1px solid var(--border);cursor:pointer;border-radius:1px">
         HEDEF SEÇ ▾
       </button>
+      <button onclick="selectSmartTarget()"
+        style="padding:5px 10px;background:rgba(0,200,83,0.10);color:var(--green);font-family:var(--hud);font-size:9px;letter-spacing:1px;border:1px solid rgba(0,200,83,0.38);cursor:pointer;border-radius:1px">
+        AKILLI HEDEF
+      </button>
       <button onclick="selectWeakestTarget()"
         style="padding:5px 10px;background:rgba(245,200,66,0.12);color:var(--gold);font-family:var(--hud);font-size:9px;letter-spacing:1px;border:1px solid rgba(245,200,66,0.38);cursor:pointer;border-radius:1px" data-i18n="btn.weakTarget">
         ZAYIF HEDEF
@@ -904,6 +924,12 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
     <div><strong id="rewardEstimateValue">—</strong></div>
     <div id="rewardEstimateDetail">Ülke seçince mevcut havuza göre tahmini ödül payı görünür.</div>
   </div>
+  <div class="target-intel" id="targetIntelPanel">
+    <div class="flow-title" style="margin-bottom:4px"><span>AKILLI HEDEF ÖNERİLERİ</span><span id="targetIntelStatus">Canlı veri</span></div>
+    <div id="targetIntelList" class="target-intel-list">
+      <div style="color:var(--dim)">Ülke seçince en zayıf, lider, sıcak cephe ve intikam hedefleri burada görünür.</div>
+    </div>
+  </div>
   <!-- AKTİF BUFFLAR (kaynak + rütbe bonusları) -->
   <div class="boost-grid">
     <div class="boost-card" id="buffAttack" title="Metal kaynak seviyene göre"><span class="boost-icon">⚔️</span><div class="boost-type" data-i18n="buff.damage">HASAR</div><div class="boost-val" id="buffAttackVal">+%0</div><div class="boost-timer">Metal</div></div>
@@ -914,6 +940,12 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
   <div class="flow-panel" id="commanderStatusPanel">
     <div class="flow-title"><span>BAĞLANTI DURUMU</span><span id="commanderNextStep">Hazırlanıyor</span></div>
     <div class="flow-steps" id="commanderStatusList"></div>
+  </div>
+  <div class="first-minute" id="firstMinutePanel">
+    <div class="first-minute-top"><span>İLK 60 SANİYE PLANI</span><span id="firstMinuteScore">0/6</span></div>
+    <div id="firstMinuteText">Cüzdan bağla, ülke seç, hedef kilitle ve ilk saldırını yap.</div>
+    <div class="first-minute-meter"><span id="firstMinuteMeter" style="width:0%"></span></div>
+    <button class="first-minute-cta" id="firstMinuteCta" onclick="runFirstMinuteAction()">SIRADAKİ ADIM</button>
   </div>
   <div class="quest-panel">
     <div class="flow-title" style="margin-bottom:5px"><span>BAŞLANGIÇ GÖREVLERİ</span><span id="questProgress">0/6</span></div>
@@ -1555,6 +1587,10 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
   <div class="mobile-battle-meta">
     <div class="mobile-battle-title" id="mobileBattleTitle">SAVAŞ HAZIRLIĞI</div>
     <div id="mobileBattleDetail">Cüzdan bağla, ülke seç ve hedef kilitle.</div>
+  </div>
+  <div class="mobile-battle-quick">
+    <button id="mobileQuickTarget" onclick="selectSmartTarget()">AKILLI HEDEF</button>
+    <button id="mobileQuickShare" onclick="shareCommander()">DAVET</button>
   </div>
   <button class="mobile-battle-action" id="mobileBattleAction" onclick="attackTarget()" disabled>SALDIR</button>
 </div>
@@ -2892,6 +2928,8 @@ function updateMobileBattleBar() {
   const title = document.getElementById('mobileBattleTitle');
   const detail = document.getElementById('mobileBattleDetail');
   const action = document.getElementById('mobileBattleAction');
+  const quickTarget = document.getElementById('mobileQuickTarget');
+  const quickShare = document.getElementById('mobileQuickShare');
   const targetName = targetCountry ? `${CD[targetCountry]?.f || ''} ${CD[targetCountry]?.n || targetCountry}` : 'Hedef yok';
   const countryName = myCountry ? `${CD[myCountry]?.f || ''} ${CD[myCountry]?.n || myCountry}` : 'Ülke yok';
   const ready = !!wallet && !!myCountry && !!targetCountry && myBulletsCount > 0 && !_bulkActive;
@@ -2918,6 +2956,239 @@ function updateMobileBattleBar() {
       : canOpenCountry ? (()=>openModal('nation'))
       : canOpenMarket ? (()=>openAppPage('pazar'))
       : null;
+  }
+  if (quickTarget) {
+    quickTarget.disabled = !wallet || !myCountry || _bulkActive;
+    quickTarget.style.opacity = quickTarget.disabled ? '.45' : '1';
+  }
+  if (quickShare) {
+    quickShare.disabled = !wallet;
+    quickShare.style.opacity = quickShare.disabled ? '.45' : '1';
+  }
+}
+
+const TARGET_INTEL_WINDOW_MS = 5 * 60 * 1000;
+const _recentFronts = new Map();
+const _incomingAttackers = new Map();
+
+function getTargetPool() {
+  const pool = (Array.isArray(latestLeaderboardCountries) && latestLeaderboardCountries.length)
+    ? latestLeaderboardCountries
+    : gameCountries;
+  return [...(Array.isArray(pool) ? pool : [])]
+    .map(c => ({ ...c, code:normalizeCountryCode(c.code || c.country_code) }))
+    .filter(c => c.code && c.code !== myCountry && c.is_alive !== false && c.eliminated !== true && Number(c.hp || 0) > 0);
+}
+
+function getCountrySnapshot(code) {
+  const c = [...latestLeaderboardCountries, ...gameCountries]
+    .find(item => normalizeCountryCode(item.code || item.country_code) === code);
+  return c ? { ...c, code } : null;
+}
+
+function targetLabel(code) {
+  return `${CD[code]?.f || ''} ${CD[code]?.n || code}`.trim();
+}
+
+function markRecentFront(from, to, dmg=1) {
+  const now = Date.now();
+  const f = normalizeCountryCode(from);
+  const t = normalizeCountryCode(to);
+  if (!f || !t) return;
+  const key = `${f}>${t}`;
+  const prev = _recentFronts.get(key) || { from:f, to:t, hits:0, damage:0, last:0 };
+  _recentFronts.set(key, { ...prev, hits:prev.hits + 1, damage:prev.damage + Number(dmg || 1), last:now });
+  if (t === myCountry && f !== myCountry) {
+    const inc = _incomingAttackers.get(f) || { code:f, hits:0, damage:0, last:0 };
+    _incomingAttackers.set(f, { ...inc, hits:inc.hits + 1, damage:inc.damage + Number(dmg || 1), last:now });
+  }
+  for (const [frontKey, item] of _recentFronts) if (now - item.last > TARGET_INTEL_WINDOW_MS) _recentFronts.delete(frontKey);
+  for (const [code, item] of _incomingAttackers) if (now - item.last > TARGET_INTEL_WINDOW_MS) _incomingAttackers.delete(code);
+  renderTargetIntelPanel();
+}
+
+function recentTargetPressure(code) {
+  const now = Date.now();
+  let score = 0;
+  for (const item of _recentFronts.values()) {
+    if (item.to !== code || now - item.last > TARGET_INTEL_WINDOW_MS) continue;
+    score += item.hits + item.damage;
+  }
+  return score;
+}
+
+function revengePressure(code) {
+  const item = _incomingAttackers.get(code);
+  return item ? item.hits + item.damage : 0;
+}
+
+function countryRank(code) {
+  const sorted = getTargetPool()
+    .concat(myCountry ? [getCountrySnapshot(myCountry)].filter(Boolean) : [])
+    .filter(c => c && c.is_alive !== false && c.eliminated !== true)
+    .sort((a,b)=>(Number(b.hp)||0)-(Number(a.hp)||0));
+  const idx = sorted.findIndex(c => c.code === code);
+  return idx >= 0 ? idx + 1 : 0;
+}
+
+function findHotTarget() {
+  const candidates = getTargetPool()
+    .map(c => ({ ...c, pressure:recentTargetPressure(c.code) }))
+    .filter(c => c.pressure > 0)
+    .sort((a,b)=>b.pressure-a.pressure || Number(a.hp||0)-Number(b.hp||0));
+  return candidates[0] || null;
+}
+
+function findRevengeTarget() {
+  const candidates = getTargetPool()
+    .map(c => ({ ...c, pressure:revengePressure(c.code) }))
+    .filter(c => c.pressure > 0)
+    .sort((a,b)=>b.pressure-a.pressure || Number(a.hp||0)-Number(b.hp||0));
+  return candidates[0] || null;
+}
+
+function targetValueScore(c) {
+  const hp = Number(c.hp || 0);
+  const max = Math.max(1, countryMaxHp(c));
+  const hpWeakness = (1 - Math.min(1, hp / max)) * 55;
+  const rank = countryRank(c.code);
+  const rankBonus = rank === 1 ? 22 : rank > 1 && rank <= 3 ? 18 : rank <= 10 ? 8 : 0;
+  const hotBonus = Math.min(18, recentTargetPressure(c.code) * 2);
+  const revengeBonus = Math.min(22, revengePressure(c.code) * 3);
+  return hpWeakness + rankBonus + hotBonus + revengeBonus;
+}
+
+function findSmartTarget() {
+  return getTargetPool()
+    .map(c => ({ ...c, score:targetValueScore(c) }))
+    .sort((a,b)=>b.score-a.score || Number(a.hp||0)-Number(b.hp||0))[0] || null;
+}
+
+function describeTarget(c, label='Hedef') {
+  if (!c) return null;
+  const code = normalizeCountryCode(c.code || c.country_code);
+  if (!code) return null;
+  const hp = Number(c.hp || 0).toLocaleString('tr-TR');
+  const rank = countryRank(code);
+  const bits = [`${hp} HP`];
+  if (rank) bits.push(`#${rank}`);
+  const pressure = recentTargetPressure(code);
+  if (pressure) bits.push(`sıcaklık ${pressure}`);
+  const revenge = revengePressure(code);
+  if (revenge) bits.push(`intikam ${revenge}`);
+  return { code, label, title:targetLabel(code), sub:bits.join(' · ') };
+}
+
+function targetIntelRecommendations() {
+  const seen = new Set();
+  const raw = [
+    { ...describeTarget(findSmartTarget(), 'EN KARLI'), cls:'value' },
+    { ...describeTarget(findWeakestTarget(), 'ZAYIF'), cls:'' },
+    { ...describeTarget(findLeaderTarget(), 'LİDER'), cls:'' },
+    { ...describeTarget(findHotTarget(), 'SICAK CEPHE'), cls:'hot' },
+    { ...describeTarget(findRevengeTarget(), 'İNTİKAM'), cls:'hot' }
+  ].filter(x => x && x.code);
+  return raw.filter(item => {
+    const key = item.label + ':' + item.code;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  }).slice(0, 5);
+}
+
+function renderTargetIntelPanel() {
+  const list = document.getElementById('targetIntelList');
+  const status = document.getElementById('targetIntelStatus');
+  if (!list) return;
+  if (!wallet || !myCountry) {
+    list.innerHTML = '<div style="color:var(--dim)">Cüzdan bağlayıp ülke seçince akıllı hedefler aktif olur.</div>';
+    if (status) status.textContent = 'Beklemede';
+    return;
+  }
+  const recs = targetIntelRecommendations();
+  if (status) status.textContent = recs.length ? `${recs.length} öneri` : 'Veri bekleniyor';
+  if (!recs.length) {
+    list.innerHTML = '<div style="color:var(--dim)">Canlı savaş verisi bekleniyor. İlk hedef için “ZAYIF HEDEF” kullanabilirsin.</div>';
+    return;
+  }
+  list.innerHTML = recs.map(item => `
+    <div class="target-intel-card ${escapeHtml(item.cls || '')}">
+      <div><b>${escapeHtml(item.label)} · ${escapeHtml(item.title)}</b><span>${escapeHtml(item.sub)}</span></div>
+      <button onclick="selectTargetFromIntel('${escapeHtml(item.code)}')">KİLİTLE</button>
+    </div>`).join('');
+}
+
+function selectTargetFromIntel(code) {
+  if (!wallet) { showToast(t('toast.connectFirst'),'error'); return; }
+  if (!myCountry) { showToast(t('toast.selectCountryFirst'),'error'); openModal('nation'); return; }
+  const normalized = normalizeCountryCode(code);
+  if (!normalized || !CD[normalized] || normalized === myCountry) { showToast(t('toast.noTargetFound'),'error'); return; }
+  openAppPage('harita');
+  selectTarget(normalized);
+  showToast(`🎯 Hedef kilitlendi: ${targetLabel(normalized)}`, 'success');
+}
+
+function selectSmartTarget() {
+  const target = findSmartTarget() || findWeakestTarget();
+  const code = normalizeCountryCode(target?.code || target?.country_code);
+  if (!code) { showToast(t('toast.noTargetFound'),'error'); return; }
+  selectTargetFromIntel(code);
+}
+
+function runFirstMinuteAction() {
+  const steps = getFirstMinuteSteps();
+  const next = steps.find(s => !s.ok);
+  if (!next) { shareCommander(); return; }
+  if (next.key === 'wallet') return connectWallet();
+  if (next.key === 'country') return openModal('nation');
+  if (next.key === 'ammo') return openAppPage('pazar');
+  if (next.key === 'target') return selectSmartTarget();
+  if (next.key === 'attack') return attackTarget();
+  if (next.key === 'share') return shareCommander();
+}
+
+function inviteSharedKey() {
+  return `centradar-invite-shared:${APP_NETWORK}:${String(wallet || 'anon').toLowerCase()}`;
+}
+
+function hasSharedInvite() {
+  try { return !!localStorage.getItem(inviteSharedKey()); } catch(e) { return false; }
+}
+
+function markInviteShared() {
+  try { localStorage.setItem(inviteSharedKey(), '1'); } catch(e) {}
+}
+
+function getFirstMinuteSteps() {
+  const playerOk = !!wallet && playerLoadedWalletLower === wallet.toLowerCase();
+  return [
+    { key:'wallet', label:'Cüzdanı bağla', ok:!!wallet },
+    { key:'country', label:'Ülke seç', ok:!!myCountry },
+    { key:'ammo', label:'Mermi hazırla', ok:myBulletsCount > 0 },
+    { key:'target', label:'Akıllı hedef kilitle', ok:!!targetCountry },
+    { key:'attack', label:'İlk saldırını yap', ok:getPlayerNumber('attacks') > 0 },
+    { key:'share', label:'Komutan kartını paylaş', ok:playerOk && hasSharedInvite() }
+  ];
+}
+
+function renderFirstMinutePlan() {
+  const box = document.getElementById('firstMinutePanel');
+  if (!box) return;
+  const steps = getFirstMinuteSteps();
+  const done = steps.filter(s=>s.ok).length;
+  const next = steps.find(s=>!s.ok);
+  const score = document.getElementById('firstMinuteScore');
+  const text = document.getElementById('firstMinuteText');
+  const meter = document.getElementById('firstMinuteMeter');
+  const cta = document.getElementById('firstMinuteCta');
+  if (score) score.textContent = `${done}/${steps.length}`;
+  if (meter) meter.style.width = `${Math.round(done / steps.length * 100)}%`;
+  if (text) text.textContent = next
+    ? `Sıradaki hamle: ${next.label}. Oyuncu ilk dakikada aksiyon görürse oyunda kalma ihtimali artar.`
+    : 'Hazırsın. Şimdi ülkeni büyüt, ittifak kur ve komutan kartını paylaş.';
+  if (cta) {
+    cta.textContent = next ? next.label.toUpperCase() : 'KOMUTAN KARTINI PAYLAŞ';
+    cta.disabled = false;
   }
 }
 
@@ -2954,6 +3225,8 @@ async function shareOrCopy(text, url, successKey='toast.inviteCopied') {
   try {
     if (navigator.share) {
       await navigator.share({ title:'Centradar: Tactical Gridwar', text, url });
+      markInviteShared();
+      updateProgressPanels();
       showToast(t('toast.shared'), 'success');
       return;
     }
@@ -2963,6 +3236,8 @@ async function shareOrCopy(text, url, successKey='toast.inviteCopied') {
   const payload = `${text}\n${url}`;
   try {
     await navigator.clipboard.writeText(payload);
+    markInviteShared();
+    updateProgressPanels();
     showToast(t(successKey), 'success');
   } catch(e) {
     prompt('Linki kopyala:', payload);
@@ -3222,6 +3497,8 @@ function updateProgressPanels() {
       renderDailyQuestRows()
     ].join('');
   }
+  renderFirstMinutePlan();
+  renderTargetIntelPanel();
   updateRewardEstimate();
   updateProfileCard();
 }
@@ -4463,6 +4740,8 @@ function selectTarget(code) {
 
   renderLabels();
   updateMobileBattleBar();
+  renderTargetIntelPanel();
+  renderFirstMinutePlan();
   const mobileHint = window.matchMedia && window.matchMedia('(max-width:1023px)').matches ? ' · Savaş barından saldır' : '';
   showToast(`🎯 ${CD[code]?.f||''} ${CD[code]?.n||code} hedef kilitlendi${mobileHint}`, 'info');
 }
@@ -5655,6 +5934,8 @@ function renderLeaderboard() {
   if (lbCurrentTab === 'players') renderPlayerLeaderboard();
   else renderCountryLeaderboard();
   updateRewardEstimate();
+  renderTargetIntelPanel();
+  renderFirstMinutePlan();
 }
 
 function updateLeaderboard(countries, players) {
@@ -7894,6 +8175,7 @@ initAppPage();
 function addRadarDetection(from, to, dmg) {
   const cont = document.getElementById('radarDetections');
   if (!cont) return;
+  markRecentFront(from, to, dmg);
   const empty = document.getElementById('radarEmpty');
   if (empty) empty.remove();
 
@@ -8320,6 +8602,9 @@ Object.assign(window, {
   copyWalletDiagnostics,
   selectWeakestTarget,
   selectLeaderTarget,
+  selectSmartTarget,
+  selectTargetFromIntel,
+  runFirstMinuteAction,
   openPlayerProfile,
   closePlayerProfile,
   shareCommander,
