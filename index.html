@@ -103,6 +103,14 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .country-land.my-country.superpower{stroke:#fff176 !important;stroke-width:1.6}
 .country-land.targeted.superpower{stroke:#ffcf4a !important;stroke-width:1.6}
 .country-land.eliminated{fill:#1a1a1a !important;stroke:#383838 !important;stroke-width:0.3;opacity:0.35}
+body.perf-lite #cloudLayer,body.perf-lite #scanBeam{display:none}
+body.perf-lite .country-land{transition:none}
+body.perf-lite .ticker-inner{animation-duration:60s}
+@media (max-width:767px),(prefers-reduced-motion:reduce){
+  #cloudLayer,#scanBeam{display:none}
+  .country-land{transition:none}
+  .ticker-inner{animation-duration:60s}
+}
 @keyframes countryBreath{0%,100%{filter:url(#landGlow)}50%{filter:url(#neonGlow)}}
 .city-dot{fill:#e8162a;cursor:crosshair}
 .city-dot.my-city{fill:#00c853}
@@ -826,6 +834,10 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
       <button onclick="openModal('target')"
         style="padding:5px 10px;background:var(--bg2);color:var(--dim);font-family:var(--hud);font-size:9px;letter-spacing:1px;border:1px solid var(--border);cursor:pointer;border-radius:1px">
         HEDEF SEÇ ▾
+      </button>
+      <button onclick="selectWeakestTarget()"
+        style="padding:5px 10px;background:rgba(245,200,66,0.12);color:var(--gold);font-family:var(--hud);font-size:9px;letter-spacing:1px;border:1px solid rgba(245,200,66,0.38);cursor:pointer;border-radius:1px" data-i18n="btn.weakTarget">
+        ZAYIF HEDEF
       </button>
     </div>
   </div>
@@ -2088,6 +2100,12 @@ document.addEventListener('keydown', (e) => {
     if (e.key === '3') { e.preventDefault(); bulkAttack(1000); return; }
   }
 
+  if ((e.key || '').toLowerCase() === 't') {
+    e.preventDefault();
+    selectWeakestTarget();
+    return;
+  }
+
   // ?: yardım ekranı
   if (e.key === '?' || (e.shiftKey && e.key === '/')) {
     e.preventDefault();
@@ -2830,17 +2848,29 @@ function updateMobileBattleBar() {
   const targetName = targetCountry ? `${CD[targetCountry]?.f || ''} ${CD[targetCountry]?.n || targetCountry}` : 'Hedef yok';
   const countryName = myCountry ? `${CD[myCountry]?.f || ''} ${CD[myCountry]?.n || myCountry}` : 'Ülke yok';
   const ready = !!wallet && !!myCountry && !!targetCountry && myBulletsCount > 0 && !_bulkActive;
+  const canPickTarget = !!wallet && !!myCountry && !targetCountry && !_bulkActive;
+  const canOpenCountry = !!wallet && !myCountry && !_bulkActive;
+  const canOpenMarket = !!wallet && !!myCountry && !!targetCountry && myBulletsCount <= 0 && !_bulkActive;
   if (title) title.textContent = ready ? 'SALDIRI HAZIR' : 'SAVAŞ HAZIRLIĞI';
   if (detail) {
     detail.textContent = !wallet ? 'Cüzdan bağla ve savaşa katıl.'
       : !myCountry ? 'Önce ülkeni seç.'
-      : !targetCountry ? `${countryName} hazır · haritadan hedef seç.`
+      : !targetCountry ? `${countryName} hazır · zayıf hedefi otomatik seçebilirsin.`
       : myBulletsCount <= 0 ? `${targetName} kilitli · mermi satın al.`
       : `${countryName} → ${targetName} · ${myBulletsCount.toLocaleString('tr-TR')} mermi`;
   }
   if (action) {
-    action.disabled = !ready;
-    action.textContent = ready ? 'SALDIR' : (!targetCountry ? 'HEDEF SEÇ' : 'BEKLE');
+    action.disabled = !(ready || canPickTarget || canOpenCountry || canOpenMarket);
+    action.textContent = ready ? 'SALDIR'
+      : canPickTarget ? 'ZAYIF HEDEF'
+      : canOpenCountry ? 'ÜLKE SEÇ'
+      : canOpenMarket ? 'MERMİ AL'
+      : 'BEKLE';
+    action.onclick = ready ? attackTarget
+      : canPickTarget ? selectWeakestTarget
+      : canOpenCountry ? (()=>openModal('nation'))
+      : canOpenMarket ? (()=>openAppPage('pazar'))
+      : null;
   }
 }
 
@@ -3861,10 +3891,11 @@ window.addEventListener('popstate', () => {
 
 /* ── GERÇEK DÜNYA HARİTASINI ÇİZ ── */
 function buildMap() {
+  const lite = shouldUseLiteVisuals();
   // Yıldız parıltıları (uzay arka planı)
   const starG = document.getElementById('starField');
   if (starG && !starG.hasChildNodes()) {
-    for (let i=0;i<60;i++){
+    for (let i=0;i<(lite ? 24 : 60);i++){
       const s = document.createElementNS('http://www.w3.org/2000/svg','circle');
       const x = Math.random()*1000, y = Math.random()*500;
       s.setAttribute('cx',x.toFixed(0)); s.setAttribute('cy',y.toFixed(0));
@@ -3945,7 +3976,7 @@ function buildMap() {
   // BULUTLAR — atmosfer derinliği için 8 yumuşak elips, yavaşça kayan
   const cloudG = document.getElementById('cloudLayer');
   if (cloudG && !cloudG.hasChildNodes()) {
-    for (let i=0; i<8; i++) {
+    for (let i=0; i<(lite ? 3 : 8); i++) {
       const cx = Math.random()*1000;
       const cy = Math.random()*500;
       const rx = 80 + Math.random()*120;
@@ -3993,6 +4024,7 @@ function buildMap() {
 
 /* ── SALDIRI DALGA EFEKTİ ── */
 function spawnAttackWave(code) {
+  if (_performanceMode && _activeAnimations > 3) return;
   const c = CD[code];
   if (!c) return;
   const g = document.getElementById('attackWaves');
@@ -4042,6 +4074,7 @@ function hpClass(hp, country) {
 function renderLabels() {
   const g = document.getElementById('countryLabels');
   g.innerHTML = '';
+  const lite = shouldUseLiteVisuals();
   Object.entries(CD).forEach(([code, c]) => {
     const country = gameCountries.find(x=>x.code===code);
     const hp = country ? country.hp : 1000;
@@ -4066,6 +4099,7 @@ function renderLabels() {
       }
     }
     if (!alive) return;
+    if (lite && !isMe && !isTgt && !superCls) return;
 
     const color = isMe ? '#00ff9d' : isTgt ? '#ff3050' : '#cfe6f5';
     const r = isMe || isTgt ? 3.2 : 1.8;
@@ -4175,6 +4209,28 @@ function handleMapClick(code) {
   selectTarget(code);
 }
 
+function findWeakestTarget() {
+  const pool = (Array.isArray(latestLeaderboardCountries) && latestLeaderboardCountries.length)
+    ? latestLeaderboardCountries
+    : gameCountries;
+  return [...(Array.isArray(pool) ? pool : [])]
+    .filter(c => {
+      const code = normalizeCountryCode(c.code || c.country_code);
+      return code && code !== myCountry && c.is_alive !== false && c.eliminated !== true && Number(c.hp || 0) > 0;
+    })
+    .sort((a,b) => Number(a.hp || MAX_HP_FE) - Number(b.hp || MAX_HP_FE))[0] || null;
+}
+
+function selectWeakestTarget() {
+  if (!wallet) { showToast(t('toast.connectFirst'),'error'); return; }
+  if (!myCountry) { showToast(t('toast.selectCountryFirst'),'error'); openModal('nation'); return; }
+  const target = findWeakestTarget();
+  const code = normalizeCountryCode(target?.code || target?.country_code);
+  if (!code) { showToast(t('toast.noTargetFound'),'error'); return; }
+  openAppPage('harita');
+  selectTarget(code);
+}
+
 /* ── SELECT TARGET ── */
 function selectTarget(code) {
   if (code === myCountry) { showToast('Kendi ülkene saldıramazsın!','error'); return; }
@@ -4197,9 +4253,11 @@ function selectTarget(code) {
   }
 
   const btn = document.getElementById('attackBtn');
-  btn.disabled = false;
-  btn.style.opacity = '1';
-  btn.textContent = `⚡ ${code} SALDIRI BAŞLAT`;
+  if (btn) {
+    btn.disabled = myBulletsCount <= 0;
+    btn.style.opacity = myBulletsCount <= 0 ? '0.4' : '1';
+    btn.textContent = myBulletsCount <= 0 ? '🔫 MERMİN YOK — PAZARDAN AL' : `⚡ ${code} SALDIRI BAŞLAT`;
+  }
 
   // Toplu saldırı butonlarını da aç (mermi varsa)
   document.querySelectorAll('.bulk-atk-btn').forEach(b => {
@@ -5406,6 +5464,8 @@ let _backendOnline = true;
 let _consecutiveFailures = 0;
 let _backendOfflineTimer = null;
 let _backendOfflineSince = 0;
+let _pollTimer = null;
+let _pollInFlight = false;
 const BACKEND_STATUS_TOAST_COOLDOWN_MS = 30000;
 
 function setBackendStatus(online) {
@@ -5438,7 +5498,25 @@ function scheduleBackendOffline(delayMs=6000) {
   }, delayMs);
 }
 
+function nextPollDelayMs() {
+  if (document.hidden) return 45000;
+  return warSocket?.connected ? 20000 : 10000;
+}
+
+function schedulePollState(delayMs=nextPollDelayMs()) {
+  if (_pollTimer) clearTimeout(_pollTimer);
+  _pollTimer = setTimeout(() => {
+    _pollTimer = null;
+    pollState();
+  }, delayMs);
+}
+
 async function pollState() {
+  if (_pollInFlight) {
+    schedulePollState(3000);
+    return;
+  }
+  _pollInFlight = true;
   try {
     const res=await fetch(API+'/api/game/state',{signal:AbortSignal.timeout(8000)});
     if (!res.ok) throw new Error('HTTP '+res.status);
@@ -5505,13 +5583,23 @@ async function pollState() {
     _consecutiveFailures++;
     if (_consecutiveFailures >= 3) scheduleBackendOffline(2500);
     updateProgressPanels();
+  } finally {
+    _pollInFlight = false;
+    schedulePollState();
   }
 }
 let _initialLoadDone = false;
 
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) schedulePollState(45000);
+  else pollState();
+});
+
 /* ── MODAL ── */
+let _countryGridBuilt = false;
 function buildCountryGrid() {
   const grid = document.getElementById('cGrid');
+  if (_countryGridBuilt && grid.hasChildNodes()) return;
   grid.innerHTML = '';
   // Alfabetik sırala
   const sorted = Object.entries(CD).sort((a,b)=>a[1].n.localeCompare(b[1].n,'tr'));
@@ -5524,6 +5612,7 @@ function buildCountryGrid() {
     btn.onclick = ()=>modalAction(code);
     grid.appendChild(btn);
   });
+  _countryGridBuilt = true;
 }
 
 function filterCountries() {
@@ -6231,6 +6320,21 @@ syncSoundButton();
 let _activeAnimations = 0;
 const MAX_CONCURRENT_ANIMATIONS = 8;
 let _performanceMode = false; // FPS düşükse otomatik açılır
+const _preferLiteVisuals = !!(
+  window.matchMedia && (
+    window.matchMedia('(max-width:767px)').matches ||
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  )
+);
+
+function shouldUseLiteVisuals() {
+  return _performanceMode || _preferLiteVisuals;
+}
+
+function applyVisualPerformanceMode() {
+  document.body?.classList.toggle('perf-lite', shouldUseLiteVisuals());
+}
+applyVisualPerformanceMode();
 
 // FPS izleme
 let _frameCount = 0;
@@ -6242,9 +6346,11 @@ function _checkFps() {
     const fps = (_frameCount * 1000) / (now - _lastFpsCheck);
     if (fps < 25 && !_performanceMode) {
       _performanceMode = true;
+      applyVisualPerformanceMode();
       console.debug('[CENTRADAR] Düşük FPS algılandı — performans modu açıldı');
     } else if (fps > 45 && _performanceMode) {
       _performanceMode = false;
+      applyVisualPerformanceMode();
     }
     _frameCount = 0;
     _lastFpsCheck = now;
@@ -6543,6 +6649,7 @@ const I18N = {
     'btn.attacking': '🔴 ATIYOR...',
     'btn.noBullets': '🔫 MERMİN YOK — PAZARDAN AL',
     'btn.selectTarget': 'HEDEF SEÇ ▾',
+    'btn.weakTarget': 'ZAYIF HEDEF',
     'btn.stopBulk': '⏹ DURDUR',
     'btn.allianceCreate': 'KUR',
     'btn.allianceJoin': 'KATIL',
@@ -6619,6 +6726,7 @@ const I18N = {
     'toast.connectFirst': 'Önce cüzdan bağla!',
     'toast.selectCountryFirst': 'Önce ülke seç!',
     'toast.selectTargetFirst': 'Haritadan hedef seç!',
+    'toast.noTargetFound': 'Uygun hedef bulunamadı.',
     'toast.walletMissing': 'Abstract Global Wallet yüklenemedi.',
     'toast.connectionCancelled': 'Bağlantı iptal edildi.',
     'toast.serverError': 'Sunucu hatası ({code})',
@@ -6876,6 +6984,7 @@ const I18N = {
     'btn.attacking': '🔴 FIRING...',
     'btn.noBullets': '🔫 NO AMMO — BUY FROM MARKET',
     'btn.selectTarget': 'SELECT TARGET ▾',
+    'btn.weakTarget': 'WEAKEST TARGET',
     'btn.stopBulk': '⏹ STOP',
     'btn.allianceCreate': 'CREATE',
     'btn.allianceJoin': 'JOIN',
@@ -6947,6 +7056,7 @@ const I18N = {
     'toast.connectFirst': 'Connect wallet first!',
     'toast.selectCountryFirst': 'Select a country first!',
     'toast.selectTargetFirst': 'Select a target from the map!',
+    'toast.noTargetFound': 'No valid target found.',
     'toast.walletMissing': 'Abstract Global Wallet could not be loaded.',
     'toast.connectionCancelled': 'Connection cancelled.',
     'toast.serverError': 'Server error ({code})',
@@ -7192,6 +7302,7 @@ const I18N = {
     'btn.attacking': '🔴 ОГОНЬ...',
     'btn.noBullets': '🔫 НЕТ ПАТРОНОВ — КУПИТЕ',
     'btn.selectTarget': 'ВЫБРАТЬ ЦЕЛЬ ▾',
+    'btn.weakTarget': 'СЛАБАЯ ЦЕЛЬ',
     'btn.stopBulk': '⏹ СТОП',
     'btn.allianceCreate': 'СОЗДАТЬ',
     'btn.allianceJoin': 'ВСТУПИТЬ',
@@ -7263,6 +7374,7 @@ const I18N = {
     'toast.connectFirst': 'Сначала подключите кошелёк!',
     'toast.selectCountryFirst': 'Сначала выберите страну!',
     'toast.selectTargetFirst': 'Выберите цель на карте!',
+    'toast.noTargetFound': 'Подходящая цель не найдена.',
     'toast.walletMissing': 'Не удалось загрузить Abstract Global Wallet.',
     'toast.connectionCancelled': 'Подключение отменено.',
     'toast.serverError': 'Ошибка сервера ({code})',
@@ -7927,7 +8039,7 @@ fetchRewardStatus();
 _applyUrlParams();
 // Dil ayarını uygula
 setLang(_lang);
-setInterval(pollState,15000);
+schedulePollState(15000);
 </script>
 <script>
 let abswarAgwModules = null;
@@ -8289,7 +8401,7 @@ function bind(){
   document.getElementById("rewardRulesBtn")?.remove();
   document.getElementById("rewardRulesModal")?.remove();
 }
-bind();setInterval(bind,1000);
+bind();setTimeout(bind,1000);
 })();
 </script>
 <script>
@@ -8300,7 +8412,7 @@ function ensureRiskInfo(){
 }
 window.openRiskInfo=function(){ensureRiskInfo();window.openDocs?window.openDocs("security"):openDocs("security")};
 window.closeRiskInfo=function(){window.closeDocs?window.closeDocs():closeDocs()};
-ensureRiskInfo();setInterval(ensureRiskInfo,1000);
+ensureRiskInfo();setTimeout(ensureRiskInfo,1000);
 })();
 </script>
 <script>
@@ -8345,7 +8457,7 @@ function bindDocs(){
   document.getElementById("rewardRulesModal")?.remove();
   document.getElementById("riskInfoModal")?.remove();
 }
-bindDocs();setInterval(bindDocs,1000);
+bindDocs();setTimeout(bindDocs,1000);
 })();
 </script>
 <script>
