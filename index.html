@@ -254,6 +254,7 @@ body.perf-lite .ticker-inner{animation-duration:60s}
 .welcome-bg{position:absolute;inset:0;background:linear-gradient(90deg,rgba(2,7,9,.12),rgba(2,7,9,.04) 42%,rgba(2,7,9,.28)),url('/assets/centradar-mission-live-bg.jpg') center/cover no-repeat;filter:saturate(1.08) contrast(1.05)}
 .welcome-scan{position:absolute;inset:0;background:repeating-linear-gradient(180deg,rgba(255,255,255,.035) 0 1px,transparent 1px 4px);opacity:.30;mix-blend-mode:screen;pointer-events:none}
 .welcome-live-hud{position:absolute;z-index:2;top:17px;left:18px;min-width:min(540px,70vw);font-family:var(--mono);font-size:13px;color:#bffdf7;letter-spacing:.7px;text-align:left;padding:8px 14px;text-shadow:0 0 12px rgba(0,245,255,.42)}
+.welcome-mission-title{position:absolute;z-index:2;top:74px;left:50%;transform:translateX(-50%);width:min(880px,86vw);font-family:var(--hud);font-size:clamp(30px,4.8vw,58px);line-height:1;letter-spacing:2.5px;color:#d6fffb;text-align:center;text-shadow:0 0 26px rgba(0,245,255,.50),0 3px 0 rgba(0,0,0,.72);text-transform:uppercase;pointer-events:none}
 .welcome-shell{position:relative;z-index:1;width:min(1120px,96vw);display:grid;grid-template-columns:360px;justify-content:end;align-items:center;padding-right:min(5vw,56px)}
 .welcome-brief{min-height:520px;border:1px solid rgba(115,255,235,.30);background:linear-gradient(180deg,rgba(6,18,22,.50),rgba(5,9,12,.64));box-shadow:0 18px 60px rgba(0,0,0,.58),inset 0 0 60px rgba(0,245,255,.05);padding:18px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;position:relative}
 .welcome-brief:before{content:'';position:absolute;inset:10px;border:1px solid rgba(115,255,235,.18);pointer-events:none}
@@ -264,6 +265,9 @@ body.perf-lite .ticker-inner{animation-duration:60s}
 .welcome-portal{border:1px solid rgba(115,255,235,.38);background:linear-gradient(180deg,rgba(15,34,34,.88),rgba(6,11,12,.96));box-shadow:0 16px 54px rgba(0,0,0,.65),inset 0 0 40px rgba(0,245,255,.06);padding:18px;position:relative}
 .welcome-portal:before{content:'';position:absolute;inset:7px;border:1px solid rgba(115,255,235,.17);pointer-events:none}
 .welcome-portal-title{font-family:var(--hud);font-size:17px;line-height:1.2;letter-spacing:1px;color:#e7fffa;text-align:center;margin-bottom:14px}
+.welcome-lang-switch{display:flex;justify-content:center;gap:6px;margin:-4px 0 12px;position:relative;z-index:1}
+.welcome-lang-switch button{background:rgba(115,255,235,.08);border:1px solid rgba(115,255,235,.30);color:#bffdf7;font-family:var(--hud);font-size:9px;letter-spacing:1px;padding:6px 8px;cursor:pointer}
+.welcome-lang-switch button:hover{background:rgba(115,255,235,.16);border-color:rgba(115,255,235,.55);color:#fff}
 .welcome-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 14px}
 .welcome-stat{border:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.24);padding:9px;text-align:left}
 .welcome-stat b{display:block;font-family:var(--hud);font-size:10px;color:var(--gold);letter-spacing:1px}.welcome-stat span{font-size:10px;color:var(--dim)}
@@ -404,6 +408,7 @@ body.perf-lite .ticker-inner{animation-duration:60s}
   /* Hoş geldin overlay daha kompakt */
   #welcomeOverlay{align-items:flex-end !important;padding:12px !important}
   .welcome-live-hud{top:14px;left:12px;right:12px;min-width:0;font-size:10px;padding:7px 10px}
+  .welcome-mission-title{top:66px;width:92vw;font-size:clamp(24px,7.2vw,42px);letter-spacing:1.5px}
   .welcome-shell{grid-template-columns:1fr;width:min(420px,96vw);max-height:72vh;overflow:auto;padding:0 !important;justify-content:center;align-items:end}
   .welcome-portal{padding:14px}
 
@@ -538,9 +543,15 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
   <div class="welcome-bg"></div>
   <div class="welcome-scan"></div>
   <div class="welcome-live-hud" id="welcomeTopline">TARİH: — | ZAMAN: — | SİSTEM DURUMU: NOMİNAL</div>
+  <div class="welcome-mission-title" id="welcomeMissionTitle" data-i18n="welcome.missionTitle">CENTRADAR: GÖREV BAŞLIYOR</div>
   <div class="welcome-shell">
     <aside class="welcome-portal">
       <div class="welcome-portal-title">PERSONEL<br>ERİŞİM PORTALI</div>
+      <div class="welcome-lang-switch" aria-label="Dil seçimi">
+        <button type="button" onclick="setLang('tr')">TR</button>
+        <button type="button" onclick="setLang('en')">EN</button>
+        <button type="button" onclick="setLang('ru')">RU</button>
+      </div>
       <div id="giftBadge" style="display:none;background:linear-gradient(180deg,rgba(245,200,66,0.15),rgba(245,200,66,0.05));border:1px solid rgba(245,200,66,0.4);border-radius:6px;padding:8px 12px;margin-bottom:12px;font-family:var(--hud);font-size:10px;color:var(--gold);letter-spacing:1px;text-align:center">
         🎁 <span id="giftBadgeText">İlk 100 oyuncuya +100 bonus mermi!</span>
       </div>
@@ -7395,6 +7406,7 @@ const I18N = {
     'pack.legendary': 'EFSANEVİ',
     'pack.bullets': 'mermi',
     // Welcome overlay
+    'welcome.missionTitle': 'CENTRADAR: GÖREV BAŞLIYOR',
     'welcome.subtitle': 'KÜRESEL SAVAŞ MMO · ABSTRACT MAINNET',
     'welcome.body': '119 ülkeden birini seç, ittifak kur, savaş alanına gir. Web3 cüzdanınla bağlan, mermi al, hedeflerinin elenmesi için saldır.',
     'welcome.stepConnect': '1 · BAĞLAN',
@@ -7732,6 +7744,7 @@ const I18N = {
     'pack.premium': 'PREMIUM',
     'pack.legendary': 'LEGENDARY',
     'pack.bullets': 'ammo',
+    'welcome.missionTitle': 'CENTRADAR: MISSION START',
     'welcome.subtitle': 'GLOBAL WAR MMO · ABSTRACT MAINNET',
     'welcome.body': 'Pick one of 119 countries, form alliances, enter the battlefield. Connect your Web3 wallet, buy ammo, attack to crush your targets.',
     'welcome.stepConnect': '1 · CONNECT',
@@ -8064,6 +8077,7 @@ const I18N = {
     'pack.premium': 'ПРЕМ.',
     'pack.legendary': 'ЛЕГЕНД.',
     'pack.bullets': 'патронов',
+    'welcome.missionTitle': 'CENTRADAR: СТАРТ МИССИИ',
     'welcome.subtitle': 'ГЛОБАЛЬНАЯ ВОЕННАЯ MMO · ABSTRACT TESTNET',
     'welcome.body': 'Выберите одну из 119 стран, создайте альянс, выходите в бой. Подключите Web3-кошелёк, купите патроны, атакуйте цели.',
     'welcome.stepConnect': '1 · ПОДКЛЮЧИТЬ',
