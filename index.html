@@ -254,6 +254,12 @@ body.perf-lite .ticker-inner{animation-duration:60s}
 .welcome-bg{position:absolute;inset:0;background:linear-gradient(90deg,rgba(2,7,9,.12),rgba(2,7,9,.04) 42%,rgba(2,7,9,.28)),url('/assets/centradar-mission-live-bg.jpg') center/cover no-repeat;filter:saturate(1.08) contrast(1.05)}
 .welcome-scan{position:absolute;inset:0;background:repeating-linear-gradient(180deg,rgba(255,255,255,.035) 0 1px,transparent 1px 4px);opacity:.30;mix-blend-mode:screen;pointer-events:none}
 .welcome-live-hud{position:absolute;z-index:2;top:17px;left:18px;min-width:min(540px,70vw);font-family:var(--mono);font-size:13px;color:#bffdf7;letter-spacing:.7px;text-align:left;padding:8px 14px;text-shadow:0 0 12px rgba(0,245,255,.42)}
+.welcome-signal{position:absolute;z-index:2;top:18px;right:28px;display:flex;align-items:center;gap:8px;min-width:150px;justify-content:center;padding:7px 12px;border:1px solid rgba(115,255,235,.42);background:rgba(5,18,20,.74);font-family:var(--mono);font-size:11px;color:#bffdf7;letter-spacing:.8px;text-shadow:0 0 10px rgba(0,245,255,.35);box-shadow:inset 0 0 18px rgba(0,245,255,.06)}
+.welcome-signal-dot{width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 12px var(--gold);animation:signalPulse 1.2s ease-in-out infinite}
+.welcome-signal strong{font-family:var(--hud);font-size:10px;letter-spacing:1.5px;color:inherit}
+.welcome-signal.strong{border-color:rgba(0,200,83,.55);color:#a8ffd1}.welcome-signal.strong .welcome-signal-dot{background:var(--green);box-shadow:0 0 14px var(--green)}
+.welcome-signal.weak{border-color:rgba(245,200,66,.55);color:#ffe89b}.welcome-signal.weak .welcome-signal-dot{background:var(--gold);box-shadow:0 0 14px var(--gold)}
+.welcome-signal.offline{border-color:rgba(232,22,42,.58);color:#ff98a3}.welcome-signal.offline .welcome-signal-dot{background:var(--red);box-shadow:0 0 14px var(--red)}
 .welcome-mission-title{position:absolute;z-index:2;top:74px;left:50%;transform:translateX(-50%);width:min(880px,86vw);font-family:var(--hud);font-size:clamp(30px,4.8vw,58px);line-height:1;letter-spacing:2.5px;color:#d6fffb;text-align:center;text-shadow:0 0 26px rgba(0,245,255,.50),0 3px 0 rgba(0,0,0,.72);text-transform:uppercase;pointer-events:none}
 .welcome-shell{position:relative;z-index:1;width:min(1120px,96vw);display:grid;grid-template-columns:360px;justify-content:end;align-items:center;padding-right:min(5vw,56px)}
 .welcome-brief{min-height:520px;border:1px solid rgba(115,255,235,.30);background:linear-gradient(180deg,rgba(6,18,22,.50),rgba(5,9,12,.64));box-shadow:0 18px 60px rgba(0,0,0,.58),inset 0 0 60px rgba(0,245,255,.05);padding:18px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;position:relative}
@@ -327,6 +333,7 @@ body.perf-lite .ticker-inner{animation-duration:60s}
 .anim-new{animation:fadeUp .3s ease both}
 @keyframes scanLine{0%{top:0}100%{top:100%}}
 @keyframes radarSpin{to{transform:rotate(360deg);transform-origin:60px 60px}}
+@keyframes signalPulse{0%,100%{transform:scale(.78);opacity:.58}50%{transform:scale(1.18);opacity:1}}
 /* ═════════════════════════ MOBİL & TABLET ═════════════════════════ */
 /* Bottom navigation barı — sadece dar ekranlarda görünür */
 .mob-bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;height:54px;background:rgba(8,12,18,0.96);border-top:1px solid var(--border);z-index:900;backdrop-filter:blur(8px)}
@@ -408,7 +415,9 @@ body.perf-lite .ticker-inner{animation-duration:60s}
   /* Hoş geldin overlay daha kompakt */
   #welcomeOverlay{align-items:flex-end !important;padding:12px !important}
   .welcome-live-hud{top:14px;left:12px;right:12px;min-width:0;font-size:10px;padding:7px 10px}
-  .welcome-mission-title{top:66px;width:92vw;font-size:clamp(24px,7.2vw,42px);letter-spacing:1.5px}
+  .welcome-signal{top:52px;right:12px;min-width:118px;font-size:9px;padding:5px 9px}
+  .welcome-signal strong{font-size:8px}
+  .welcome-mission-title{top:84px;width:92vw;font-size:clamp(24px,7.2vw,42px);letter-spacing:1.5px}
   .welcome-shell{grid-template-columns:1fr;width:min(420px,96vw);max-height:72vh;overflow:auto;padding:0 !important;justify-content:center;align-items:end}
   .welcome-portal{padding:14px}
 
@@ -543,6 +552,10 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
   <div class="welcome-bg"></div>
   <div class="welcome-scan"></div>
   <div class="welcome-live-hud" id="welcomeTopline">TARİH: — | ZAMAN: — | SİSTEM DURUMU: NOMİNAL</div>
+  <div class="welcome-signal weak" id="welcomeSignal">
+    <span class="welcome-signal-dot"></span>
+    <strong><span id="welcomeSignalLabel">SİNYAL</span>: <span id="welcomeSignalValue">BAĞLANIYOR</span></strong>
+  </div>
   <div class="welcome-mission-title" id="welcomeMissionTitle" data-i18n="welcome.missionTitle">CENTRADAR: GÖREV BAŞLIYOR</div>
   <div class="welcome-shell">
     <aside class="welcome-portal">
@@ -2289,6 +2302,21 @@ function updateWelcomeClock() {
     hour12:false
   }).format(now);
   el.textContent = `TARİH: ${date}  |  ZAMAN: ${time} TRT  |  SİSTEM DURUMU: NOMİNAL`;
+  updateWelcomeSignal();
+}
+
+function updateWelcomeSignal() {
+  const box = document.getElementById('welcomeSignal');
+  const label = document.getElementById('welcomeSignalLabel');
+  const value = document.getElementById('welcomeSignalValue');
+  if (!box || !label || !value) return;
+  const socketConnected = !!warSocket?.connected;
+  const backendOnline = typeof _backendOnline === 'undefined' ? false : !!_backendOnline;
+  const state = socketConnected ? 'strong' : backendOnline ? 'weak' : 'offline';
+  box.classList.remove('strong','weak','offline');
+  box.classList.add(state);
+  label.textContent = t('signal.label');
+  value.textContent = t(`signal.${state}`);
 }
 
 function startWelcomeClock() {
@@ -6010,6 +6038,7 @@ function setBackendStatus(online) {
     _backendOfflineSince = 0;
   }
   updateProgressPanels();
+  updateWelcomeSignal();
 }
 
 function scheduleBackendOffline(delayMs=6000) {
@@ -6047,6 +6076,7 @@ async function pollState() {
     setBackendStatus(true);
     if (data?.countries) updateLeaderboard(data.countries, data.players || data.playerLeaderboard || data.leaderboard?.players || data.leaderboard);
     if (data?.onlinePlayers!=null) document.getElementById('onlineCount').textContent=Number(data.onlinePlayers).toLocaleString('tr-TR');
+    updateWelcomeSignal();
     if (data?.economy) updateEconomyUI(data.economy);
     // Hediye mermi rozeti (welcome ekranı)
     if (data?.giftSlotsLeft != null) {
@@ -6965,14 +6995,16 @@ function startWarSocket(){
     if (authToken && myAlliance) loadAllianceFeed();
     ensureHeartbeatTimer();
     updateProgressPanels();
+    updateWelcomeSignal();
   });
   warSocket.on('disconnect',(reason)=>{
     document.querySelector('.gdot').style.background='#e8162a';
     if (!socketAuthReconnectInProgress) scheduleBackendOffline(6000);
     stopHeartbeatTimer();
     updateProgressPanels();
+    updateWelcomeSignal();
   });
-  warSocket.on('connect_error',()=>{ if (!socketAuthReconnectInProgress) scheduleBackendOffline(6000); });
+  warSocket.on('connect_error',()=>{ if (!socketAuthReconnectInProgress) scheduleBackendOffline(6000); updateWelcomeSignal(); });
   warSocket.on('war:attack',(d)=>{
     const from=d.attackerCountry||d.from||'', to=d.targetCountry||d.to||'';
     if(from&&to){
@@ -7034,6 +7066,7 @@ function startWarSocket(){
   warSocket.on('players:online',(d)=>{
     const n = typeof d === 'object' ? (d.onlinePlayers ?? d.count ?? 0) : d;
     document.getElementById('onlineCount').textContent=Number(n).toLocaleString('tr-TR');
+    updateWelcomeSignal();
   });
   warSocket.on('admin:bullet-grant',(d)=>{
     if (!wallet || !d?.wallet || d.wallet.toLowerCase() !== wallet.toLowerCase()) return;
@@ -7433,6 +7466,10 @@ const I18N = {
     // Connection banner
     'conn.lost': 'SUNUCU BAĞLANTISI KAYIP — OTOMATİK YENİDEN DENENİYOR',
     'conn.reload': '🔄 SAYFAYI YENİLE',
+    'signal.label': 'SİNYAL',
+    'signal.strong': 'GÜÇLÜ',
+    'signal.weak': 'BAĞLANIYOR',
+    'signal.offline': 'KESİLDİ',
     // Loading
     'load.default': 'YÜKLENİYOR...',
     'load.connect': 'CÜZDANA BAĞLANIYOR...',
@@ -7768,6 +7805,10 @@ const I18N = {
     'mem.count': '{n} members',
     'conn.lost': 'SERVER CONNECTION LOST — AUTO-RECONNECTING',
     'conn.reload': '🔄 RELOAD PAGE',
+    'signal.label': 'SIGNAL',
+    'signal.strong': 'STRONG',
+    'signal.weak': 'CONNECTING',
+    'signal.offline': 'OFFLINE',
     'load.default': 'LOADING...',
     'load.connect': 'CONNECTING TO WALLET...',
     'load.player': 'LOADING PLAYER...',
@@ -8101,6 +8142,10 @@ const I18N = {
     'mem.count': '{n} участников',
     'conn.lost': 'СОЕДИНЕНИЕ ПОТЕРЯНО — АВТОПЕРЕПОДКЛЮЧЕНИЕ',
     'conn.reload': '🔄 ОБНОВИТЬ',
+    'signal.label': 'СИГНАЛ',
+    'signal.strong': 'СИЛЬНЫЙ',
+    'signal.weak': 'ПОДКЛЮЧЕНИЕ',
+    'signal.offline': 'НЕТ СВЯЗИ',
     'load.default': 'ЗАГРУЗКА...',
     'load.connect': 'ПОДКЛЮЧЕНИЕ К КОШЕЛЬКУ...',
     'load.player': 'ЗАГРУЗКА ИГРОКА...',
@@ -8160,6 +8205,7 @@ function setLang(lang) {
   if (typeof updateProfileCard === 'function') updateProfileCard();
   if (typeof updateMobileBattleBar === 'function') updateMobileBattleBar();
   if (typeof renderLeaderboard === 'function') renderLeaderboard();
+  if (typeof updateWelcomeSignal === 'function') updateWelcomeSignal();
   if (typeof showToast === 'function') showToast(`✓ ${lang.toUpperCase()}`, 'info');
 }
 
