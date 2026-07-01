@@ -21,14 +21,14 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="Centradar: Tactical Gridwar">
 <meta property="og:description" content="Web3 tabanlı taktik savaş oyunu. 119 ülke, gerçek zamanlı çatışma, smart contract ekonomisi.">
-<meta property="og:image" content="https://centradar.xyz/assets/centradar-mission-start.png">
-<meta property="og:image:width" content="1152">
-<meta property="og:image:height" content="922">
+<meta property="og:image" content="https://centradar.xyz/assets/centradar-mission-live-bg.jpg">
+<meta property="og:image:width" content="1024">
+<meta property="og:image:height" content="820">
 <meta property="og:url" content="https://centradar.xyz/">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Centradar: Tactical Gridwar">
 <meta name="twitter:description" content="Web3 taktik savaş oyunu. 119 ülke. Smart contract ekonomili.">
-<meta name="twitter:image" content="https://centradar.xyz/assets/centradar-mission-start.png">
+<meta name="twitter:image" content="https://centradar.xyz/assets/centradar-mission-live-bg.jpg">
 
 <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Oswald:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
@@ -251,9 +251,10 @@ body.perf-lite .ticker-inner{animation-duration:60s}
 .target-intel-card b{font-family:var(--hud);font-size:10px;letter-spacing:1px;color:var(--text)}.target-intel-card span{display:block;margin-top:2px;font-size:8px;color:var(--dim)}
 .target-intel-card.hot{border-color:rgba(232,22,42,.32);background:rgba(232,22,42,.08)}.target-intel-card.value{border-color:rgba(245,200,66,.34);background:rgba(245,200,66,.07)}
 .target-intel-card button{background:rgba(102,179,255,.12);border:1px solid rgba(102,179,255,.38);color:#66b3ff;font-family:var(--hud);font-size:8px;padding:6px 8px;cursor:pointer;white-space:nowrap}
-.welcome-bg{position:absolute;inset:0;background:linear-gradient(90deg,rgba(4,8,10,.94),rgba(4,10,14,.58) 42%,rgba(4,8,10,.90)),url('/assets/centradar-mission-start.png') center/cover no-repeat;filter:saturate(1.05) contrast(1.05)}
+.welcome-bg{position:absolute;inset:0;background:linear-gradient(90deg,rgba(2,7,9,.12),rgba(2,7,9,.04) 42%,rgba(2,7,9,.28)),url('/assets/centradar-mission-live-bg.jpg') center/cover no-repeat;filter:saturate(1.08) contrast(1.05)}
 .welcome-scan{position:absolute;inset:0;background:repeating-linear-gradient(180deg,rgba(255,255,255,.035) 0 1px,transparent 1px 4px);opacity:.30;mix-blend-mode:screen;pointer-events:none}
-.welcome-shell{position:relative;z-index:1;width:min(1120px,96vw);display:grid;grid-template-columns:minmax(280px,1fr) 360px;gap:22px;align-items:center}
+.welcome-live-hud{position:absolute;z-index:2;top:17px;left:18px;min-width:min(540px,70vw);font-family:var(--mono);font-size:13px;color:#bffdf7;letter-spacing:.7px;text-align:left;padding:8px 14px;text-shadow:0 0 12px rgba(0,245,255,.42)}
+.welcome-shell{position:relative;z-index:1;width:min(1120px,96vw);display:grid;grid-template-columns:360px;justify-content:end;align-items:center;padding-right:min(5vw,56px)}
 .welcome-brief{min-height:520px;border:1px solid rgba(115,255,235,.30);background:linear-gradient(180deg,rgba(6,18,22,.50),rgba(5,9,12,.64));box-shadow:0 18px 60px rgba(0,0,0,.58),inset 0 0 60px rgba(0,245,255,.05);padding:18px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;position:relative}
 .welcome-brief:before{content:'';position:absolute;inset:10px;border:1px solid rgba(115,255,235,.18);pointer-events:none}
 .welcome-topline{font-family:var(--mono);font-size:11px;color:#9df4ef;letter-spacing:1px;border:1px solid rgba(115,255,235,.40);display:inline-block;padding:7px 12px;background:rgba(0,0,0,.28);align-self:flex-start}
@@ -401,11 +402,9 @@ body.perf-lite .ticker-inner{animation-duration:60s}
   #adminPayoutChecklist,#adminPurchasesInfo,#adminHealthInfo{max-height:240px;overflow:auto}
 
   /* Hoş geldin overlay daha kompakt */
-  #welcomeOverlay .welcome-shell{padding:0 12px}
-  .welcome-shell{grid-template-columns:1fr;width:min(620px,96vw);max-height:92vh;overflow:auto}
-  .welcome-brief{min-height:360px;padding:14px}
-  .welcome-title{font-size:clamp(28px,9vw,46px)}
-  .welcome-emblem{width:min(300px,76vw);max-height:210px}
+  #welcomeOverlay{align-items:flex-end !important;padding:12px !important}
+  .welcome-live-hud{top:14px;left:12px;right:12px;min-width:0;font-size:10px;padding:7px 10px}
+  .welcome-shell{grid-template-columns:1fr;width:min(420px,96vw);max-height:72vh;overflow:auto;padding:0 !important;justify-content:center;align-items:end}
   .welcome-portal{padding:14px}
 
   /* Buff kartları 2x2 grid */
@@ -538,18 +537,8 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
 <div id="welcomeOverlay" style="position:fixed;inset:0;z-index:5000;overflow:hidden;display:flex;align-items:center;justify-content:center;text-align:center;padding:20px">
   <div class="welcome-bg"></div>
   <div class="welcome-scan"></div>
+  <div class="welcome-live-hud" id="welcomeTopline">TARİH: — | ZAMAN: — | SİSTEM DURUMU: NOMİNAL</div>
   <div class="welcome-shell">
-    <section class="welcome-brief">
-      <div>
-        <div class="welcome-topline">TARİH: 20 EKİM 2026&nbsp;&nbsp;|&nbsp;&nbsp;ZAMAN: 22:30 ZULU&nbsp;&nbsp;|&nbsp;&nbsp;SİSTEM DURUMU: NOMİNAL</div>
-        <div class="welcome-title">CENTRADAR:<br>GÖREV BAŞLIYOR</div>
-        <div class="welcome-kicker" data-i18n="welcome.subtitle">KÜRESEL SAVAŞ MMO · ABSTRACT MAINNET</div>
-      </div>
-      <img class="welcome-emblem" src="/assets/centradar-emblem.png" alt="Centradar amblemi">
-      <div style="font-family:var(--ui);font-size:14px;color:#d8f7f0;max-width:650px;line-height:1.55;text-align:left" data-i18n="welcome.body">
-        119 ülkeden birini seç, ittifak kur, savaş alanına gir. Web3 cüzdanınla bağlan, mermi al, hedeflerinin elenmesi için saldır.
-      </div>
-    </section>
     <aside class="welcome-portal">
       <div class="welcome-portal-title">PERSONEL<br>ERİŞİM PORTALI</div>
       <div id="giftBadge" style="display:none;background:linear-gradient(180deg,rgba(245,200,66,0.15),rgba(245,200,66,0.05));border:1px solid rgba(245,200,66,0.4);border-radius:6px;padding:8px 12px;margin-bottom:12px;font-family:var(--hud);font-size:10px;color:var(--gold);letter-spacing:1px;text-align:center">
@@ -573,9 +562,6 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
         <button onclick="openWalletDiagnostics()" style="margin-left:6px;background:rgba(102,179,255,0.12);border:1px solid rgba(102,179,255,0.45);color:#66b3ff;font-family:var(--hud);font-size:10px;letter-spacing:2px;padding:9px 14px;cursor:pointer" data-i18n="wallet.checkButton">
           KONTROL ET
         </button>
-      </div>
-      <div class="welcome-warning" data-i18n="welcome.warning">
-        Abstract mainnet üzerinde çalışır. Mermi alımlarında gerçek ETH kullanılır; cüzdan onay ekranını her zaman kontrol et.
       </div>
     </aside>
   </div>
@@ -2272,9 +2258,39 @@ function updateNicknameUI(nick) {
 }
 
 /* ── HOŞ GELDİN OVERLAY ── */
+let _welcomeClockTimer = null;
+
+function updateWelcomeClock() {
+  const el = document.getElementById('welcomeTopline');
+  if (!el) return;
+  const now = new Date();
+  const date = new Intl.DateTimeFormat('tr-TR', {
+    timeZone:'Europe/Istanbul',
+    day:'2-digit',
+    month:'long',
+    year:'numeric'
+  }).format(now).toLocaleUpperCase('tr-TR');
+  const time = new Intl.DateTimeFormat('tr-TR', {
+    timeZone:'Europe/Istanbul',
+    hour:'2-digit',
+    minute:'2-digit',
+    second:'2-digit',
+    hour12:false
+  }).format(now);
+  el.textContent = `TARİH: ${date}  |  ZAMAN: ${time} TRT  |  SİSTEM DURUMU: NOMİNAL`;
+}
+
+function startWelcomeClock() {
+  updateWelcomeClock();
+  clearInterval(_welcomeClockTimer);
+  _welcomeClockTimer = setInterval(updateWelcomeClock, 1000);
+}
+
 function dismissWelcome() {
   const ov = document.getElementById('welcomeOverlay');
   if (ov) { ov.style.transition='opacity 0.4s'; ov.style.opacity='0'; setTimeout(()=>ov.remove(), 450); }
+  clearInterval(_welcomeClockTimer);
+  _welcomeClockTimer = null;
   try { startWarMusic(); } catch(e) {}
   maybeShowTutorial();
   if (!wallet) showToast('İzleyici modu açık: haritayı gezebilirsin. Saldırı ve satın alma için cüzdan bağla.','info');
@@ -8627,6 +8643,7 @@ window.claimDailyQuest = claimDailyQuest;
 buildMap();
 renderLabels();
 renderResources();
+startWelcomeClock();
 updateProgressPanels();
 updateTrustPanel();
 registerCentradarPwa();
