@@ -6,7 +6,13 @@
 <title>Centradar: Tactical Gridwar</title>
 <meta name="description" content="Centradar: Tactical Gridwar — Web3 tabanlı gerçek zamanlı savaş strateji oyunu. 119 ülke, taktik harita, smart contract ekonomisi.">
 <meta name="theme-color" content="#e8162a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Centradar">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="canonical" href="https://centradar.xyz/">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/og.png">
 
 <!-- Favicon (inline SVG) -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%230d1117'/%3E%3Ccircle cx='32' cy='32' r='26' fill='none' stroke='%2300c853' stroke-width='2'/%3E%3Ccircle cx='32' cy='32' r='18' fill='none' stroke='%2300c853' stroke-width='1.5' opacity='0.6'/%3E%3Ccircle cx='32' cy='32' r='10' fill='none' stroke='%2300c853' stroke-width='1' opacity='0.4'/%3E%3Cpath d='M32 6 L32 58 M6 32 L58 32' stroke='%2300c853' stroke-width='1' opacity='0.5'/%3E%3Ccircle cx='32' cy='32' r='3' fill='%23e8162a'/%3E%3C/svg%3E">
@@ -239,6 +245,16 @@ body.perf-lite .ticker-inner{animation-duration:60s}
 .profile-item{background:rgba(0,0,0,.16);border:1px solid rgba(255,255,255,.07);padding:6px;min-width:0}
 .profile-k{font-family:var(--hud);font-size:8px;letter-spacing:1px;color:var(--dim);margin-bottom:2px}
 .profile-v{font-family:var(--mono);font-size:10px;color:var(--text);word-break:break-word}
+.viral-card{border:1px solid rgba(245,200,66,.32);background:linear-gradient(135deg,rgba(232,22,42,.12),rgba(245,200,66,.08),rgba(0,200,83,.05));padding:13px;border-radius:10px;box-shadow:0 12px 34px rgba(0,0,0,.35)}
+.viral-card-title{font-family:var(--hud);font-size:18px;letter-spacing:3px;color:#fff;text-shadow:0 0 18px rgba(232,22,42,.35)}
+.viral-stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:11px}
+.viral-stat{background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.08);padding:8px;text-align:center}
+.viral-stat b{display:block;font-family:var(--hud);font-size:12px;color:var(--gold);letter-spacing:1px}.viral-stat span{font-size:9px;color:var(--dim)}
+.combat-recap{position:fixed;right:16px;bottom:48px;z-index:960;width:310px;max-width:calc(100vw - 24px);display:none;background:rgba(7,11,14,.97);border:1px solid rgba(245,200,66,.42);box-shadow:0 16px 44px rgba(0,0,0,.55);padding:12px;font-family:var(--mono);font-size:10px;color:var(--text)}
+.combat-recap.show{display:block;animation:recapIn .2s ease-out}
+.combat-recap h4{margin:0 0 6px;font-family:var(--hud);font-size:11px;letter-spacing:2px;color:var(--gold)}
+.combat-recap-actions{display:flex;gap:7px;margin-top:9px}.combat-recap-actions button{flex:1;padding:7px;border:1px solid rgba(245,200,66,.35);background:rgba(245,200,66,.10);color:var(--gold);font-family:var(--hud);font-size:8px;letter-spacing:1px;cursor:pointer}
+@keyframes recapIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .purchase-status{margin:8px 10px;padding:10px;border:1px solid rgba(102,179,255,.30);background:linear-gradient(180deg,rgba(102,179,255,.08),rgba(102,179,255,.02));font-family:var(--mono);font-size:10px;color:var(--dim);line-height:1.5}
 .purchase-status.success{border-color:rgba(0,200,83,.38);background:linear-gradient(180deg,rgba(0,200,83,.09),rgba(0,200,83,.02))}
 .purchase-status.error{border-color:rgba(232,22,42,.45);background:linear-gradient(180deg,rgba(232,22,42,.10),rgba(232,22,42,.02))}
@@ -363,6 +379,7 @@ body.perf-lite .ticker-inner{animation-duration:60s}
 
   /* Toast — mobil için daha geniş */
   .toast{top:50px;right:8px;left:8px;max-width:none;font-size:10px;text-align:center}
+  .combat-recap{left:8px;right:8px;bottom:118px;width:auto}
 
   /* Yardım modalı uzun olabilir */
   #helpModal .modal-box{max-height:84vh !important}
@@ -563,6 +580,7 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
     <button onclick="toggleSound()" id="soundBtn" title="Ses / müzik aç-kapa" data-i18n-title="nav.sound" style="background:transparent;border:1px solid var(--border);color:var(--text);font-size:14px;width:30px;height:28px;cursor:pointer;padding:0">🔊</button>
     <button onclick="openFeedbackModal()" title="Geri bildirim / bug rapor" data-i18n-title="nav.feedback" style="background:transparent;border:1px solid var(--border);color:var(--text);font-size:14px;width:30px;height:28px;cursor:pointer;padding:0">💬</button>
     <button id="docsNavBtn" onclick="openDocs('how')" title="Centradar Docs" style="background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer" data-i18n="nav.docs">📚 DOCS</button>
+    <button id="installAppBtn" onclick="installCentradarApp()" title="Telefona / masaüstüne ekle" style="display:none;background:rgba(245,200,66,.10);border:1px solid rgba(245,200,66,.45);color:var(--gold);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer" data-i18n="nav.install">⬇ YÜKLE</button>
     <span style="font-family:var(--mono);font-size:11px;color:var(--red)" id="ethBal">0.000 ETH</span>
     <button id="nicknameBtn" onclick="openNicknameModal()" title="Nickname ayarla" data-i18n-title="wallet.nickname" style="display:none;background:transparent;border:1px solid var(--border);color:var(--green);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer">👤 <span id="nicknameLabel" data-i18n="nav.nickname">İSİM EKLE</span></button>
     <button id="adminBtn" onclick="openAdminPanel()" title="Admin Paneli" style="display:none;background:linear-gradient(180deg,rgba(245,200,66,0.15),rgba(245,200,66,0.05));border:1px solid var(--gold);color:var(--gold);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer;letter-spacing:1px">⚙️ ADMIN</button>
@@ -839,6 +857,10 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
         style="padding:5px 10px;background:rgba(245,200,66,0.12);color:var(--gold);font-family:var(--hud);font-size:9px;letter-spacing:1px;border:1px solid rgba(245,200,66,0.38);cursor:pointer;border-radius:1px" data-i18n="btn.weakTarget">
         ZAYIF HEDEF
       </button>
+      <button onclick="selectLeaderTarget()"
+        style="padding:5px 10px;background:rgba(102,179,255,0.10);color:#66b3ff;font-family:var(--hud);font-size:9px;letter-spacing:1px;border:1px solid rgba(102,179,255,0.38);cursor:pointer;border-radius:1px" data-i18n="btn.leaderTarget">
+        LİDERİ HEDEFLE
+      </button>
     </div>
   </div>
 
@@ -947,9 +969,11 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
       <div class="profile-item"><div class="profile-k">RÜTBE</div><div class="profile-v" id="profileRank">Asker</div></div>
       <div class="profile-item"><div class="profile-k">GÜNLÜK</div><div class="profile-v" id="profileDaily">0/0 görev</div></div>
     </div>
-    <div style="display:flex;gap:6px;margin-top:8px">
-      <button class="btn-sm btn-out" style="flex:1;font-size:7px" onclick="openWalletDiagnostics()">CÜZDAN KONTROL</button>
-      <button class="btn-sm btn-out" style="flex:1;font-size:7px" onclick="loadPlayerHistory(true)">İŞLEM GEÇMİŞİ</button>
+    <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+      <button class="btn-sm btn-red" style="flex:1;font-size:7px;min-width:72px" onclick="shareCommander()" data-i18n="btn.invite">DAVET ET</button>
+      <button class="btn-sm btn-out" style="flex:1;font-size:7px;min-width:72px" onclick="openPlayerProfile()" data-i18n="btn.profileCard">PROFİL KARTI</button>
+      <button class="btn-sm btn-out" style="flex:1;font-size:7px;min-width:72px" onclick="openWalletDiagnostics()">CÜZDAN KONTROL</button>
+      <button class="btn-sm btn-out" style="flex:1;font-size:7px;min-width:72px" onclick="loadPlayerHistory(true)">İŞLEM GEÇMİŞİ</button>
     </div>
     <div id="playerHistoryMini" style="margin-top:8px;border-top:1px solid rgba(255,255,255,.06);padding-top:7px;color:var(--dim)">İşlem geçmişi cüzdan bağlanınca yüklenir.</div>
   </div>
@@ -1379,6 +1403,21 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
   </div>
 </div>
 
+<!-- PAYLAŞILABİLİR OYUNCU PROFİLİ -->
+<div class="modal" id="profileModal">
+  <div class="modal-box" style="width:520px;max-width:94vw;max-height:88vh;overflow-y:auto">
+    <button class="modal-close" onclick="closePlayerProfile()">✕ KAPAT</button>
+    <div class="modal-title" data-i18n="profile.title">KOMUTAN PROFİLİ</div>
+    <div class="modal-sub" data-i18n="profile.sub">Profil kartını paylaş, yeni oyuncuları savaşa çağır.</div>
+    <div id="profileShareCard" class="viral-card" style="text-align:left"></div>
+    <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+      <button class="btn-sm btn-red" style="flex:1;padding:10px" onclick="shareCommander()" data-i18n="btn.shareProfile">PAYLAŞ</button>
+      <button class="btn-sm btn-out" style="flex:1;padding:10px" onclick="copyInviteLink()" data-i18n="btn.copyInvite">DAVET LİNKİ</button>
+      <button class="btn-sm btn-out" style="flex:1;padding:10px" onclick="copyProfileCard()" data-i18n="btn.copyProfile">KARTI KOPYALA</button>
+    </div>
+  </div>
+</div>
+
 <!-- ADMIN PANELİ MODALI (sadece owner) -->
 <div class="modal" id="adminModal">
   <div class="modal-box" style="width:640px;max-width:96vw;max-height:88vh;overflow-y:auto">
@@ -1519,6 +1558,8 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
   </div>
   <button class="mobile-battle-action" id="mobileBattleAction" onclick="attackTarget()" disabled>SALDIR</button>
 </div>
+
+<div class="combat-recap" id="combatRecap"></div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
@@ -2103,6 +2144,11 @@ document.addEventListener('keydown', (e) => {
   if ((e.key || '').toLowerCase() === 't') {
     e.preventDefault();
     selectWeakestTarget();
+    return;
+  }
+  if ((e.key || '').toLowerCase() === 'l') {
+    e.preventDefault();
+    selectLeaderTarget();
     return;
   }
 
@@ -2837,6 +2883,7 @@ function updateProfileCard() {
     readiness.className = targetCountry && myBulletsCount > 0 ? 'status-ok' : 'status-warn';
   }
   updateMobileBattleBar();
+  if (document.getElementById('profileModal')?.classList.contains('show')) renderPlayerProfileModal();
 }
 
 function updateMobileBattleBar() {
@@ -2872,6 +2919,130 @@ function updateMobileBattleBar() {
       : canOpenMarket ? (()=>openAppPage('pazar'))
       : null;
   }
+}
+
+let _lastCombatShareText = '';
+let _combatRecapTimer = null;
+
+function commanderName() {
+  return myNickname || (wallet ? shortDisplayWallet(wallet) : 'Centradar Komutanı');
+}
+
+function commanderCountryLabel(code=myCountry) {
+  return code ? `${CD[code]?.f || ''} ${CD[code]?.n || code}`.trim() : 'Ülke seçilmedi';
+}
+
+function buildInviteUrl(extra={}) {
+  const params = new URLSearchParams();
+  params.set('page', extra.page || 'harita');
+  if (myCountry) params.set('country', myCountry);
+  if (extra.target || targetCountry) params.set('target', extra.target || targetCountry);
+  if (wallet) params.set('ref', wallet.slice(0, 10));
+  return `${location.origin}${location.pathname}?${params.toString()}`;
+}
+
+function buildCommanderShareText(extra={}) {
+  const contribution = Number(lastPlayerSnapshot?.contribution || 0).toLocaleString('tr-TR');
+  const attacks = Number(lastPlayerSnapshot?.attacks || 0).toLocaleString('tr-TR');
+  const kills = Number(lastPlayerSnapshot?.kills || 0).toLocaleString('tr-TR');
+  const rank = document.getElementById('ysRank')?.textContent || 'Asker';
+  const target = extra.target ? `\nSon hedef: ${commanderCountryLabel(extra.target)}${extra.damage ? ` (-${extra.damage} HP)` : ''}` : '';
+  return `CENTRADAR'a katıl!\nKomutan: ${commanderName()}\nÜlke: ${commanderCountryLabel()}\nRütbe: ${rank}\nKatkı: ${contribution} · Saldırı: ${attacks} · Kill: ${kills}${target}`;
+}
+
+async function shareOrCopy(text, url, successKey='toast.inviteCopied') {
+  try {
+    if (navigator.share) {
+      await navigator.share({ title:'Centradar: Tactical Gridwar', text, url });
+      showToast(t('toast.shared'), 'success');
+      return;
+    }
+  } catch(e) {
+    if (e && e.name === 'AbortError') return;
+  }
+  const payload = `${text}\n${url}`;
+  try {
+    await navigator.clipboard.writeText(payload);
+    showToast(t(successKey), 'success');
+  } catch(e) {
+    prompt('Linki kopyala:', payload);
+  }
+}
+
+function renderPlayerProfileModal() {
+  const card = document.getElementById('profileShareCard');
+  if (!card) return;
+  const rank = document.getElementById('ysRank')?.textContent || 'Asker';
+  const contribution = Number(lastPlayerSnapshot?.contribution || 0);
+  const attacks = Number(lastPlayerSnapshot?.attacks || 0);
+  const kills = Number(lastPlayerSnapshot?.kills || 0);
+  const bullets = Number(myBulletsCount || 0);
+  const invite = buildInviteUrl({ page:'harita' });
+  card.innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px;justify-content:space-between">
+      <div>
+        <div class="viral-card-title">CENTRADAR</div>
+        <div style="font-family:var(--hud);font-size:10px;letter-spacing:2px;color:var(--gold);margin-top:3px">${escapeHtml(commanderName())}</div>
+      </div>
+      <div style="font-size:28px">${escapeHtml(myCountry ? (CD[myCountry]?.f || '') : '🎯')}</div>
+    </div>
+    <div style="margin-top:10px;color:var(--text);font-family:var(--mono);font-size:11px;line-height:1.55">
+      <b style="color:var(--green)">${escapeHtml(commanderCountryLabel())}</b><br>
+      ${escapeHtml(rank)} · ${escapeHtml(shortDisplayWallet(wallet || ''))}
+    </div>
+    <div class="viral-stat-grid">
+      <div class="viral-stat"><b>${escapeHtml(contribution.toLocaleString('tr-TR'))}</b><span>KATKI</span></div>
+      <div class="viral-stat"><b>${escapeHtml(attacks.toLocaleString('tr-TR'))}</b><span>SALDIRI</span></div>
+      <div class="viral-stat"><b>${escapeHtml(kills.toLocaleString('tr-TR'))}</b><span>KILL</span></div>
+    </div>
+    <div style="margin-top:9px;color:var(--dim);font-size:10px;line-height:1.45">
+      🔫 ${escapeHtml(bullets.toLocaleString('tr-TR'))} mermi · Ödül havuzu: ${escapeHtml(formatEthAmount(numericRewardPoolEth()))}<br>
+      <span style="color:var(--gold)">Davet:</span> ${escapeHtml(invite)}
+    </div>`;
+}
+
+function openPlayerProfile() {
+  renderPlayerProfileModal();
+  document.getElementById('profileModal')?.classList.add('show');
+}
+
+function closePlayerProfile() {
+  document.getElementById('profileModal')?.classList.remove('show');
+}
+
+function copyInviteLink() {
+  const text = buildCommanderShareText();
+  return shareOrCopy(text, buildInviteUrl({ page:'harita' }));
+}
+
+function copyProfileCard() {
+  const text = buildCommanderShareText();
+  const url = buildInviteUrl({ page:'harita' });
+  return shareOrCopy(text, url, 'toast.profileCopied');
+}
+
+function shareCommander() {
+  const text = _lastCombatShareText || buildCommanderShareText();
+  return shareOrCopy(text, buildInviteUrl({ page:'harita' }));
+}
+
+function showCombatRecap({target, damage=0, newHp=null, attacks=1}={}) {
+  const box = document.getElementById('combatRecap');
+  if (!box || !target) return;
+  const targetLabel = commanderCountryLabel(target);
+  _lastCombatShareText = buildCommanderShareText({ target, damage });
+  const hpLine = newHp != null ? `${Number(newHp).toLocaleString('tr-TR')} HP kaldı` : 'Canlı haritada güncellendi';
+  box.innerHTML = `
+    <h4>${escapeHtml(t('combat.title'))}</h4>
+    <div>${escapeHtml(commanderCountryLabel())} → <b style="color:var(--red)">${escapeHtml(targetLabel)}</b></div>
+    <div style="margin-top:5px;color:var(--dim)">${escapeHtml(attacks.toLocaleString('tr-TR'))} saldırı · -${escapeHtml(String(damage))} HP · ${escapeHtml(hpLine)}</div>
+    <div class="combat-recap-actions">
+      <button onclick="shareCommander()">${escapeHtml(t('btn.shareProfile'))}</button>
+      <button onclick="selectWeakestTarget()">${escapeHtml(t('btn.weakTarget'))}</button>
+    </div>`;
+  box.classList.add('show');
+  clearTimeout(_combatRecapTimer);
+  _combatRecapTimer = setTimeout(()=>box.classList.remove('show'), 6500);
 }
 
 const TUTORIAL_KEY = 'centradar-tutorial-seen-v1';
@@ -2940,10 +3111,14 @@ function renderDailyQuestRows() {
   const quests = Array.isArray(dailyQuestState?.quests) ? dailyQuestState.quests : [];
   if (!wallet) return renderQuestRow('Günlük görevler', false, 'Cüzdan bağlayınca aktif olur.');
   if (!quests.length) return renderQuestRow('Günlük görevler yükleniyor', false, 'Birazdan otomatik güncellenir.');
-  const rows = [`<div style="font-family:var(--hud);font-size:8px;color:var(--gold);letter-spacing:1px;margin:7px 0 3px">GÜNLÜK GÖREVLER</div>`];
+  const totalReward = quests.reduce((sum,q)=>sum + Number(q.rewardBullets || 0), 0);
+  const readyReward = quests.filter(q=>q.claimable && !q.claimed).reduce((sum,q)=>sum + Number(q.rewardBullets || 0), 0);
+  const headerColor = readyReward > 0 ? 'var(--green)' : 'var(--gold)';
+  const rows = [`<div style="font-family:var(--hud);font-size:8px;color:${headerColor};letter-spacing:1px;margin:7px 0 3px">GÜNLÜK GÖREVLER · BUGÜN +${totalReward.toLocaleString('tr-TR')} MERMİ${readyReward ? ` · HAZIR +${readyReward.toLocaleString('tr-TR')}` : ''}</div>`];
   for (const q of quests) {
     const progress = `${Number(q.progress||0).toLocaleString('tr-TR')}/${Number(q.target||0).toLocaleString('tr-TR')}`;
-    const sub = `${progress} · ödül +${Number(q.rewardBullets||0).toLocaleString('tr-TR')} mermi`;
+    const status = q.claimed ? 'alındı' : q.claimable ? 'hazır' : 'devam';
+    const sub = `${progress} · ödül +${Number(q.rewardBullets||0).toLocaleString('tr-TR')} mermi · ${status}`;
     rows.push(renderQuestRow(q.label || q.id, q.completed, sub, dailyQuestButton(q)));
   }
   return rows.join('');
@@ -4221,10 +4396,32 @@ function findWeakestTarget() {
     .sort((a,b) => Number(a.hp || MAX_HP_FE) - Number(b.hp || MAX_HP_FE))[0] || null;
 }
 
+function findLeaderTarget() {
+  const pool = (Array.isArray(latestLeaderboardCountries) && latestLeaderboardCountries.length)
+    ? latestLeaderboardCountries
+    : gameCountries;
+  return [...(Array.isArray(pool) ? pool : [])]
+    .filter(c => {
+      const code = normalizeCountryCode(c.code || c.country_code);
+      return code && code !== myCountry && c.is_alive !== false && c.eliminated !== true && Number(c.hp || 0) > 0;
+    })
+    .sort((a,b) => Number(b.hp || 0) - Number(a.hp || 0))[0] || null;
+}
+
 function selectWeakestTarget() {
   if (!wallet) { showToast(t('toast.connectFirst'),'error'); return; }
   if (!myCountry) { showToast(t('toast.selectCountryFirst'),'error'); openModal('nation'); return; }
   const target = findWeakestTarget();
+  const code = normalizeCountryCode(target?.code || target?.country_code);
+  if (!code) { showToast(t('toast.noTargetFound'),'error'); return; }
+  openAppPage('harita');
+  selectTarget(code);
+}
+
+function selectLeaderTarget() {
+  if (!wallet) { showToast(t('toast.connectFirst'),'error'); return; }
+  if (!myCountry) { showToast(t('toast.selectCountryFirst'),'error'); openModal('nation'); return; }
+  const target = findLeaderTarget();
   const code = normalizeCountryCode(target?.code || target?.country_code);
   if (!code) { showToast(t('toast.noTargetFound'),'error'); return; }
   openAppPage('harita');
@@ -4723,6 +4920,7 @@ async function attackTarget() {
       addActivity(myCountry, targetCountry);
       drawAttackLine(myCountry, targetCountry);
       if (data.newHp !== undefined) updateHP(targetCountry, data.newHp);
+      showCombatRecap({ target:targetCountry, damage:dmg, newHp:data.newHp, attacks:1 });
       btn.disabled=false; btn.textContent=`⚡ ${targetCountry} SALDIRI BAŞLAT`;
       if (data.player) updatePlayerUI(data.player);
       else refreshPlayerState();
@@ -4793,6 +4991,8 @@ async function bulkAttack(n) {
   let successCount = 0;
   let failCount = 0;
   let cooldownStreak = 0;
+  let totalDamage = 0;
+  const bulkTarget = targetCountry;
 
   for (let i = 0; i < planned; i++) {
     if (_bulkCancel) {
@@ -4804,7 +5004,7 @@ async function bulkAttack(n) {
       break;
     }
     try {
-      const res = await authJson('/api/game/attack',{wallet, targetCountry},{
+      const res = await authJson('/api/game/attack',{wallet, targetCountry: bulkTarget},{
         signal: AbortSignal.timeout(8000)
       });
       const data = await res.json();
@@ -4826,12 +5026,13 @@ async function bulkAttack(n) {
       } else {
         successCount++;
         cooldownStreak = 0;
+        totalDamage += Number(data.damage || 1);
         // İlk birkaç saldırı animasyonu göster, sonra atla (performans için)
         if (successCount <= 8 || successCount % 10 === 0) {
           playSound('shoot');  // Sesi de animasyonla birlikte (ilk 8 + her 10'da bir)
-          drawAttackLine(myCountry, targetCountry);
-          addAttackHistory(targetCountry, 1);
-          if (data.newHp !== undefined) updateHP(targetCountry, data.newHp);
+          drawAttackLine(myCountry, bulkTarget);
+          addAttackHistory(bulkTarget, 1);
+          if (data.newHp !== undefined) updateHP(bulkTarget, data.newHp);
         }
         // Mermi sayacını güncelle (her saldırıdan sonra)
         if (data.player) updatePlayerUI(data.player);
@@ -4853,6 +5054,9 @@ async function bulkAttack(n) {
   _setBulkUI(false);
   if (!_bulkCancel) {
     showToast(`✅ ${successCount}/${planned} saldırı tamamlandı`,'success');
+  }
+  if (successCount > 0) {
+    showCombatRecap({ target:bulkTarget, damage:totalDamage || successCount, attacks:successCount });
   }
   pollState();
   refreshPlayerState();
@@ -6585,6 +6789,7 @@ const I18N = {
     'nav.rank': 'SIRALAMA',
     'nav.help': '❓ NASIL OYNANIR',
     'nav.docs': '📚 DOCS',
+    'nav.install': '⬇ YÜKLE',
     'nav.feedback': 'Geri bildirim / bug rapor',
     'nav.sound': 'Ses / müzik aç-kapa',
     'nav.nickname': 'İSİM EKLE',
@@ -6650,6 +6855,12 @@ const I18N = {
     'btn.noBullets': '🔫 MERMİN YOK — PAZARDAN AL',
     'btn.selectTarget': 'HEDEF SEÇ ▾',
     'btn.weakTarget': 'ZAYIF HEDEF',
+    'btn.leaderTarget': 'LİDERİ HEDEFLE',
+    'btn.invite': 'DAVET ET',
+    'btn.profileCard': 'PROFİL KARTI',
+    'btn.shareProfile': 'PAYLAŞ',
+    'btn.copyInvite': 'DAVET LİNKİ',
+    'btn.copyProfile': 'KARTI KOPYALA',
     'btn.stopBulk': '⏹ DURDUR',
     'btn.allianceCreate': 'KUR',
     'btn.allianceJoin': 'KATIL',
@@ -6710,6 +6921,11 @@ const I18N = {
     'toast.logoutFull': '⏏ Abstract Global Wallet oturumu kapatıldı',
     'toast.copied': '📋 Adres kopyalandı',
     'toast.linkCopied': '🔗 Link kopyalandı: {code}',
+    'toast.inviteCopied': 'Davet linki kopyalandı.',
+    'toast.profileCopied': 'Profil kartı metni kopyalandı.',
+    'toast.shared': 'Paylaşım hazır.',
+    'toast.installHint': 'Tarayıcı menüsünden “Ana ekrana ekle” seçeneğini kullanabilirsin.',
+    'toast.appInstalled': 'Centradar cihaza eklendi.',
     'toast.nicknameSet': '✅ Nickname: {nick}',
     'toast.feedbackSent': 'Geri bildirim gönderildi. Teşekkürler!',
     'toast.feedbackFailed': 'Geri bildirim gönderilemedi',
@@ -6793,6 +7009,9 @@ const I18N = {
     'modal.allianceRadio': 'TELSİZ KOMUTU',
     'modal.allianceMembers': '👥 İTTİFAK ÜYELERİ',
     'modal.nickname': '👤 NICKNAME AYARLA',
+    'profile.title': 'KOMUTAN PROFİLİ',
+    'profile.sub': 'Profil kartını paylaş, yeni oyuncuları savaşa çağır.',
+    'combat.title': 'SAVAŞ RAPORU',
     'modal.feedback': '💬 GERİ BİLDİRİM / BUG RAPOR',
     'modal.help': '❓ NASIL OYNANIR',
     'modal.docs': '📚 CENTRADAR DOCS',
@@ -6923,6 +7142,7 @@ const I18N = {
     'nav.rank': 'RANKING',
     'nav.help': '❓ HOW TO PLAY',
     'nav.docs': '📚 DOCS',
+    'nav.install': '⬇ INSTALL',
     'nav.feedback': 'Feedback / Bug report',
     'nav.sound': 'Toggle sound / music',
     'nav.nickname': 'ADD NAME',
@@ -6985,6 +7205,12 @@ const I18N = {
     'btn.noBullets': '🔫 NO AMMO — BUY FROM MARKET',
     'btn.selectTarget': 'SELECT TARGET ▾',
     'btn.weakTarget': 'WEAKEST TARGET',
+    'btn.leaderTarget': 'TARGET LEADER',
+    'btn.invite': 'INVITE',
+    'btn.profileCard': 'PROFILE CARD',
+    'btn.shareProfile': 'SHARE',
+    'btn.copyInvite': 'INVITE LINK',
+    'btn.copyProfile': 'COPY CARD',
     'btn.stopBulk': '⏹ STOP',
     'btn.allianceCreate': 'CREATE',
     'btn.allianceJoin': 'JOIN',
@@ -7041,6 +7267,11 @@ const I18N = {
     'toast.logoutFull': '⏏ Abstract Global Wallet session closed',
     'toast.copied': '📋 Address copied',
     'toast.linkCopied': '🔗 Link copied: {code}',
+    'toast.inviteCopied': 'Invite link copied.',
+    'toast.profileCopied': 'Profile card text copied.',
+    'toast.shared': 'Share sheet opened.',
+    'toast.installHint': 'Use your browser menu and choose “Add to Home Screen”.',
+    'toast.appInstalled': 'Centradar was added to this device.',
     'toast.nicknameSet': '✅ Nickname: {nick}',
     'toast.feedbackSent': 'Feedback sent. Thank you!',
     'toast.feedbackFailed': 'Feedback could not be sent',
@@ -7122,6 +7353,9 @@ const I18N = {
     'modal.allianceRadio': 'RADIO COMMAND',
     'modal.allianceMembers': '👥 ALLIANCE MEMBERS',
     'modal.nickname': '👤 SET NICKNAME',
+    'profile.title': 'COMMANDER PROFILE',
+    'profile.sub': 'Share your profile card and call new players to war.',
+    'combat.title': 'BATTLE REPORT',
     'modal.feedback': '💬 FEEDBACK / BUG REPORT',
     'modal.help': '❓ HOW TO PLAY',
     'modal.docs': '📚 CENTRADAR DOCS',
@@ -7241,6 +7475,7 @@ const I18N = {
     'nav.rank': 'РЕЙТИНГ',
     'nav.help': '❓ КАК ИГРАТЬ',
     'nav.docs': '📚 DOCS',
+    'nav.install': '⬇ УСТАНОВИТЬ',
     'nav.feedback': 'Отзыв / отчёт об ошибке',
     'nav.sound': 'Звук / музыка вкл-выкл',
     'nav.nickname': 'ДОБАВИТЬ ИМЯ',
@@ -7303,6 +7538,12 @@ const I18N = {
     'btn.noBullets': '🔫 НЕТ ПАТРОНОВ — КУПИТЕ',
     'btn.selectTarget': 'ВЫБРАТЬ ЦЕЛЬ ▾',
     'btn.weakTarget': 'СЛАБАЯ ЦЕЛЬ',
+    'btn.leaderTarget': 'ЦЕЛЬ: ЛИДЕР',
+    'btn.invite': 'ПРИГЛАСИТЬ',
+    'btn.profileCard': 'КАРТА ПРОФИЛЯ',
+    'btn.shareProfile': 'ПОДЕЛИТЬСЯ',
+    'btn.copyInvite': 'ССЫЛКА',
+    'btn.copyProfile': 'КОПИРОВАТЬ',
     'btn.stopBulk': '⏹ СТОП',
     'btn.allianceCreate': 'СОЗДАТЬ',
     'btn.allianceJoin': 'ВСТУПИТЬ',
@@ -7359,6 +7600,11 @@ const I18N = {
     'toast.logoutFull': '⏏ Сессия Abstract Global Wallet закрыта',
     'toast.copied': '📋 Адрес скопирован',
     'toast.linkCopied': '🔗 Ссылка скопирована: {code}',
+    'toast.inviteCopied': 'Ссылка приглашения скопирована.',
+    'toast.profileCopied': 'Текст карты профиля скопирован.',
+    'toast.shared': 'Окно отправки открыто.',
+    'toast.installHint': 'Используйте меню браузера: “Добавить на главный экран”.',
+    'toast.appInstalled': 'Centradar добавлен на устройство.',
     'toast.nicknameSet': '✅ Ник: {nick}',
     'toast.feedbackSent': 'Отзыв отправлен. Спасибо!',
     'toast.feedbackFailed': 'Не удалось отправить отзыв',
@@ -7439,6 +7685,9 @@ const I18N = {
     'modal.allianceRadio': 'РАДИО-КОМАНДА',
     'modal.allianceMembers': '👥 СОСТАВ АЛЬЯНСА',
     'modal.nickname': '👤 ЗАДАТЬ НИК',
+    'profile.title': 'ПРОФИЛЬ КОМАНДИРА',
+    'profile.sub': 'Поделитесь картой профиля и зовите новых игроков в бой.',
+    'combat.title': 'БОЕВОЙ ОТЧЁТ',
     'modal.feedback': '💬 ОТЗЫВ / ОШИБКА',
     'modal.help': '❓ КАК ИГРАТЬ',
     'modal.docs': '📚 CENTRADAR DOCS',
@@ -7921,6 +8170,49 @@ async function submitFeedback() {
   }
 }
 
+/* ── PWA / TELEFONA EKLE ── */
+let _deferredInstallPrompt = null;
+
+function updateInstallButton() {
+  const btn = document.getElementById('installAppBtn');
+  if (!btn) return;
+  const standalone = window.matchMedia?.('(display-mode: standalone)')?.matches || window.navigator.standalone;
+  btn.style.display = (_deferredInstallPrompt && !standalone) ? 'inline-block' : 'none';
+}
+
+window.addEventListener('beforeinstallprompt', event => {
+  event.preventDefault();
+  _deferredInstallPrompt = event;
+  updateInstallButton();
+});
+
+window.addEventListener('appinstalled', () => {
+  _deferredInstallPrompt = null;
+  updateInstallButton();
+  showToast(t('toast.appInstalled'), 'success');
+});
+
+async function installCentradarApp() {
+  if (!_deferredInstallPrompt) {
+    showToast(t('toast.installHint'), 'info');
+    return;
+  }
+  const promptEvent = _deferredInstallPrompt;
+  _deferredInstallPrompt = null;
+  updateInstallButton();
+  try {
+    await promptEvent.prompt();
+    await promptEvent.userChoice;
+  } catch(e) {
+    showToast(t('toast.installHint'), 'info');
+  }
+}
+
+function registerCentradarPwa() {
+  if (!('serviceWorker' in navigator) || location.protocol !== 'https:') return;
+  navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
+
 /* ── URL PARAMETRELERİ ── */
 function _parseUrlParams() {
   try {
@@ -8025,7 +8317,15 @@ Object.assign(window, {
   loadPlayerHistory,
   openWalletDiagnostics,
   closeWalletDiagnostics,
-  copyWalletDiagnostics
+  copyWalletDiagnostics,
+  selectWeakestTarget,
+  selectLeaderTarget,
+  openPlayerProfile,
+  closePlayerProfile,
+  shareCommander,
+  copyInviteLink,
+  copyProfileCard,
+  installCentradarApp
 });
 window.loadDailyQuests = loadDailyQuests;
 window.claimDailyQuest = claimDailyQuest;
@@ -8034,6 +8334,7 @@ renderLabels();
 renderResources();
 updateProgressPanels();
 updateTrustPanel();
+registerCentradarPwa();
 pollState();
 fetchRewardStatus();
 _applyUrlParams();

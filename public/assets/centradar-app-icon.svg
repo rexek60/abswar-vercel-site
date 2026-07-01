@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Centradar">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="42%" r="70%">
+      <stop offset="0" stop-color="#17283a"/>
+      <stop offset="0.58" stop-color="#090c0f"/>
+      <stop offset="1" stop-color="#020407"/>
+    </radialGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+  <circle cx="256" cy="256" r="180" fill="none" stroke="#00c853" stroke-width="14" opacity=".95" filter="url(#glow)"/>
+  <circle cx="256" cy="256" r="118" fill="none" stroke="#00c853" stroke-width="8" opacity=".58"/>
+  <circle cx="256" cy="256" r="56" fill="none" stroke="#00f5ff" stroke-width="5" opacity=".45"/>
+  <path d="M256 54v404M54 256h404" stroke="#00c853" stroke-width="7" opacity=".48"/>
+  <path d="M256 256 398 151" stroke="#f5c842" stroke-width="11" stroke-linecap="round" opacity=".9"/>
+  <circle cx="256" cy="256" r="22" fill="#e8162a" filter="url(#glow)"/>
+  <text x="256" y="420" text-anchor="middle" fill="#f2f7ff" font-family="Arial Black, Impact, sans-serif" font-size="42" letter-spacing="9">CENTRADAR</text>
+</svg>
