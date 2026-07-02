@@ -80,6 +80,9 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 
 /* MAP */
 #mapSvg{width:100%;height:100%;cursor:crosshair;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+#mapSvg.map-pan-active{cursor:grabbing}
+.map-zoom-hud{position:absolute;left:10px;top:8px;z-index:12;padding:5px 8px;border:1px solid rgba(115,255,235,.24);background:rgba(3,8,12,.66);font-family:var(--mono);font-size:8px;color:rgba(214,255,251,.82);letter-spacing:.7px;pointer-events:none}
+.map-zoom-reset{position:absolute;left:10px;top:34px;z-index:12;padding:4px 7px;border:1px solid rgba(245,200,66,.32);background:rgba(245,200,66,.08);font-family:var(--hud);font-size:8px;color:var(--gold);letter-spacing:1px;cursor:pointer}
  .country-land{stroke-width:0.6;stroke-linejoin:round;stroke-linecap:round;transition:fill .4s,stroke .3s,filter .3s;cursor:crosshair;vector-effect:non-scaling-stroke;paint-order:stroke fill;fill-opacity:.96;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 /* HP seviyesine göre renkler */
 .country-land.hp-full{fill:url(#landGrad);stroke:#84d79a;stroke-width:0.55}
@@ -715,6 +718,8 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
 
 <!-- MAP -->
 <div class="cell" id="panel-harita" style="grid-column:2;grid-row:1;background:radial-gradient(ellipse at 50% 40%, #0a2540 0%, #061520 60%, #03080e 100%);position:relative;box-shadow:inset 0 0 60px rgba(0,180,140,0.08),inset 0 0 2px rgba(0,255,180,0.3)">
+  <div class="map-zoom-hud" id="mapZoomHud">ZOOM 100% · tekerlek</div>
+  <button class="map-zoom-reset" onclick="resetMapZoom()" title="Harita yakınlaştırmayı sıfırla">RESET</button>
   <!-- Grid -->
   <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:0.06;pointer-events:none;z-index:1">
     <defs><pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M30 0L0 0 0 30" fill="none" stroke="#00c853" stroke-width="0.4"/></pattern></defs>
@@ -4610,6 +4615,114 @@ function openAppPage(page='harita', opts={}) {
   setActivePageChrome(next);
   if (!opts.skipUrl) syncPageUrl(next, !!opts.replace);
   setTimeout(()=> window.dispatchEvent(new Event('resize')), 50);
+}
+
+const MAP_BASE_VIEWBOX = { x:0, y:0, w:1000, h:500 };
+let mapViewBox = { ...MAP_BASE_VIEWBOX };
+let mapZoomLevel = 1;
+let mapPanState = null;
+
+function clampMapViewBox() {
+  mapViewBox.w = Math.max(220, Math.min(MAP_BASE_VIEWBOX.w, mapViewBox.w));
+  mapViewBox.h = Math.max(110, Math.min(MAP_BASE_VIEWBOX.h, mapViewBox.h));
+  mapViewBox.x = Math.max(MAP_BASE_VIEWBOX.x, Math.min(MAP_BASE_VIEWBOX.x + MAP_BASE_VIEWBOX.w - mapViewBox.w, mapViewBox.x));
+  mapViewBox.y = Math.max(MAP_BASE_VIEWBOX.y, Math.min(MAP_BASE_VIEWBOX.y + MAP_BASE_VIEWBOX.h - mapViewBox.h, mapViewBox.y));
+  mapZoomLevel = MAP_BASE_VIEWBOX.w / mapViewBox.w;
+}
+
+function applyMapViewBox() {
+  const svg = document.getElementById('mapSvg');
+  if (!svg) return;
+  clampMapViewBox();
+  svg.setAttribute('viewBox', `${mapViewBox.x.toFixed(2)} ${mapViewBox.y.toFixed(2)} ${mapViewBox.w.toFixed(2)} ${mapViewBox.h.toFixed(2)}`);
+  const hud = document.getElementById('mapZoomHud');
+  if (hud) hud.textContent = `ZOOM ${Math.round(mapZoomLevel * 100)}% · tekerlek`;
+}
+
+function mapPointFromEvent(event) {
+  const svg = document.getElementById('mapSvg');
+  if (!svg) return null;
+  const rect = svg.getBoundingClientRect();
+  const x = mapViewBox.x + ((event.clientX - rect.left) / Math.max(1, rect.width)) * mapViewBox.w;
+  const y = mapViewBox.y + ((event.clientY - rect.top) / Math.max(1, rect.height)) * mapViewBox.h;
+  return { x, y, rect };
+}
+
+function zoomMapAt(event, direction) {
+  const point = mapPointFromEvent(event);
+  if (!point) return;
+  const scale = direction < 0 ? 0.84 : 1.18;
+  const nextW = Math.max(220, Math.min(1000, mapViewBox.w * scale));
+  const nextH = nextW / 2;
+  const rx = (point.x - mapViewBox.x) / mapViewBox.w;
+  const ry = (point.y - mapViewBox.y) / mapViewBox.h;
+  mapViewBox = {
+    x: point.x - nextW * rx,
+    y: point.y - nextH * ry,
+    w: nextW,
+    h: nextH
+  };
+  applyMapViewBox();
+}
+
+function resetMapZoom() {
+  mapViewBox = { ...MAP_BASE_VIEWBOX };
+  applyMapViewBox();
+}
+
+function initMapZoomControls() {
+  const svg = document.getElementById('mapSvg');
+  if (!svg || svg.dataset.zoomReady === '1') return;
+  svg.dataset.zoomReady = '1';
+  applyMapViewBox();
+
+  svg.addEventListener('wheel', event => {
+    event.preventDefault();
+    zoomMapAt(event, event.deltaY);
+  }, { passive:false });
+
+  svg.addEventListener('mousedown', event => {
+    if (event.button !== 1) return;
+    event.preventDefault();
+    const point = mapPointFromEvent(event);
+    if (!point) return;
+    mapPanState = {
+      startX:event.clientX,
+      startY:event.clientY,
+      view:{ ...mapViewBox },
+      rect:point.rect
+    };
+    svg.classList.add('map-pan-active');
+  });
+
+  window.addEventListener('mousemove', event => {
+    if (!mapPanState) return;
+    const dx = (event.clientX - mapPanState.startX) / Math.max(1, mapPanState.rect.width) * mapPanState.view.w;
+    const dy = (event.clientY - mapPanState.startY) / Math.max(1, mapPanState.rect.height) * mapPanState.view.h;
+    mapViewBox = {
+      ...mapPanState.view,
+      x: mapPanState.view.x - dx,
+      y: mapPanState.view.y - dy
+    };
+    applyMapViewBox();
+  });
+
+  window.addEventListener('mouseup', event => {
+    if (event.button !== 1 && mapPanState) return;
+    mapPanState = null;
+    svg.classList.remove('map-pan-active');
+  });
+
+  svg.addEventListener('dblclick', event => {
+    if (event.button === 0) {
+      event.preventDefault();
+      resetMapZoom();
+    }
+  });
+
+  window.addEventListener('keydown', event => {
+    if (event.key === '0' && document.body.getAttribute('data-page') === 'harita') resetMapZoom();
+  });
 }
 
 function initAppPage() {
@@ -9040,6 +9153,8 @@ Object.assign(window, {
   selectTargetFromIntel,
   runFirstMinuteAction,
   runReadinessAction,
+  resetMapZoom,
+  initMapZoomControls,
   openPlayerProfile,
   closePlayerProfile,
   shareCommander,
@@ -9050,6 +9165,7 @@ Object.assign(window, {
 window.loadDailyQuests = loadDailyQuests;
 window.claimDailyQuest = claimDailyQuest;
 buildMap();
+initMapZoomControls();
 renderLabels();
 renderResources();
 startWelcomeClock();
