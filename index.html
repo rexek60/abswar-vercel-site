@@ -110,11 +110,16 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .country-land.my-country.superpower{stroke:#fff176 !important;stroke-width:1.6}
 .country-land.targeted.superpower{stroke:#ffcf4a !important;stroke-width:1.6}
 .country-land.eliminated{fill:#1a1a1a !important;stroke:#383838 !important;stroke-width:0.3;opacity:0.35}
+.map-depth-line{fill:none;stroke:rgba(128,206,240,.12);stroke-width:.55;stroke-dasharray:9 12;pointer-events:none;vector-effect:non-scaling-stroke}
+.map-current-line{fill:none;stroke:rgba(75,170,220,.08);stroke-width:.35;pointer-events:none;vector-effect:non-scaling-stroke}
+.terrain-ridge{fill:none;stroke:rgba(235,224,170,.18);stroke-width:1.15;stroke-linecap:round;stroke-linejoin:round;pointer-events:none;vector-effect:non-scaling-stroke}
+.terrain-ridge-soft{fill:none;stroke:rgba(60,34,16,.18);stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round;pointer-events:none;vector-effect:non-scaling-stroke}
 body.perf-lite #cloudLayer,body.perf-lite #scanBeam{display:none}
+body.perf-lite #oceanContours .map-current-line,body.perf-lite #terrainRidges .terrain-ridge-soft{display:none}
 body.perf-lite .country-land{transition:none}
 body.perf-lite .ticker-inner{animation-duration:60s}
 @media (max-width:767px),(prefers-reduced-motion:reduce){
-  #cloudLayer,#scanBeam{display:none}
+  #cloudLayer,#scanBeam,#oceanContours .map-current-line,#terrainRidges .terrain-ridge-soft{display:none}
   .country-land{transition:none}
   .ticker-inner{animation-duration:60s}
 }
@@ -718,10 +723,11 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
 
       <!-- Okyanus derinlik gradyanı -->
       <radialGradient id="oceanGrad" cx="50%" cy="40%" r="80%">
-        <stop offset="0%" stop-color="#1a4d6e"/>
-        <stop offset="35%" stop-color="#0f2f4a"/>
-        <stop offset="70%" stop-color="#061a2b"/>
-        <stop offset="100%" stop-color="#020812"/>
+        <stop offset="0%" stop-color="#236f85"/>
+        <stop offset="28%" stop-color="#14506c"/>
+        <stop offset="58%" stop-color="#082a44"/>
+        <stop offset="82%" stop-color="#031421"/>
+        <stop offset="100%" stop-color="#010711"/>
       </radialGradient>
 
       <radialGradient id="oceanVignette" cx="50%" cy="45%" r="78%">
@@ -743,6 +749,13 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
         <path d="M0 30 Q25 20 50 30 T100 30" stroke="rgba(120,180,220,0.04)" stroke-width="0.4" fill="none"/>
         <path d="M0 45 Q25 35 50 45 T100 45" stroke="rgba(120,180,220,0.03)" stroke-width="0.3" fill="none"/>
       </pattern>
+
+      <filter id="shoreShelf" x="-15%" y="-15%" width="130%" height="130%">
+        <feMorphology operator="dilate" radius="1.5" result="shelf"/>
+        <feGaussianBlur in="shelf" stdDeviation="1.8" result="softShelf"/>
+        <feColorMatrix in="softShelf" type="matrix"
+          values="0 0 0 0 0.08  0 0 0 0 0.42  0 0 0 0 0.50  0 0 0 .28 0"/>
+      </filter>
 
       <!-- Bulut katmanı -->
       <radialGradient id="cloudGrad" cx="30%" cy="25%" r="40%">
@@ -787,6 +800,8 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
       <!-- Karasal yükseklik dokusu — dağ/tepe hissi -->
       <pattern id="terrainTexture" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
         <rect width="20" height="20" fill="transparent"/>
+        <path d="M-2 14 C3 10 7 17 12 12 S19 12 23 8" stroke="rgba(230,215,150,0.13)" stroke-width="0.45" fill="none"/>
+        <path d="M0 5 C5 2 9 8 14 5 S21 4 24 1" stroke="rgba(28,43,25,0.18)" stroke-width="0.45" fill="none"/>
         <circle cx="5" cy="7" r="0.6" fill="rgba(80,120,90,0.15)"/>
         <circle cx="14" cy="13" r="0.5" fill="rgba(60,100,70,0.18)"/>
         <circle cx="9" cy="17" r="0.4" fill="rgba(70,110,80,0.12)"/>
@@ -840,6 +855,7 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
     <rect x="0" y="0" width="1000" height="500" filter="url(#oceanSurface)" opacity="0.35"/>
     <rect x="0" y="0" width="1000" height="500" fill="url(#waveTexture)" opacity="0.5"/>
     <rect x="0" y="0" width="1000" height="500" fill="url(#oceanVignette)" opacity="0.9"/>
+    <g id="oceanContours" opacity="0.85" style="pointer-events:none"></g>
 
     <!-- Enlem/boylam ızgarası -->
     <g id="mapGrid" opacity="0.4"></g>
@@ -868,6 +884,7 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
 
     <!-- Oyun ülkeleri (tıklanabilir) -->
     <g id="gameCountries"></g>
+    <g id="terrainRidges" opacity="0.9" style="pointer-events:none"></g>
 
     <!-- Bulut katmanı (atmosfer derinliği) -->
     <g id="cloudLayer" opacity="0.6" style="pointer-events:none"></g>
@@ -4482,8 +4499,55 @@ window.addEventListener('popstate', () => {
 });
 
 /* ── GERÇEK DÜNYA HARİTASINI ÇİZ ── */
+function drawRealisticMapOverlays(lite=false) {
+  const contourG = document.getElementById('oceanContours');
+  if (contourG && !contourG.hasChildNodes()) {
+    const contours = [
+      ['M42,100 C130,58 250,70 330,120 S530,166 650,118 S840,65 968,106', 'map-depth-line'],
+      ['M35,382 C150,330 260,350 362,393 S552,445 682,396 S826,326 968,355', 'map-depth-line'],
+      ['M80,250 C178,214 282,224 392,262 S622,305 742,264 S882,205 975,244', 'map-depth-line'],
+      ['M512,42 C582,96 585,176 548,252 S526,392 612,474', 'map-current-line'],
+      ['M270,54 C332,128 330,206 294,286 S240,402 288,478', 'map-current-line'],
+      ['M746,48 C690,122 702,218 778,276 S900,372 842,470', 'map-current-line']
+    ];
+    contours.forEach(([d, cls], i) => {
+      if (lite && cls === 'map-current-line') return;
+      const p = document.createElementNS('http://www.w3.org/2000/svg','path');
+      p.setAttribute('d', d);
+      p.setAttribute('class', cls);
+      p.setAttribute('opacity', cls === 'map-depth-line' ? (i === 2 ? '0.55' : '0.75') : '0.7');
+      contourG.appendChild(p);
+    });
+  }
+
+  const ridgeG = document.getElementById('terrainRidges');
+  if (ridgeG && !ridgeG.hasChildNodes()) {
+    const ridges = [
+      'M650,155 C676,143 704,150 734,166 C758,178 780,174 803,184',
+      'M604,130 C626,118 648,120 670,134',
+      'M516,128 C548,118 574,121 602,137',
+      'M225,92 C202,132 196,176 211,220 C224,258 219,302 196,356',
+      'M168,78 C148,118 142,166 154,214',
+      'M315,168 C352,156 390,165 430,188',
+      'M466,208 C500,204 536,214 570,238',
+      'M738,240 C778,232 820,244 858,272'
+    ];
+    ridges.forEach(d => {
+      const shadow = document.createElementNS('http://www.w3.org/2000/svg','path');
+      shadow.setAttribute('d', d);
+      shadow.setAttribute('class', 'terrain-ridge-soft');
+      ridgeG.appendChild(shadow);
+      const p = document.createElementNS('http://www.w3.org/2000/svg','path');
+      p.setAttribute('d', d);
+      p.setAttribute('class', 'terrain-ridge');
+      ridgeG.appendChild(p);
+    });
+  }
+}
+
 function buildMap() {
   const lite = shouldUseLiteVisuals();
+  drawRealisticMapOverlays(lite);
   // Yıldız parıltıları (uzay arka planı)
   const starG = document.getElementById('starField');
   if (starG && !starG.hasChildNodes()) {
@@ -4509,6 +4573,12 @@ function buildMap() {
   const landG = document.getElementById('landBackground');
   landG.innerHTML = '';
   LAND_PATHS.forEach(d => {
+    const shelf = document.createElementNS('http://www.w3.org/2000/svg','path');
+    shelf.setAttribute('d', d);
+    shelf.setAttribute('fill', 'rgba(70,185,210,0.12)');
+    shelf.setAttribute('filter', 'url(#shoreShelf)');
+    shelf.setAttribute('pointer-events', 'none');
+    landG.appendChild(shelf);
     const coast = document.createElementNS('http://www.w3.org/2000/svg','path');
     coast.setAttribute('d', d);
     coast.setAttribute('fill', 'none');
@@ -4539,6 +4609,12 @@ function buildMap() {
   const gameG = document.getElementById('gameCountries');
   gameG.innerHTML = '';
   Object.entries(GAME_PATHS).forEach(([code, d]) => {
+    const shelf = document.createElementNS('http://www.w3.org/2000/svg','path');
+    shelf.setAttribute('d', d);
+    shelf.setAttribute('fill', 'rgba(70,185,210,0.10)');
+    shelf.setAttribute('filter', 'url(#shoreShelf)');
+    shelf.setAttribute('pointer-events', 'none');
+    gameG.appendChild(shelf);
     const coast = document.createElementNS('http://www.w3.org/2000/svg','path');
     coast.setAttribute('d', d);
     coast.setAttribute('fill', 'none');
