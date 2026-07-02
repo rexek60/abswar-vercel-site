@@ -249,6 +249,17 @@ body.perf-lite .hp-label{display:none}
 .first-minute-top{display:flex;justify-content:space-between;gap:8px;margin-bottom:7px;font-family:var(--hud);font-size:9px;letter-spacing:1px;color:var(--gold)}
 .first-minute-meter{height:5px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;margin:7px 0}.first-minute-meter span{display:block;height:100%;background:linear-gradient(90deg,var(--red),var(--gold),var(--green));box-shadow:0 0 12px rgba(245,200,66,.35)}
 .first-minute-cta{margin-top:8px;width:100%;padding:8px;background:linear-gradient(90deg,rgba(232,22,42,.95),rgba(245,200,66,.70));border:0;color:white;font-family:var(--hud);font-size:9px;letter-spacing:1.5px;cursor:pointer}
+.readiness-panel{margin:8px 10px;padding:10px;background:linear-gradient(180deg,rgba(0,245,255,.08),rgba(255,255,255,.018));border:1px solid rgba(115,255,235,.28);font-family:var(--mono);font-size:10px;color:var(--dim);line-height:1.45}
+.readiness-head{display:flex;justify-content:space-between;gap:8px;align-items:center;font-family:var(--hud);font-size:9px;letter-spacing:1.5px;color:#bffdf7;margin-bottom:7px}
+.readiness-head b{font-size:15px;color:var(--gold);letter-spacing:1px}
+.readiness-meter{height:6px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;margin:7px 0 8px}.readiness-meter span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--red),var(--gold),var(--green));box-shadow:0 0 14px rgba(0,245,255,.25);transition:width .25s ease}
+.readiness-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:8px}
+.readiness-pill{display:flex;align-items:center;gap:5px;min-width:0;border:1px solid rgba(255,255,255,.06);background:rgba(0,0,0,.16);padding:5px 6px;color:var(--dim)}
+.readiness-pill:before{content:'';width:7px;height:7px;border-radius:50%;background:var(--dim);box-shadow:0 0 8px rgba(255,255,255,.08);flex:0 0 auto}
+.readiness-pill.ok{color:var(--green);border-color:rgba(0,200,83,.20)}.readiness-pill.ok:before{background:var(--green);box-shadow:0 0 9px var(--green)}
+.readiness-pill.warn{color:var(--gold);border-color:rgba(245,200,66,.24)}.readiness-pill.warn:before{background:var(--gold);box-shadow:0 0 9px var(--gold)}
+.readiness-pill.bad{color:#ff6b7a;border-color:rgba(232,22,42,.28)}.readiness-pill.bad:before{background:var(--red);box-shadow:0 0 9px var(--red)}
+.readiness-actions{display:flex;gap:6px;margin-top:9px}.readiness-actions button{flex:1;padding:7px;border:1px solid rgba(115,255,235,.32);background:rgba(115,255,235,.09);color:#bffdf7;font-family:var(--hud);font-size:8px;letter-spacing:1px;cursor:pointer}.readiness-actions button.primary{border-color:rgba(245,200,66,.50);background:rgba(245,200,66,.14);color:var(--gold)}
 .reward-estimate{margin:8px 10px;padding:10px;background:linear-gradient(180deg,rgba(245,200,66,.09),rgba(255,255,255,.018));border:1px solid rgba(245,200,66,.28);font-family:var(--mono);font-size:10px;color:var(--dim);line-height:1.45}
 .reward-estimate strong{font-family:var(--hud);font-size:13px;color:var(--gold);letter-spacing:1px}
 .target-intel{margin:8px 10px;padding:10px;background:linear-gradient(180deg,rgba(102,179,255,.08),rgba(255,255,255,.015));border:1px solid rgba(102,179,255,.25);font-family:var(--mono);font-size:10px;color:var(--dim);line-height:1.45}
@@ -678,6 +689,16 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
     <div id="firstMinuteText">Cüzdan bağla, ülke seç, hedef kilitle ve ilk saldırını yap.</div>
     <div class="first-minute-meter"><span id="firstMinuteMeter" style="width:0%"></span></div>
     <button class="first-minute-cta" id="firstMinuteCta" onclick="runFirstMinuteAction()">SIRADAKİ ADIM</button>
+  </div>
+  <div class="readiness-panel" id="readinessPanel">
+    <div class="readiness-head"><span>SAVAŞ HAZIRLIK SKORU</span><b id="readinessScore">0%</b></div>
+    <div id="readinessSummary">Oyuna giriş için cüzdan, ülke, mermi ve hedef adımlarını tamamla.</div>
+    <div class="readiness-meter"><span id="readinessMeter"></span></div>
+    <div class="readiness-grid" id="readinessGrid"></div>
+    <div class="readiness-actions">
+      <button class="primary" id="readinessPrimary" onclick="runReadinessAction('primary')">SIRADAKİ HAMLE</button>
+      <button id="readinessSecondary" onclick="runReadinessAction('secondary')">REHBER</button>
+    </div>
   </div>
   <div class="target-intel" id="targetIntelPanel">
     <div class="flow-title" style="margin-bottom:4px"><span>AKILLI HEDEF ÖNERİLERİ</span><span id="targetIntelStatus">Canlı veri</span></div>
@@ -3602,6 +3623,113 @@ async function claimDailyQuest(questId) {
   }
 }
 
+let readinessActionPlan = { primary:'wallet', secondary:'docs' };
+
+function readinessChecks() {
+  const walletOk = !!wallet;
+  const serverOk = !!_backendOnline || !!warSocket?.connected;
+  const playerOk = walletOk && playerLoadedWalletLower === String(wallet).toLowerCase();
+  const countryOk = !!myCountry;
+  const bulletsOk = myBulletsCount > 0;
+  const targetOk = !!targetCountry;
+  const attackOk = getPlayerNumber('attacks') > 0;
+  const allianceOk = !!myAlliance;
+  return [
+    { key:'server', label:'Sunucu', ok:serverOk, weight:15, bad:!serverOk },
+    { key:'wallet', label:'Cüzdan', ok:walletOk, weight:15 },
+    { key:'player', label:'Oyuncu', ok:playerOk, weight:10, warn:walletOk && !playerOk },
+    { key:'country', label:'Ülke', ok:countryOk, weight:15 },
+    { key:'ammo', label:'Mermi', ok:bulletsOk, weight:15 },
+    { key:'target', label:'Hedef', ok:targetOk, weight:15 },
+    { key:'attack', label:'İlk saldırı', ok:attackOk, weight:10 },
+    { key:'alliance', label:'İttifak', ok:allianceOk, weight:5 }
+  ];
+}
+
+function readinessActionLabel(action) {
+  return ({
+    server:'SUNUCUYU KONTROL ET',
+    wallet:'CÜZDAN BAĞLA',
+    player:'OYUNCUYU YÜKLE',
+    country:'ÜLKE SEÇ',
+    ammo:'MERMİ AL',
+    target:'AKILLI HEDEF',
+    attack:'SALDIRI BAŞLAT',
+    alliance:'İTTİFAKA GİT',
+    share:'DAVET ET',
+    docs:'REHBER',
+    preview:'HARİTAYA GİT'
+  })[action] || 'DEVAM ET';
+}
+
+function readinessSummaryFor(next, score) {
+  if (!next) return score >= 95
+    ? 'Savaş düzeni hazır. Şimdi ülkeni büyüt, ittifak kur ve komutan kartını paylaş.'
+    : 'Ana savaş akışı hazır. İttifak ve paylaşım adımları oyunu büyütür.';
+  return ({
+    server:'Sunucu bağlantısı izleniyor. Canlı veri gelmeden saldırı başlatma.',
+    wallet:'Önce Abstract cüzdanını bağla; oyun hesabın bununla açılır.',
+    player:'Cüzdan bağlı, oyuncu profili yükleniyor. Takılırsa yeniden dene.',
+    country:'Savaşta temsil edeceğin ülkeyi seç.',
+    ammo:'Saldırı için mermi gerekir; pazardan ana ağ işlemiyle alabilirsin.',
+    target:'Hedef seçilmeden saldırı başlayamaz. Akıllı hedef en uygun rakibi önerir.',
+    attack:'Her şey hazır. İlk saldırıyı yapıp canlı savaş akışına gir.',
+    alliance:'Tek başına güçlü olursun, ittifakla daha hızlı büyürsün.'
+  })[next.key] || 'Sıradaki adımı tamamla.';
+}
+
+function renderReadinessPanel() {
+  const panel = document.getElementById('readinessPanel');
+  if (!panel) return;
+  const checks = readinessChecks();
+  const max = checks.reduce((sum,c)=>sum + c.weight, 0) || 1;
+  const score = Math.round(checks.filter(c=>c.ok).reduce((sum,c)=>sum + c.weight, 0) / max * 100);
+  const next = checks.find(c=>!c.ok);
+  const primary = next ? next.key : (myAlliance ? 'share' : 'alliance');
+  const secondary = !wallet ? 'docs'
+    : !myCountry ? 'preview'
+    : myBulletsCount <= 0 ? 'ammo'
+    : !targetCountry ? 'target'
+    : 'share';
+  readinessActionPlan = { primary, secondary };
+
+  const scoreEl = document.getElementById('readinessScore');
+  const meterEl = document.getElementById('readinessMeter');
+  const summaryEl = document.getElementById('readinessSummary');
+  const gridEl = document.getElementById('readinessGrid');
+  const primaryEl = document.getElementById('readinessPrimary');
+  const secondaryEl = document.getElementById('readinessSecondary');
+  if (scoreEl) {
+    scoreEl.textContent = `${score}%`;
+    scoreEl.style.color = score >= 80 ? 'var(--green)' : score >= 45 ? 'var(--gold)' : '#ff6b7a';
+  }
+  if (meterEl) meterEl.style.width = `${score}%`;
+  if (summaryEl) summaryEl.textContent = readinessSummaryFor(next, score);
+  if (gridEl) {
+    gridEl.innerHTML = checks.map(c => {
+      const cls = c.ok ? 'ok' : c.bad ? 'bad' : c.warn ? 'warn' : '';
+      return `<div class="readiness-pill ${cls}">${escapeHtml(c.label)}</div>`;
+    }).join('');
+  }
+  if (primaryEl) primaryEl.textContent = readinessActionLabel(primary);
+  if (secondaryEl) secondaryEl.textContent = readinessActionLabel(secondary);
+}
+
+function runReadinessAction(kind='primary') {
+  const action = readinessActionPlan[kind] || readinessActionPlan.primary || 'docs';
+  if (action === 'server') { showToast('Sunucu kontrol ediliyor...','info'); pollState(); return; }
+  if (action === 'wallet') return connectWallet();
+  if (action === 'player') return connectWallet();
+  if (action === 'country') return openModal('nation');
+  if (action === 'ammo') return openAppPage('pazar');
+  if (action === 'target') return selectSmartTarget();
+  if (action === 'attack') return attackTarget();
+  if (action === 'alliance') return openAppPage('ittifak');
+  if (action === 'share') return shareCommander();
+  if (action === 'preview') return openAppPage('harita');
+  return openDocs('how');
+}
+
 function updateProgressPanels() {
   const walletOk = !!wallet;
   const serverOk = !!_backendOnline || !!warSocket?.connected;
@@ -3655,6 +3783,7 @@ function updateProgressPanels() {
     ].join('');
   }
   renderFirstMinutePlan();
+  renderReadinessPanel();
   renderTargetIntelPanel();
   updateRewardEstimate();
   updateProfileCard();
@@ -8910,6 +9039,7 @@ Object.assign(window, {
   selectSmartTarget,
   selectTargetFromIntel,
   runFirstMinuteAction,
+  runReadinessAction,
   openPlayerProfile,
   closePlayerProfile,
   shareCommander,

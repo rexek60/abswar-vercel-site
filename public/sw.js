@@ -1,4 +1,4 @@
-const CACHE_NAME = 'centradar-static-v9';
+const CACHE_NAME = 'centradar-static-v10';
 const STATIC_ASSETS = [
   '/',
   '/og.png',
