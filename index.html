@@ -278,6 +278,13 @@ body.perf-lite .ticker-inner{animation-duration:60s}
 .welcome-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 14px}
 .welcome-stat{border:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.24);padding:9px;text-align:left}
 .welcome-stat b{display:block;font-family:var(--hud);font-size:10px;color:var(--gold);letter-spacing:1px}.welcome-stat span{font-size:10px;color:var(--dim)}
+.welcome-briefing{margin:0 0 14px;padding:10px;border:1px solid rgba(115,255,235,.28);background:linear-gradient(180deg,rgba(0,245,255,.07),rgba(0,0,0,.22));text-align:left}
+.welcome-briefing-title{font-family:var(--hud);font-size:10px;letter-spacing:2px;color:#bffdf7;margin-bottom:8px;text-shadow:0 0 10px rgba(0,245,255,.28)}
+.welcome-briefing-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.welcome-briefing-item{background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.08);padding:7px;min-width:0}
+.welcome-briefing-item b{display:block;font-family:var(--hud);font-size:11px;letter-spacing:1px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.welcome-briefing-item span{display:block;margin-top:2px;font-family:var(--mono);font-size:8px;color:var(--dim)}
+.welcome-briefing-foot{margin-top:8px;font-family:var(--mono);font-size:9px;color:var(--gold);line-height:1.35}
 .welcome-actions{display:flex;flex-direction:column;gap:9px}.welcome-primary{background:linear-gradient(180deg,#10c486,#05744c);border:1px solid rgba(157,255,220,.75);color:white;font-family:var(--hud);font-size:15px;letter-spacing:2px;padding:14px 18px;cursor:pointer;font-weight:800;box-shadow:0 0 22px rgba(0,200,130,.30),inset 0 1px 0 rgba(255,255,255,.18)}
 .welcome-secondary{background:linear-gradient(180deg,rgba(255,255,255,.20),rgba(255,255,255,.08));border:1px solid rgba(255,255,255,.28);color:#e7fffa;font-family:var(--hud);font-size:13px;letter-spacing:2px;padding:12px 18px;cursor:pointer}
 .welcome-warning{font-family:var(--mono);font-size:10px;color:var(--dim);line-height:1.55;margin-top:14px;text-align:center}
@@ -576,6 +583,16 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
         <div class="welcome-stat"><b>MAINNET</b><span>Abstract 2741</span></div>
         <div class="welcome-stat"><b>HARİTA</b><span>119 ülke</span></div>
         <div class="welcome-stat"><b>EKONOMİ</b><span id="welcomeDepositedEth">Toplam yatırılan: 0.000 ETH</span></div>
+      </div>
+      <div class="welcome-briefing" id="welcomeBriefing">
+        <div class="welcome-briefing-title" data-i18n="welcome.frontTitle">CANLI CEPHE NABZI</div>
+        <div class="welcome-briefing-grid">
+          <div class="welcome-briefing-item"><b id="welcomeFrontLeader">—</b><span data-i18n="welcome.frontLeader">Lider ülke</span></div>
+          <div class="welcome-briefing-item"><b id="welcomeFrontPool">0.000 ETH</b><span data-i18n="welcome.frontPool">Ödül havuzu</span></div>
+          <div class="welcome-briefing-item"><b id="welcomeFrontRound">—</b><span data-i18n="welcome.frontRound">Tur süresi</span></div>
+          <div class="welcome-briefing-item"><b id="welcomeFrontOnline">0</b><span data-i18n="welcome.frontOnline">Online komutan</span></div>
+        </div>
+        <div class="welcome-briefing-foot" id="welcomeFrontFoot">Canlı veri bekleniyor...</div>
       </div>
       <div class="welcome-actions">
         <button class="welcome-primary" onclick="connectWallet()" data-i18n="welcome.cta">GİRİŞ YAP</button>
@@ -2306,6 +2323,7 @@ function updateWelcomeClock() {
   }).format(now);
   el.textContent = `TARİH: ${date}  |  ZAMAN: ${time} TRT  |  SİSTEM DURUMU: NOMİNAL`;
   updateWelcomeSignal();
+  updateWelcomeBriefing();
 }
 
 function updateWelcomeSignal() {
@@ -2329,6 +2347,48 @@ function updateWelcomeSignal() {
       parts.push(`${Number(_lastOnlinePlayers).toLocaleString(locale)} ${t('signal.online')}`);
     }
     meta.textContent = parts.join(' · ') || t('signal.waiting');
+  }
+}
+
+function formatWelcomeRoundTime() {
+  if (roundEndAt == null) return '—';
+  const ms = Math.max(0, roundEndAt - Date.now());
+  const secs = Math.floor(ms / 1000);
+  const d = Math.floor(secs / 86400);
+  const h = Math.floor((secs % 86400) / 3600);
+  const m = Math.floor((secs % 3600) / 60);
+  if (d > 0) return `${d}${t('time.dayShort')} ${h}${t('time.hourShort')}`;
+  if (h > 0) return `${h}${t('time.hourShort')} ${m}${t('time.minuteShort')}`;
+  return `${m}${t('time.minuteShort')}`;
+}
+
+function updateWelcomeBriefing() {
+  const leaderEl = document.getElementById('welcomeFrontLeader');
+  const poolEl = document.getElementById('welcomeFrontPool');
+  const roundEl = document.getElementById('welcomeFrontRound');
+  const onlineEl = document.getElementById('welcomeFrontOnline');
+  const footEl = document.getElementById('welcomeFrontFoot');
+  if (!leaderEl && !poolEl && !roundEl && !onlineEl && !footEl) return;
+  const locale = _lang === 'tr' ? 'tr-TR' : _lang === 'ru' ? 'ru-RU' : 'en-US';
+  const countries = (Array.isArray(latestLeaderboardCountries) && latestLeaderboardCountries.length)
+    ? latestLeaderboardCountries
+    : (Array.isArray(gameCountries) ? gameCountries : []);
+  const leader = countries
+    .filter(c => Number(c.hp || 0) > 0)
+    .sort((a,b) => Number(b.hp || 0) - Number(a.hp || 0))[0];
+  const leaderName = leader
+    ? `${CD[leader.code]?.f || ''} ${CD[leader.code]?.n || leader.name || leader.code}`.trim()
+    : t('welcome.frontWaiting');
+  if (leaderEl) leaderEl.textContent = leaderName;
+  if (poolEl) poolEl.textContent = formatEthAmount(numericRewardPoolEth());
+  if (roundEl) roundEl.textContent = formatWelcomeRoundTime();
+  if (onlineEl) onlineEl.textContent = Number(_lastOnlinePlayers || 0).toLocaleString(locale);
+  if (footEl) {
+    const hp = Number(leader?.hp || 0);
+    const hpText = hp > 0 ? `${hp.toLocaleString(locale)} HP` : t('welcome.frontSyncing');
+    footEl.textContent = leader
+      ? t('welcome.frontFoot', { country: leaderName, hp: hpText })
+      : t('welcome.frontEmpty');
   }
 }
 
@@ -2729,6 +2789,7 @@ function updateEconomyUI(economy) {
   }
   updateEconomyTransparency(economy);
   updateRewardEstimate();
+  updateWelcomeBriefing();
 }
 
 function numericRewardPoolEth() {
@@ -6021,6 +6082,7 @@ function updateLeaderboard(countries, players) {
   latestLeaderboardPlayers = Array.isArray(players) ? players : latestLeaderboardPlayers;
   gameCountries = latestLeaderboardCountries;
   renderLeaderboard();
+  updateWelcomeBriefing();
 }
 
 let _backendOnline = true;
@@ -6098,6 +6160,7 @@ async function pollState() {
       document.getElementById('onlineCount').textContent=_lastOnlinePlayers.toLocaleString('tr-TR');
     }
     updateWelcomeSignal();
+    updateWelcomeBriefing();
     if (data?.economy) updateEconomyUI(data.economy);
     // Hediye mermi rozeti (welcome ekranı)
     if (data?.giftSlotsLeft != null) {
@@ -6951,9 +7014,11 @@ function setRoundFromState(round) {
   if (round.lastResult && round.status === 'ended') {
     showRoundEndModal(round.lastResult);
   }
+  updateRoundCountdownUI();
+  updateWelcomeBriefing();
 }
 
-setInterval(()=>{
+function updateRoundCountdownUI() {
   const el = document.getElementById('timerVal');
   if (!el) return;
   if (roundEndAt == null) { el.textContent = '—'; return; }
@@ -6963,11 +7028,12 @@ setInterval(()=>{
   const h = Math.floor((secs%86400)/3600);
   const m = Math.floor((secs%3600)/60);
   const s = secs%60;
-  el.textContent = `${d}G ${String(h).padStart(2,'0')}S ${String(m).padStart(2,'0')}D ${String(s).padStart(2,'0')}S`;
+  el.textContent = `${d}${t('time.dayShort')} ${String(h).padStart(2,'0')}${t('time.hourShort')} ${String(m).padStart(2,'0')}${t('time.minuteShort')} ${String(s).padStart(2,'0')}${t('time.secondShort')}`;
   if (ms === 0 && roundStatus_FE === 'active') {
     el.style.color = 'var(--gold)';
   }
-},1000);
+}
+setInterval(updateRoundCountdownUI,1000);
 
 /* ── WEBSOCKET ── */
 const pendingHp = new Map();
@@ -7090,6 +7156,7 @@ function startWarSocket(){
     _lastOnlinePlayers = Number(n) || 0;
     document.getElementById('onlineCount').textContent=_lastOnlinePlayers.toLocaleString('tr-TR');
     updateWelcomeSignal();
+    updateWelcomeBriefing();
   });
   warSocket.on('admin:bullet-grant',(d)=>{
     if (!wallet || !d?.wallet || d.wallet.toLowerCase() !== wallet.toLowerCase()) return;
@@ -7144,6 +7211,10 @@ const I18N = {
   tr: {
     // Genel
     'wallet.connect': 'ABSTRACT İLE BAĞLAN',
+    'time.dayShort': 'g',
+    'time.hourShort': 'sa',
+    'time.minuteShort': 'dk',
+    'time.secondShort': 'sn',
     'wallet.disconnect': '⏏ ÇIKIŞ YAP',
     'wallet.copy': '📋 ADRESİ KOPYALA',
     'wallet.explorer': '🔍 EXPLORER\'DA GÖR',
@@ -7463,6 +7534,15 @@ const I18N = {
     'pack.bullets': 'mermi',
     // Welcome overlay
     'welcome.missionTitle': 'CENTRADAR: GÖREV BAŞLIYOR',
+    'welcome.frontTitle': 'CANLI CEPHE NABZI',
+    'welcome.frontLeader': 'Lider ülke',
+    'welcome.frontPool': 'Ödül havuzu',
+    'welcome.frontRound': 'Tur süresi',
+    'welcome.frontOnline': 'Online komutan',
+    'welcome.frontWaiting': 'Veri bekleniyor',
+    'welcome.frontSyncing': 'senkronize',
+    'welcome.frontEmpty': 'Canlı cephe verisi hazırlanıyor...',
+    'welcome.frontFoot': '{country} şu an cephe lideri · {hp}',
     'welcome.subtitle': 'KÜRESEL SAVAŞ MMO · ABSTRACT MAINNET',
     'welcome.body': '119 ülkeden birini seç, ittifak kur, savaş alanına gir. Web3 cüzdanınla bağlan, mermi al, hedeflerinin elenmesi için saldır.',
     'welcome.stepConnect': '1 · BAĞLAN',
@@ -7504,6 +7584,10 @@ const I18N = {
   },
   en: {
     'wallet.connect': 'CONNECT ABSTRACT WALLET',
+    'time.dayShort': 'd',
+    'time.hourShort': 'h',
+    'time.minuteShort': 'm',
+    'time.secondShort': 's',
     'wallet.disconnect': '⏏ DISCONNECT',
     'wallet.copy': '📋 COPY ADDRESS',
     'wallet.explorer': '🔍 VIEW ON EXPLORER',
@@ -7807,6 +7891,15 @@ const I18N = {
     'pack.legendary': 'LEGENDARY',
     'pack.bullets': 'ammo',
     'welcome.missionTitle': 'CENTRADAR: MISSION START',
+    'welcome.frontTitle': 'LIVE FRONT PULSE',
+    'welcome.frontLeader': 'Leading country',
+    'welcome.frontPool': 'Reward pool',
+    'welcome.frontRound': 'Round time',
+    'welcome.frontOnline': 'Online commanders',
+    'welcome.frontWaiting': 'Waiting for data',
+    'welcome.frontSyncing': 'syncing',
+    'welcome.frontEmpty': 'Live front data is preparing...',
+    'welcome.frontFoot': '{country} leads the front · {hp}',
     'welcome.subtitle': 'GLOBAL WAR MMO · ABSTRACT MAINNET',
     'welcome.body': 'Pick one of 119 countries, form alliances, enter the battlefield. Connect your Web3 wallet, buy ammo, attack to crush your targets.',
     'welcome.stepConnect': '1 · CONNECT',
@@ -7844,6 +7937,10 @@ const I18N = {
   },
   ru: {
     'wallet.connect': 'ПОДКЛЮЧИТЬ ABSTRACT WALLET',
+    'time.dayShort': 'д',
+    'time.hourShort': 'ч',
+    'time.minuteShort': 'м',
+    'time.secondShort': 'с',
     'wallet.disconnect': '⏏ ОТКЛЮЧИТЬ',
     'wallet.copy': '📋 КОПИРОВАТЬ АДРЕС',
     'wallet.explorer': '🔍 СМОТРЕТЬ В EXPLORER',
@@ -8146,6 +8243,15 @@ const I18N = {
     'pack.legendary': 'ЛЕГЕНД.',
     'pack.bullets': 'патронов',
     'welcome.missionTitle': 'CENTRADAR: СТАРТ МИССИИ',
+    'welcome.frontTitle': 'ПУЛЬС ФРОНТА',
+    'welcome.frontLeader': 'Страна-лидер',
+    'welcome.frontPool': 'Призовой фонд',
+    'welcome.frontRound': 'Время раунда',
+    'welcome.frontOnline': 'Командиры онлайн',
+    'welcome.frontWaiting': 'Ожидание данных',
+    'welcome.frontSyncing': 'синхронизация',
+    'welcome.frontEmpty': 'Данные фронта готовятся...',
+    'welcome.frontFoot': '{country} ведёт фронт · {hp}',
     'welcome.subtitle': 'ГЛОБАЛЬНАЯ ВОЕННАЯ MMO · ABSTRACT TESTNET',
     'welcome.body': 'Выберите одну из 119 стран, создайте альянс, выходите в бой. Подключите Web3-кошелёк, купите патроны, атакуйте цели.',
     'welcome.stepConnect': '1 · ПОДКЛЮЧИТЬ',
@@ -8235,6 +8341,8 @@ function setLang(lang) {
   if (typeof updateMobileBattleBar === 'function') updateMobileBattleBar();
   if (typeof renderLeaderboard === 'function') renderLeaderboard();
   if (typeof updateWelcomeSignal === 'function') updateWelcomeSignal();
+  if (typeof updateWelcomeBriefing === 'function') updateWelcomeBriefing();
+  if (typeof updateRoundCountdownUI === 'function') updateRoundCountdownUI();
   if (typeof showToast === 'function') showToast(`✓ ${lang.toUpperCase()}`, 'info');
 }
 
