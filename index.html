@@ -327,6 +327,13 @@ body.perf-lite .hp-label{display:none}
 .growth-row:last-child{border-bottom:none}.growth-row b{color:var(--text);font-family:var(--hud);font-size:9px;letter-spacing:1px}.growth-row span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.growth-row em{font-style:normal;color:var(--gold);font-family:var(--mono);font-size:9px}
 .growth-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.growth-actions button{flex:1;min-width:110px;padding:8px;border:1px solid rgba(245,200,66,.38);background:rgba(245,200,66,.10);color:var(--gold);font-family:var(--hud);font-size:8px;letter-spacing:1px;cursor:pointer}
 .growth-note{margin-top:7px;color:var(--dim);font-size:9px}.growth-code{background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.08);padding:7px;word-break:break-all;color:#bffdf7}
+.growth-badge-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.growth-badge{border:1px solid rgba(115,255,235,.25);background:rgba(115,255,235,.07);color:#bffdf7;font-family:var(--hud);font-size:8px;letter-spacing:1px;padding:5px 7px}
+.front-pulse{margin:8px 10px;padding:10px;background:linear-gradient(180deg,rgba(232,22,42,.10),rgba(245,200,66,.035));border:1px solid rgba(232,22,42,.30);font-family:var(--mono);font-size:10px;color:var(--dim);line-height:1.45}
+.front-pulse-head{display:flex;justify-content:space-between;gap:8px;align-items:center;font-family:var(--hud);font-size:9px;letter-spacing:1.4px;color:#ff8994;margin-bottom:7px}
+.front-pulse-head b{font-size:14px;color:var(--gold)}
+.front-pulse-meter{height:6px;background:rgba(255,255,255,.08);overflow:hidden;border-radius:2px;margin:7px 0}.front-pulse-meter span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--green),var(--gold),var(--red));box-shadow:0 0 14px rgba(232,22,42,.30);transition:width .25s ease}
+.front-pulse-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}.front-pulse-item{border:1px solid rgba(255,255,255,.07);background:rgba(0,0,0,.17);padding:6px;min-width:0}.front-pulse-k{font-family:var(--hud);font-size:8px;letter-spacing:1px;color:var(--dim);margin-bottom:2px}.front-pulse-v{font-family:var(--mono);font-size:10px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mobile-battle-step{margin-top:3px;font-size:8px;color:var(--gold);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media(max-width:767px){.growth-grid{grid-template-columns:1fr}}
 .combat-recap{position:fixed;right:16px;bottom:48px;z-index:960;width:310px;max-width:calc(100vw - 24px);display:none;background:rgba(7,11,14,.97);border:1px solid rgba(245,200,66,.42);box-shadow:0 16px 44px rgba(0,0,0,.55);padding:12px;font-family:var(--mono);font-size:10px;color:var(--text)}
 .combat-recap.show{display:block;animation:recapIn .2s ease-out}
@@ -666,7 +673,7 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
     <button onclick="toggleSound()" id="soundBtn" title="Ses / müzik aç-kapa" data-i18n-title="nav.sound" style="background:transparent;border:1px solid var(--border);color:var(--text);font-size:14px;width:30px;height:28px;cursor:pointer;padding:0">🔊</button>
     <button onclick="openFeedbackModal()" title="Geri bildirim / bug rapor" data-i18n-title="nav.feedback" style="background:transparent;border:1px solid var(--border);color:var(--text);font-size:14px;width:30px;height:28px;cursor:pointer;padding:0">💬</button>
     <button id="docsNavBtn" onclick="openDocs('how')" title="Centradar Docs" style="background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer" data-i18n="nav.docs">📚 DOCS</button>
-    <button id="growthNavBtn" onclick="openGrowthCenter()" title="Lig / davet / replay merkezi" style="background:rgba(245,200,66,.10);border:1px solid rgba(245,200,66,.38);color:var(--gold);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer">⚡ LİG</button>
+    <button id="growthNavBtn" onclick="(window.openGrowthCenter||window.__centradarFallbackOpenGrowth)()" title="Lig / davet / replay merkezi" style="background:rgba(245,200,66,.10);border:1px solid rgba(245,200,66,.38);color:var(--gold);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer">⚡ LİG</button>
     <button id="installAppBtn" onclick="installCentradarApp()" title="Telefona / masaüstüne ekle" style="display:none;background:rgba(245,200,66,.10);border:1px solid rgba(245,200,66,.45);color:var(--gold);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer" data-i18n="nav.install">⬇ YÜKLE</button>
     <span style="font-family:var(--mono);font-size:11px;color:var(--red)" id="ethBal">0.000 ETH</span>
     <button id="nicknameBtn" onclick="openNicknameModal()" title="Nickname ayarla" data-i18n-title="wallet.nickname" style="display:none;background:transparent;border:1px solid var(--border);color:var(--green);font-family:var(--hud);font-size:10px;padding:5px 10px;cursor:pointer">👤 <span id="nicknameLabel" data-i18n="nav.nickname">İSİM EKLE</span></button>
@@ -718,6 +725,17 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
     <div class="flow-title" style="margin-bottom:4px"><span>AKILLI HEDEF ÖNERİLERİ</span><span id="targetIntelStatus">Canlı veri</span></div>
     <div id="targetIntelList" class="target-intel-list">
       <div style="color:var(--dim)">Ülke seçince en zayıf, lider, sıcak cephe ve intikam hedefleri burada görünür.</div>
+    </div>
+  </div>
+  <div class="front-pulse" id="frontPulsePanel">
+    <div class="front-pulse-head"><span>CANLI CEPHE NABZI</span><b id="frontPulseScore">0%</b></div>
+    <div id="frontPulseText">Savaş hareketleri geldikçe sıcak cephe, hedef yoğunluğu ve online tempo burada görünür.</div>
+    <div class="front-pulse-meter"><span id="frontPulseMeter"></span></div>
+    <div class="front-pulse-grid">
+      <div class="front-pulse-item"><div class="front-pulse-k">SICAK CEPHE</div><div class="front-pulse-v" id="frontPulseHot">Veri bekleniyor</div></div>
+      <div class="front-pulse-item"><div class="front-pulse-k">SON 60 SN</div><div class="front-pulse-v" id="frontPulseRate">0 saldırı</div></div>
+      <div class="front-pulse-item"><div class="front-pulse-k">ONLINE</div><div class="front-pulse-v" id="frontPulseOnline">0 komutan</div></div>
+      <div class="front-pulse-item"><div class="front-pulse-k">DAVET</div><div class="front-pulse-v" id="frontPulseInvite">Kaynak yok</div></div>
     </div>
   </div>
   <div class="sh" style="flex-shrink:0"><span data-i18n="panel.activity">SAVAŞ FAALİYETİ</span> <span id="activityCount" style="font-size:9px;color:var(--dim);margin-left:6px">(0)</span></div>
@@ -1548,7 +1566,7 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
 <!-- CENTRADAR BÜYÜME MERKEZİ -->
 <div class="modal" id="growthModal">
   <div class="modal-box" style="width:760px;max-width:96vw;max-height:88vh;overflow-y:auto">
-    <button class="modal-close" onclick="closeGrowthCenter()">✕ KAPAT</button>
+    <button class="modal-close" onclick="(window.closeGrowthCenter||window.__centradarFallbackCloseGrowth)()">✕ KAPAT</button>
     <div class="modal-title" style="color:var(--gold)">🚀 CENTRADAR BÜYÜME MERKEZİ</div>
     <div class="modal-sub">Lig, davet, ordu rolü, canlı replay, sezon raporu ve paylaşılabilir komutan kartı.</div>
     <div id="growthCenterBody" style="margin-top:14px;text-align:left"></div>
@@ -1676,6 +1694,10 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
       <div style="font-family:var(--hud);font-size:10px;color:var(--gold);letter-spacing:1px;margin-bottom:6px" data-i18n="payouts.lastRound">SON TUR ÖDEMELERİ</div>
       <div id="rendLastPayouts" style="font-family:var(--mono);font-size:11px;color:var(--dim)" data-i18n="payouts.waiting">Ödemeler admin onayını bekliyor</div>
     </div>
+    <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+      <button class="btn-sm btn-red" style="flex:1;padding:10px" onclick="shareSeasonReport()">SEZONU PAYLAŞ</button>
+      <button class="btn-sm btn-out" style="flex:1;padding:10px" onclick="downloadCommanderPng()">PNG KART</button>
+    </div>
   </div>
 </div>
 
@@ -1692,6 +1714,7 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
   <div class="mobile-battle-meta">
     <div class="mobile-battle-title" id="mobileBattleTitle">SAVAŞ HAZIRLIĞI</div>
     <div id="mobileBattleDetail">Cüzdan bağla, ülke seç ve hedef kilitle.</div>
+    <div class="mobile-battle-step" id="mobileBattleStep">Sıradaki hamle: cüzdan bağla</div>
   </div>
   <div class="mobile-battle-quick">
     <button id="mobileQuickTarget" onclick="selectSmartTarget()">AKILLI HEDEF</button>
@@ -1704,6 +1727,37 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+<script>
+window.__centradarBootErrors = [];
+window.addEventListener('error', function(e){
+  window.__centradarBootErrors.push({ message:e.message, source:e.filename, line:e.lineno, col:e.colno });
+});
+window.addEventListener('unhandledrejection', function(e){
+  window.__centradarBootErrors.push({ message:String((e.reason && e.reason.message) || e.reason || 'promise'), source:'promise' });
+});
+window.__centradarFallbackOpenGrowth = function(){
+  var modal = document.getElementById('growthModal');
+  var body = document.getElementById('growthCenterBody');
+  if (!modal || !body) return;
+  var invite = location.origin + location.pathname + '?page=harita';
+  var pool = (document.getElementById('rewardPoolVal') || document.getElementById('welcomeFrontPool') || {}).textContent || '0.000 ETH';
+  var pulse = (document.getElementById('frontPulseScore') || {}).textContent || '0%';
+  body.innerHTML = '<div class="growth-grid">'
+    + '<div class="growth-card gold"><h4>HAFTALIK LİG / TURNUVA</h4><div class="growth-note">Ülke ve oyuncu liderliği canlı veri geldikçe güncellenir.</div></div>'
+    + '<div class="growth-card"><h4>DAVET MERKEZİ</h4><div class="growth-code">'+invite+'</div><div class="growth-note">Davet linki güvenli referans takibi için hazırdır.</div></div>'
+    + '<div class="growth-card hot"><h4>CANLI CEPHE NABZI</h4><div style="font-family:var(--hud);font-size:22px;color:var(--gold)">'+pulse+'</div><div class="growth-note">Sıcak cephe ve saldırı temposu kontrol panelinde görünür.</div></div>'
+    + '<div class="growth-card"><h4>İLK 60 SANİYE AKIŞI</h4><div class="growth-note">Cüzdan bağla, ülke seç, mermi hazırla, hedef kilitle ve ilk saldırıyı yap.</div></div>'
+    + '<div class="growth-card"><h4>GÜVENLİ EKONOMİ</h4><div class="growth-row"><b>💰</b><span>Ödül havuzu</span><em>'+pool+'</em></div><div class="growth-note">Satın alma ve ödül kayıtları şeffaflık sekmesinden izlenir.</div></div>'
+    + '<div class="growth-card gold"><h4>SEZON RAPORU + PNG KART</h4><div class="growth-note">Komutan kartı ve sezon raporu paylaşım için hazır.</div></div>'
+    + '</div>';
+  modal.classList.add('show');
+};
+window.__centradarFallbackCloseGrowth = function(){ document.getElementById('growthModal')?.classList.remove('show'); };
+window.shareSeasonReport = window.shareSeasonReport || function(){
+  var text = 'CENTRADAR SEZON RAPORU\\n' + location.origin;
+  if (navigator.clipboard) navigator.clipboard.writeText(text).catch(function(){});
+};
+</script>
 <script>
 const API_ENDPOINTS = {
   production: 'https://api.centradar.xyz',
@@ -2184,6 +2238,8 @@ let currentPurchaseStatus = { step:'idle', type:'idle', title:'SATIN ALMA GÜVEN
 let walletResumeRequestInProgress = false;
 let walletResumeLastRequestAt = 0;
 const COUNTRY_CACHE_PREFIX = `centradar-country:${APP_NETWORK}:`;
+const REFERRAL_SOURCE_KEY = `centradar-referral-source:${APP_NETWORK}`;
+const INVITE_STATS_KEY = `centradar-invite-stats:${APP_NETWORK}`;
 
 function normalizeCountryCode(code) {
   const cc = String(code || '').trim().toUpperCase();
@@ -2193,6 +2249,72 @@ function normalizeCountryCode(code) {
 function countryCacheKey(addr=wallet) {
   const safe = String(addr || '').toLowerCase();
   return safe ? COUNTRY_CACHE_PREFIX + safe : '';
+}
+
+function normalizeWalletLike(value) {
+  const v = String(value || '').trim();
+  return /^0x[a-fA-F0-9]{40}$/.test(v) ? v.toLowerCase() : '';
+}
+
+function captureReferralSource() {
+  try {
+    const params = new URLSearchParams(location.search);
+    const raw = params.get('refWallet') || params.get('ref') || '';
+    const ref = normalizeWalletLike(raw);
+    if (!ref) return null;
+    const current = normalizeWalletLike(wallet);
+    if (current && current === ref) {
+      localStorage.removeItem(REFERRAL_SOURCE_KEY);
+      return null;
+    }
+    const payload = { ref, firstSeenAt:Date.now(), landing:location.href };
+    localStorage.setItem(REFERRAL_SOURCE_KEY, JSON.stringify(payload));
+    return payload;
+  } catch(e) {
+    return null;
+  }
+}
+
+function getReferralSource() {
+  try {
+    const captured = captureReferralSource();
+    if (captured) return captured;
+    const raw = localStorage.getItem(REFERRAL_SOURCE_KEY);
+    if (!raw) return null;
+    const data = JSON.parse(raw);
+    const ref = normalizeWalletLike(data?.ref);
+    if (!ref) return null;
+    if (wallet && ref === normalizeWalletLike(wallet)) return null;
+    return { ...data, ref };
+  } catch(e) {
+    return null;
+  }
+}
+
+function referralSourceLabel() {
+  const ref = getReferralSource()?.ref;
+  return ref ? shortDisplayWallet(ref) : 'Kaynak yok';
+}
+
+function inviteStats() {
+  try {
+    const raw = localStorage.getItem(INVITE_STATS_KEY);
+    const all = raw ? JSON.parse(raw) : {};
+    const key = String(wallet || 'anon').toLowerCase();
+    return { key, all, mine: all[key] || { shares:0, lastSharedAt:0 } };
+  } catch(e) {
+    return { key:'anon', all:{}, mine:{ shares:0, lastSharedAt:0 } };
+  }
+}
+
+function recordInviteShare() {
+  try {
+    const stats = inviteStats();
+    stats.mine.shares = Number(stats.mine.shares || 0) + 1;
+    stats.mine.lastSharedAt = Date.now();
+    stats.all[stats.key] = stats.mine;
+    localStorage.setItem(INVITE_STATS_KEY, JSON.stringify(stats.all));
+  } catch(e) {}
 }
 
 function cacheCountrySelection(code, addr=wallet) {
@@ -3131,6 +3253,7 @@ function updateMobileBattleBar() {
   if (!bar) return;
   const title = document.getElementById('mobileBattleTitle');
   const detail = document.getElementById('mobileBattleDetail');
+  const step = document.getElementById('mobileBattleStep');
   const action = document.getElementById('mobileBattleAction');
   const quickTarget = document.getElementById('mobileQuickTarget');
   const quickShare = document.getElementById('mobileQuickShare');
@@ -3147,6 +3270,10 @@ function updateMobileBattleBar() {
       : !targetCountry ? `${countryName} hazır · zayıf hedefi otomatik seçebilirsin.`
       : myBulletsCount <= 0 ? `${targetName} kilitli · mermi satın al.`
       : `${countryName} → ${targetName} · ${myBulletsCount.toLocaleString('tr-TR')} mermi`;
+  }
+  if (step) {
+    const next = getFirstMinuteSteps().find(s=>!s.ok);
+    step.textContent = next ? `Sıradaki hamle: ${next.label}` : `${playerCosmeticTitle()} · Cephe ${frontHeatSnapshot().heat}%`;
   }
   if (action) {
     action.disabled = !(ready || canPickTarget || canOpenCountry || canOpenMarket);
@@ -3168,6 +3295,7 @@ function updateMobileBattleBar() {
   if (quickShare) {
     quickShare.disabled = !wallet;
     quickShare.style.opacity = quickShare.disabled ? '.45' : '1';
+    quickShare.textContent = wallet ? 'DAVET' : 'LİG';
   }
 }
 
@@ -3361,6 +3489,8 @@ function hasSharedInvite() {
 
 function markInviteShared() {
   try { localStorage.setItem(inviteSharedKey(), '1'); } catch(e) {}
+  recordInviteShare();
+  if (document.getElementById('growthModal')?.classList.contains('show')) renderGrowthCenter();
 }
 
 function getFirstMinuteSteps() {
@@ -3413,7 +3543,7 @@ function buildInviteUrl(extra={}) {
   params.set('page', extra.page || 'harita');
   if (myCountry) params.set('country', myCountry);
   if (extra.target || targetCountry) params.set('target', extra.target || targetCountry);
-  if (wallet) params.set('ref', wallet.slice(0, 10));
+  if (wallet) params.set('ref', wallet);
   return `${location.origin}${location.pathname}?${params.toString()}`;
 }
 
@@ -3423,7 +3553,7 @@ function buildCommanderShareText(extra={}) {
   const kills = Number(lastPlayerSnapshot?.kills || 0).toLocaleString('tr-TR');
   const rank = document.getElementById('ysRank')?.textContent || 'Asker';
   const target = extra.target ? `\nSon hedef: ${commanderCountryLabel(extra.target)}${extra.damage ? ` (-${extra.damage} HP)` : ''}` : '';
-  return `CENTRADAR'a katıl!\nKomutan: ${commanderName()}\nÜlke: ${commanderCountryLabel()}\nRütbe: ${rank}\nKatkı: ${contribution} · Saldırı: ${attacks} · Kill: ${kills}${target}`;
+  return `CENTRADAR'a katıl!\nKomutan: ${commanderName()}\nÜlke: ${commanderCountryLabel()}\nRütbe: ${rank}\nÜnvan: ${playerCosmeticTitle()}\nKatkı: ${contribution} · Saldırı: ${attacks} · Kill: ${kills}${target}`;
 }
 
 async function shareOrCopy(text, url, successKey='toast.inviteCopied') {
@@ -3458,6 +3588,7 @@ function renderPlayerProfileModal() {
   const kills = Number(lastPlayerSnapshot?.kills || 0);
   const bullets = Number(myBulletsCount || 0);
   const invite = buildInviteUrl({ page:'harita' });
+  const pulse = frontHeatSnapshot();
   card.innerHTML = `
     <div style="display:flex;align-items:center;gap:10px;justify-content:space-between">
       <div>
@@ -3470,6 +3601,11 @@ function renderPlayerProfileModal() {
       <b style="color:var(--green)">${escapeHtml(commanderCountryLabel())}</b><br>
       ${escapeHtml(rank)} · ${escapeHtml(shortDisplayWallet(wallet || ''))}
     </div>
+    <div class="growth-badge-row">
+      <span class="growth-badge">${escapeHtml(playerRoleTitle())}</span>
+      <span class="growth-badge">${escapeHtml(playerCosmeticTitle())}</span>
+      <span class="growth-badge">Cephe ${escapeHtml(String(pulse.heat))}%</span>
+    </div>
     <div class="viral-stat-grid">
       <div class="viral-stat"><b>${escapeHtml(contribution.toLocaleString('tr-TR'))}</b><span>KATKI</span></div>
       <div class="viral-stat"><b>${escapeHtml(attacks.toLocaleString('tr-TR'))}</b><span>SALDIRI</span></div>
@@ -3477,6 +3613,7 @@ function renderPlayerProfileModal() {
     </div>
     <div style="margin-top:9px;color:var(--dim);font-size:10px;line-height:1.45">
       🔫 ${escapeHtml(bullets.toLocaleString('tr-TR'))} mermi · Ödül havuzu: ${escapeHtml(formatEthAmount(numericRewardPoolEth()))}<br>
+      <span style="color:var(--gold)">Davet kaynağı:</span> ${escapeHtml(referralSourceLabel())}<br>
       <span style="color:var(--gold)">Davet:</span> ${escapeHtml(invite)}
     </div>`;
 }
@@ -3519,6 +3656,7 @@ function pushLiveReplayEvent(from, to, damage=1, at=Date.now()) {
     seen.add(key);
     return true;
   }).slice(0, 12);
+  renderFrontPulsePanel();
   if (document.getElementById('growthModal')?.classList.contains('show')) renderGrowthCenter();
 }
 
@@ -3537,6 +3675,62 @@ function playerRoleTitle() {
   if (myAlliance) return 'İttifak Subayı';
   if (myCountry) return 'Cephe Gözcüsü';
   return 'Acemi Komutan';
+}
+
+function playerCosmeticTitle() {
+  const contribution = Number(lastPlayerSnapshot?.contribution || 0);
+  const kills = Number(lastPlayerSnapshot?.kills || 0);
+  const attacks = Number(lastPlayerSnapshot?.attacks || 0);
+  const resources = Array.isArray(RESOURCES) ? [...RESOURCES] : [];
+  const bestResource = resources.sort((a,b)=>Number(b.val||0)-Number(a.val||0))[0];
+  if (kills >= 30) return '💀 Cephe Efsanesi';
+  if (contribution >= 20000) return '🏆 Sezon Taşıyıcısı';
+  if (attacks >= 500) return '⚔️ Bitmeyen Taarruz';
+  if (Number(bestResource?.val || 0) >= 100) return `${bestResource.icon || '⚙️'} Kaynak Ustası`;
+  if (inviteStats().mine.shares >= 3) return '📣 Savaş Elçisi';
+  if (myAlliance) return '🛡️ Birlik Komutanı';
+  if (getReferralSource()) return '🔗 Davetli Komutan';
+  return '🎯 Yeni Cephe Adayı';
+}
+
+function frontHeatSnapshot() {
+  const now = Date.now();
+  const recent = liveReplayEvents.filter(ev => now - Number(ev.at || 0) <= 60000);
+  const targetCounts = new Map();
+  for (const ev of recent) targetCounts.set(ev.to, (targetCounts.get(ev.to) || 0) + 1);
+  const hotCode = [...targetCounts.entries()].sort((a,b)=>b[1]-a[1])[0]?.[0] || normalizeCountryCode(targetCountry) || '';
+  const rate = recent.length;
+  const onlineBoost = Math.min(30, Number(_lastOnlinePlayers || 0) * 3);
+  const heat = Math.max(0, Math.min(100, Math.round(rate * 12 + onlineBoost + (warSocket?.connected ? 8 : 0))));
+  const hotLabel = hotCode ? `${CD[hotCode]?.f || ''} ${CD[hotCode]?.n || hotCode}`.trim() : 'Veri bekleniyor';
+  const mood = heat >= 75 ? 'Kırmızı alarm: cephe çok sıcak.'
+    : heat >= 45 ? 'Aktif çatışma var; doğru hedef seçimi avantaj sağlar.'
+    : heat >= 15 ? 'Düşük yoğunluklu temas var; saldırı için fırsat kollanıyor.'
+    : 'Cephe sakin; ilk hamleyi yapan görünür olur.';
+  return { heat, rate, hotCode, hotLabel, mood };
+}
+
+function renderFrontPulsePanel() {
+  const panel = document.getElementById('frontPulsePanel');
+  if (!panel) return;
+  const pulse = frontHeatSnapshot();
+  const score = document.getElementById('frontPulseScore');
+  const meter = document.getElementById('frontPulseMeter');
+  const text = document.getElementById('frontPulseText');
+  const hot = document.getElementById('frontPulseHot');
+  const rate = document.getElementById('frontPulseRate');
+  const online = document.getElementById('frontPulseOnline');
+  const invite = document.getElementById('frontPulseInvite');
+  if (score) {
+    score.textContent = `${pulse.heat}%`;
+    score.style.color = pulse.heat >= 70 ? '#ff6b7a' : pulse.heat >= 35 ? 'var(--gold)' : 'var(--green)';
+  }
+  if (meter) meter.style.width = `${pulse.heat}%`;
+  if (text) text.textContent = pulse.mood;
+  if (hot) hot.textContent = pulse.hotLabel;
+  if (rate) rate.textContent = `${pulse.rate.toLocaleString('tr-TR')} saldırı`;
+  if (online) online.textContent = `${Number(_lastOnlinePlayers || 0).toLocaleString('tr-TR')} komutan`;
+  if (invite) invite.textContent = referralSourceLabel();
 }
 
 function currentLeagueRows() {
@@ -3572,14 +3766,19 @@ function seasonReportText() {
   const leaderCode = normalizeCountryCode(leader?.code || leader?.country_code);
   const leaderText = leader ? `${CD[leaderCode]?.f || ''} ${CD[leaderCode]?.n || leaderCode} (${Number(leader.hp || 0).toLocaleString('tr-TR')} HP)` : 'Henüz lider yok';
   const topPlayerText = topPlayer ? `${topPlayer.nickname || shortDisplayWallet(topPlayer.wallet || '')} (${Number(topPlayer.contribution || 0).toLocaleString('tr-TR')} katkı)` : 'Henüz oyuncu lideri yok';
+  const pulse = frontHeatSnapshot();
+  const timerText = document.getElementById('timerVal')?.textContent?.trim() || '—';
   return [
     'CENTRADAR SEZON RAPORU',
     `Ödül havuzu: ${formatEthAmount(numericRewardPoolEth())}`,
-    `Tur süresi: ${timerVal || '—'}`,
+    `Tur süresi: ${timerText}`,
     `Online komutan: ${Number(_lastOnlinePlayers || 0).toLocaleString('tr-TR')}`,
+    `Sıcak cephe: ${pulse.hotLabel} (${pulse.heat}%)`,
     `Ülke lideri: ${leaderText}`,
     `Oyuncu lideri: ${topPlayerText}`,
     `Benim rolüm: ${playerRoleTitle()}`,
+    `Prestij ünvanı: ${playerCosmeticTitle()}`,
+    `Davet kaynağı: ${referralSourceLabel()}`,
     buildInviteUrl({ page:'harita' })
   ].join('\n');
 }
@@ -3603,6 +3802,14 @@ function renderGrowthCenter() {
   const attacks = Number(lastPlayerSnapshot?.attacks || 0).toLocaleString('tr-TR');
   const kills = Number(lastPlayerSnapshot?.kills || 0).toLocaleString('tr-TR');
   const invite = buildInviteUrl({ page:'harita' });
+  const prestige = playerCosmeticTitle();
+  const pulse = frontHeatSnapshot();
+  const inviteMine = inviteStats().mine;
+  const firstMinute = getFirstMinuteSteps();
+  const firstDone = firstMinute.filter(s=>s.ok).length;
+  const firstNext = firstMinute.find(s=>!s.ok);
+  const rewardEth = formatEthAmount(numericRewardPoolEth());
+  const purchaseCount = Number(lastEconomyState?.purchaseCount || rewardStatusCache?.economy?.purchaseCount || 0).toLocaleString('tr-TR');
   box.innerHTML = `
     <div class="growth-grid">
       <div class="growth-card gold">
@@ -3618,6 +3825,7 @@ function renderGrowthCenter() {
       <div class="growth-card hot">
         <h4>ORDU ROLÜ</h4>
         <div style="font-family:var(--hud);font-size:18px;letter-spacing:2px;color:var(--gold);margin-bottom:8px">${escapeHtml(role)}</div>
+        <div class="growth-badge-row"><span class="growth-badge">${escapeHtml(prestige)}</span><span class="growth-badge">Güç satmaz · prestij</span></div>
         <div class="growth-row"><b>⚔</b><span>Katkı puanı</span><em>${escapeHtml(contribution)}</em></div>
         <div class="growth-row"><b>🎯</b><span>Saldırı / kill</span><em>${escapeHtml(attacks)} / ${escapeHtml(kills)}</em></div>
         <div class="growth-row"><b>🛡</b><span>Birlik</span><em>${escapeHtml(myAlliance ? 'İttifak aktif' : 'Solo komutan')}</em></div>
@@ -3625,16 +3833,45 @@ function renderGrowthCenter() {
       <div class="growth-card">
         <h4>DAVET MERKEZİ</h4>
         <div class="growth-code">${escapeHtml(invite)}</div>
+        <div class="growth-row"><b>🔗</b><span>Davet kaynağı</span><em>${escapeHtml(referralSourceLabel())}</em></div>
+        <div class="growth-row"><b>📣</b><span>Paylaşım sayacı</span><em>${escapeHtml(String(Number(inviteMine.shares || 0)))} kez</em></div>
         <div class="growth-actions">
           <button onclick="shareGrowthInvite()">DAVETİ PAYLAŞ</button>
           <button onclick="copyInviteLink()">LİNKİ KOPYALA</button>
         </div>
         <div class="growth-note">Davet linki ref kaynağıyla açılır; ödül kuralı güvenli backend tarafında yönetilir.</div>
       </div>
+      <div class="growth-card hot">
+        <h4>CANLI CEPHE NABZI</h4>
+        <div style="font-family:var(--hud);font-size:22px;color:${pulse.heat >= 70 ? '#ff6b7a' : 'var(--gold)'};letter-spacing:2px">${escapeHtml(String(pulse.heat))}%</div>
+        <div class="front-pulse-meter"><span style="width:${pulse.heat}%"></span></div>
+        <div class="growth-row"><b>🔥</b><span>Sıcak cephe</span><em>${escapeHtml(pulse.hotLabel)}</em></div>
+        <div class="growth-row"><b>⏱</b><span>Son 60 saniye</span><em>${escapeHtml(String(pulse.rate))} saldırı</em></div>
+        <div class="growth-note">${escapeHtml(pulse.mood)}</div>
+      </div>
+      <div class="growth-card">
+        <h4>İLK 60 SANİYE AKIŞI</h4>
+        <div class="growth-row"><b>▶</b><span>Tamamlanan adım</span><em>${escapeHtml(String(firstDone))}/${escapeHtml(String(firstMinute.length))}</em></div>
+        <div class="growth-row"><b>⚡</b><span>Sıradaki hamle</span><em>${escapeHtml(firstNext?.label || 'Savaşa devam')}</em></div>
+        <div class="growth-actions">
+          <button onclick="runFirstMinuteAction()">SIRADAKİ HAMLE</button>
+          <button onclick="openTutorialCoach(true)">MOBİL REHBER</button>
+        </div>
+      </div>
       <div class="growth-card">
         <h4>CANLI SAVAŞ REPLAY</h4>
         ${replayRows()}
         <div class="growth-note">Satıra basınca harita açılır ve saldırı hattı yeniden gösterilir.</div>
+      </div>
+      <div class="growth-card">
+        <h4>GÜVENLİ EKONOMİ ÖZETİ</h4>
+        <div class="growth-row"><b>💰</b><span>Ödül havuzu</span><em>${escapeHtml(rewardEth)}</em></div>
+        <div class="growth-row"><b>🧾</b><span>Kayıtlı satın alma</span><em>${escapeHtml(purchaseCount)} tx</em></div>
+        <div class="growth-row"><b>⛓</b><span>Ağ</span><em>${escapeHtml(ACTIVE_CHAIN.shortLabel || ACTIVE_CHAIN.label || APP_NETWORK)}</em></div>
+        <div class="growth-actions">
+          <button onclick="openDocs('economy')">EKONOMİYİ GÖR</button>
+          <button onclick="openDocs('trust')">ŞEFFAFLIK</button>
+        </div>
       </div>
       <div class="growth-card gold">
         <h4>SEZON RAPORU + PNG KART</h4>
@@ -3669,6 +3906,22 @@ async function copySeasonReport() {
   } catch(e) {
     prompt('Sezon raporunu kopyala:', text);
   }
+}
+
+async function shareSeasonReport() {
+  const text = seasonReportText();
+  const url = buildInviteUrl({ page:'harita' });
+  try {
+    if (navigator.share) {
+      await navigator.share({ title:'Centradar Sezon Raporu', text, url });
+      markInviteShared();
+      showToast('Sezon raporu paylaşıma hazır.','success');
+      return;
+    }
+  } catch(e) {
+    if (e && e.name === 'AbortError') return;
+  }
+  return copySeasonReport();
 }
 
 function playReplayTarget(index) {
@@ -4062,6 +4315,7 @@ function updateProgressPanels() {
   renderFirstMinutePlan();
   renderReadinessPanel();
   renderTargetIntelPanel();
+  renderFrontPulsePanel();
   updateRewardEstimate();
   updateProfileCard();
 }
@@ -9440,8 +9694,10 @@ Object.assign(window, {
   renderGrowthCenter,
   shareGrowthInvite,
   copySeasonReport,
+  shareSeasonReport,
   playReplayTarget,
   downloadCommanderPng,
+  renderFrontPulsePanel,
   installCentradarApp
 });
 window.loadDailyQuests = loadDailyQuests;
@@ -9460,6 +9716,49 @@ _applyUrlParams();
 // Dil ayarını uygula
 setLang(_lang);
 schedulePollState(15000);
+</script>
+<script>
+(function(){
+  function fallbackGrowthBody(){
+    const invite = location.origin + location.pathname + '?page=harita';
+    const pool = document.getElementById('rewardPoolVal')?.textContent || document.getElementById('welcomeFrontPool')?.textContent || '0.000 ETH';
+    const pulse = document.getElementById('frontPulseScore')?.textContent || '0%';
+    return '<div class="growth-grid">'
+      + '<div class="growth-card gold"><h4>HAFTALIK LİG / TURNUVA</h4><div class="growth-note">Ülke ve oyuncu liderliği canlı veri geldikçe güncellenir.</div></div>'
+      + '<div class="growth-card"><h4>DAVET MERKEZİ</h4><div class="growth-code">'+invite+'</div><div class="growth-note">Davet linki güvenli referans takibi için hazırdır.</div></div>'
+      + '<div class="growth-card hot"><h4>CANLI CEPHE NABZI</h4><div style="font-family:var(--hud);font-size:22px;color:var(--gold)">'+pulse+'</div><div class="growth-note">Sıcak cephe ve saldırı temposu kontrol panelinde görünür.</div></div>'
+      + '<div class="growth-card"><h4>İLK 60 SANİYE AKIŞI</h4><div class="growth-note">Cüzdan bağla, ülke seç, mermi hazırla, hedef kilitle ve ilk saldırıyı yap.</div></div>'
+      + '<div class="growth-card"><h4>GÜVENLİ EKONOMİ</h4><div class="growth-row"><b>💰</b><span>Ödül havuzu</span><em>'+pool+'</em></div><div class="growth-note">Satın alma ve ödül kayıtları şeffaflık sekmesinden izlenir.</div></div>'
+      + '<div class="growth-card gold"><h4>SEZON RAPORU + PNG KART</h4><div class="growth-note">Komutan kartı ve sezon raporu paylaşım için hazır.</div></div>'
+      + '</div>';
+  }
+  function fallbackOpenGrowth(){
+    const modal = document.getElementById('growthModal');
+    const body = document.getElementById('growthCenterBody');
+    if (!modal || !body) return;
+    if (!body.innerHTML.trim()) body.innerHTML = fallbackGrowthBody();
+    modal.classList.add('show');
+  }
+  function bindGrowthBridge(){
+    try {
+      if (typeof openGrowthCenter === 'function') window.openGrowthCenter = openGrowthCenter;
+      if (typeof closeGrowthCenter === 'function') window.closeGrowthCenter = closeGrowthCenter;
+      if (typeof shareSeasonReport === 'function') window.shareSeasonReport = shareSeasonReport;
+    } catch(e) {}
+    if (typeof window.openGrowthCenter !== 'function') window.openGrowthCenter = fallbackOpenGrowth;
+    if (typeof window.closeGrowthCenter !== 'function') window.closeGrowthCenter = function(){ document.getElementById('growthModal')?.classList.remove('show'); };
+    const btn = document.getElementById('growthNavBtn');
+    if (btn && !btn.dataset.growthBridgeBound) {
+      btn.dataset.growthBridgeBound = '1';
+      btn.addEventListener('click', function(e){
+        e.preventDefault();
+        try { window.openGrowthCenter(); } catch(_) { fallbackOpenGrowth(); }
+      });
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bindGrowthBridge);
+  else bindGrowthBridge();
+})();
 </script>
 <script>
 let abswarAgwModules = null;
