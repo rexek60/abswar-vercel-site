@@ -1,4 +1,4 @@
-const CACHE_NAME = 'centradar-static-v14';
+const CACHE_NAME = 'centradar-static-v15';
 const STATIC_ASSETS = [
   '/',
   '/og.png',
@@ -15,9 +15,7 @@ const STATIC_ASSETS = [
   '/assets/centradar-theme-background.jpg',
   '/assets/centradar-theme-og.jpg',
   '/assets/centradar-theme-emblem.png',
-  '/assets/centradar-mission-start.png',
-  '/assets/centradar-mission-live-bg.jpg',
-  '/assets/centradar-war-background.mp3'
+  '/assets/centradar-mission-start.png'
 ];
 
 self.addEventListener('install', event => {

@@ -15,11 +15,6 @@
       "sizes": "1024x1024",
       "type": "image/png",
       "purpose": "any maskable"
-    },
-    {
-      "src": "/assets/centradar-theme-emblem.png",
-      "sizes": "1400x1120",
-      "type": "image/png"
     }
   ],
   "shortcuts": [
