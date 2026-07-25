@@ -1,7 +1,7 @@
 {
   "name": "Centradar: Tactical Gridwar",
   "short_name": "Centradar",
-  "description": "Abstract Mainnet uzerinde gercek zamanli Web3 savas MMO oyunu.",
+  "description": "Abstract Mainnet üzerinde gerçek zamanlı Web3 savaş MMO oyunu.",
   "start_url": "/?page=harita&source=pwa",
   "scope": "/",
   "display": "standalone",
@@ -17,8 +17,8 @@
       "purpose": "any maskable"
     },
     {
-      "src": "/assets/centradar-emblem.png",
-      "sizes": "1152x922",
+      "src": "/assets/centradar-theme-emblem.png",
+      "sizes": "1400x1120",
       "type": "image/png"
     }
   ],
@@ -30,7 +30,7 @@
       "icons": [{ "src": "/assets/centradar-emblem-icon.png", "sizes": "1024x1024", "type": "image/png" }]
     },
     {
-      "name": "Mermi Pazari",
+      "name": "Mermi Pazarı",
       "short_name": "Pazar",
       "url": "/?page=pazar",
       "icons": [{ "src": "/assets/centradar-emblem-icon.png", "sizes": "1024x1024", "type": "image/png" }]

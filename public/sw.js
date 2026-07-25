@@ -1,4 +1,4 @@
-const CACHE_NAME = 'centradar-static-v13';
+const CACHE_NAME = 'centradar-static-v14';
 const STATIC_ASSETS = [
   '/',
   '/og.png',
@@ -12,6 +12,9 @@ const STATIC_ASSETS = [
   '/assets/centradar-app-icon.svg',
   '/assets/centradar-emblem.png',
   '/assets/centradar-emblem-icon.png',
+  '/assets/centradar-theme-background.jpg',
+  '/assets/centradar-theme-og.jpg',
+  '/assets/centradar-theme-emblem.png',
   '/assets/centradar-mission-start.png',
   '/assets/centradar-mission-live-bg.jpg',
   '/assets/centradar-war-background.mp3'
