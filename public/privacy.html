@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Gizlilik Bildirimi | Centradar</title>
+  <meta name="description" content="Centradar gizlilik ve veri kullanımı bildirimi.">
+  <link rel="canonical" href="https://centradar.xyz/privacy.html">
+  <style>
+    :root{color-scheme:dark;--bg:#070b0e;--panel:#0d181a;--line:#315153;--text:#d9ece8;--dim:#8ba6a3;--gold:#f5c842;--cyan:#73ffeb}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% 0,#153033 0,var(--bg) 42%);color:var(--text);font:15px/1.7 system-ui,sans-serif}
+    main{width:min(860px,calc(100% - 28px));margin:28px auto 60px;background:rgba(13,24,26,.94);border:1px solid var(--line);padding:clamp(20px,4vw,42px);box-shadow:0 18px 60px #0008}
+    header{display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--line);padding-bottom:18px}header img{width:58px;height:58px;object-fit:contain}
+    h1{margin:0;color:var(--cyan);font-size:clamp(24px,5vw,38px);letter-spacing:2px}h2{margin-top:30px;color:var(--gold);font-size:18px}p,li{color:var(--text)}
+    .meta,.note{color:var(--dim)}.note{padding:12px;border-left:3px solid var(--gold);background:#f5c8420c}
+    nav{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}nav a,.back{color:var(--cyan);border:1px solid var(--line);padding:6px 10px;text-decoration:none}
+    section{scroll-margin-top:16px}.lang{border-top:1px solid var(--line);margin-top:34px;padding-top:10px}a{color:var(--cyan)}
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <img src="/assets/centradar-theme-emblem.png" alt="Centradar">
+    <div><h1>GİZLİLİK BİLDİRİMİ</h1><div class="meta">Son güncelleme: 25 Temmuz 2026</div></div>
+  </header>
+  <nav aria-label="Dil">
+    <a href="#tr">TR</a><a href="#en">EN</a><a href="#ru">RU</a>
+    <a class="back" href="/">CENTRADAR'A DÖN</a>
+  </nav>
+
+  <section id="tr">
+    <h2>1. Toplanan veriler</h2>
+    <p>Centradar; cüzdan adresi, seçilen ülke, kullanıcı adı, oyun hareketleri, rütbe, ittifak, işlem hashleri, satın alma kayıtları ve gönderdiğin geri bildirimleri işler. Güvenlik ve hata çözümü için IP adresi, tarayıcı türü, bağlantı günlükleri ve zaman bilgileri sınırlı olarak kaydedilebilir.</p>
+    <h2>2. Cüzdan güvenliği</h2>
+    <p>Centradar özel anahtarını veya kurtarma kelimelerini istemez ve saklamaz. Cüzdan giriş ve işlem onayları Abstract Global Wallet üzerinden gerçekleşir. Blockchain üzerindeki cüzdan ve işlem verileri herkese açıktır.</p>
+    <h2>3. Kullanım amaçları</h2>
+    <ul><li>Oyuncu hesabını ve oyun ilerlemesini çalıştırmak</li><li>Satın alma işlemlerini zincir üzerinde doğrulamak ve çift kullanımı engellemek</li><li>Saldırı, sıralama, ödül ve ittifak sistemlerini işletmek</li><li>Dolandırıcılık, kötüye kullanım ve teknik hataları tespit etmek</li><li>Geri bildirimlere yanıt vermek ve hizmeti geliştirmek</li></ul>
+    <h2>4. Yerel depolama ve hizmet sağlayıcılar</h2>
+    <p>Dil, ses, oturum ve yarım kalan işlem bilgileri cihazındaki localStorage alanında tutulabilir. Barındırma, veritabanı, hata bildirimi ve blockchain erişimi için Vercel, Railway, Abstract/RPC sağlayıcıları ve yapılandırılmışsa Discord webhook hizmetleri kullanılabilir.</p>
+    <h2>5. Saklama ve haklar</h2>
+    <p>Oyun ve satın alma kayıtları güvenlik, muhasebe ve ödül doğrulaması için gerekli olduğu sürece saklanır. Blockchain kayıtları silinemez. Erişim veya düzeltme talebini oyun içindeki geri bildirim formundan iletebilirsin.</p>
+    <p class="note">Özel anahtarını, kurtarma kelimelerini veya cüzdan şifreni hiçbir geri bildirim alanına yazma.</p>
+  </section>
+
+  <section id="en" class="lang" lang="en">
+    <h2>Privacy Notice</h2>
+    <p>Centradar processes wallet addresses, selected countries, nicknames, gameplay actions, ranks, alliances, transaction hashes, purchase records and feedback. Limited technical data such as IP address, browser type, timestamps and connection logs may be processed for security and diagnostics.</p>
+    <p>Centradar never requests or stores private keys or recovery phrases. Wallet login and transaction approvals are handled through Abstract Global Wallet. Wallet and transaction data recorded on a blockchain is public.</p>
+    <p>Data is used to operate player progression, verify on-chain purchases, prevent transaction reuse, run combat and reward systems, prevent abuse and resolve technical problems. Language, audio, session and pending-transaction preferences may be stored locally on the device.</p>
+    <p>Service providers may include Vercel, Railway, Abstract/RPC providers and an optional Discord webhook. Records are retained as needed for security, accounting and reward verification; blockchain records cannot be deleted. Use the in-game feedback form for access or correction requests.</p>
+    <p class="note">Never submit a private key, recovery phrase or wallet password.</p>
+  </section>
+
+  <section id="ru" class="lang" lang="ru">
+    <h2>Уведомление о конфиденциальности</h2>
+    <p>Centradar обрабатывает адрес кошелька, выбранную страну, имя игрока, игровые действия, звание, альянс, хэши транзакций, покупки и обратную связь. Для безопасности и диагностики могут ограниченно обрабатываться IP-адрес, тип браузера, время и журналы соединения.</p>
+    <p>Centradar не запрашивает и не хранит приватные ключи или seed-фразы. Вход и подтверждение транзакций выполняются через Abstract Global Wallet. Данные кошелька и транзакций в блокчейне являются публичными.</p>
+    <p>Данные используются для прогресса игрока, проверки покупок в сети, защиты от повторного использования транзакций, работы боевой системы и наград, предотвращения злоупотреблений и исправления ошибок. Настройки языка, звука, сессии и незавершённых операций могут храниться локально.</p>
+    <p>Могут использоваться Vercel, Railway, провайдеры Abstract/RPC и дополнительный Discord webhook. Записи хранятся столько, сколько необходимо для безопасности, учёта и проверки наград; данные блокчейна удалить невозможно.</p>
+    <p class="note">Никогда не отправляйте приватный ключ, seed-фразу или пароль кошелька.</p>
+  </section>
+</main>
+</body>
+</html>

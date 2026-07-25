@@ -279,6 +279,8 @@ body.perf-lite .hp-label{display:none}
 .welcome-bg{position:absolute;inset:0;background:linear-gradient(90deg,rgba(2,7,9,.38) 0%,rgba(2,7,9,.18) 18%,rgba(2,7,9,.02) 42%,rgba(2,7,9,.04) 68%,rgba(2,7,9,.28) 100%),url('assets/centradar-theme-background.jpg') center/cover no-repeat;filter:saturate(1.12) contrast(1.08)}
 .welcome-scan{position:absolute;inset:0;background:repeating-linear-gradient(180deg,rgba(255,255,255,.028) 0 1px,transparent 1px 4px);opacity:.24;mix-blend-mode:screen;pointer-events:none}
 .welcome-live-hud{position:absolute;z-index:2;top:17px;left:18px;min-width:min(540px,70vw);font-family:var(--mono);font-size:13px;color:#bffdf7;letter-spacing:.7px;text-align:left;padding:8px 14px;text-shadow:0 0 12px rgba(0,245,255,.42)}
+.welcome-live-hud[data-status="degraded"]{color:var(--gold);text-shadow:0 0 12px rgba(245,200,66,.30)}
+.welcome-live-hud[data-status="offline"]{color:#ff98a3;text-shadow:0 0 12px rgba(232,22,42,.35)}
 .welcome-signal{position:absolute;z-index:2;top:18px;right:28px;display:flex;align-items:center;gap:8px;min-width:190px;justify-content:center;padding:7px 12px;border:1px solid rgba(115,255,235,.42);background:rgba(5,18,20,.74);font-family:var(--mono);font-size:11px;color:#bffdf7;letter-spacing:.8px;text-shadow:0 0 10px rgba(0,245,255,.35);box-shadow:inset 0 0 18px rgba(0,245,255,.06)}
 .welcome-signal-dot{width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 12px var(--gold);animation:signalPulse 1.2s ease-in-out infinite}
 .welcome-signal strong{font-family:var(--hud);font-size:10px;letter-spacing:1.5px;color:inherit}
@@ -316,6 +318,11 @@ body.perf-lite .hp-label{display:none}
 .welcome-briefing-foot{margin-top:8px;font-family:var(--mono);font-size:9px;color:var(--gold);line-height:1.35}
 .welcome-actions{grid-column:3;grid-row:2 / span 2;display:flex;flex-direction:column;gap:7px;position:relative;bottom:auto;margin:0;padding:0;background:none;z-index:2}.welcome-primary{background:linear-gradient(180deg,#10c486,#05744c);border:1px solid rgba(157,255,220,.75);color:white;font-family:var(--hud);font-size:12px;letter-spacing:1.4px;padding:10px 12px;cursor:pointer;font-weight:800;box-shadow:0 0 22px rgba(0,200,130,.30),inset 0 1px 0 rgba(255,255,255,.18)}
 .welcome-secondary{background:linear-gradient(180deg,rgba(255,255,255,.20),rgba(255,255,255,.08));border:1px solid rgba(255,255,255,.28);color:#e7fffa;font-family:var(--hud);font-size:11px;letter-spacing:1.5px;padding:9px 12px;cursor:pointer}
+.welcome-legal{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;font-family:var(--mono);font-size:8px;letter-spacing:.4px}
+.welcome-legal a{color:rgba(231,255,250,.72);text-decoration:none;border-bottom:1px solid rgba(231,255,250,.24)}
+.welcome-legal a:hover,.welcome-legal a:focus-visible{color:#fff;border-bottom-color:#fff}
+.pwa-update-banner{display:none;position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:10020;align-items:center;gap:10px;max-width:calc(100vw - 24px);padding:9px 12px;background:rgba(7,18,21,.98);border:1px solid rgba(245,200,66,.65);box-shadow:0 12px 36px rgba(0,0,0,.55);color:var(--gold);font-family:var(--hud);font-size:10px;letter-spacing:1px}
+.pwa-update-banner.show{display:flex}.pwa-update-banner button{background:rgba(245,200,66,.14);border:1px solid rgba(245,200,66,.55);color:var(--gold);font-family:var(--hud);font-size:9px;padding:6px 9px;cursor:pointer}
 .welcome-quickstart{font-family:var(--mono);font-size:9px;color:#bffdf7;line-height:1.45;text-align:center;margin:-1px 4px 2px;text-shadow:0 0 10px rgba(0,245,255,.25)}
 .welcome-warning{font-family:var(--mono);font-size:10px;color:var(--dim);line-height:1.55;margin-top:14px;text-align:center}
 #walletResumeHint{grid-column:1 / -1}
@@ -666,6 +673,10 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
         <button class="welcome-primary" onclick="connectWallet()" data-i18n="welcome.cta">GİRİŞ YAP</button>
         <div class="welcome-quickstart" data-i18n="welcome.quickStart">30 saniyede cüzdan bağla, ülkeni seç ve ilk hedefini kilitle.</div>
         <button class="welcome-secondary" onclick="dismissWelcome()" data-i18n="welcome.skip">ÖN İZLEME MODU</button>
+        <div class="welcome-legal">
+          <a href="/privacy.html" target="_blank" rel="noopener" data-i18n="legal.privacy">GİZLİLİK</a>
+          <a href="/terms.html" target="_blank" rel="noopener" data-i18n="legal.terms">KULLANIM KOŞULLARI</a>
+        </div>
       </div>
       <div id="walletResumeHint" style="display:none;margin-top:12px;background:rgba(245,200,66,0.08);border:1px solid rgba(245,200,66,0.35);padding:12px 14px;color:var(--gold);font-family:var(--mono);font-size:10px;line-height:1.5">
         <div id="walletResumeText" style="margin-bottom:10px" data-i18n="wallet.resumeText">Abstract onayını tamamladıysan bağlantıyı burada bitir.</div>
@@ -684,6 +695,10 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
   <span style="font-size:14px">⚠️</span>
   <span data-i18n="conn.lost">SUNUCU BAĞLANTISI KAYIP — OTOMATİK YENİDEN DENENİYOR</span>
   <button onclick="location.reload()" style="background:rgba(255,255,255,0.2);border:1px solid #fff;color:#fff;padding:3px 10px;font-family:var(--hud);font-size:10px;cursor:pointer" data-i18n="conn.reload">🔄 SAYFAYI YENİLE</button>
+</div>
+<div id="pwaUpdateBanner" class="pwa-update-banner" role="status" aria-live="polite">
+  <span data-i18n="pwa.updateReady">YENİ SÜRÜM HAZIR</span>
+  <button type="button" onclick="reloadCentradarUpdate()" data-i18n="pwa.reload">ŞİMDİ YENİLE</button>
 </div>
 
 <!-- NAV -->
@@ -1444,6 +1459,11 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
         <h4>AUDIT DURUMU</h4>
         <p>İç kontroller ve canlı doğrulamalar yapıldı; fakat bu, resmi bağımsız smart contract/security audit yerine geçmez. Büyük duyuru veya yüksek hacim öncesi bağımsız audit önerilir.</p>
         <p>Kaybetmeyi göze alamayacağın miktarla işlem yapma; blockchain işlemleri geri alınamaz.</p>
+      </div>
+      <div class="docs-card" style="border-left-color:#66b3ff">
+        <h4 data-i18n="legal.title">YASAL VE VERİ KULLANIMI</h4>
+        <p data-i18n="legal.summary">Centradar cüzdan adresi ve oyun verilerini hizmeti çalıştırmak için işler. Gerçek ETH işlemlerini onaylamadan önce koşulları ve gizlilik açıklamasını oku.</p>
+        <p><a href="/privacy.html" target="_blank" rel="noopener" data-i18n="legal.privacy">GİZLİLİK</a> · <a href="/terms.html" target="_blank" rel="noopener" data-i18n="legal.terms">KULLANIM KOŞULLARI</a></p>
       </div>
     </div>
 
@@ -2529,20 +2549,25 @@ function updateWelcomeClock() {
   const el = document.getElementById('welcomeTopline');
   if (!el) return;
   const now = new Date();
-  const date = new Intl.DateTimeFormat('tr-TR', {
+  const locale = _lang === 'tr' ? 'tr-TR' : _lang === 'ru' ? 'ru-RU' : 'en-US';
+  const date = new Intl.DateTimeFormat(locale, {
     timeZone:'Europe/Istanbul',
     day:'2-digit',
     month:'long',
     year:'numeric'
-  }).format(now).toLocaleUpperCase('tr-TR');
-  const time = new Intl.DateTimeFormat('tr-TR', {
+  }).format(now).toLocaleUpperCase(locale);
+  const time = new Intl.DateTimeFormat(locale, {
     timeZone:'Europe/Istanbul',
     hour:'2-digit',
     minute:'2-digit',
     second:'2-digit',
     hour12:false
   }).format(now);
-  el.textContent = `TARİH: ${date}  |  ZAMAN: ${time} TRT  |  SİSTEM DURUMU: NOMİNAL`;
+  const socketConnected = !!warSocket?.connected;
+  const backendOnline = typeof _backendOnline === 'undefined' ? false : !!_backendOnline;
+  const statusKey = socketConnected ? 'system.nominal' : backendOnline ? 'system.degraded' : 'system.offline';
+  el.dataset.status = statusKey.slice('system.'.length);
+  el.textContent = `${t('system.date')}: ${date}  |  ${t('system.time')}: ${time} TRT  |  ${t('system.status')}: ${t(statusKey)}`;
   updateWelcomeSignal();
   updateWelcomeBriefing();
 }
@@ -4439,7 +4464,7 @@ function renderAdminHealth(data) {
   const rows = [
     ['BACKEND', backend.ok ? 'ÇALIŞIYOR' : 'SORUN', backend.ok ? 'status-ok' : 'status-bad'],
     ['SOCKET', `${warSocket?.connected ? 'BAĞLI' : 'KOPUK'} · ${transport}`, warSocket?.connected ? 'status-ok' : 'status-warn'],
-    ['DB', data?.dbEnabled ? 'POSTGRES AKTİF' : 'BELLEK MODU', data?.dbEnabled ? 'status-ok' : 'status-warn'],
+    ['DB', data?.dbHealthy ? `POSTGRES AKTİF · ${Number(data?.dbLatencyMs || 0)} ms` : (data?.dbEnabled ? 'POSTGRES ERİŞİLEMİYOR' : 'BELLEK MODU'), data?.dbHealthy ? 'status-ok' : 'status-bad'],
     ['ONLINE', Number(socket.onlinePlayers || 0).toLocaleString('tr-TR'), 'status-ok'],
     ['BACKEND COMMIT', backend.commit || '-', ''],
     ['FRONTEND BUILD', FRONTEND_BUILD_ID, ''],
@@ -4608,8 +4633,8 @@ async function refreshAdminRoundInfo() {
       const sys = await fetch(API+'/api/status').then(r=>r.json());
       backendStatusCache = sys || backendStatusCache;
       backendStatusFetchedAt = Date.now();
-      if (sys && sys.dbEnabled === false) {
-        box.innerHTML += '<br><span style="color:var(--gold);font-size:10px">Uyarı: Kalıcı veri sistemi kapalı. Railway DATABASE_URL/Postgres bağlantısını kontrol et.</span>';
+      if (sys && (sys.dbEnabled === false || sys.dbHealthy === false)) {
+        box.innerHTML += '<br><span style="color:var(--gold);font-size:10px">Uyarı: Kalıcı veri sistemi hazır değil. Railway DATABASE_URL/Postgres bağlantısını kontrol et.</span>';
       }
     } catch(_e) {}
     const state = await fetch(API+'/api/game/state').then(r=>r.json());
@@ -6495,12 +6520,12 @@ async function buyAmmo(pack) {
   setPurchaseStatus('wallet', 'SATIN ALMA HAZIRLANIYOR', `${bulletLabel} mermi paketi için sunucu ve cüzdan kontrol ediliyor.`, 'active');
 
   const backendStatus = await fetchBackendStatus(true);
-  if (APP_NETWORK === 'mainnet' && backendStatus?.dbEnabled === false) {
-    setPurchaseStatus('wallet', 'SATIN ALMA DURDURULDU', 'Kalıcı veri sistemi kapalı olduğu için mainnet alımı güvenli değil.', 'error');
+  if (APP_NETWORK === 'mainnet' && (backendStatus?.dbEnabled === false || backendStatus?.dbHealthy === false)) {
+    setPurchaseStatus('wallet', 'SATIN ALMA DURDURULDU', 'Kalıcı veri sistemi hazır olmadığı için mainnet alımı güvenli değil.', 'error');
     showToast(t('toast.marketMainnetBlocked'),'error');
     return;
   }
-  if (APP_NETWORK === 'mainnet' && (!backendStatus || backendStatus.dbEnabled == null)) {
+  if (APP_NETWORK === 'mainnet' && (!backendStatus || backendStatus.dbEnabled == null || backendStatus.dbHealthy == null)) {
     setPurchaseStatus('wallet', 'SUNUCU DOĞRULANAMADI', 'Backend sağlık bilgisi alınamadı; ödeme başlatılmadı.', 'error');
     showToast(t('toast.marketServerUnknown'),'error');
     return;
@@ -6597,7 +6622,7 @@ async function resumePendingPurchase() {
   }
 
   const backendStatus = await fetchBackendStatus(true);
-  if (APP_NETWORK === 'mainnet' && (!backendStatus || backendStatus.dbEnabled === false)) {
+  if (APP_NETWORK === 'mainnet' && (!backendStatus || backendStatus.dbEnabled === false || backendStatus.dbHealthy !== true)) {
     setPurchaseStatus('server', 'YARIM ALIM BEKLEMEDE', 'Sunucu hazır değil; önceki satın alma sonraki açılışta tekrar kontrol edilecek.', 'active');
     showToast(t('toast.pendingPurchaseServerNotReady'),'info');
     return;
@@ -8493,6 +8518,18 @@ const I18N = {
     'signal.offline': 'KESİLDİ',
     'signal.online': 'online',
     'signal.waiting': 'ölçülüyor',
+    'system.date': 'TARİH',
+    'system.time': 'ZAMAN',
+    'system.status': 'SİSTEM DURUMU',
+    'system.nominal': 'NOMİNAL',
+    'system.degraded': 'SINIRLI',
+    'system.offline': 'ÇEVRİMDIŞI',
+    'pwa.updateReady': 'YENİ SÜRÜM HAZIR',
+    'pwa.reload': 'ŞİMDİ YENİLE',
+    'legal.title': 'YASAL VE VERİ KULLANIMI',
+    'legal.summary': 'Centradar cüzdan adresi ve oyun verilerini hizmeti çalıştırmak için işler. Gerçek ETH işlemlerini onaylamadan önce koşulları ve gizlilik açıklamasını oku.',
+    'legal.privacy': 'GİZLİLİK',
+    'legal.terms': 'KULLANIM KOŞULLARI',
     // Loading
     'load.default': 'YÜKLENİYOR...',
     'load.connect': 'CÜZDANA BAĞLANIYOR...',
@@ -8851,6 +8888,18 @@ const I18N = {
     'signal.offline': 'OFFLINE',
     'signal.online': 'online',
     'signal.waiting': 'measuring',
+    'system.date': 'DATE',
+    'system.time': 'TIME',
+    'system.status': 'SYSTEM STATUS',
+    'system.nominal': 'NOMINAL',
+    'system.degraded': 'DEGRADED',
+    'system.offline': 'OFFLINE',
+    'pwa.updateReady': 'NEW VERSION READY',
+    'pwa.reload': 'RELOAD NOW',
+    'legal.title': 'LEGAL AND DATA USE',
+    'legal.summary': 'Centradar processes wallet addresses and game data to operate the service. Read the terms and privacy notice before approving real ETH transactions.',
+    'legal.privacy': 'PRIVACY',
+    'legal.terms': 'TERMS OF USE',
     'load.default': 'LOADING...',
     'load.connect': 'CONNECTING TO WALLET...',
     'load.player': 'LOADING PLAYER...',
@@ -9207,6 +9256,18 @@ const I18N = {
     'signal.offline': 'НЕТ СВЯЗИ',
     'signal.online': 'онлайн',
     'signal.waiting': 'измерение',
+    'system.date': 'ДАТА',
+    'system.time': 'ВРЕМЯ',
+    'system.status': 'СОСТОЯНИЕ СИСТЕМЫ',
+    'system.nominal': 'НОРМА',
+    'system.degraded': 'ОГРАНИЧЕНО',
+    'system.offline': 'НЕТ СВЯЗИ',
+    'pwa.updateReady': 'ДОСТУПНА НОВАЯ ВЕРСИЯ',
+    'pwa.reload': 'ОБНОВИТЬ',
+    'legal.title': 'ПРАВОВАЯ ИНФОРМАЦИЯ И ДАННЫЕ',
+    'legal.summary': 'Centradar обрабатывает адрес кошелька и игровые данные для работы сервиса. Перед подтверждением операций с реальным ETH прочитайте условия и политику конфиденциальности.',
+    'legal.privacy': 'КОНФИДЕНЦИАЛЬНОСТЬ',
+    'legal.terms': 'УСЛОВИЯ ИСПОЛЬЗОВАНИЯ',
     'load.default': 'ЗАГРУЗКА...',
     'load.connect': 'ПОДКЛЮЧЕНИЕ К КОШЕЛЬКУ...',
     'load.player': 'ЗАГРУЗКА ИГРОКА...',
@@ -9641,6 +9702,8 @@ async function submitFeedback() {
 
 /* ── PWA / TELEFONA EKLE ── */
 let _deferredInstallPrompt = null;
+let _hadServiceWorkerController = !!navigator.serviceWorker?.controller;
+let _pwaUpdateAnnounced = false;
 
 function updateInstallButton() {
   const btn = document.getElementById('installAppBtn');
@@ -9677,9 +9740,33 @@ async function installCentradarApp() {
   }
 }
 
+function showCentradarUpdate() {
+  if (_pwaUpdateAnnounced) return;
+  _pwaUpdateAnnounced = true;
+  document.getElementById('pwaUpdateBanner')?.classList.add('show');
+}
+
+function reloadCentradarUpdate() {
+  document.getElementById('pwaUpdateBanner')?.classList.remove('show');
+  window.location.reload();
+}
+
 function registerCentradarPwa() {
   if (!('serviceWorker' in navigator) || location.protocol !== 'https:') return;
-  navigator.serviceWorker.register('/sw.js').catch(() => {});
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (_hadServiceWorkerController) showCentradarUpdate();
+    _hadServiceWorkerController = true;
+  });
+  navigator.serviceWorker.register('/sw.js').then(registration => {
+    if (registration.waiting && navigator.serviceWorker.controller) showCentradarUpdate();
+    registration.addEventListener('updatefound', () => {
+      const worker = registration.installing;
+      if (!worker) return;
+      worker.addEventListener('statechange', () => {
+        if (worker.state === 'installed' && navigator.serviceWorker.controller) showCentradarUpdate();
+      });
+    });
+  }).catch(() => {});
 }
 
 /* ── URL PARAMETRELERİ ── */

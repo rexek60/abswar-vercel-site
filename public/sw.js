@@ -1,6 +1,8 @@
-const CACHE_NAME = 'centradar-static-v16';
+const CACHE_NAME = 'centradar-static-v17';
 const STATIC_ASSETS = [
   '/',
+  '/privacy.html',
+  '/terms.html',
   '/og.png',
   '/socket.io.min.js',
   '/shoot.mp3',
