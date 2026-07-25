@@ -9304,6 +9304,9 @@ function setLang(lang) {
   if (typeof updateWelcomeSignal === 'function') updateWelcomeSignal();
   if (typeof updateWelcomeBriefing === 'function') updateWelcomeBriefing();
   if (typeof updateRoundCountdownUI === 'function') updateRoundCountdownUI();
+  document.querySelectorAll('#prizeOnlyHome, #prizeOnlyNav').forEach(el => {
+    if (el.dataset.rewardValue) el.textContent = `${t('reward.pool')} ${el.dataset.rewardValue}`;
+  });
   if (typeof showToast === 'function') showToast(`✓ ${lang.toUpperCase()}`, 'info');
 }
 
@@ -10206,14 +10209,14 @@ function S(v){
     d.style.cssText="color:var(--gold);font-family:var(--hud);font-size:22px;margin-bottom:18px";
     g.after(d);
   }
-  let d=document.getElementById("prizeOnlyHome");if(d)d.textContent=label;
+  let d=document.getElementById("prizeOnlyHome");if(d){d.dataset.rewardValue=v;d.textContent=label}
   let e=document.getElementById("ethBal");
   if(e&&!document.getElementById("prizeOnlyNav")){
     let n=document.createElement("span");n.id="prizeOnlyNav";
     n.style.cssText="color:var(--gold);font-family:var(--hud);font-size:10px;padding:5px";
     e.before(n);
   }
-  let n=document.getElementById("prizeOnlyNav");if(n)n.textContent=label;
+  let n=document.getElementById("prizeOnlyNav");if(n){n.dataset.rewardValue=v;n.textContent=label}
 }
 async function R(){try{S(F(await P()))}catch(e){}setTimeout(R,30000)}
 U();R();
