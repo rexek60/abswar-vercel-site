@@ -1,4 +1,4 @@
-const CACHE_NAME = 'centradar-static-v15';
+const CACHE_NAME = 'centradar-static-v16';
 const STATIC_ASSETS = [
   '/',
   '/og.png',
@@ -20,11 +20,14 @@ const STATIC_ASSETS = [
 
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(STATIC_ASSETS))
-      .catch(() => undefined)
+    (async () => {
+      const cache = await caches.open(CACHE_NAME);
+      await Promise.allSettled(
+        STATIC_ASSETS.map(asset => cache.add(new Request(asset, { cache: 'reload' })))
+      );
+      await self.skipWaiting();
+    })()
   );
-  self.skipWaiting();
 });
 
 self.addEventListener('activate', event => {
@@ -39,9 +42,32 @@ self.addEventListener('fetch', event => {
   const req = event.request;
   const url = new URL(req.url);
   if (req.method !== 'GET' || url.pathname.startsWith('/api/') || url.pathname.startsWith('/socket.io/')) return;
+  if (url.origin !== self.location.origin) return;
   if (req.mode === 'navigate') {
-    event.respondWith(fetch(req).catch(() => caches.match('/')));
+    event.respondWith(
+      fetch(req)
+        .then(async response => {
+          if (response.ok) {
+            const cache = await caches.open(CACHE_NAME);
+            await cache.put('/', response.clone());
+          }
+          return response;
+        })
+        .catch(() => caches.match('/'))
+    );
     return;
   }
-  event.respondWith(caches.match(req).then(cached => cached || fetch(req)));
+  const fresh = fetch(req, { cache: 'no-cache' })
+    .then(async response => {
+      if (response.ok) {
+        const cache = await caches.open(CACHE_NAME);
+        await cache.put(req, response.clone());
+      }
+      return response;
+    })
+    .catch(() => null);
+  event.waitUntil(fresh.then(() => undefined));
+  event.respondWith(
+    caches.match(req).then(cached => cached || fresh.then(response => response || Response.error()))
+  );
 });

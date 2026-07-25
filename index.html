@@ -33,6 +33,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Oswald:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:where(button,a,input,textarea,select,[role="button"]):focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 :root{
   --red:#e8162a;--green:#00c853;--cyan:#00f5ff;--gold:#f5c842;
   --bg:#090c0f;--bg1:#0d1117;--bg2:#111820;--bg3:#161e28;
@@ -48,7 +49,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .logo-emblem{width:30px;height:30px;object-fit:cover;border-radius:6px;border:1px solid rgba(245,200,66,.42);box-shadow:0 0 18px rgba(245,200,66,.18);background:#0b0e0a;margin-right:8px}
 .logo-main{font-family:var(--hud);font-size:18px;font-weight:900;color:var(--red);letter-spacing:3px;text-shadow:0 0 20px rgba(232,22,42,0.6);margin-right:6px}
 .logo-sub{font-size:8px;letter-spacing:3px;color:var(--dim);text-transform:uppercase;margin-right:24px;align-self:flex-end;padding-bottom:2px}
-.nav-link{padding:0 11px;height:44px;display:flex;align-items:center;font-family:var(--hud);font-size:9px;letter-spacing:2px;color:var(--dim);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;text-transform:uppercase}
+.nav-link{padding:0 11px;height:44px;display:flex;align-items:center;background:transparent;border:0;font-family:var(--hud);font-size:9px;letter-spacing:2px;color:var(--dim);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;text-transform:uppercase}
 .nav-link:hover{color:var(--text)}.nav-link.active{color:var(--red);border-bottom-color:var(--red)}
 @keyframes panelFocus{0%{box-shadow:0 0 0 0 rgba(232,22,42,0)}30%{box-shadow:0 0 0 2px var(--red),0 0 28px rgba(232,22,42,0.55)}100%{box-shadow:0 0 0 0 rgba(232,22,42,0)}}
 .panel-focused{animation:panelFocus 1.6s ease-out;z-index:50}
@@ -161,7 +162,7 @@ body.perf-lite .hp-label{display:none}
 
 /* LB */
 .lb-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0}
-.lb-tab{flex:1;padding:6px;text-align:center;cursor:pointer;font-family:var(--hud);font-size:7px;letter-spacing:2px;color:var(--dim);border-bottom:2px solid transparent;transition:all .15s}
+.lb-tab{flex:1;padding:6px;text-align:center;cursor:pointer;background:transparent;border:0;font-family:var(--hud);font-size:7px;letter-spacing:2px;color:var(--dim);border-bottom:2px solid transparent;transition:all .15s}
 .lb-tab.active{color:var(--text);border-bottom-color:var(--red)}
 .lb-row{display:flex;align-items:center;gap:6px;padding:5px 12px;border-bottom:1px solid rgba(255,255,255,0.03)}
 .lb-row.me{background:rgba(232,22,42,0.07)}
@@ -299,6 +300,7 @@ body.perf-lite .hp-label{display:none}
 .welcome-portal-title{grid-column:1;grid-row:1 / span 2;font-family:var(--hud);font-size:14px;line-height:1.15;letter-spacing:1px;color:#e7fffa;text-align:center;margin:0}
 .welcome-lang-switch{grid-column:1;grid-row:3;display:flex;justify-content:center;gap:6px;margin:0;position:relative;z-index:1}
 .welcome-lang-switch button{background:rgba(115,255,235,.08);border:1px solid rgba(115,255,235,.30);color:#bffdf7;font-family:var(--hud);font-size:9px;letter-spacing:1px;padding:6px 8px;cursor:pointer}
+.welcome-lang-switch button.active{background:rgba(245,200,66,.20);border-color:var(--gold);color:var(--gold)}
 .welcome-lang-switch button:hover{background:rgba(115,255,235,.16);border-color:rgba(115,255,235,.55);color:#fff}
 #welcomeOverlay #giftBadge{grid-column:2 / 4;margin:0!important;padding:6px 8px!important;font-size:9px!important}
 #welcomeOverlay #prizeOnlyHome{grid-column:2;grid-row:1;margin:0!important;font-size:15px!important;text-align:center;align-self:center}
@@ -637,15 +639,15 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
     <aside class="welcome-portal">
       <div class="welcome-portal-title">PERSONEL<br>ERİŞİM PORTALI</div>
       <div class="welcome-lang-switch" aria-label="Dil seçimi">
-        <button type="button" onclick="setLang('tr')">TR</button>
-        <button type="button" onclick="setLang('en')">EN</button>
-        <button type="button" onclick="setLang('ru')">RU</button>
+        <button type="button" data-lang="tr" onclick="setLang('tr')">TR</button>
+        <button type="button" data-lang="en" onclick="setLang('en')">EN</button>
+        <button type="button" data-lang="ru" onclick="setLang('ru')">RU</button>
       </div>
       <div id="giftBadge" style="display:none;background:linear-gradient(180deg,rgba(245,200,66,0.15),rgba(245,200,66,0.05));border:1px solid rgba(245,200,66,0.4);border-radius:6px;padding:8px 12px;margin-bottom:12px;font-family:var(--hud);font-size:10px;color:var(--gold);letter-spacing:1px;text-align:center">
         🎁 <span id="giftBadgeText">İlk 100 oyuncuya +100 bonus mermi!</span>
       </div>
       <div class="welcome-stats">
-        <div class="welcome-stat"><b>ÖDÜL HAVUZU</b><span id="welcomeRewardPoolEth">0.000 ETH</span></div>
+        <div class="welcome-stat"><b data-i18n="reward.pool">ÖDÜL HAVUZU</b><span id="welcomeRewardPoolEth">0.000 ETH</span></div>
         <div class="welcome-stat"><b>MAINNET</b><span>Abstract 2741</span></div>
         <div class="welcome-stat"><b>HARİTA</b><span>119 ülke</span></div>
         <div class="welcome-stat"><b>EKONOMİ</b><span id="welcomeDepositedEth">Toplam yatırılan: 0.000 ETH</span></div>
@@ -690,13 +692,13 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
   <span class="logo-main">CENTRADAR</span>
   <span class="logo-sub">Tactical Gridwar</span>
   <div style="display:flex">
-    <div class="nav-link" data-page-link="kontrol" onclick="openAppPage('kontrol')" data-i18n="nav.controls">KONTROL PANELİ</div>
-    <div class="nav-link active" data-page-link="harita" onclick="openAppPage('harita')" data-i18n="nav.map">HARİTA</div>
-    <div class="nav-link" data-page-link="ulkeler" onclick="openAppPage('ulkeler')" data-i18n="nav.countries">ÜLKELER</div>
-    <div class="nav-link" data-page-link="ittifak" onclick="openAppPage('ittifak')" data-i18n="nav.alliance">İTTİFAKLAR</div>
-    <div class="nav-link" data-page-link="istatistikler" onclick="openAppPage('istatistikler')" data-i18n="nav.stats">İSTATİSTİKLER</div>
-    <div class="nav-link" data-page-link="pazar" onclick="openAppPage('pazar')" data-i18n="nav.market">PAZAR</div>
-    <div class="nav-link" data-page-link="siralama" onclick="openAppPage('siralama')" data-i18n="nav.rank">SIRALAMA</div>
+    <button type="button" class="nav-link" data-page-link="kontrol" onclick="openAppPage('kontrol')" data-i18n="nav.controls">KONTROL PANELİ</button>
+    <button type="button" class="nav-link active" data-page-link="harita" onclick="openAppPage('harita')" data-i18n="nav.map">HARİTA</button>
+    <button type="button" class="nav-link" data-page-link="ulkeler" onclick="openAppPage('ulkeler')" data-i18n="nav.countries">ÜLKELER</button>
+    <button type="button" class="nav-link" data-page-link="ittifak" onclick="openAppPage('ittifak')" data-i18n="nav.alliance">İTTİFAKLAR</button>
+    <button type="button" class="nav-link" data-page-link="istatistikler" onclick="openAppPage('istatistikler')" data-i18n="nav.stats">İSTATİSTİKLER</button>
+    <button type="button" class="nav-link" data-page-link="pazar" onclick="openAppPage('pazar')" data-i18n="nav.market">PAZAR</button>
+    <button type="button" class="nav-link" data-page-link="siralama" onclick="openAppPage('siralama')" data-i18n="nav.rank">SIRALAMA</button>
   </div>
   <div class="nav-actions" style="margin-left:auto;display:flex;align-items:center;gap:10px">
     <button onclick="cycleLang()" id="langBtn" title="Dil / Language / Язык" style="background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--hud);font-size:10px;padding:5px 8px;cursor:pointer">🇹🇷 TR</button>
@@ -1118,8 +1120,8 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
   <div class="leaderboard-page-block">
   <div class="sh" data-i18n="panel.leaderboard">LİDERLİK TABLOSU</div>
   <div class="lb-tabs">
-    <div class="lb-tab active" onclick="setLbTab('countries',this)" data-i18n="lb.countries">ÜLKELER</div>
-    <div class="lb-tab" onclick="setLbTab('players',this)" data-i18n="lb.players">OYUNCULAR</div>
+    <button type="button" class="lb-tab active" onclick="setLbTab('countries',this)" data-i18n="lb.countries">ÜLKELER</button>
+    <button type="button" class="lb-tab" onclick="setLbTab('players',this)" data-i18n="lb.players">OYUNCULAR</button>
   </div>
   <div style="flex:0 1 220px;min-height:120px;overflow-y:auto" id="lbList">
     <div style="padding:20px;text-align:center;color:var(--dim);font-size:11px">Canlı sıralama yükleniyor...</div>
@@ -1400,7 +1402,7 @@ body[data-page="harita"] #panel-harita{width:100%;height:100%}
 
     <div id="docsPanelReward" class="docs-panel">
       <div class="docs-card">
-        <h4>ÖDÜL HAVUZU</h4>
+        <h4 data-i18n="reward.pool">ÖDÜL HAVUZU</h4>
         <p>Mermi alımlarından ayrılan oyun ödül bakiyesi tur sonunda kazananlara dağıtılır. Ana ekranda oyuncular sadece ödül havuzunu görür; admin panelinde toplam yatırılan ETH ayrıca gösterilir.</p>
         <p><b>Dağılım:</b> 1. ülke %60, 2. ülke %25, 3. ülke %15.</p>
       </div>
@@ -2847,7 +2849,7 @@ function updateEconomyTransparency(economy = lastEconomyState) {
   const totalBullets = Number(src.totalBullets || 0).toLocaleString('tr-TR');
   box.innerHTML = `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px">
-      <div class="trust-item"><div class="trust-k">ÖDÜL HAVUZU</div><div class="trust-v" style="color:var(--green)">${escapeHtml(rewardEth)}</div></div>
+      <div class="trust-item"><div class="trust-k">${escapeHtml(t('reward.pool'))}</div><div class="trust-v" style="color:var(--green)">${escapeHtml(rewardEth)}</div></div>
       <div class="trust-item"><div class="trust-k">TOPLAM YATIRILAN</div><div class="trust-v" style="color:var(--gold)">${escapeHtml(totalEth)}</div></div>
       <div class="trust-item"><div class="trust-k">SATIN ALMA</div><div class="trust-v">${escapeHtml(purchaseCount)} tx</div></div>
       <div class="trust-item"><div class="trust-k">SATILAN MERMİ</div><div class="trust-v">${escapeHtml(totalBullets)}</div></div>
@@ -5016,7 +5018,16 @@ function renderResources() {
     row.className = 'res-row' + (isActive ? ' resource-active' : '');
     row.style.cursor = 'pointer';
     row.title = `${rDesc}`;
+    row.setAttribute('role', 'button');
+    row.setAttribute('aria-label', `${rName}: ${rDesc}`);
+    row.tabIndex = 0;
     row.onclick = ()=>produceResource(r.id);
+    row.onkeydown = event => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        produceResource(r.id);
+      }
+    };
     row.innerHTML = `
       <div class="res-hdr">
         <span class="res-name">${r.icon} ${rName}</span>
@@ -5763,7 +5774,7 @@ function selectTarget(code) {
   if (btn) {
     btn.disabled = myBulletsCount <= 0;
     btn.style.opacity = myBulletsCount <= 0 ? '0.4' : '1';
-    btn.textContent = myBulletsCount <= 0 ? '🔫 MERMİN YOK — PAZARDAN AL' : `⚡ ${code} SALDIRI BAŞLAT`;
+    btn.textContent = myBulletsCount <= 0 ? t('btn.noBullets') : t('btn.attackTarget', { target:code });
   }
 
   // Toplu saldırı butonlarını da aç (mermi varsa)
@@ -6110,11 +6121,11 @@ function updatePlayerUI(p) {
       if (bullets <= 0) {
         atkBtn.disabled = true;
         atkBtn.style.opacity = '0.4';
-        atkBtn.textContent = '🔫 MERMİN YOK — PAZARDAN AL';
+        atkBtn.textContent = t('btn.noBullets');
       } else if (targetCountry && !_bulkActive) {
         atkBtn.disabled = false;
         atkBtn.style.opacity = '1';
-        atkBtn.textContent = `⚡ ${targetCountry} SALDIRI BAŞLAT`;
+        atkBtn.textContent = t('btn.attackTarget', { target:targetCountry });
       }
     }
     // Toplu butonları da bullet durumuna göre güncelle
@@ -8191,6 +8202,7 @@ const I18N = {
     'res.metalBadge': 'HASAR',
     'res.uraniumBadge': 'KALKAN',
     'res.energyBadge': 'HP',
+    'reward.pool': 'ÖDÜL HAVUZU',
     'stat.online': 'ÇEVRİMİÇİ',
     'btn.joinWar': 'SAVAŞA KATIL',
     'stat.country': 'ÜLKE',
@@ -8565,6 +8577,7 @@ const I18N = {
     'res.metalBadge': 'DAMAGE',
     'res.uraniumBadge': 'SHIELD',
     'res.energyBadge': 'HP',
+    'reward.pool': 'PRIZE POOL',
     'stat.online': 'ONLINE',
     'btn.joinWar': 'JOIN WAR',
     'stat.country': 'COUNTRY',
@@ -8921,6 +8934,7 @@ const I18N = {
     'res.metalBadge': 'УРОН',
     'res.uraniumBadge': 'ЩИТ',
     'res.energyBadge': 'HP',
+    'reward.pool': 'ПРИЗОВОЙ ФОНД',
     'stat.online': 'ОНЛАЙН',
     'btn.joinWar': 'ВСТУПИТЬ В ВОЙНУ',
     'stat.country': 'СТРАНА',
@@ -9201,6 +9215,43 @@ const I18N = {
   }
 };
 
+const NETWORK_I18N = {
+  mainnet: {
+    tr: {
+      'welcome.subtitle': 'KÜRESEL SAVAŞ MMO · ABSTRACT MAINNET',
+      'welcome.warning': 'Abstract mainnet üzerinde çalışır. Mermi alımlarında gerçek ETH kullanılır; cüzdan onay ekranını her zaman kontrol et.',
+      'help.testnet': '⚠️ MAINNET: Mermi satın alma gerçek ETH ile yapılan blockchain işlemidir. Cüzdan onay ekranında tutarı ve ağı kontrol et.'
+    },
+    en: {
+      'welcome.subtitle': 'GLOBAL WAR MMO · ABSTRACT MAINNET',
+      'welcome.warning': 'Runs on Abstract mainnet. Ammo purchases use real ETH; always review wallet confirmations.',
+      'help.testnet': '⚠️ MAINNET: Ammo purchases use real ETH on-chain. Always review the amount and network in your wallet confirmation.'
+    },
+    ru: {
+      'welcome.subtitle': 'ГЛОБАЛЬНАЯ ВОЕННАЯ MMO · ABSTRACT MAINNET',
+      'welcome.warning': 'Работает в Abstract mainnet. Покупка патронов использует реальный ETH; проверяйте подтверждения кошелька.',
+      'help.testnet': '⚠️ MAINNET: Покупка патронов использует реальный ETH on-chain. Проверяйте сумму и сеть в подтверждении кошелька.'
+    }
+  },
+  testnet: {
+    tr: {
+      'welcome.subtitle': 'KÜRESEL SAVAŞ MMO · ABSTRACT TESTNET',
+      'welcome.warning': 'Abstract testnet üzerinde çalışır. Gerçek para gerekmez.',
+      'help.testnet': '⚠️ TESTNET: İşlemler test ETH kullanır; gerçek para gerekmez.'
+    },
+    en: {
+      'welcome.subtitle': 'GLOBAL WAR MMO · ABSTRACT TESTNET',
+      'welcome.warning': 'Runs on Abstract testnet. No real funds are required.',
+      'help.testnet': '⚠️ TESTNET: Transactions use test funds; no real ETH is required.'
+    },
+    ru: {
+      'welcome.subtitle': 'ГЛОБАЛЬНАЯ ВОЕННАЯ MMO · ABSTRACT TESTNET',
+      'welcome.warning': 'Работает в Abstract testnet. Реальные средства не требуются.',
+      'help.testnet': '⚠️ TESTNET: Используются тестовые средства; реальный ETH не требуется.'
+    }
+  }
+};
+
 let _lang = (function(){
   try { return localStorage.getItem('abswar-lang') || (navigator.language||'').slice(0,2) || 'tr'; } catch(e) { return 'tr'; }
 })();
@@ -9209,16 +9260,8 @@ if (!I18N[_lang]) _lang = 'tr';
 function t(key, vars) {
   const dict = I18N[_lang] || I18N.tr;
   let s = dict[key] || I18N.tr[key] || key;
-  if (APP_NETWORK === 'mainnet') {
-    const mainnetCopy = {
-      'welcome.subtitle': 'KÜRESEL SAVAŞ MMO · ABSTRACT MAINNET',
-      'welcome.warning': 'Abstract mainnet: gerçek ETH kullanılır. Cüzdan onaylarını dikkatli kontrol et.',
-      'help.testnet': '⚠️ MAINNET: İşlemler gerçek ETH kullanır. Cüzdan onaylarını dikkatli kontrol et.',
-      'help.step1.body': 'Sağ üstteki bağlantı butonuna bas. Abstract Global Wallet mainnet giriş penceresi açılır.',
-      'help.b1': 'Sağ üstteki bağlantı butonuna bas. Abstract Global Wallet mainnet giriş penceresi açılır.'
-    };
-    if (mainnetCopy[key]) s = mainnetCopy[key];
-  }
+  const networkCopy = NETWORK_I18N[APP_NETWORK]?.[_lang];
+  if (networkCopy?.[key]) s = networkCopy[key];
   if (vars) {
     for (const k in vars) s = s.replaceAll(`{${k}}`, vars[k]);
   }
@@ -9246,12 +9289,18 @@ function setLang(lang) {
   // Dil butonu güncelle
   const btn = document.getElementById('langBtn');
   if (btn) btn.textContent = lang === 'tr' ? '🇹🇷 TR' : lang === 'en' ? '🇬🇧 EN' : '🇷🇺 RU';
+  document.querySelectorAll('.welcome-lang-switch button[data-lang]').forEach(langBtn => {
+    const active = langBtn.dataset.lang === lang;
+    langBtn.classList.toggle('active', active);
+    langBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
+  });
   if (typeof updatePayoutPanels === 'function') updatePayoutPanels();
   if (typeof updateTrustPanel === 'function') updateTrustPanel();
   if (typeof updateProgressPanels === 'function') updateProgressPanels();
   if (typeof updateProfileCard === 'function') updateProfileCard();
   if (typeof updateMobileBattleBar === 'function') updateMobileBattleBar();
   if (typeof renderLeaderboard === 'function') renderLeaderboard();
+  if (typeof updatePlayerUI === 'function' && lastPlayerSnapshot) updatePlayerUI(lastPlayerSnapshot);
   if (typeof updateWelcomeSignal === 'function') updateWelcomeSignal();
   if (typeof updateWelcomeBriefing === 'function') updateWelcomeBriefing();
   if (typeof updateRoundCountdownUI === 'function') updateRoundCountdownUI();
@@ -10145,26 +10194,26 @@ function U(){
   document.getElementById("rewardRulesBtn")?.remove();
   document.getElementById("rewardRulesModal")?.remove();
   let w=document.querySelector("[data-i18n='welcome.warning']");
-  if(w)w.textContent="Mainnet: gerçek ETH kullanılır. Cüzdan onaylarını dikkatli kontrol et.";
+  if(w)w.textContent=t("welcome.warning");
 }
 window.openRewardRules=function(){U();window.openDocs?window.openDocs("reward"):openDocs("reward")};
 window.closeRewardRules=function(){window.closeDocs?window.closeDocs():closeDocs()};
 function S(v){
   U();
-  let t="ÖDÜL HAVUZU "+v,g=document.getElementById("giftBadge");
+  let label=t("reward.pool")+" "+v,g=document.getElementById("giftBadge");
   if(g&&!document.getElementById("prizeOnlyHome")){
     let d=document.createElement("div");d.id="prizeOnlyHome";
     d.style.cssText="color:var(--gold);font-family:var(--hud);font-size:22px;margin-bottom:18px";
     g.after(d);
   }
-  let d=document.getElementById("prizeOnlyHome");if(d)d.textContent=t;
+  let d=document.getElementById("prizeOnlyHome");if(d)d.textContent=label;
   let e=document.getElementById("ethBal");
   if(e&&!document.getElementById("prizeOnlyNav")){
     let n=document.createElement("span");n.id="prizeOnlyNav";
     n.style.cssText="color:var(--gold);font-family:var(--hud);font-size:10px;padding:5px";
     e.before(n);
   }
-  let n=document.getElementById("prizeOnlyNav");if(n)n.textContent=t;
+  let n=document.getElementById("prizeOnlyNav");if(n)n.textContent=label;
 }
 async function R(){try{S(F(await P()))}catch(e){}setTimeout(R,30000)}
 U();R();

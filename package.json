@@ -5,6 +5,8 @@
     "start": "vite --host 0.0.0.0",
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
+    "check": "node scripts/verify.mjs",
+    "test": "npm run check",
     "contract:compile": "hardhat clean && hardhat compile --network abstractTestnet",
     "contract:deploy:testnet": "hardhat deploy-zksync --script deploy.ts --network abstractTestnet",
     "contract:deploy:mainnet": "hardhat deploy-zksync --script deploy.ts --network abstractMainnet",
